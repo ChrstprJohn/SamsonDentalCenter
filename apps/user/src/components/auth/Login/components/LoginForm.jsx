@@ -20,7 +20,7 @@ const LoginForm = ({ onSubmit, loading = false, error = null }) => {
     };
 
     const handleContinueAsGuest = () => {
-        console.log('Continue as guest');
+        navigate('/book');
     };
     return (
         <div className='animate-in fade-in slide-in-from-right-4 duration-500 flex flex-col h-full justify-center'>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
-const ConfirmAppointment = () => {
+const ConfirmAppointmentPage = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
@@ -32,9 +32,9 @@ const ConfirmAppointment = () => {
                 }
 
                 if (data.confirmed) {
-                    navigate(`/appointment-confirmed?id=${data.appointment.id}`);
+                    navigate(`/email/confirmed?id=${data.appointment.id}`);
                 } else {
-                    navigate('/appointment-already-confirmed');
+                    navigate('/email/already-confirmed');
                 }
             } catch (err) {
                 console.error('Confirmation error:', err);
@@ -97,4 +97,4 @@ const ConfirmAppointment = () => {
     return null;
 };
 
-export default ConfirmAppointment;
+export default ConfirmAppointmentPage;

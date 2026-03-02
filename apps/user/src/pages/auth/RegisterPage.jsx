@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import AuthLayout from '../layouts/AuthLayout';
-import RegisterContainer from '../components/auth/Register/RegisterContainer';
+import { useAuth } from '../../context/AuthContext';
+import AuthLayout from '../../layouts/AuthLayout';
+import RegisterContainer from '../../components/auth/Register/RegisterContainer';
 
 const RegisterPage = () => {
     const { register } = useAuth();
@@ -24,7 +24,7 @@ const RegisterPage = () => {
         try {
             const fullName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
             await register(email, password, fullName, phone);
-            navigate('/booking');
+            navigate('/patient');
         } catch (err) {
             setError(err.message || 'Registration failed');
         }

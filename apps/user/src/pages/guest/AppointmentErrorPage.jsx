@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-const AppointmentError = () => {
+const AppointmentErrorPage = () => {
     const [searchParams] = useSearchParams();
     const message =
         searchParams.get('message') || 'An error occurred while processing your appointment.';
@@ -45,4 +45,4 @@ const AppointmentError = () => {
     );
 };
 
-export default AppointmentError;
+export default AppointmentErrorPage;

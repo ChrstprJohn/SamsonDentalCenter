@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-const AppointmentConfirmed = () => {
+const AppointmentConfirmedPage = () => {
     const [searchParams] = useSearchParams();
     const appointmentId = searchParams.get('id');
 
@@ -55,4 +55,4 @@ const AppointmentConfirmed = () => {
     );
 };
 
-export default AppointmentConfirmed;
+export default AppointmentConfirmedPage;

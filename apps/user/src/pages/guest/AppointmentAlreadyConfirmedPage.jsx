@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AppointmentAlreadyConfirmed = () => {
+const AppointmentAlreadyConfirmedPage = () => {
     return (
         <div className='flex items-center justify-center min-h-screen bg-linear-to-br from-yellow-50 to-orange-100'>
             <div className='text-center max-w-md'>
@@ -47,4 +47,4 @@ const AppointmentAlreadyConfirmed = () => {
     );
 };
 
-export default AppointmentAlreadyConfirmed;
+export default AppointmentAlreadyConfirmedPage;

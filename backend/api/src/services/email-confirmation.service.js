@@ -41,7 +41,8 @@ export const createConfirmationToken = async (appointmentId) => {
 export const sendGuestConfirmationEmail = async (email, name, details) => {
     const { token, date, start_time, service } = details;
 
-    const confirmUrl = `${process.env.FRONTEND_URL}/confirm-appointment?token=${token}`;
+    const confirmUrl = `${FRONTEND_URL}/email/confirm?token=${token}`;
+
     // Alternative if you want the backend to handle it directly:
     // const confirmUrl = `${process.env.API_URL}/api/appointments/confirm-email?token=${token}`;
 
@@ -391,8 +392,8 @@ export const sendGuestReminderEmail = async (email, name, details) => {
     const { date, start_time, service, dentist, cancelToken, rescheduleToken, hoursUntil } =
         details;
 
-    const cancelUrl = `${process.env.FRONTEND_URL}/guest/cancel?token=${cancelToken}`;
-    const rescheduleUrl = `${process.env.FRONTEND_URL}/guest/reschedule?token=${rescheduleToken}`;
+    const cancelUrl = `${FRONTEND_URL}/email/cancel?token=${cancelToken}`;
+    const rescheduleUrl = `${FRONTEND_URL}/email/reschedule?token=${rescheduleToken}`;
 
     try {
         await resend.emails.send({

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import AuthLayout from '../layouts/AuthLayout';
-import LoginContainer from '../components/auth/Login/LoginContainer';
+import { useAuth } from '../../context/AuthContext';
+import AuthLayout from '../../layouts/AuthLayout';
+import LoginContainer from '../../components/auth/Login/LoginContainer';
 
 const LoginPage = () => {
     const { login } = useAuth();
@@ -15,7 +15,7 @@ const LoginPage = () => {
         setLoading(true);
         try {
             await login(email, password);
-            navigate('/booking');
+            navigate('/patient');
         } catch (err) {
             setError(err.message || 'Login failed');
         }
