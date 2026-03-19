@@ -3,12 +3,10 @@ import SectionHeading from '../common/SectionHeading';
 const TeamGrid = () => {
     // Hardcoded team data — replace with backend /api/dentists or admin CMS later
     const team = [
-        { name: 'Dr. Sarah Chen', role: 'Lead Dentist', speciality: 'Orthodontics' },
-        { name: 'Dr. Miguel Santos', role: 'Dentist', speciality: 'Cosmetic Dentistry' },
-        { name: 'Dr. Lisa Park', role: 'Dentist', speciality: 'Pediatric Dentistry' },
-        { name: 'Maria Cruz', role: 'Dental Hygienist', speciality: '' },
-        { name: 'James Tan', role: 'Office Manager', speciality: '' },
-        { name: 'Ana Reyes', role: 'Dental Assistant', speciality: '' },
+        { name: 'Dr. Mae Angelica Garcellano', role: 'Lead Dentist', speciality: 'Orthodontics' },
+        { name: 'Dr Maria Cheyenne Deniece Marasigan', role: 'Dentist', speciality: 'Cosmetic Dentistry' },
+        { name: 'Dr. Sarah Samson', role: 'Dentist', speciality: 'Pediatric Dentistry' },
+        { name: 'Dr. Silvestre Samson', role: 'Dental Hygienist', speciality: '' },
     ];
 
     return (
