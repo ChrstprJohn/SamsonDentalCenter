@@ -93,14 +93,14 @@ export const resendConfirmation = async (req, res) => {
 };
 
 /**
- * POST /api/appointments/book
+ * POST /api/appointments/book-user
  * Body: { service_id, date, time, booked_for_name? }
  *
  * booked_for_name is optional.
  * - Omit or null  → booking for self (uses account name)
  * - Provide a name → booking for someone else (stored in booked_for_name column)
  */
-export const book = async (req, res, next) => {
+export const bookUser = async (req, res, next) => {
     try {
         const { service_id, date, time, booked_for_name } = req.body;
 

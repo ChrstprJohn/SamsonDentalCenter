@@ -19,10 +19,13 @@ export const markNoShow = async (appointmentId) => {
         throw { status: 404, message: 'Appointment not found.' };
     }
 
-    if (appointment.status !== APPOINTMENT_STATUS.CONFIRMED) {
+    if (
+        appointment.status !== APPOINTMENT_STATUS.CONFIRMED &&
+        appointment.status !== APPOINTMENT_STATUS.IN_PROGRESS
+    ) {
         throw {
             status: 400,
-            message: `Cannot mark as no-show. Current status: ${appointment.status}`,
+            message: `Cannot mark as no-show. Current status: ${appointment.status}. Must be CONFIRMED or IN_PROGRESS.`,
         };
     }
 

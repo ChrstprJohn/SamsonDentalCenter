@@ -4,6 +4,7 @@ import {
     getServiceById,
     createService,
     updateService,
+    deleteService,
 } from '../controllers/services.controller.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 import { requireAdmin } from '../middleware/admin.middleware.js';
@@ -14,8 +15,9 @@ const router = Router();
 router.get('/', getAllServices);
 router.get('/:id', getServiceById);
 
-// Admin-only routes
+// Admin-only routes (requires admin role, not just supervisor)
 router.post('/', requireAuth, requireAdmin, createService);
 router.patch('/:id', requireAuth, requireAdmin, updateService);
+router.delete('/:id', requireAuth, requireAdmin, deleteService);
 
 export default router;
