@@ -5,14 +5,25 @@ import { supabaseAdmin } from '../config/supabase.js';
  *
  * List all active dental services.
  * Public endpoint — no login required.
+ * Optional query: ?tier=general or ?tier=specialized
  */
 export const getAllServices = async (req, res, next) => {
     try {
-        const { data, error } = await supabaseAdmin
+        const { tier } = req.query;
+
+        let query = supabaseAdmin
             .from('services')
-            .select('id, name, description, duration_minutes, price')
-            .eq('is_active', true) // Only show active services
-            .order('name'); // Alphabetical order
+            .select('id, name, description, duration_minutes, price, tier')
+            .eq('is_active', true)
+            .order('tier') // General first, then specialized
+            .order('name');
+
+        // Optional filter by tier
+        if (tier && (tier === 'general' || tier === 'specialized')) {
+            query = query.eq('tier', tier);
+        }
+
+        const { data, error } = await query;
 
         if (error) {
             return res.status(500).json({ error: error.message });
@@ -54,11 +65,12 @@ export const getServiceById = async (req, res, next) => {
  * POST /api/services
  *
  * Create a new service (Admin only).
- * Body: { name, description, duration_minutes, price }
+ * Body: { name, description, duration_minutes, price, tier? }
+ * tier defaults to 'general' if not provided.
  */
 export const createService = async (req, res, next) => {
     try {
-        const { name, description, duration_minutes, price } = req.body;
+        const { name, description, duration_minutes, price, tier } = req.body;
 
         if (!name || !duration_minutes) {
             return res.status(400).json({
@@ -68,7 +80,13 @@ export const createService = async (req, res, next) => {
 
         const { data, error } = await supabaseAdmin
             .from('services')
-            .insert({ name, description, duration_minutes, price })
+            .insert({
+                name,
+                description,
+                duration_minutes,
+                price,
+                tier: tier || 'general',
+            })
             .select()
             .single();
 
@@ -83,28 +101,216 @@ export const createService = async (req, res, next) => {
 };
 
 /**
- * PATCH /api/services/:id
+ * PATCH /api/v1/services/:id
  *
- * Update a service (Admin only).
- * Body: { name?, description?, duration_minutes?, price?, is_active? }
+ * Update an existing service (Admin only).
+ * Body: { name?, description?, duration_minutes?, price?, tier?, is_active? }
+ * Only provided fields are updated.
+ *
+ * @param {string} req.params.id - Service ID
+ * @param {object} req.body - Fields to update
+ * @returns {object} Updated service
  */
 export const updateService = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const updates = req.body;
+        const { name, description, duration_minutes, price, tier, is_active } = req.body;
+
+        // Build update object with only provided fields
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (description !== undefined) updateData.description = description;
+        if (duration_minutes !== undefined) updateData.duration_minutes = duration_minutes;
+        if (price !== undefined) updateData.price = price;
+        if (tier !== undefined) {
+            if (!['general', 'specialized'].includes(tier)) {
+                return res.status(422).json({
+                    success: false,
+                    error: {
+                        code: 'INVALID_TIER',
+                        message: 'Tier must be either "general" or "specialized"',
+                    },
+                });
+            }
+            updateData.tier = tier;
+        }
+        if (is_active !== undefined) updateData.is_active = is_active;
+
+        // Return error if no fields to update
+        if (Object.keys(updateData).length === 0) {
+            return res.status(422).json({
+                success: false,
+                error: {
+                    code: 'NO_FIELDS_TO_UPDATE',
+                    message: 'At least one field is required to update',
+                },
+            });
+        }
 
         const { data, error } = await supabaseAdmin
             .from('services')
-            .update(updates)
+            .update(updateData)
             .eq('id', id)
             .select()
             .single();
 
         if (error) {
-            return res.status(400).json({ error: error.message });
+            if (error.code === '23505') {
+                return res.status(409).json({
+                    success: false,
+                    error: {
+                        code: 'DUPLICATE_SERVICE',
+                        message: 'Service name already exists',
+                    },
+                });
+            }
+            return res.status(400).json({
+                success: false,
+                error: {
+                    code: 'SERVICE_UPDATE_ERROR',
+                    message: 'Failed to update service',
+                    details: error.message,
+                },
+            });
         }
 
-        res.json({ message: 'Service updated!', service: data });
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                error: {
+                    code: 'SERVICE_NOT_FOUND',
+                    message: `Service with ID ${id} not found`,
+                },
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Service updated successfully',
+            data,
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * DELETE /api/v1/services/:id
+ *
+ * Delete a service (Admin only).
+ * - Default: Soft-delete (sets is_active = false) — service hidden but data preserved
+ * - Query param ?force=true: Hard-delete (permanent removal) — only if no appointments
+ *
+ * @param {string} req.params.id - Service ID
+ * @param {boolean} req.query.force - Force hard delete (optional)
+ * @returns {object} Deletion confirmation
+ */
+export const deleteService = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { force } = req.query;
+
+        // Verify service exists first
+        const { data: service } = await supabaseAdmin
+            .from('services')
+            .select('id, name, is_active')
+            .eq('id', id)
+            .single();
+
+        if (!service) {
+            return res.status(404).json({
+                success: false,
+                error: {
+                    code: 'SERVICE_NOT_FOUND',
+                    message: `Service with ID ${id} not found`,
+                },
+            });
+        }
+
+        // Check if service has any appointments
+        const { data: appointments, count } = await supabaseAdmin
+            .from('appointments')
+            .select('id', { count: 'exact', head: true })
+            .eq('service_id', id)
+            .not('status', 'in', '("CANCELLED","LATE_CANCEL")'); // Exclude cancelled/late cancelled
+
+        const activeAppointmentCount = count || 0;
+
+        // Hard delete requested
+        if (force === 'true') {
+            if (activeAppointmentCount > 0) {
+                return res.status(409).json({
+                    success: false,
+                    error: {
+                        code: 'CANNOT_DELETE_WITH_APPOINTMENTS',
+                        message: `Cannot permanently delete service. ${activeAppointmentCount} active appointment(s) exist.`,
+                        details: {
+                            appointment_count: activeAppointmentCount,
+                            suggestion:
+                                'Use soft delete (default) or cancel/complete all appointments first',
+                        },
+                    },
+                });
+            }
+
+            // Proceed with hard delete
+            const { error } = await supabaseAdmin.from('services').delete().eq('id', id);
+
+            if (error) {
+                return res.status(400).json({
+                    success: false,
+                    error: {
+                        code: 'SERVICE_DELETE_ERROR',
+                        message: 'Failed to permanently delete service',
+                        details: error.message,
+                    },
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: 'Service permanently deleted',
+                data: {
+                    id,
+                    name: service.name,
+                    deleted_type: 'permanent',
+                },
+            });
+        }
+
+        // Soft delete (default) — just mark as inactive
+        const { data: updated, error } = await supabaseAdmin
+            .from('services')
+            .update({ is_active: false })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                error: {
+                    code: 'SERVICE_UPDATE_ERROR',
+                    message: 'Failed to deactivate service',
+                    details: error.message,
+                },
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Service deactivated (soft delete)',
+            data: {
+                id: updated.id,
+                name: updated.name,
+                is_active: updated.is_active,
+                deleted_type: 'soft',
+                note:
+                    activeAppointmentCount > 0
+                        ? `${activeAppointmentCount} active appointment(s) still using this service`
+                        : null,
+            },
+        });
     } catch (err) {
         next(err);
     }

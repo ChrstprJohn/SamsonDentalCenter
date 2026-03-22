@@ -8,7 +8,7 @@ import {
     sendCancellationEmail,
     sendRescheduleEmail,
 } from './email-confirmation.service.js';
-import { APPOINTMENT_STATUS } from '../utils/constants.js';
+import { APPOINTMENT_STATUS, SERVICE_TIER, APPROVAL_STATUS } from '../utils/constants.js';
 
 /**
  * Book an appointment for a guest (no user account).
@@ -47,6 +47,15 @@ export const bookAppointmentGuest = async (
 
     if (serviceError || !service) {
         throw { status: 404, message: 'Service not found.' };
+    }
+
+    // ── 1b. GUEST BOOKING RESTRICTION: Only General services allowed ──
+    if (service.tier === SERVICE_TIER.SPECIALIZED) {
+        throw {
+            status: 403,
+            message: 'Specialized services require an account to book. Please sign up or log in.',
+            requires_account: true,
+        };
     }
 
     // Calculate endTime ONCE here to avoid calling the function multiple times
@@ -127,14 +136,18 @@ export const bookAppointmentGuest = async (
 };
 
 /**
- * Book an appointment for a patient.
+ * Book an appointment for a patient (authenticated user).
+ *
+ * TWO-TIER LOGIC:
+ * - General services  → Auto-assign dentist → Status: CONFIRMED (instant)
+ * - Specialized services → No dentist yet → Status: PENDING + approval_status: 'pending'
  *
  * @param {string} patientId - The patient's profile UUID
  * @param {string} serviceId - The service UUID
  * @param {string} date - 'YYYY-MM-DD'
  * @param {string} time - 'HH:MM'
- * @param {boolean} sendEmail - Whether to send a confirmation email (default true)
- * @param {string|null} bookedForName - If booking for someone else, their name. NULL = booking for self.
+ * @param {boolean} sendEmail - Whether to send confirmation email (default true)
+ * @param {string|null} bookedForName - Name of the person being booked for. NULL = self.
  * @returns {object} Appointment details or alternatives
  */
 export const bookAppointment = async (
@@ -145,32 +158,41 @@ export const bookAppointment = async (
     sendEmail = true,
     bookedForName = null,
 ) => {
-    // ── 0. Check if patient is restricted (3+ no-shows) ──
+    // ── 0. Check if patient is restricted (3+ no-shows or 3+ cancellations) ──
     const { data: patient } = await supabaseAdmin
         .from('profiles')
         .select(
-            'email, full_name, is_booking_restricted, max_advance_booking_days, deposit_required, no_show_count',
+            'email, full_name, is_booking_restricted, max_advance_booking_days, deposit_required, no_show_count, cancellation_count',
         )
         .eq('id', patientId)
         .single();
 
     if (patient?.is_booking_restricted) {
-        // Check max advance booking days (e.g., only 3 days ahead)
-        if (patient.max_advance_booking_days) {
-            const maxDate = new Date();
-            maxDate.setDate(maxDate.getDate() + patient.max_advance_booking_days);
-            if (new Date(date) > maxDate) {
-                throw {
-                    status: 403,
-                    message: `Due to missed appointments, you can only book up to ${patient.max_advance_booking_days} days in advance.`,
-                    restriction: true,
-                    no_show_count: patient.no_show_count,
-                };
+        // Check if restriction has expired
+        if (patient.restriction_until && new Date(patient.restriction_until) < new Date()) {
+            // Auto-unlock: restriction period is over
+            await supabaseAdmin
+                .from('profiles')
+                .update({ is_booking_restricted: false, restriction_reason: null })
+                .eq('id', patientId);
+        } else {
+            // Check max advance booking days (e.g., only 3 days ahead)
+            if (patient.max_advance_booking_days) {
+                const maxDate = new Date();
+                maxDate.setDate(maxDate.getDate() + patient.max_advance_booking_days);
+                if (new Date(date) > maxDate) {
+                    throw {
+                        status: 403,
+                        message: `Due to missed appointments, you can only book up to ${patient.max_advance_booking_days} days in advance.`,
+                        restriction: true,
+                        no_show_count: patient.no_show_count,
+                    };
+                }
             }
         }
     }
 
-    // ── 1. Get service duration ──
+    // ── 1. Get service info (including TIER) ──
     const { data: service } = await supabaseAdmin
         .from('services')
         .select('*')
@@ -182,6 +204,72 @@ export const bookAppointment = async (
     }
 
     const endTime = addMinutesToTime(time, service.duration_minutes);
+    const isSpecialized = service.tier === SERVICE_TIER.SPECIALIZED;
+
+    // ═══════════════════════════════════════════════
+    // 🔴 SPECIALIZED BRANCH — Requires admin approval
+    // ═══════════════════════════════════════════════
+    if (isSpecialized) {
+        // Don't check slot availability or assign dentist yet
+        // Admin will handle that during the approval step
+
+        const { data: appointment, error } = await supabaseAdmin
+            .from('appointments')
+            .insert({
+                patient_id: patientId,
+                dentist_id: null, // ← Not assigned yet! Admin assigns during approval
+                service_id: serviceId,
+                appointment_date: date,
+                start_time: time,
+                end_time: endTime,
+                status: APPOINTMENT_STATUS.PENDING,
+                service_tier: SERVICE_TIER.SPECIALIZED,
+                approval_status: APPROVAL_STATUS.PENDING,
+                booked_for_name: bookedForName || null,
+            })
+            .select(
+                `
+        *,
+        service:services(name, duration_minutes, price)
+      `,
+            )
+            .single();
+
+        if (error) {
+            if (error.code === '23505') {
+                throw {
+                    status: 409,
+                    message: 'This slot was just taken. Please try another time.',
+                };
+            }
+            throw { status: 500, message: error.message };
+        }
+
+        // TODO: Notify supervisor about new specialized request
+        // await createNotification(supervisorUserId, 'NEW_REQUEST', ...)
+
+        return {
+            booked: true,
+            status: 'PENDING',
+            requires_approval: true,
+            message:
+                'Your appointment request has been submitted! The clinic will review and confirm your schedule within 24 hours.',
+            appointment: {
+                id: appointment.id,
+                date: appointment.appointment_date,
+                start_time: appointment.start_time,
+                end_time: appointment.end_time,
+                service: appointment.service?.name,
+                service_tier: 'specialized',
+                status: 'PENDING',
+                approval_status: 'pending',
+            },
+        };
+    }
+
+    // ═══════════════════════════════════════════════
+    // 🟢 GENERAL BRANCH — Auto-accept (existing flow)
+    // ═══════════════════════════════════════════════
 
     // ── 2. Check if the requested slot is available ──
     const availability = await getAvailableSlots(date, serviceId);
@@ -198,8 +286,8 @@ export const bookAppointment = async (
         };
     }
 
-    // ── 3. Auto-assign a dentist ──
-    const dentistId = await assignDentist(date, time, endTime);
+    // ── 3. Auto-assign a dentist (tier-aware) ──
+    const dentistId = await assignDentist(date, time, endTime, SERVICE_TIER.GENERAL);
 
     if (!dentistId) {
         throw {
@@ -220,6 +308,7 @@ export const bookAppointment = async (
             start_time: time,
             end_time: endTime,
             status: APPOINTMENT_STATUS.CONFIRMED,
+            service_tier: SERVICE_TIER.GENERAL,
             // NULL = booked for self, a name = booked for someone else
             booked_for_name: bookedForName || null,
         })
@@ -251,7 +340,7 @@ export const bookAppointment = async (
             end_time: appointment.end_time,
             service: appointment.service?.name,
             dentist: appointment.dentist?.profile?.full_name || 'Assigned',
-            booked_for_name: bookedForName || null, // Will appear in email if not null
+            booked_for_name: bookedForName || null,
         });
     }
 
@@ -266,10 +355,11 @@ export const bookAppointment = async (
             end_time: appointment.end_time,
             status: appointment.status,
             service: appointment.service?.name,
+            service_tier: 'general',
             duration: appointment.service?.duration_minutes,
             price: appointment.service?.price,
             dentist: appointment.dentist?.profile?.full_name || 'Assigned',
-            booked_for_name: appointment.booked_for_name || null, // null = self
+            booked_for_name: appointment.booked_for_name || null,
         },
     };
 };
@@ -554,6 +644,91 @@ export const rescheduleAppointment = async (appointmentId, patientId, newDate, n
             status: 'CANCELLED',
         },
         new_appointment: newBooking.appointment,
+    };
+};
+
+/**
+ * Book a walk-in appointment (admin only).
+ * Walk-ins are always GENERAL tier, assigned immediately, status = CONFIRMED.
+ *
+ * @param {string} patientId - The patient's profile UUID
+ * @param {string} serviceId - The service UUID
+ * @param {string|null} time - Preferred time (defaults to next available slot)
+ * @param {string|null} notes - Optional admin notes
+ * @returns {object} Walk-in appointment details
+ */
+export const bookWalkIn = async (patientId, serviceId, time = null, notes = null) => {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get service info
+    const { data: service } = await supabaseAdmin
+        .from('services')
+        .select('*')
+        .eq('id', serviceId)
+        .single();
+
+    if (!service) {
+        throw { status: 404, message: 'Service not found.' };
+    }
+
+    // Use provided time or current time rounded to next 30-min slot
+    const now = new Date();
+    const walkInTime =
+        time || `${String(now.getHours()).padStart(2, '0')}:${now.getMinutes() < 30 ? '30' : '00'}`;
+    const endTime = addMinutesToTime(walkInTime, service.duration_minutes);
+
+    // Auto-assign dentist (general tier for walk-ins)
+    const dentistId = await assignDentist(today, walkInTime, endTime, 'general');
+
+    if (!dentistId) {
+        throw {
+            status: 409,
+            message: 'No dentist available right now for a walk-in.',
+        };
+    }
+
+    const { data: appointment, error } = await supabaseAdmin
+        .from('appointments')
+        .insert({
+            patient_id: patientId,
+            dentist_id: dentistId,
+            service_id: serviceId,
+            appointment_date: today,
+            start_time: walkInTime,
+            end_time: endTime,
+            status: APPOINTMENT_STATUS.CONFIRMED,
+            service_tier: 'general',
+            is_walk_in: true,
+            notes: notes || 'Walk-in appointment',
+        })
+        .select(
+            `
+      *,
+      service:services(name, price),
+      dentist:dentists(profile:profiles(full_name))
+    `,
+        )
+        .single();
+
+    if (error) {
+        if (error.code === '23505') {
+            throw { status: 409, message: 'Time slot conflict. Try a different time.' };
+        }
+        throw { status: 500, message: error.message };
+    }
+
+    return {
+        message: 'Walk-in booked!',
+        appointment: {
+            id: appointment.id,
+            date: today,
+            start_time: appointment.start_time,
+            end_time: appointment.end_time,
+            status: 'CONFIRMED',
+            service: appointment.service?.name,
+            dentist: appointment.dentist?.profile?.full_name,
+            is_walk_in: true,
+        },
     };
 };
 

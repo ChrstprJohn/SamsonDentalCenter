@@ -3,7 +3,7 @@ import {
     bookGuest,
     confirmEmail,
     resendConfirmation,
-    book,
+    bookUser,
     getMyAppointments,
     getOne,
     cancel,
@@ -32,7 +32,7 @@ router.post('/guest/reschedule', guestRescheduleConfirm); // Guest confirms resc
 
 // --- 2. Protected Routes ---
 // These strictly require a login to see personal data
-router.post('/book', requireAuth, book); // Patient books → CONFIRMED immediately
+router.post('/book-user', requireAuth, bookUser); // Patient books → CONFIRMED immediately
 
 router.get('/my', requireAuth, getMyAppointments);
 router.get('/:id', requireAuth, getOne);

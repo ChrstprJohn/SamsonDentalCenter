@@ -3,28 +3,50 @@ import { supabaseAdmin } from '../config/supabase.js';
 /**
  * Auto-assign the best available dentist for a given date and time slot.
  *
- * Strategy: "Least Busy" — pick the dentist with the fewest appointments that day.
+ * Strategy: "Tier Filter + Least Busy"
+ *   1. Filter dentists by service tier (general → general/both, specialized → specialized/both)
+ *   2. Among matching dentists, find who works on that day
+ *   3. Remove dentists already booked at that time
+ *   4. Pick the least busy one
  *
  * @param {string} date - 'YYYY-MM-DD'
  * @param {string} startTime - 'HH:MM'
  * @param {string} endTime - 'HH:MM'
+ * @param {string} serviceTier - 'general' or 'specialized' (default: 'general')
  * @returns {string|null} dentist ID or null if nobody is free
  */
-export const assignDentist = async (date, startTime, endTime) => {
+export const assignDentist = async (date, startTime, endTime, serviceTier = 'general') => {
     const dayOfWeek = new Date(date).getDay();
 
-    // ── 1. Get all dentists who work on this day ──
+    // ── 1. Get dentists matching the service tier ──
+    const tierFilter =
+        serviceTier === 'specialized' ? ['specialized', 'both'] : ['general', 'both'];
+
+    const { data: tierDentists } = await supabaseAdmin
+        .from('dentists')
+        .select('id')
+        .in('tier', tierFilter)
+        .eq('is_active', true);
+
+    if (!tierDentists || tierDentists.length === 0) {
+        return null; // No dentists for this tier
+    }
+
+    const tierDentistIds = tierDentists.map((d) => d.id);
+
+    // ── 2. Get which of those dentists work on this day ──
     const { data: workingDentists } = await supabaseAdmin
         .from('dentist_schedule')
         .select('dentist_id, start_time, end_time')
+        .in('dentist_id', tierDentistIds)
         .eq('day_of_week', dayOfWeek)
         .eq('is_working', true);
 
     if (!workingDentists || workingDentists.length === 0) {
-        return null; // No dentists working
+        return null; // No matching dentists working
     }
 
-    // ── 2. Filter: dentist's shift must cover the requested time ──
+    // ── 3. Filter: dentist's shift must cover the requested time ──
     const eligibleDentists = workingDentists.filter((ds) => {
         return ds.start_time <= startTime && ds.end_time >= endTime;
     });
@@ -33,8 +55,22 @@ export const assignDentist = async (date, startTime, endTime) => {
         return null; // No dentist covers this time
     }
 
-    // ── 3. Check which of these dentists are NOT booked at this time ──
+    // ── 4. Check which of these dentists are NOT booked at this time ──
     const dentistIds = eligibleDentists.map((d) => d.dentist_id);
+
+    // Check dentist availability blocks (leave, sick, etc.)
+    const { data: blocks } = await supabaseAdmin
+        .from('dentist_availability_blocks')
+        .select('dentist_id')
+        .eq('block_date', date)
+        .in('dentist_id', dentistIds);
+
+    const blockedIds = (blocks || []).map((b) => b.dentist_id);
+    const unblockedDentistIds = dentistIds.filter((id) => !blockedIds.includes(id));
+
+    if (unblockedDentistIds.length === 0) {
+        return null; // All are blocked/on leave
+    }
 
     const { data: conflictingAppointments } = await supabaseAdmin
         .from('appointments')
@@ -43,22 +79,19 @@ export const assignDentist = async (date, startTime, endTime) => {
         .not('status', 'in', '("CANCELLED","LATE_CANCEL","WAITLISTED")')
         // IMPORTANT: Include PENDING appointments in conflicts!
         // PENDING = unconfirmed but slot is reserved, must not double-book
-        .in('dentist_id', dentistIds)
-        // Check for time overlap: existing appointment overlaps if
-        // it starts before our end AND ends after our start
+        .in('dentist_id', unblockedDentistIds)
+        // Check for time overlap
         .lt('start_time', endTime)
         .gt('end_time', startTime);
 
     const busyDentistIds = (conflictingAppointments || []).map((a) => a.dentist_id);
-    const freeDentists = dentistIds.filter((id) => !busyDentistIds.includes(id));
+    const freeDentists = unblockedDentistIds.filter((id) => !busyDentistIds.includes(id));
 
     if (freeDentists.length === 0) {
         return null; // All dentists booked at this time
     }
 
-    // ── 4. Among free dentists, pick the LEAST BUSY one (fewest total appointments that day) ──
-    // IMPORTANT: Include PENDING appointments in the count!
-    // They reserve capacity even if unconfirmed
+    // ── 5. Among free dentists, pick the LEAST BUSY one ──
     const { data: dayCounts } = await supabaseAdmin
         .from('appointments')
         .select('dentist_id')
