@@ -74,7 +74,8 @@ const useServiceDetail = (serviceId) => {
 
         const fetchService = async () => {
             try {
-                const data = await api.get(`/api/services/${serviceId}`);
+                // API_BASE already includes /api/v1, so just use the endpoint path
+                const data = await api.get(`/services/${serviceId}`);
                 setService(data.service || data);
             } catch (err) {
                 setError(err.message);

@@ -18,10 +18,8 @@ const ConfirmAppointmentPage = () => {
             }
 
             try {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-                const response = await fetch(
-                    `${apiUrl}/api/appointments/confirm-email?token=${token}`,
-                );
+                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+                const response = await fetch(`${apiUrl}/appointments/confirm-email?token=${token}`);
 
                 const data = await response.json();
 

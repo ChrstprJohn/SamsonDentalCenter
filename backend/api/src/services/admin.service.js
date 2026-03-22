@@ -16,20 +16,16 @@ export const getPendingRequests = async () => {
         .from('appointments')
         .select(
             `
-      *,
-      patient:profiles!appointments_patient_id_fkey(id, full_name, email, phone, no_show_count)/**
- * Get all dentists with their profile info.
- *
- * @returns {Array} List of dentists with profile data
- */
-export const getDentistsList = async () => {
-    const { data, error } = await supabaseAdmin
-        .from('dentists')
-        .select('*, profile:profiles(full_name, email, phone)')
-        .eq('is_active', true);
+      patient:profiles!appointments_patient_id_fkey(id, full_name, email, phone, no_show_count),
+      service:services(name, duration_minutes, price, tier)
+    `,
+        )
+        .eq('service_tier', SERVICE_TIER.SPECIALIZED)
+        .eq('approval_status', APPROVAL_STATUS.PENDING)
+        .eq('status', APPOINTMENT_STATUS.PENDING)
+        .order('created_at', { ascending: true }); // Oldest first (FIFO)
 
     if (error) throw { status: 500, message: error.message };
-
     return data;
 };
 
@@ -262,7 +258,9 @@ export const createHoliday = async (holidayData, createdBy) => {
 export const getFeedback = async (dentistId = null) => {
     let query = supabaseAdmin
         .from('patient_feedback')
-        .select('*, appointment:appointments(appointment_date, service:services(name)), patient:profiles(full_name), dentist:dentists(profile:profiles(full_name))')
+        .select(
+            '*, appointment:appointments(appointment_date, service:services(name)), patient:profiles(full_name), dentist:dentists(profile:profiles(full_name))',
+        )
         .order('created_at', { ascending: false });
 
     if (dentistId) {
@@ -534,16 +532,6 @@ export const getSystemHealth = async () => {
             timestamp: new Date().toISOString(),
         };
     }
-};vices(name, duration_minutes, price, tier)
-    `,
-        )
-        .eq('service_tier', SERVICE_TIER.SPECIALIZED)
-        .eq('approval_status', APPROVAL_STATUS.PENDING)
-        .eq('status', APPOINTMENT_STATUS.PENDING)
-        .order('created_at', { ascending: true }); // Oldest first (FIFO)
-
-    if (error) throw { status: 500, message: error.message };
-    return data;
 };
 
 /**
@@ -661,10 +649,10 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
         .eq('id', appointmentId)
         .select(
             `
-      *,
-      patient:profiles!appointments_patient_id_fkey(full_name, email),
-      service:services(name, price),
-      dentist:dentists(profile:profiles(full_name))
+        *,
+        patient: profiles!appointments_patient_id_fkey(full_name, email),
+            service: services(name, price),
+                dentist: dentists(profile: profiles(full_name))
     `,
         )
         .single();
@@ -702,7 +690,7 @@ export const rejectRequest = async (appointmentId, supervisorId, reason, suggest
     }
 
     const rejectionNote = suggestedDate
-        ? `${reason} — Suggested alternative: ${suggestedDate}`
+        ? `${reason} — Suggested alternative: ${suggestedDate} `
         : reason;
 
     const { data: updated, error } = await supabaseAdmin
@@ -718,10 +706,10 @@ export const rejectRequest = async (appointmentId, supervisorId, reason, suggest
         .eq('id', appointmentId)
         .select(
             `
-      *,
-      patient:profiles!appointments_patient_id_fkey(full_name, email),
-      service:services(name)
-    `,
+        *,
+        patient: profiles!appointments_patient_id_fkey(full_name, email),
+            service: services(name)
+                `,
         )
         .single();
 
@@ -908,9 +896,9 @@ export const getBlocks = async (dentistId = null, fromDate = null) => {
         .from('dentist_availability_blocks')
         .select(
             `
-      *,
-      dentist:dentists(profile:profiles(full_name))
-    `,
+                *,
+                dentist: dentists(profile: profiles(full_name))
+                    `,
         )
         .order('block_date', { ascending: true });
 
@@ -1005,9 +993,9 @@ export const getPatientAppointmentHistory = async (patientId) => {
         .from('appointments')
         .select(
             `
-      *,
-      service:services(name, price, tier),
-      dentist:dentists(profile:profiles(full_name))
+                    *,
+                    service: services(name, price, tier),
+                        dentist: dentists(profile: profiles(full_name))
     `,
         )
         .eq('patient_id', patientId)
@@ -1073,7 +1061,7 @@ export const markAppointmentComplete = async (appointmentId) => {
     ) {
         throw {
             status: 400,
-            message: `Cannot complete appointment. Current status: ${appt.status}. Must be CONFIRMED or IN_PROGRESS.`,
+            message: `Cannot complete appointment.Current status: ${appt.status}. Must be CONFIRMED or IN_PROGRESS.`,
         };
     }
 
@@ -1222,11 +1210,11 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
         .from('appointments')
         .select(
             `
-      *,
-      patient:profiles!appointments_patient_id_fkey(full_name, email, phone),
-      service:services(name, duration_minutes, price, tier),
-      dentist:dentists(profile:profiles(full_name))
-    `,
+        *,
+        patient: profiles!appointments_patient_id_fkey(full_name, email, phone),
+            service: services(name, duration_minutes, price, tier),
+                dentist: dentists(profile: profiles(full_name))
+                    `,
             { count: 'exact' },
         )
         .order('appointment_date', { ascending: true })
@@ -1269,10 +1257,10 @@ export const getTodayAppointmentsFiltered = async () => {
         .from('appointments')
         .select(
             `
-      *,
-      patient:profiles!appointments_patient_id_fkey(full_name, phone),
-      service:services(name, tier),
-      dentist:dentists(profile:profiles(full_name))
+                    *,
+                    patient: profiles!appointments_patient_id_fkey(full_name, phone),
+                        service: services(name, tier),
+                            dentist: dentists(profile: profiles(full_name))
     `,
         )
         .eq('appointment_date', today)
@@ -1301,7 +1289,7 @@ export const searchPatients = async (search = null) => {
         .limit(50);
 
     if (search) {
-        query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
+        query = query.or(`full_name.ilike.% ${search}%, email.ilike.% ${search}% `);
     }
 
     const { data, error } = await query;
@@ -1320,13 +1308,229 @@ export const getDentistsList = async () => {
         .from('dentists')
         .select(
             `
-      *,
-      profile:profiles(full_name, email, phone)
-    `,
+        *,
+        profile: profiles(full_name, email, phone)
+            `,
         )
         .eq('is_active', true);
 
     if (error) throw { status: 500, message: error.message };
 
     return data;
+};
+
+// ═══════════════════════════════════════════════
+// GUEST & EMERGENCY REGISTRATION
+// ═══════════════════════════════════════════════
+
+/**
+ * Quick register a patient without authentication.
+ * Used for walk-in patients or emergency appointments.
+ *
+ * @param {object} patientData - { full_name, email, phone }
+ * @returns {object} Created patient profile
+ */
+export const quickRegisterPatient = async (patientData) => {
+    const { full_name, email, phone } = patientData;
+
+    if (!full_name || !phone) {
+        throw { status: 400, message: 'full_name and phone are required.' };
+    }
+
+    // Check if patient already exists by email or phone
+    const { data: existing } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .or(`email.eq.${email},phone.eq.${phone}`)
+        .maybeSingle();
+
+    if (existing) {
+        throw { status: 409, message: 'A patient with this email or phone already exists.' };
+    }
+
+    const { data, error } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+            full_name,
+            email: email || null,
+            phone,
+            role: 'patient',
+            is_active: true,
+            created_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+    if (error) throw { status: 500, message: error.message };
+    return data;
+};
+
+// ═══════════════════════════════════════════════
+// DENTIST SLOT & ASSIGNMENT FUNCTIONS
+// ═══════════════════════════════════════════════
+
+/**
+ * Get all dentists available for a specific time slot.
+ * Filters out dentists with blocks or existing appointments.
+ *
+ * @param {string} appointmentDate - Date in 'YYYY-MM-DD'
+ * @param {string} startTime - Start time in 'HH:MM'
+ * @param {string} endTime - End time in 'HH:MM'
+ * @param {string|null} tier - Optional: filter by tier ('general', 'specialized', 'both')
+ * @returns {Array} Available dentists with profiles
+ */
+export const getAvailableDentistsForSlot = async (
+    appointmentDate,
+    startTime,
+    endTime,
+    tier = null,
+) => {
+    // ── Get all active dentists ──
+    let dentistQuery = supabaseAdmin
+        .from('dentists')
+        .select(
+            `
+        id,
+        tier,
+        profile: profiles(id, full_name, email, phone)
+            `,
+        )
+        .eq('is_active', true);
+
+    if (tier) {
+        dentistQuery = dentistQuery.or(`tier.eq.${tier},tier.eq.both`);
+    }
+
+    const { data: dentists, error: dentistErr } = await dentistQuery;
+
+    if (dentistErr) throw { status: 500, message: dentistErr.message };
+    if (!dentists || dentists.length === 0) return [];
+
+    const dentistIds = dentists.map((d) => d.id);
+
+    // ── Check for availability blocks ──
+    const { data: blocks, error: blockErr } = await supabaseAdmin
+        .from('dentist_availability_blocks')
+        .select('dentist_id')
+        .eq('block_date', appointmentDate)
+        .in('dentist_id', dentistIds);
+
+    if (blockErr) throw { status: 500, message: blockErr.message };
+
+    const blockedDentistIds = new Set(blocks?.map((b) => b.dentist_id) || []);
+
+    // ── Check for existing appointments (time conflicts) ──
+    const { data: conflicts, error: conflictErr } = await supabaseAdmin
+        .from('appointments')
+        .select('dentist_id')
+        .eq('appointment_date', appointmentDate)
+        .lt('start_time', endTime)
+        .gt('end_time', startTime)
+        .in('dentist_id', dentistIds)
+        .neq('status', APPOINTMENT_STATUS.CANCELLED);
+
+    if (conflictErr) throw { status: 500, message: conflictErr.message };
+
+    const busyDentistIds = new Set(conflicts?.map((c) => c.dentist_id) || []);
+
+    // ── Filter available dentists ──
+    const availableDentists = dentists.filter(
+        (d) => !blockedDentistIds.has(d.id) && !busyDentistIds.has(d.id),
+    );
+
+    return availableDentists;
+};
+
+/**
+ * Reassign an appointment from one dentist to another.
+ * Validates that target dentist is available and qualified.
+ *
+ * @param {string} appointmentId - Appointment UUID
+ * @param {string} newDentistId - Dentist UUID to reassign to
+ * @param {string} supervisorId - Supervisor UUID (for audit)
+ * @returns {object} Updated appointment
+ */
+export const reassignAppointmentToDentist = async (appointmentId, newDentistId, supervisorId) => {
+    // ── Get the current appointment ──
+    const { data: appointment, error: fetchErr } = await supabaseAdmin
+        .from('appointments')
+        .select('*, service:services(tier)')
+        .eq('id', appointmentId)
+        .single();
+
+    if (fetchErr || !appointment) {
+        throw { status: 404, message: 'Appointment not found.' };
+    }
+
+    if (appointment.status === APPOINTMENT_STATUS.CANCELLED) {
+        throw { status: 400, message: 'Cannot reassign a cancelled appointment.' };
+    }
+
+    // ── Verify target dentist exists and is qualified ──
+    const { data: targetDentist, error: dentistErr } = await supabaseAdmin
+        .from('dentists')
+        .select('id, tier')
+        .eq('id', newDentistId)
+        .eq('is_active', true)
+        .single();
+
+    if (dentistErr || !targetDentist) {
+        throw { status: 404, message: 'Target dentist not found or inactive.' };
+    }
+
+    // Check if target dentist is qualified for the service tier
+    const serviceTier = appointment.service?.tier;
+    if (
+        serviceTier === SERVICE_TIER.SPECIALIZED &&
+        targetDentist.tier !== 'specialized' &&
+        targetDentist.tier !== 'both'
+    ) {
+        throw { status: 400, message: 'Target dentist is not qualified for specialized services.' };
+    }
+
+    // ── Check for time conflicts ──
+    const { data: conflict, error: conflictErr } = await supabaseAdmin
+        .from('appointments')
+        .select('id')
+        .eq('dentist_id', newDentistId)
+        .eq('appointment_date', appointment.appointment_date)
+        .lt('start_time', appointment.end_time)
+        .gt('end_time', appointment.start_time)
+        .neq('id', appointmentId) // Exclude current appointment
+        .neq('status', APPOINTMENT_STATUS.CANCELLED)
+        .maybeSingle();
+
+    if (conflictErr && conflictErr.code !== 'PGRST116') {
+        throw { status: 500, message: conflictErr.message };
+    }
+
+    if (conflict) {
+        throw {
+            status: 409,
+            message: `Target dentist is already booked at ${appointment.start_time} on ${appointment.appointment_date}.`,
+        };
+    }
+
+    // ── Update the appointment ──
+    const { data: updated, error: updateErr } = await supabaseAdmin
+        .from('appointments')
+        .update({
+            dentist_id: newDentistId,
+            updated_by: supervisorId,
+            updated_at: new Date().toISOString(),
+        })
+        .eq('id', appointmentId)
+        .select(
+            `
+        *,
+        patient: profiles!appointments_patient_id_fkey(full_name, email),
+        service: services(name, price),
+        dentist: dentists(profile: profiles(full_name))
+            `,
+        )
+        .single();
+
+    if (updateErr) throw { status: 500, message: updateErr.message };
+
+    return updated;
 };

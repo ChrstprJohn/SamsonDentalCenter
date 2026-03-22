@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
             }
 
             try {
-                const data = await api.get('/api/auth/me');
+                const data = await api.get('/auth/me', token);
                 setUser(data.user);
             } catch (error) {
                 // Token expired or invalid
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
     }, [token]);
 
     const login = async (email, password) => {
-        const data = await api.post('/api/auth/login', { email, password });
+        const data = await api.post('/auth/login', { email, password });
         localStorage.setItem('token', data.token);
         setToken(data.token);
         setUser(data.user);
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (email, password, full_name, phone) => {
-        const data = await api.post('/api/auth/register', {
+        const data = await api.post('/auth/register', {
             email,
             password,
             full_name,

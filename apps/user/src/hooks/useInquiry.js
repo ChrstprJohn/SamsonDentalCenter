@@ -12,7 +12,7 @@ const useInquiry = () => {
         setSuccess(false);
 
         try {
-            await api.post('/api/inquiries', formData);
+            await api.post('/inquiries', formData);
             setSuccess(true);
         } catch (err) {
             setError(err.message || 'Failed to send inquiry. Please try again.');

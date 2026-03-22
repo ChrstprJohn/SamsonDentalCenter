@@ -662,7 +662,7 @@ export const toggleRestriction = async (req, res, next) => {
  * POST /api/admin/walk-in/quick
  * Body: { full_name, email, phone, date_of_birth?, address? }
  */
-export const quickRegisterPatient = async (req, res, next) => {
+export const quickRegisterPatientHandler = async (req, res, next) => {
     try {
         const patient = await quickRegisterPatient(req.body);
         res.status(201).json({

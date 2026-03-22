@@ -1,16 +1,18 @@
 import { BrowserRouter } from 'react-router-dom';
 import AppRoutes from './routes/AppRoutes';
-import { api } from './utils/api.js';
 import useSmoothScroll from './hooks/useSmoothScroll';
 import ChatBot from './components/public/ChatBot.jsx';
+import { ServicesProvider } from './context/ServicesContext';
 
 const App = () => {
     useSmoothScroll();
 
     return (
         <BrowserRouter>
-            <AppRoutes />
-            <ChatBot />
+            <ServicesProvider>
+                <AppRoutes />
+                <ChatBot />
+            </ServicesProvider>
         </BrowserRouter>
     );
 };

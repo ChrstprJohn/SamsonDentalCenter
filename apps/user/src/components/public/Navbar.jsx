@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut, Settings } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useAuth } from '../../context/AuthContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,7 +17,9 @@ const navLinks = [
 
 const Navbar = () => {
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const navRef = useRef(null);
     const lastScrollY = useRef(0);
     const [isVisible, setIsVisible] = useState(true);
@@ -176,18 +179,81 @@ const Navbar = () => {
                     {/* Section 3: Buttons & Mobile Menu */}
                     <div className='flex-1 flex items-center justify-end gap-3'>
                         <div className='nav-anim flex items-center gap-3'>
-                            <button
-                                onClick={() => navigate('/login')}
-                                className={`hidden sm:inline-flex items-center justify-center font-bold text-sm transition-all duration-300 ease-out ring-1 px-5 py-2.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-sm ${isScrolled ? 'text-slate-700 hover:text-blue-600 bg-white hover:bg-blue-50 ring-slate-200 hover:ring-blue-200 focus:ring-blue-600 focus:ring-offset-2' : 'text-white bg-white/10 hover:bg-white/20 ring-white/20 hover:ring-white/30 focus:ring-sky-400 focus:ring-offset-slate-900'}`}
-                            >
-                                Login
-                            </button>
-                            <button
-                                onClick={() => navigate('/book')}
-                                className={`hidden md:inline-flex items-center justify-center font-bold text-sm transition-all duration-300 ease-out shadow-sm hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 px-6 py-2.5 rounded-2xl ${isScrolled ? 'bg-sky-500 hover:bg-sky-600 text-white hover:shadow-[0_8px_20px_rgb(14,165,233,0.3)] focus:ring-sky-400 focus:ring-offset-2' : 'bg-sky-500 hover:bg-sky-600 text-white hover:shadow-[0_8px_20px_rgb(14,165,233,0.3)] focus:ring-sky-400 focus:ring-offset-slate-900'}`}
-                            >
-                                Book Now
-                            </button>
+                            {!user ? (
+                                <>
+                                    <button
+                                        onClick={() => navigate('/login')}
+                                        className={`hidden sm:inline-flex items-center justify-center font-bold text-sm transition-all duration-300 ease-out ring-1 px-5 py-2.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-sm ${isScrolled ? 'text-slate-700 hover:text-blue-600 bg-white hover:bg-blue-50 ring-slate-200 hover:ring-blue-200 focus:ring-blue-600 focus:ring-offset-2' : 'text-white bg-white/10 hover:bg-white/20 ring-white/20 hover:ring-white/30 focus:ring-sky-400 focus:ring-offset-slate-900'}`}
+                                    >
+                                        Login
+                                    </button>
+                                    <button
+                                        onClick={() => navigate(user ? '/dashboard/book' : '/book')}
+                                        className={`hidden md:inline-flex items-center justify-center font-bold text-sm transition-all duration-300 ease-out shadow-sm hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 px-6 py-2.5 rounded-2xl ${isScrolled ? 'bg-sky-500 hover:bg-sky-600 text-white hover:shadow-[0_8px_20px_rgb(14,165,233,0.3)] focus:ring-sky-400 focus:ring-offset-2' : 'bg-sky-500 hover:bg-sky-600 text-white hover:shadow-[0_8px_20px_rgb(14,165,233,0.3)] focus:ring-sky-400 focus:ring-offset-slate-900'}`}
+                                    >
+                                        Book Now
+                                    </button>
+                                </>
+                            ) : (
+                                <div className='relative'>
+                                    <button
+                                        onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                                        className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-2xl transition-all duration-300 ${isScrolled ? 'hover:bg-slate-100 bg-white ring-1 ring-slate-200' : 'hover:bg-white/20 bg-white/10 ring-1 ring-white/20'}`}
+                                        title={user?.full_name || user?.email}
+                                    >
+                                        <div
+                                            className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${isScrolled ? 'bg-blue-600' : 'bg-sky-500'}`}
+                                        >
+                                            {user?.full_name?.charAt(0).toUpperCase() ||
+                                                user?.email?.charAt(0).toUpperCase()}
+                                        </div>
+                                        <span
+                                            className={`hidden md:inline text-sm font-medium ${isScrolled ? 'text-slate-700' : 'text-white'}`}
+                                        >
+                                            {user?.full_name?.split(' ')[0] || 'Profile'}
+                                        </span>
+                                    </button>
+
+                                    {/* Profile Dropdown */}
+                                    {isProfileMenuOpen && (
+                                        <div
+                                            className={`absolute right-0 mt-2 w-48 rounded-xl shadow-lg z-50 py-2 ${isScrolled ? 'bg-white ring-1 ring-slate-200' : 'bg-slate-900 ring-1 ring-slate-700'}`}
+                                        >
+                                            <div
+                                                className={`px-4 py-2 border-b ${isScrolled ? 'border-slate-200 text-slate-600' : 'border-slate-700 text-slate-300'}`}
+                                            >
+                                                <p className='text-sm font-semibold'>
+                                                    {user?.full_name || 'User'}
+                                                </p>
+                                                <p className='text-xs'>{user?.email}</p>
+                                            </div>
+
+                                            <button
+                                                onClick={() => {
+                                                    navigate('/patient');
+                                                    setIsProfileMenuOpen(false);
+                                                }}
+                                                className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors ${isScrolled ? 'text-slate-700 hover:bg-blue-50' : 'text-slate-300 hover:bg-slate-800'}`}
+                                            >
+                                                <Settings size={16} />
+                                                Dashboard
+                                            </button>
+
+                                            <button
+                                                onClick={() => {
+                                                    logout();
+                                                    setIsProfileMenuOpen(false);
+                                                    navigate('/');
+                                                }}
+                                                className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors border-t ${isScrolled ? 'border-slate-200 text-red-600 hover:bg-red-50' : 'border-slate-700 text-red-400 hover:bg-slate-800'}`}
+                                            >
+                                                <LogOut size={16} />
+                                                Logout
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* Mobile Menu Button */}
@@ -281,16 +347,57 @@ const Navbar = () => {
                                     </li>
                                 ))}
                             </ul>
-                            <div className='mt-6'>
-                                <button
-                                    onClick={() => {
-                                        navigate('/contact');
-                                        setIsMobileMenuOpen(false);
-                                    }}
-                                    className='w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300'
-                                >
-                                    Book Appointment
-                                </button>
+                            <div className='mt-6 space-y-3'>
+                                {!user ? (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                navigate('/login');
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className='w-full bg-white text-blue-600 font-semibold py-3 px-4 rounded-lg hover:bg-slate-100 transition-colors duration-300'
+                                        >
+                                            Login
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                navigate(user ? '/dashboard/book' : '/book');
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className='w-full bg-sky-500 text-white font-semibold py-3 px-4 rounded-lg hover:bg-sky-600 transition-colors duration-300'
+                                        >
+                                            Book Now
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className='bg-slate-800 rounded-lg p-3 text-center border border-slate-700'>
+                                            <p className='text-sm font-semibold text-white'>
+                                                {user?.full_name || 'User'}
+                                            </p>
+                                            <p className='text-xs text-slate-400'>{user?.email}</p>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                navigate('/patient');
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className='w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300'
+                                        >
+                                            Dashboard
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                logout();
+                                                setIsMobileMenuOpen(false);
+                                                navigate('/');
+                                            }}
+                                            className='w-full bg-red-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-red-700 transition-colors duration-300'
+                                        >
+                                            Logout
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
