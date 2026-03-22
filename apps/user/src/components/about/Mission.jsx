@@ -1,4 +1,59 @@
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
+
 const Mission = () => {
+    const containerRef = useRef(null);
+    const imageRef = useRef(null);
+    const valuesRef = useRef([]);
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        // Animate image from left
+        gsap.fromTo(
+            imageRef.current,
+            { opacity: 0, x: -50 },
+            {
+                opacity: 1,
+                x: 0,
+                duration: 1,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    start: 'top 80%',
+                    end: 'top 20%',
+                    once: true,
+                },
+            }
+        );
+
+        // Animate values from right with stagger
+        gsap.fromTo(
+            valuesRef.current.filter(Boolean),
+            { opacity: 0, x: 50 },
+            {
+                opacity: 1,
+                x: 0,
+                duration: 0.8,
+                stagger: 0.15,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    start: 'top 80%',
+                    end: 'top 20%',
+                    once: true,
+                },
+            }
+        );
+
+        return () => {
+            ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+        };
+    }, []);
+
     // Reference-inspired content (update anytime)
     const image = {
         src: 'https://images.unsplash.com/photo-1504439468489-c8920d796a29?auto=format&fit=crop&q=80&w=1600',
@@ -27,11 +82,11 @@ const Mission = () => {
     ];
 
     return (
-        <section className='py-10 sm:py-12 bg-white'>
+        <section ref={containerRef} className='py-10 sm:py-12 bg-white'>
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                 <div className='grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch'>
                     {/* Left: Image card with overlay content */}
-                    <div className='lg:col-span-7'>
+                    <div ref={imageRef} className='lg:col-span-7'>
                         <div className='relative h-full overflow-hidden rounded-3xl bg-slate-900 shadow-xl'>
                             <img
                                 src={image.src}
@@ -78,6 +133,7 @@ const Mission = () => {
                                 {values.map((item, idx) => (
                                     <div
                                         key={item.number}
+                                        ref={(el) => (valuesRef.current[idx] = el)}
                                         className={idx !== 0 ? 'mt-7' : ''}
                                     >
                                         <div className='text-xs font-semibold text-indigo-600'>

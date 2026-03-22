@@ -1,6 +1,57 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const ClinicStory = () => {
+    const containerRef = useRef(null);
+    const leftContentRef = useRef(null);
+    const imageRef = useRef(null);
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        // Animate left content from left
+        gsap.fromTo(
+            leftContentRef.current,
+            { opacity: 0, x: -50 },
+            {
+                opacity: 1,
+                x: 0,
+                duration: 1,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    start: 'top 80%',
+                    end: 'top 20%',
+                    once: true,
+                },
+            }
+        );
+
+        // Animate image from right
+        gsap.fromTo(
+            imageRef.current,
+            { opacity: 0, x: 50 },
+            {
+                opacity: 1,
+                x: 0,
+                duration: 1,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    start: 'top 80%',
+                    end: 'top 20%',
+                    once: true,
+                },
+            }
+        );
+
+        return () => {
+            ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+        };
+    }, []);
     const image = {
         // Using a stable Unsplash image URL (direct link) to avoid loading issues.
         src: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=1600',
@@ -29,11 +80,11 @@ const ClinicStory = () => {
     const [activeTab, setActiveTab] = React.useState(0);
 
     return (
-        <section className='py-16 sm:py-20 bg-white'>
+        <section ref={containerRef} className='py-16 sm:py-20 bg-white'>
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                 <div className='grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start'>
                     {/* Left: Headline + description + tabs + panel */}
-                    <div className='order-2 lg:order-1 lg:col-span-7'>
+                    <div ref={leftContentRef} className='order-2 lg:order-1 lg:col-span-7'>
                         <p className='inline-flex items-center gap-2 text-xs font-semibold tracking-[0.22em] text-slate-500 uppercase'>
                             <span className='h-1.5 w-1.5 rounded-full bg-indigo-600' />
                             Our story
@@ -81,7 +132,7 @@ const ClinicStory = () => {
                     </div>
 
                     {/* Right: Image */}
-                    <div className='order-1 lg:order-2 lg:col-span-5'>
+                    <div ref={imageRef} className='order-1 lg:order-2 lg:col-span-5'>
                         <div className='relative rounded-3xl overflow-hidden shadow-2xl bg-slate-900 ring-1 ring-slate-900/10'>
                             <img
                                 src={image.src}
