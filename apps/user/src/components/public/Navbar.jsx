@@ -188,7 +188,7 @@ const Navbar = () => {
                                         Login
                                     </button>
                                     <button
-                                        onClick={() => navigate(user ? '/dashboard/book' : '/book')}
+                                        onClick={() => navigate(user ? '/patient/book' : '/book')}
                                         className={`hidden md:inline-flex items-center justify-center font-bold text-sm transition-all duration-300 ease-out shadow-sm hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 px-6 py-2.5 rounded-2xl ${isScrolled ? 'bg-sky-500 hover:bg-sky-600 text-white hover:shadow-[0_8px_20px_rgb(14,165,233,0.3)] focus:ring-sky-400 focus:ring-offset-2' : 'bg-sky-500 hover:bg-sky-600 text-white hover:shadow-[0_8px_20px_rgb(14,165,233,0.3)] focus:ring-sky-400 focus:ring-offset-slate-900'}`}
                                     >
                                         Book Now
@@ -361,7 +361,7 @@ const Navbar = () => {
                                         </button>
                                         <button
                                             onClick={() => {
-                                                navigate(user ? '/dashboard/book' : '/book');
+                                                navigate(user ? '/patient/book' : '/book');
                                                 setIsMobileMenuOpen(false);
                                             }}
                                             className='w-full bg-sky-500 text-white font-semibold py-3 px-4 rounded-lg hover:bg-sky-600 transition-colors duration-300'

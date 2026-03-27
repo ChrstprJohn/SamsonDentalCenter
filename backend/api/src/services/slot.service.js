@@ -2,25 +2,34 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { CLINIC_CONFIG } from '../utils/constants.js';
 
 /**
- * Get available time slots for a given date and service.
+ * Get all time slots for a given date and service (including full ones).
+ * Frontend can filter based on availability:
+ * - For booking: show only slots where available > 0
+ * - For waitlist: show all slots (including where available === 0)
  *
  * @param {string} date - Format: 'YYYY-MM-DD' (e.g., '2026-03-01')
  * @param {string} serviceId - The service UUID
- * @returns {object} { available_slots: ['08:00', '08:30', ...], date, service }
+ * @returns {object} { all_slots: [{time, available}, ...], date, service, total_available, total_full }
  */
 
 /*
 SAMPLE DATA THAT WILL BE RETURNED
 {
-  "available_slots": ["08:00", "08:30", "09:00"],  // All free time slots
-  "date": "2026-03-01",                             // The date you checked
-  "service": "Teeth Cleaning",                      // Name of the service
-  "duration_minutes": 30,                           // Service duration in minutes
-  "total_available": 3                               // Number of slots
+  "all_slots": [
+    { "time": "08:00", "available": 2 },
+    { "time": "08:30", "available": 1 },
+    { "time": "09:00", "available": 0 },
+    { "time": "09:30", "available": 2 }
+  ],
+  "date": "2026-03-01",
+  "service": "Teeth Cleaning",
+  "duration_minutes": 30,
+  "total_available": 3,
+  "total_full": 1
 }
 */
 
-export const getAvailableSlots = async (date, serviceId) => {
+export const getAvailableSlots = async (date, serviceId, filterSessionId = null) => {
     // ── 1. Get the service to know its duration ──
     const { data: service, error: serviceError } = await supabaseAdmin
         .from('services')
@@ -45,9 +54,11 @@ export const getAvailableSlots = async (date, serviceId) => {
 
     if (!clinicDay || !clinicDay.is_open) {
         return {
-            available_slots: [],
+            all_slots: [],
             date,
             service: service.name,
+            total_available: 0,
+            total_full: 0,
             message: 'Clinic is closed on this day.',
         };
     }
@@ -60,9 +71,11 @@ export const getAvailableSlots = async (date, serviceId) => {
 
     if (!dentists || dentists.length === 0) {
         return {
-            available_slots: [],
+            all_slots: [],
             date,
             service: service.name,
+            total_available: 0,
+            total_full: 0,
             message: 'No dentists available.',
         };
     }
@@ -79,9 +92,11 @@ export const getAvailableSlots = async (date, serviceId) => {
 
     if (!dentistSchedules || dentistSchedules.length === 0) {
         return {
-            available_slots: [],
+            all_slots: [],
             date,
             service: service.name,
+            total_available: 0,
+            total_full: 0,
             message: 'No dentists working on this day.',
         };
     }
@@ -101,23 +116,74 @@ export const getAvailableSlots = async (date, serviceId) => {
 
     if (activeSchedules.length === 0) {
         return {
-            available_slots: [],
+            all_slots: [],
             date,
             service: service.name,
+            total_available: 0,
+            total_full: 0,
             message: 'No dentists available on this day (blocked/on leave).',
         };
     }
 
     // ── 5. Get existing appointments on that date (not cancelled) ──
+    // ✅ NOTE: Waitlist entries are in a separate table (waitlist), not appointments.
+    // So we don't need to filter for WAITLISTED status — appointments only include
+    // PENDING (awaiting approval) or CONFIRMED (secured slots).
     const { data: existingAppointments } = await supabaseAdmin
         .from('appointments')
         .select('dentist_id, start_time, end_time')
         .eq('appointment_date', date)
-        .not('status', 'in', '("CANCELLED","LATE_CANCEL","WAITLISTED")');
+        .not('status', 'in', '("CANCELLED","LATE_CANCEL")');
 
-    // ── 6. For each dentist, calculate their available slots ──
-    const allAvailableSlots = new Set(); // Using Set to avoid duplicates
+    // ── 5b. Get active slot holds on that date (RACE CONDITION FIX) ──
+    // Holds represent temporary reservations that should be treated like booked slots
+    const now = new Date();
+    let holdQuery = supabaseAdmin
+        .from('slot_holds')
+        .select('start_time, user_session_id')
+        .eq('service_id', serviceId)
+        .eq('appointment_date', date)
+        .eq('status', 'active')
+        .gt('expires_at', now.toISOString()); // Only non-expired holds
 
+    if (filterSessionId) {
+        holdQuery = holdQuery.neq('user_session_id', filterSessionId);
+    }
+    const { data: activeHolds } = await holdQuery;
+
+    // Combine holds and appointments into a single "occupied" list
+    // We'll use this to check availability
+    const occupiedSlots = [
+        ...(existingAppointments || []).map((a) => ({
+            type: 'appointment',
+            start_time: a.start_time,
+            end_time: a.end_time,
+            dentist_id: a.dentist_id,
+        })),
+        ...(activeHolds || []).map((h) => ({
+            type: 'hold',
+            start_time: h.start_time,
+            end_time: addMinutes(h.start_time, durationMinutes),
+            dentist_id: null, // Holds don't apply to specific dentists yet
+        })),
+    ];
+
+    // ── 6. Generate ALL possible time slots from clinic hours (once) ──
+    // Use the first active schedule's hours as the clinic hours
+    const firstSchedule = activeSchedules[0];
+    const clinicStartTime = firstSchedule.start_time;
+    const clinicEndTime = firstSchedule.end_time;
+    const allPossibleSlots = generateTimeSlots(clinicStartTime, clinicEndTime, durationMinutes);
+
+    // ── 7. For each possible slot, count how many dentists have it available ──
+    const allSlots = new Map(); // Map to store {time: {time, available}}
+
+    // Initialize all slots with 0 available
+    allPossibleSlots.forEach((slot) => {
+        allSlots.set(slot, { time: slot, available: 0 });
+    });
+
+    // For each dentist, increment the available count for their free slots
     for (const schedule of activeSchedules) {
         const dentistId = schedule.dentist_id;
         const startTime = schedule.start_time;
@@ -126,32 +192,40 @@ export const getAvailableSlots = async (date, serviceId) => {
         // Generate all possible slots for this dentist
         const possibleSlots = generateTimeSlots(startTime, endTime, durationMinutes);
 
-        // Filter out slots that conflict with existing appointments
-        const dentistAppointments = (existingAppointments || []).filter(
-            (a) => a.dentist_id === dentistId,
+        // Filter out slots that conflict with existing appointments AND active holds
+        const dentistOccupied = occupiedSlots.filter(
+            (occupied) => occupied.dentist_id === null || occupied.dentist_id === dentistId,
         );
 
         const freeSlots = possibleSlots.filter((slot) => {
             const slotEnd = addMinutes(slot, durationMinutes);
-            // Check if this slot overlaps with any existing appointment
-            return !dentistAppointments.some((appt) =>
-                timesOverlap(slot, slotEnd, appt.start_time, appt.end_time),
+            // Check if this slot overlaps with any existing appointment or active hold
+            return !dentistOccupied.some((occupied) =>
+                timesOverlap(slot, slotEnd, occupied.start_time, occupied.end_time),
             );
         });
 
-        // Add free slots to the combined set
-        freeSlots.forEach((slot) => allAvailableSlots.add(slot));
+        // Increment availability count for this dentist's free slots
+        freeSlots.forEach((slot) => {
+            if (allSlots.has(slot)) {
+                allSlots.get(slot).available += 1;
+            }
+        });
     }
 
-    // ── 6. Sort and return ──
-    const sortedSlots = Array.from(allAvailableSlots).sort();
+    // ── 8. Sort and build response with all slots ──
+    const sortedSlots = Array.from(allSlots.values()).sort((a, b) => a.time.localeCompare(b.time));
+
+    const totalAvailable = sortedSlots.filter((s) => s.available > 0).length;
+    const totalFull = sortedSlots.filter((s) => s.available === 0).length;
 
     return {
-        available_slots: sortedSlots,
+        all_slots: sortedSlots,
         date,
         service: service.name,
         duration_minutes: durationMinutes,
-        total_available: sortedSlots.length,
+        total_available: totalAvailable,
+        total_full: totalFull,
     };
 };
 
@@ -189,12 +263,13 @@ export const getSuggestedSlots = async (date, serviceId, requestedTime) => {
     // Get slots for the same day
     const sameDayResult = await getAvailableSlots(date, serviceId);
 
-    // Find nearby times (closest to what they wanted)
-    const nearbySlots = sameDayResult.available_slots
+    // Find nearby times (closest to what they wanted) - only from available slots
+    const nearbySlots = sameDayResult.all_slots
+        .filter((s) => s.available > 0) // Only available slots for suggestions
         .map((slot) => ({
-            time: slot,
+            time: slot.time,
             date: date,
-            diff: Math.abs(timeToMinutes(slot) - timeToMinutes(requestedTime)),
+            diff: Math.abs(timeToMinutes(slot.time) - timeToMinutes(requestedTime)),
         }))
         .sort((a, b) => a.diff - b.diff)
         .slice(0, 5); // Top 5 closest times
@@ -208,13 +283,14 @@ export const getSuggestedSlots = async (date, serviceId, requestedTime) => {
 
         try {
             const result = await getAvailableSlots(dateStr, serviceId);
-            if (result.available_slots.length > 0) {
-                // Find slots near the requested time on that day
-                const nearSlots = result.available_slots
+            if (result.all_slots.length > 0) {
+                // Find slots near the requested time on that day (only available ones)
+                const nearSlots = result.all_slots
+                    .filter((s) => s.available > 0) // Only available slots
                     .map((slot) => ({
-                        time: slot,
+                        time: slot.time,
                         date: dateStr,
-                        diff: Math.abs(timeToMinutes(slot) - timeToMinutes(requestedTime)),
+                        diff: Math.abs(timeToMinutes(slot.time) - timeToMinutes(requestedTime)),
                     }))
                     .sort((a, b) => a.diff - b.diff)
                     .slice(0, 3);

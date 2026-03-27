@@ -1,12 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
+import useSlotHold from './useSlotHold';
 
 const STEPS = ['service', 'datetime', 'info', 'review'];
+
+// Session ID management (use sessionStorage so it clears when tab closes)
+const STORAGE_KEY = 'guest_session_id';
+
+const getOrCreateSessionId = () => {
+    let sessionId = sessionStorage.getItem(STORAGE_KEY);
+    if (!sessionId) {
+        // Generate UUID v4
+        sessionId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            const r = (Math.random() * 16) | 0,
+                v = c === 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+        });
+        sessionStorage.setItem(STORAGE_KEY, sessionId);
+    }
+    return sessionId;
+};
 
 /**
  * Manages guest booking wizard state and submission.
  *
  * Features:
+ * - Session ID generation/persistence in sessionStorage
  * - Step navigation with validation
  * - Form data management with field updates
  * - API submission with timeout handling
@@ -17,6 +36,7 @@ const STEPS = ['service', 'datetime', 'info', 'review'];
  * @returns {object} booking state and actions
  */
 const useGuestBooking = (initialServiceId = null, initialServiceName = null) => {
+    const [sessionId, setSessionId] = useState(null);
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState({
         service_id: initialServiceId || '',
@@ -30,6 +50,15 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [result, setResult] = useState(null);
+
+    // ✅ Initialize slot hold hook at the wizard level to survive step changes
+    const slotHold = useSlotHold(sessionId);
+
+    // ✅ Generate session ID on component mount
+    useEffect(() => {
+        const id = getOrCreateSessionId();
+        setSessionId(id);
+    }, []);
 
     const currentStep = STEPS[step];
 
@@ -76,6 +105,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                 email: formData.email,
                 phone: formData.phone.replace(/\D/g, ''), // ✅ Sanitize: remove non-digits
                 full_name: formData.full_name,
+                user_session_id: sessionId,
             };
 
             const data = await api.post('/appointments/book-guest', body);
@@ -84,6 +114,8 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
 
             if (data.booked) {
                 setResult(data);
+                // Clean up the hold
+                slotHold.clearHold();
             } else {
                 setSubmitting(false);
                 setError(
@@ -123,10 +155,12 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
         });
         setError(null);
         setResult(null);
+        slotHold.clearHold();
     };
 
     return {
         // State
+        sessionId,
         step,
         currentStep,
         steps: STEPS,
@@ -134,6 +168,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
         submitting,
         error,
         result,
+        slotHold, // pass the hold hook to children
         // Actions
         updateField,
         updateFields,

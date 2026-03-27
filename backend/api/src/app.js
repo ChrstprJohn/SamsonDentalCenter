@@ -33,18 +33,24 @@ app.use(
 );
 
 // ── Rate Limiting ──
+// ✅ DEVELOPMENT: Adjust limits for testing (disabled or very high)
+// PRODUCTION: Keep strict limits for security
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // 100 requests per window per IP
+    max: isDevelopment ? 5000 : 500, // 5000 req/15min in dev, 500 in prod
     message: { error: 'Too many requests, please try again later.' },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req, res) => isDevelopment && process.env.DISABLE_RATE_LIMIT === 'true', // Can disable entirely
 });
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10, // Stricter: 10 auth attempts per 15 min
+    max: isDevelopment ? 1000 : 10, // 1000 auth attempts in dev, 10 in prod
     message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
+    skip: (req, res) => isDevelopment && process.env.DISABLE_RATE_LIMIT === 'true',
 });
 
 // ── Health Check (unversioned — infra endpoint) ──

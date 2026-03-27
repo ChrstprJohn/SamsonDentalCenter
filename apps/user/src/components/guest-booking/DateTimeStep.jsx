@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RefreshCw, Lock } from 'lucide-react';
 import useSlots from '../../hooks/useSlots';
-import JoinWaitlistModal from '../user-booking/JoinWaitlistModal';
 
 const DateTimeStep = ({
     serviceId,
@@ -11,9 +10,11 @@ const DateTimeStep = ({
     onNext,
     onBack,
     serviceName,
-    joinWaitlist,
+    sessionId,
+    slotHold,
 }) => {
-    const [showWaitlistModal, setShowWaitlistModal] = useState(false);
+    // ✅ Initialize slot hold hook with session ID
+    const { activeHold, holdSlot, releaseHold, formattedTime, holdLoading, holdError } = slotHold;
 
     // Simple date picker state — starts from today
     const today = useMemo(() => {
@@ -65,12 +66,45 @@ const DateTimeStep = ({
 
     const formatDateKey = (d) => d.toISOString().split('T')[0]; // YYYY-MM-DD
 
-    // Fetch slots for the selected date
-    const { slots, loading: slotsLoading } = useSlots(selectedDate, serviceId);
+    // ✅ Guest booking: Fetch ALL slots (available + full) so we can see OUR own holds
+    // Filter out other full slots in the render logic below
+    // Only fetch if both date and serviceId are valid
+    const {
+        slots,
+        loading: slotsLoading,
+        refetch: refetchSlots,
+    } = useSlots(selectedDate || null, serviceId || null, true, sessionId);
 
     const handleDateClick = (date) => {
         const key = formatDateKey(date);
         onUpdate({ date: key, time: '' }); // Reset time when date changes
+    };
+
+    // ✅ Handle time slot click with auto-switch and toggle-off logic
+    const handleTimeClick = async (slotData) => {
+        if (!serviceId || !selectedDate) return;
+
+        // ✅ NEW: Added toggle behavior (click again to release)
+        const isCurrentlySelected = selectedTime === slotData.rawTime;
+
+        if (isCurrentlySelected) {
+            // ✅ Toggle OFF: Click again to remove the hold on backend
+            await releaseHold();
+            onUpdate({ time: '' });
+            return;
+        }
+
+        // Call backend to hold slot - auto-switch if already has hold on different time
+        const holdResult = await holdSlot(serviceId, selectedDate, slotData.rawTime);
+
+        if (holdResult?.success) {
+            // ✅ Update time only after hold is confirmed
+            onUpdate({ time: slotData.rawTime });
+        } else if (holdResult?.error === 'SLOT_TAKEN') {
+            // ✅ FIX: Show user-friendly error when slot was taken by someone else
+            // holdError is already set by holdSlot, so it will show in the error banner
+            return;
+        }
     };
 
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -79,12 +113,78 @@ const DateTimeStep = ({
     const canGoPrev = weekStart > today;
     const canGoNext = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000) <= maxDate;
 
+    // ✅ Format date and time for display in hold indicator
+    const formatHoldDateTime = () => {
+        if (!activeHold) return '';
+        const date = new Date(activeHold.date);
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const monthNames = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+        ];
+
+        const dayName = dayNames[date.getDay()];
+        const monthName = monthNames[date.getMonth()];
+        const day = date.getDate();
+        const year = date.getFullYear();
+
+        // Format time from activeHold.time (HH:MM to 12-hour format)
+        const [hours, minutes] = activeHold.time.split(':');
+        const hour = parseInt(hours, 10);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+        const timeDisplay = `${displayHour}:${minutes} ${ampm}`;
+
+        return `${dayName} ${monthName} ${day}, ${year} at ${timeDisplay}`;
+    };
+
     return (
         <div>
             <h2 className='text-xl font-bold text-slate-900 mb-2'>Pick Date & Time</h2>
             <p className='text-slate-500 text-sm mb-6'>
                 Choose your preferred appointment date and available time slot.
             </p>
+
+            {/* ✅ Hold Status Indicator with Date & Time */}
+            {/* ✅ FIX: Only show if selected date matches held date (not on different dates) */}
+            {activeHold && selectedDate === activeHold.date && (
+                <div className='mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg'>
+                    <div className='flex items-start gap-2'>
+                        <Lock
+                            size={16}
+                            className='text-amber-600 mt-1 shrink-0'
+                        />
+                        <div className='grow'>
+                            <p className='text-sm font-medium text-amber-900'>
+                                📅 {formatHoldDateTime()}
+                            </p>
+                            <p className='text-sm font-medium text-amber-900 mt-1'>
+                                Reserved for {activeHold.expires_in_minutes} minutes
+                            </p>
+                            <p className='text-xs text-amber-700 mt-1'>
+                                Time remaining: <strong>{formattedTime}</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ✅ Hold Error */}
+            {holdError && (
+                <div className='mb-4 p-3 bg-red-50 border border-red-200 rounded-lg'>
+                    <p className='text-sm text-red-700'>{holdError}</p>
+                </div>
+            )}
 
             {/* Week navigation */}
             <div className='flex items-center justify-between mb-4'>
@@ -171,7 +271,22 @@ const DateTimeStep = ({
             {/* Time slots */}
             {selectedDate && (
                 <div className='mb-8'>
-                    <h3 className='text-sm font-semibold text-slate-700 mb-3'>Available Times</h3>
+                    <div className='flex items-center justify-between mb-3'>
+                        <h3 className='text-sm font-semibold text-slate-700'>Available Times</h3>
+                        {/* ✅ Refresh button to see updated availability */}
+                        <button
+                            onClick={refetchSlots}
+                            disabled={slotsLoading}
+                            title='Refresh to see latest availability'
+                            className='flex items-center gap-1 px-3 py-1 text-xs bg-sky-50 hover:bg-sky-100 text-sky-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                        >
+                            <RefreshCw
+                                size={14}
+                                className={slotsLoading ? 'animate-spin' : ''}
+                            />
+                            Refresh
+                        </button>
+                    </div>
                     {slotsLoading ? (
                         // ✅ IMPROVEMENT #2: Visual loading continuity with spinner
                         <div className='flex items-center justify-center py-8'>
@@ -182,21 +297,46 @@ const DateTimeStep = ({
                         </div>
                     ) : slots && slots.length > 0 ? (
                         <div className='grid grid-cols-3 sm:grid-cols-5 gap-2'>
-                            {slots.map((time) => (
-                                <button
-                                    key={time}
-                                    onClick={() => {
-                                        onUpdate({ time });
-                                    }}
-                                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                                        time === selectedTime
-                                            ? 'bg-sky-500 text-white ring-2 ring-sky-500/20'
-                                            : 'bg-white border border-slate-100 text-slate-700 hover:border-sky-200'
-                                    }`}
-                                >
-                                    {time}
-                                </button>
-                            ))}
+                            {slots.map((slot) => {
+                                // ✅ Guest booking shows only available slots
+                                // Each slot has: {time, rawTime, displayTime, available}
+                                const isHeldByMe = activeHold?.time === slot.rawTime && selectedDate === activeHold.date;
+
+                                // ✅ NEW: If I hold it, it's effectively available to ME
+                                const effectiveAvailable = slot.available + (isHeldByMe ? 1 : 0);
+                                const isAvailable = effectiveAvailable > 0;
+
+                                const isSelected = selectedTime === slot.rawTime;
+                                const isActuallyHeldByMe = isHeldByMe; // same thing, just for clarity below
+
+                                // Skip if not available AND not held by me (since guest only shows available slots)
+                                if (!isAvailable) return null;
+
+                                return (
+                                    <button
+                                        key={slot.rawTime}
+                                        onClick={() => handleTimeClick(slot)}
+                                        disabled={holdLoading}
+                                        title={`Available (${slot.available} dentist${slot.available > 1 ? 's' : ''})`}
+                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all relative ${
+                                            isSelected
+                                                ? 'bg-sky-500 text-white ring-2 ring-sky-500/20'
+                                                : isHeldByMe
+                                                  ? 'bg-amber-100 border border-amber-300 text-amber-900'
+                                                  : 'bg-white border border-slate-100 text-slate-700 hover:border-sky-200 hover:shadow-md disabled:opacity-50'
+                                        }`}
+                                    >
+                                        {slot.displayTime}
+                                        {/* ✅ Show hold lock icon */}
+                                        {isHeldByMe && (
+                                            <Lock
+                                                size={12}
+                                                className='absolute top-1 right-1'
+                                            />
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className='text-sm text-slate-400 py-4 bg-slate-50 rounded-xl px-4'>
@@ -204,56 +344,6 @@ const DateTimeStep = ({
                         </div>
                     )}
                 </div>
-            )}
-
-            {/* ✅ IMPROVEMENT #1: Show waitlist option only after loading complete
-                Check: !slotsLoading && slots !== null && slots.length === 0
-                This prevents flicker of the Join Waitlist button during initial load */}
-            {selectedDate &&
-                selectedTime &&
-                !slotsLoading &&
-                slots !== null &&
-                slots.length === 0 &&
-                joinWaitlist && (
-                    <div className='bg-orange-50 border border-orange-200 rounded-xl p-4 mb-6'>
-                        <p className='text-orange-800 text-sm mb-4'>
-                            ❌ This time slot appears to be fully booked.
-                        </p>
-                        <div className='flex gap-3'>
-                            <button
-                                onClick={() => {
-                                    onUpdate({ time: '' });
-                                }}
-                                className='border border-slate-300 text-slate-700 px-4 py-2 rounded-lg
-                                       hover:bg-slate-50 font-medium text-sm transition-colors'
-                            >
-                                No, Pick Another Time
-                            </button>
-                            <button
-                                onClick={() => setShowWaitlistModal(true)}
-                                className='bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-lg
-                                       font-medium text-sm transition-colors shadow-lg shadow-sky-500/25'
-                            >
-                                Join Waitlist
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-            {/* Waitlist modal */}
-            {showWaitlistModal && (
-                <JoinWaitlistModal
-                    serviceId={serviceId}
-                    date={selectedDate}
-                    time={selectedTime}
-                    serviceName={serviceName}
-                    onSuccess={() => {
-                        setShowWaitlistModal(false);
-                        // Clear selections after joining waitlist
-                        onUpdate({ date: '', time: '' });
-                    }}
-                    onClose={() => setShowWaitlistModal(false)}
-                />
             )}
 
             {/* Navigation */}

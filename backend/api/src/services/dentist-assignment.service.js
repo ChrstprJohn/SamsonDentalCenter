@@ -76,7 +76,9 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         .from('appointments')
         .select('dentist_id')
         .eq('appointment_date', date)
-        .not('status', 'in', '("CANCELLED","LATE_CANCEL","WAITLISTED")')
+        // ✅ Only exclude actual cancellations. PENDING and CONFIRMED both count as booked slots.
+        // Waitlist entries are in a separate table (waitlist), not appointments.
+        .not('status', 'in', '("CANCELLED","LATE_CANCEL")')
         // IMPORTANT: Include PENDING appointments in conflicts!
         // PENDING = unconfirmed but slot is reserved, must not double-book
         .in('dentist_id', unblockedDentistIds)
@@ -96,7 +98,7 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         .from('appointments')
         .select('dentist_id')
         .eq('appointment_date', date)
-        .not('status', 'in', '("CANCELLED","LATE_CANCEL","WAITLISTED")')
+        .not('status', 'in', '("CANCELLED","LATE_CANCEL")')
         .in('dentist_id', freeDentists);
 
     // Count appointments per dentist

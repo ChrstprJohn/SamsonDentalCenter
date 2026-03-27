@@ -13,13 +13,13 @@ const SpecializedServiceModal = ({ service, onClose }) => {
 
     const handleLogin = () => {
         // Redirect to login with intended service in query param
-        navigate(`/login?redirect=/dashboard/book?service=${service.id}`);
+        navigate(`/login?redirect=/patient/book?service=${service.id}`);
         onClose();
     };
 
     const handleRegister = () => {
         // Redirect to register with intended service in query param
-        navigate(`/register?redirect=/dashboard/book?service=${service.id}`);
+        navigate(`/register?redirect=/patient/book?service=${service.id}`);
         onClose();
     };
 

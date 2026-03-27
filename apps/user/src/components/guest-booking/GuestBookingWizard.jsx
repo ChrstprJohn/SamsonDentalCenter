@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { api } from '../../utils/api';
 import StepIndicator from './StepIndicator';
 import ServiceStep from './ServiceStep';
 import DateTimeStep from './DateTimeStep';
@@ -7,12 +9,14 @@ import GuestBookingSuccess from './GuestBookingSuccess';
 
 const GuestBookingWizard = ({ booking }) => {
     const {
+        sessionId,
         step,
         currentStep,
         formData,
         submitting,
         error,
         result,
+        slotHold,
         updateField,
         updateFields,
         nextStep,
@@ -21,6 +25,40 @@ const GuestBookingWizard = ({ booking }) => {
         submit,
         reset,
     } = booking;
+
+    // ✅ Release hold on page exit (close browser, navigate away, refresh)
+    useEffect(() => {
+        const releaseHoldOnExit = async () => {
+            const holdId = localStorage.getItem('activeSlotHold');
+            if (holdId) {
+                try {
+                    const parsed = JSON.parse(holdId);
+                    await api.post(
+                        '/appointments/slots/release-hold',
+                        {
+                            hold_id: parsed.hold_id,
+                        },
+                        {
+                            // Use keepalive to ensure request fires even if page is closing
+                            keepalive: true,
+                        },
+                    );
+                } catch (e) {
+                    // Silently fail - hold will auto-expire anyway
+                }
+            }
+        };
+
+        // Fire immediately on page unload (close tab, navigate away, refresh)
+        const handleBeforeUnload = () => {
+            releaseHoldOnExit();
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
 
     // If booking succeeded, show success screen
     if (result) {
@@ -54,6 +92,8 @@ const GuestBookingWizard = ({ booking }) => {
                     selectedDate={formData.date}
                     selectedTime={formData.time}
                     serviceName={formData.service_name}
+                    sessionId={sessionId}
+                    slotHold={slotHold}
                     onUpdate={(fields) => updateFields(fields)}
                     onNext={nextStep}
                     onBack={prevStep}

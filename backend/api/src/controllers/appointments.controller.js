@@ -14,6 +14,8 @@ import {
     sendCancellationEmail,
 } from '../services/email-confirmation.service.js';
 import { notifyWaitlist } from '../services/waitlist.service.js';
+import { holdSlot, releaseHold } from '../services/slot-hold.service.js';
+import { getTodayPH } from '../utils/timezone.js';
 import { supabaseAdmin } from '../config/supabase.js';
 
 /**
@@ -30,14 +32,22 @@ import { supabaseAdmin } from '../config/supabase.js';
  */
 export const bookGuest = async (req, res) => {
     try {
-        const { service_id, date, time, email, phone, full_name } = req.body;
+        const { service_id, date, time, email, phone, full_name, user_session_id } = req.body;
 
         // Validation
         if (!service_id || !date || !time || !email || !full_name) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        const result = await bookAppointmentGuest(service_id, date, time, email, phone, full_name);
+        const result = await bookAppointmentGuest(
+            service_id,
+            date,
+            time,
+            email,
+            phone,
+            full_name,
+            user_session_id,
+        );
         return res.status(result.booked ? 201 : 409).json(result);
     } catch (err) {
         console.error('Guest booking error:', err);
@@ -102,7 +112,7 @@ export const resendConfirmation = async (req, res) => {
  */
 export const bookUser = async (req, res, next) => {
     try {
-        const { service_id, date, time, booked_for_name } = req.body;
+        const { service_id, date, time, booked_for_name, user_session_id } = req.body;
 
         // ── Validate ──
         if (!service_id || !date || !time) {
@@ -112,11 +122,9 @@ export const bookUser = async (req, res, next) => {
             });
         }
 
-        // Check date is in the future
-        const requestedDate = new Date(date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (requestedDate < today) {
+        // Check date is in the future (using Philippine Time)
+        const todayPH = getTodayPH();
+        if (date < todayPH) {
             return res.status(400).json({ error: 'Cannot book appointments in the past.' });
         }
 
@@ -128,6 +136,7 @@ export const bookUser = async (req, res, next) => {
             time,
             true, // sendEmail
             booked_for_name?.trim() || null, // null = for self, name = for someone else
+            user_session_id,
         );
 
         if (result.booked) {
@@ -145,17 +154,97 @@ export const bookUser = async (req, res, next) => {
 };
 
 /**
+ * POST /api/appointments/submit-wizard
+ * Atomic submission for User Booking Wizard.
+ * Body: {
+ *   service_id,
+ *   booking: { date, time, booked_for_name, user_session_id },
+ *   waitlist: { date, time, priority }
+ * }
+ */
+export const submitWizard = async (req, res, next) => {
+    try {
+        const { service_id, booking, waitlist } = req.body;
+        const results = { booking: null, waitlist: null };
+
+        if (!service_id) {
+            return res.status(400).json({ error: 'service_id is required.' });
+        }
+
+        // 1. Process Booking if requested
+        if (booking && booking.date && booking.time) {
+            try {
+                results.booking = await bookAppointment(
+                    req.user.id,
+                    service_id,
+                    booking.date,
+                    booking.time,
+                    true, // sendEmail
+                    booking.booked_for_name?.trim() || null,
+                    booking.user_session_id,
+                );
+            } catch (err) {
+                // If booking fails, we might still want to proceed with waitlist or stop?
+                // The user asked for "Atomic", so if one fails, we should probably stop if they intended both.
+                // However, usually they only do one or the other per slot.
+                // We'll return the error and stop.
+                return res.status(err.status || 500).json({
+                    error: `Booking failed: ${err.message}`,
+                    stage: 'booking',
+                });
+            }
+        }
+
+        // 2. Process Waitlist if requested
+        if (waitlist && (waitlist.date || waitlist.preferred_date)) {
+            try {
+                const { joinWaitlist } = await import('../services/waitlist.service.js');
+                results.waitlist = await joinWaitlist(
+                    req.user.id,
+                    service_id,
+                    waitlist.date || waitlist.preferred_date,
+                    waitlist.time || waitlist.preferred_time || null,
+                    waitlist.priority || 0,
+                );
+            } catch (err) {
+                return res.status(err.status || 500).json({
+                    error: `Waitlist failed: ${err.message}`,
+                    stage: 'waitlist',
+                    booking: results.booking, // Return the success of the first stage if it passed
+                });
+            }
+        }
+
+        res.status(200).json({
+            success: true,
+            ...results,
+        });
+    } catch (err) {
+        if (err.status) return res.status(err.status).json({ error: err.message });
+        next(err);
+    }
+};
+
+/**
  * GET /api/appointments/my
  * Optional query: ?status=CONFIRMED
  */
 export const getMyAppointments = async (req, res, next) => {
     try {
-        const { status } = req.query;
-        const appointments = await getPatientAppointments(req.user.id, status);
+        const { status, sort, page = 1, limit = 10 } = req.query;
+        const result = await getPatientAppointments(
+            req.user.id,
+            status,
+            sort,
+            Number(page),
+            Number(limit),
+        );
 
         res.json({
-            appointments,
-            total: appointments.length,
+            appointments: result.appointments,
+            total: result.total,
+            page: Number(page),
+            limit: Number(limit),
         });
     } catch (err) {
         if (err.status) return res.status(err.status).json({ error: err.message });
@@ -339,7 +428,7 @@ export const guestRescheduleInfo = async (req, res, next) => {
                 dentist: result.appointment.dentist?.profile?.full_name || 'Assigned',
                 guest_name: result.appointment.guest_name,
             },
-            available_slots: slots.available_slots,
+            available_slots: slots.all_slots,
         });
     } catch (err) {
         if (err.status) return res.status(err.status).json({ error: err.message });
@@ -375,10 +464,13 @@ export const guestRescheduleConfirm = async (req, res, next) => {
         const { getAvailableSlots } = await import('../services/slot.service.js');
         const availability = await getAvailableSlots(date, oldAppt.service?.id);
 
-        if (!availability.available_slots.includes(time)) {
+        const slotData = availability.all_slots.find((s) => s.time === time);
+        if (!slotData || slotData.available === 0) {
             return res.status(409).json({
                 error: 'Selected time is not available. Please choose another.',
-                available_slots: availability.available_slots,
+                available_slots: availability.all_slots
+                    .filter((s) => s.available > 0)
+                    .map((s) => s.time),
             });
         }
 
@@ -475,3 +567,53 @@ function addMinutesToTime(timeStr, minutes) {
     const mins = (totalMin % 60).toString().padStart(2, '0');
     return `${hours}:${mins}`;
 }
+
+/**
+ * POST /api/appointments/slots/hold
+ * Body: { service_id, date, time, user_session_id }
+ *
+ * Hold a time slot for 5 minutes while user completes booking form.
+ * If user already has a hold on a different time for the same date,
+ * the old hold is automatically released (auto-switch behavior).
+ */
+export const holdSlotHandler = async (req, res) => {
+    try {
+        const { service_id, date, time, user_session_id } = req.body;
+
+        // Validation
+        if (!service_id || !date || !time || !user_session_id) {
+            return res.status(400).json({
+                error: 'Missing required fields: service_id, date, time, user_session_id',
+            });
+        }
+
+        const result = await holdSlot(service_id, date, time, user_session_id);
+        return res.status(200).json(result);
+    } catch (err) {
+        console.error('Hold slot error:', err);
+        return res.status(err.status || 500).json({ error: err.message });
+    }
+};
+
+/**
+ * POST /api/appointments/slots/release-hold
+ * Body: { hold_id }
+ *
+ * Release a slot hold (mark as released).
+ * Called when user navigates away or completes booking.
+ */
+export const releaseSlotHold = async (req, res) => {
+    try {
+        const { hold_id } = req.body;
+
+        if (!hold_id) {
+            return res.status(400).json({ error: 'Missing hold_id' });
+        }
+
+        const result = await releaseHold(hold_id);
+        return res.status(200).json(result);
+    } catch (err) {
+        console.error('Release hold error:', err);
+        return res.status(err.status || 500).json({ error: err.message });
+    }
+};

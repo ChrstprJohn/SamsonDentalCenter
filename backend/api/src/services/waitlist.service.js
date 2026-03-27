@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { supabaseAdmin } from '../config/supabase.js';
 import { WAITLIST_STATUS, APPOINTMENT_STATUS, CLINIC_CONFIG } from '../utils/constants.js';
 
@@ -69,14 +70,17 @@ export const joinWaitlist = async (patientId, serviceId, date, time = null, prio
         .eq('status', WAITLIST_STATUS.WAITING);
 
     return {
-        message: 'Added to waitlist!',
+        success: true,
+        message: 'Added to waitlist',
         waitlist_entry: {
             id: data.id,
-            date: data.preferred_date,
-            time: data.preferred_time,
-            service: data.service?.name,
+            service_id: data.service_id,
+            service_name: data.service?.name,
+            preferred_date: data.preferred_date,
+            preferred_time: data.preferred_time,
+            position: count,
             status: data.status,
-            position: count, // Your position in the queue
+            joined_at: data.created_at,
         },
     };
 };
@@ -100,15 +104,33 @@ export const getMyWaitlist = async (patientId) => {
 
     if (error) throw { status: 500, message: error.message };
 
-    return data.map((entry) => ({
-        id: entry.id,
-        date: entry.preferred_date,
-        time: entry.preferred_time,
-        service: entry.service?.name,
-        status: entry.status,
-        expires_at: entry.expires_at,
-        created_at: entry.created_at,
-    }));
+    // Calculate position for each entry (based on priority and created_at)
+    const positionMap = {};
+    let position = 1;
+    data.forEach((entry) => {
+        const key = `${entry.preferred_date}-${entry.service_id}-${entry.preferred_time || 'any'}`;
+        if (!positionMap[key]) {
+            positionMap[key] = position++;
+        }
+    });
+
+    return data.map((entry) => {
+        const key = `${entry.preferred_date}-${entry.service_id}-${entry.preferred_time || 'any'}`;
+        const displayStatus =
+            entry.status === WAITLIST_STATUS.NOTIFIED ? 'OFFER_PENDING' : entry.status;
+
+        return {
+            id: entry.id,
+            service_id: entry.service_id,
+            service_name: entry.service?.name,
+            preferred_date: entry.preferred_date,
+            preferred_time: entry.preferred_time,
+            position: positionMap[key],
+            status: displayStatus,
+            offer_expires_at: entry.expires_at,
+            joined_at: entry.created_at,
+        };
+    });
 };
 
 /**
@@ -161,11 +183,33 @@ export const notifyWaitlist = async (freedSlot) => {
         return { notified: false, message: 'No one on waitlist for this slot.' };
     }
 
+    // ── 1.5. 🔴 CHECK 3-HOUR NOTICE BUFFER ──
+    // Don't notify waitlist if cancellation occurs less than 3 hours before appointment
+    // This protects both patients (time to prepare) and clinic (prep time)
+    const appointmentDateTime = new Date(`${date}T${start_time}`);
+    const currentTime = new Date();
+    const minutesUntilAppointment = Math.floor((appointmentDateTime - currentTime) / (1000 * 60));
+
+    if (minutesUntilAppointment < CLINIC_CONFIG.WAITLIST_MIN_NOTICE_MINUTES) {
+        console.log(
+            `⏰ [WAITLIST] Insufficient notice for ${date} @ ${start_time}: ${minutesUntilAppointment}min < ${CLINIC_CONFIG.WAITLIST_MIN_NOTICE_MINUTES}min. NOT notifying waitlist.`,
+        );
+        return {
+            notified: false,
+            message: 'Cancellation too close to appointment time. Waitlist not notified.',
+            minutesUntilAppointment,
+            minimumRequired: CLINIC_CONFIG.WAITLIST_MIN_NOTICE_MINUTES,
+            reason: 'insufficient_notice',
+        };
+    }
+
     // ── 2. Notify the first patient ──
     const firstInLine = waitlistEntries[0];
 
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + CLINIC_CONFIG.WAITLIST_TIMEOUT_MINUTES);
+
+    const token = crypto.randomBytes(32).toString('hex');
 
     await supabaseAdmin
         .from('waitlist')
@@ -175,6 +219,7 @@ export const notifyWaitlist = async (freedSlot) => {
             expires_at: expiresAt.toISOString(),
             // Store the actual offered time so we know which slot to book on confirm
             preferred_time: start_time,
+            claim_token: token,
             updated_at: new Date().toISOString(),
         })
         .eq('id', firstInLine.id);
@@ -203,8 +248,14 @@ export const notifyWaitlist = async (freedSlot) => {
  *
  * Handles:
  * - Expired offers → cascade to next person
- * - Swap logic → if patient already has CONFIRMED for same date+service, auto-cancel old
+ * - Swap logic → if patient already has CONFIRMED OR PENDING for same date+service, auto-cancel old
+ *   * CONFIRMED: Auto-cancel + cascade (frees a slot for waitlist)
+ *   * PENDING: Auto-cancel + NO cascade (specialized service awaiting approval)
  * - Cleanup → remove remaining WAITING entries for same patient+date+service
+ *
+ * 🔴 FIX FOR SPECIALIZED SERVICES:
+ * User can accept waitlist BEFORE receptionist approves their PENDING appointment.
+ * This logic ensures no duplicate appointments are created.
  */
 export const confirmWaitlistOffer = async (waitlistId, patientId) => {
     // ── 1. Get the waitlist entry ──
@@ -243,20 +294,30 @@ export const confirmWaitlistOffer = async (waitlistId, patientId) => {
         };
     }
 
-    // ── 3. SWAP LOGIC: Check if patient already has CONFIRMED for same date + service ──
-    // Example: Patient has Cleaning at 09:00 on March 2. Waitlist offer is Cleaning at 10:00 on March 2.
-    // Auto-cancel the 09:00, which frees it and cascades via notifyWaitlist.
+    // ── 3. SWAP LOGIC: Check if patient already has CONFIRMED or PENDING for same date + service ──
+    // 🔴 CRITICAL FIX: Check BOTH statuses to handle specialized services
+    //
+    // Scenario 1 (General Service): Patient has CONFIRMED appointment
+    //   → Auto-cancel + free slot + cascade to waitlist
+    //
+    // Scenario 2 (Specialized Service): Patient has PENDING appointment (awaiting approval)
+    //   → User accepts waitlist BEFORE receptionist approves
+    //   → Auto-cancel the PENDING (it's not live yet, no cascade needed)
+    //   → Proceed with new waitlist appointment
+    //
+    // Example: Patient has Cleaning at 09:00 on March 2 (status: PENDING/CONFIRMED).
+    //          Waitlist offer is Cleaning at 10:00 on March 2.
+    //          Auto-cancel the 09:00, which frees it (if CONFIRMED, cascade via notifyWaitlist).
     const { data: existingAppointment } = await supabaseAdmin
         .from('appointments')
-        .select('id, start_time')
+        .select('id, start_time, status')
         .eq('patient_id', patientId)
         .eq('service_id', entry.service_id)
         .eq('appointment_date', entry.preferred_date)
-        .eq('status', APPOINTMENT_STATUS.CONFIRMED)
+        .in('status', [APPOINTMENT_STATUS.CONFIRMED, APPOINTMENT_STATUS.PENDING])
         .single();
 
     if (existingAppointment) {
-        // Auto-cancel the old booking + free the slot + cascade
         const { cancelAppointment } = await import('./appointment.service.js');
         const cancelResult = await cancelAppointment(
             existingAppointment.id,
@@ -264,12 +325,20 @@ export const confirmWaitlistOffer = async (waitlistId, patientId) => {
             'Auto-cancelled: patient confirmed a waitlist offer for a different time',
         );
 
-        // The freed slot from the old appointment should cascade to waitlist
-        await notifyWaitlist(cancelResult.freed_slot);
-
-        console.log(
-            `🔄 Swap: Patient ${patientId} swapped ${existingAppointment.start_time} → ${entry.preferred_time} on ${entry.preferred_date}`,
-        );
+        // ── Only cascade if the cancelled appointment was CONFIRMED ──
+        // PENDING appointments are not yet live, so no cascade needed
+        if (existingAppointment.status === APPOINTMENT_STATUS.CONFIRMED) {
+            // The freed slot from the old appointment should cascade to waitlist
+            await notifyWaitlist(cancelResult.freed_slot);
+            console.log(
+                `🔄 Swap (CONFIRMED): Patient ${patientId} swapped ${existingAppointment.start_time} → ${entry.preferred_time} on ${entry.preferred_date}`,
+            );
+        } else {
+            // PENDING appointment was cancelled, no cascade needed
+            console.log(
+                `🔄 Auto-Cancel (PENDING): Patient ${patientId}'s pending request was auto-cancelled. Waitlist offer now proceeding.`,
+            );
+        }
     }
 
     // ── 4. Mark waitlist entry as confirmed ──
@@ -300,5 +369,61 @@ export const confirmWaitlistOffer = async (waitlistId, patientId) => {
         service_id: entry.service_id,
         date: entry.preferred_date,
         time: entry.preferred_time,
+        patient_id: entry.patient_id, // Added for public confirm logic
     };
+};
+
+/**
+ * Public: Get waitlist offer details using a claim token.
+ */
+export const getWaitlistByToken = async (token) => {
+    const { data, error } = await supabaseAdmin
+        .from('waitlist')
+        .select(
+            `
+            *,
+            service:services(name)
+        `,
+        )
+        .eq('claim_token', token)
+        .eq('status', WAITLIST_STATUS.NOTIFIED)
+        .single();
+
+    if (error || !data) {
+        throw { status: 404, message: 'Waitlist offer not found or expired.' };
+    }
+
+    // Check if expired
+    if (new Date() > new Date(data.expires_at)) {
+        throw { status: 410, message: 'This claim window has expired.' };
+    }
+
+    return {
+        offer: {
+            id: data.id,
+            service: data.service?.name,
+            date: data.preferred_date,
+            displayTime: data.preferred_time,
+        },
+    };
+};
+
+/**
+ * Public: Confirm waitlist offer using a claim token.
+ */
+export const confirmWaitlistByToken = async (token) => {
+    // 1. Find the entry by token
+    const { data: entry, error } = await supabaseAdmin
+        .from('waitlist')
+        .select('id, patient_id')
+        .eq('claim_token', token)
+        .eq('status', WAITLIST_STATUS.NOTIFIED)
+        .single();
+
+    if (error || !entry) {
+        throw { status: 404, message: 'Invalid or expired claim token.' };
+    }
+
+    // 2. Delegate to the main confirm service (reusing all swap/cleanup logic)
+    return await confirmWaitlistOffer(entry.id, entry.patient_id);
 };

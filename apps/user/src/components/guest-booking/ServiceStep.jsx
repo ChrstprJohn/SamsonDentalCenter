@@ -57,7 +57,6 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, onUpdateFields }) =>
                             <button
                                 key={service.id}
                                 onClick={() => handleSelect(service)}
-                                disabled={isLocked}
                                 className={`text-left p-4 rounded-xl border-2 transition-all relative ${
                                     isSelected
                                         ? 'border-sky-500 bg-sky-50 ring-2 ring-sky-500/20'

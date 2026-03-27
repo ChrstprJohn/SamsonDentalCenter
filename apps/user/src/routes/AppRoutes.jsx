@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Layouts
 import PublicLayout from '../layouts/PublicLayout';
-import PatientLayout from '../layouts/PatientLayout';
+
 
 // Route utils
 import ProtectedRoute from './ProtectedRoute';
@@ -12,11 +12,16 @@ import ScrollToTop from './ScrollToTop';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 
-// Email link pages (existing ✅ — moved into pages/guest/)
+// Email link pages (Module 06A)
 import ConfirmAppointmentPage from '../pages/guest/ConfirmAppointmentPage';
 import AppointmentConfirmedPage from '../pages/guest/AppointmentConfirmedPage';
 import AppointmentErrorPage from '../pages/guest/AppointmentErrorPage';
 import AppointmentAlreadyConfirmedPage from '../pages/guest/AppointmentAlreadyConfirmedPage';
+import CancelAppointmentPage from '../pages/guest/CancelAppointmentPage';
+import AppointmentCancelledPage from '../pages/guest/AppointmentCancelledPage';
+import RescheduleAppointmentPage from '../pages/guest/RescheduleAppointmentPage';
+import AppointmentRescheduledPage from '../pages/guest/AppointmentRescheduledPage';
+import WaitlistClaimPage from '../pages/guest/WaitlistClaimPage';
 
 // Public website pages
 import HomePage from '../pages/public/HomePage';
@@ -30,7 +35,6 @@ import ContactPage from '../pages/public/ContactPage';
 import GuestBookingPage from '../pages/guest/GuestBookingPage';
 
 import UserBookingPage from '../pages/patient/UserBookingPage';
-import WaitlistManagementPage from '../pages/patient/WaitlistManagementPage';
 
 const AppRoutes = () => {
     return (
@@ -98,39 +102,36 @@ const AppRoutes = () => {
                     path='/email/already-confirmed'
                     element={<AppointmentAlreadyConfirmedPage />}
                 />
+                <Route
+                    path='/email/cancel'
+                    element={<CancelAppointmentPage />}
+                />
+                <Route
+                    path='/email/cancelled'
+                    element={<AppointmentCancelledPage />}
+                />
+                <Route
+                    path='/email/reschedule'
+                    element={<RescheduleAppointmentPage />}
+                />
+                <Route
+                    path='/email/rescheduled'
+                    element={<AppointmentRescheduledPage />}
+                />
+                <Route
+                    path='/email/waitlist-claim'
+                    element={<WaitlistClaimPage />}
+                />
 
-                <Route element={<PatientLayout />}>
-                    <Route
-                        path='/dashboard/book'
-                        element={<UserBookingPage />}
-                    />
-                    <Route
-                        path='/dashboard/waitlist'
-                        element={
-                            <ProtectedRoute>
-                                <WaitlistManagementPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                </Route>
-
-                {/* Module 06:
-                <Route path='/email/cancel' element={<CancelAppointmentPage />} />
-                <Route path='/email/cancelled' element={<AppointmentCancelledPage />} />
-                <Route path='/email/reschedule' element={<RescheduleAppointmentPage />} />
-                <Route path='/email/rescheduled' element={<AppointmentRescheduledPage />} />
-                */}
-
-                {/* ── Patient Portal (Module 07–10):
-                <Route element={<ProtectedRoute><PatientLayout /></ProtectedRoute>}>
-                    <Route path='/patient' element={<DashboardPage />} />
-                <Route path='/patient/booking' element={<BookingPage />} />
-                    <Route path='/patient/appointments' element={<AppointmentsPage />} />
-                    <Route path='/patient/appointments/:id' element={<AppointmentDetailPage />} />
-                    <Route path='/patient/waitlist' element={<WaitlistPage />} />
-                    <Route path='/patient/notifications' element={<NotificationsPage />} />
-                </Route>
-                */}
+                {/* ── Standalone Patient Booking (Full Page) ── */}
+                <Route
+                    path='/patient/book'
+                    element={
+                        <ProtectedRoute>
+                            <UserBookingPage />
+                        </ProtectedRoute>
+                    }
+                />
 
                 {/* ── Catch-all ── */}
                 <Route

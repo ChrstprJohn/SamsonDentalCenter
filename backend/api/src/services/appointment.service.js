@@ -9,6 +9,7 @@ import {
     sendRescheduleEmail,
 } from './email-confirmation.service.js';
 import { APPOINTMENT_STATUS, SERVICE_TIER, APPROVAL_STATUS } from '../utils/constants.js';
+import { getTodayPH } from '../utils/timezone.js';
 
 /**
  * Book an appointment for a guest (no user account).
@@ -29,12 +30,11 @@ export const bookAppointmentGuest = async (
     guestEmail,
     guestPhone,
     guestName,
+    userSessionId = null,
 ) => {
-    // ── 0. Validate date is in the future ──
-    const requestedDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (requestedDate < today) {
+    // ── 0. Validate date is in the future (using Philippine Time) ──
+    const todayPH = getTodayPH();
+    if (date < todayPH) {
         throw { status: 400, message: 'Cannot book appointments in the past.' };
     }
 
@@ -62,8 +62,9 @@ export const bookAppointmentGuest = async (
     const endTime = addMinutesToTime(time, service.duration_minutes);
 
     // ── 2. Check availability ──
-    const availability = await getAvailableSlots(date, serviceId);
-    const isAvailable = availability.available_slots.includes(time);
+    const availability = await getAvailableSlots(date, serviceId, userSessionId);
+    const slotData = availability.all_slots.find((s) => s.time === time);
+    const isAvailable = slotData && slotData.available > 0;
 
     if (!isAvailable) {
         const suggestions = await getSuggestedSlots(date, serviceId, time);
@@ -157,6 +158,7 @@ export const bookAppointment = async (
     time,
     sendEmail = true,
     bookedForName = null,
+    userSessionId = null,
 ) => {
     // ── 0. Check if patient is restricted (3+ no-shows or 3+ cancellations) ──
     const { data: patient } = await supabaseAdmin
@@ -272,8 +274,9 @@ export const bookAppointment = async (
     // ═══════════════════════════════════════════════
 
     // ── 2. Check if the requested slot is available ──
-    const availability = await getAvailableSlots(date, serviceId);
-    const isAvailable = availability.available_slots.includes(time);
+    const availability = await getAvailableSlots(date, serviceId, userSessionId);
+    const slotData = availability.all_slots.find((s) => s.time === time);
+    const isAvailable = slotData && slotData.available > 0;
 
     if (!isAvailable) {
         // Slot NOT available → return alternatives
@@ -365,9 +368,34 @@ export const bookAppointment = async (
 };
 
 /**
- * Get all appointments for a patient.
+ * Get all appointments for a patient with advanced filtering.
+ *
+ * Supported status filters:
+ * - 'upcoming'    → CONFIRMED or PENDING appointments with date >= today (actionable visits)
+ * - 'confirmed'   → CONFIRMED appointments only (approved & ready)
+ * - 'pending'     → PENDING appointments only (awaiting approval, future dates only)
+ * - 'missed'      → NO_SHOW appointments (missed/no shows)
+ * - 'cancel'      → CANCELLED and LATE_CANCEL appointments
+ * - 'decline'     → Appointments with approval_status = REJECTED
+ * - 'completed'   → COMPLETED appointments (past history)
+ * - 'all' or ''   → Every appointment (no filter)
+ *
+ * Sort:
+ * - 'asc' (default) → Oldest first
+ * - 'desc' → Newest first
+ *
+ * @param {string} patientId - Patient UUID
+ * @param {string|null} status - Filter status
+ * @param {string} sort - Sort direction ('asc' or 'desc')
+ * @returns {Array} Filtered appointments
  */
-export const getPatientAppointments = async (patientId, status = null) => {
+export const getPatientAppointments = async (
+    patientId,
+    status = null,
+    sort = 'asc',
+    page = 1,
+    limit = 10,
+) => {
     let query = supabaseAdmin
         .from('appointments')
         .select(
@@ -378,27 +406,56 @@ export const getPatientAppointments = async (patientId, status = null) => {
         profile:profiles(full_name)
       )
     `,
+            { count: 'exact' },
         )
-        .eq('patient_id', patientId)
-        .order('appointment_date', { ascending: true })
-        .order('start_time', { ascending: true });
+        .eq('patient_id', patientId);
 
-    if (status) {
+    // 🌏 Philippine Time (UTC+8) — Use PH timezone for all date comparisons
+    const today = getTodayPH();
+
+    // 🎯 FILTER LOGIC
+    if (status === 'upcoming') {
+        query = query.eq('status', APPOINTMENT_STATUS.CONFIRMED).gte('appointment_date', today);
+    } else if (status === 'confirmed') {
+        query = query.eq('status', APPOINTMENT_STATUS.CONFIRMED).gte('appointment_date', today);
+    } else if (status === 'pending') {
+        query = query.eq('status', APPOINTMENT_STATUS.PENDING).gte('appointment_date', today);
+    } else if (status === 'missed') {
+        query = query.eq('status', APPOINTMENT_STATUS.NO_SHOW);
+    } else if (status === 'cancel') {
+        query = query.in('status', [APPOINTMENT_STATUS.CANCELLED, APPOINTMENT_STATUS.LATE_CANCEL]);
+    } else if (status === 'decline') {
+        query = query.eq('approval_status', APPROVAL_STATUS.REJECTED);
+    } else if (status === 'completed') {
+        query = query.eq('status', APPOINTMENT_STATUS.COMPLETED);
+    } else if (status && status !== 'all' && status !== '') {
         query = query.eq('status', status);
     }
 
-    const { data, error } = await query;
+    // 🔄 SORTING
+    const isAsc = sort === 'asc';
+    query = query
+        .order('appointment_date', { ascending: isAsc })
+        .order('start_time', { ascending: isAsc });
+
+    // 🔢 PAGINATION
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    query = query.range(from, to);
+
+    const { data, error, count } = await query;
 
     if (error) {
         throw { status: 500, message: error.message };
     }
 
-    return data.map((appt) => ({
+    const appointments = data.map((appt) => ({
         id: appt.id,
         date: appt.appointment_date,
         start_time: appt.start_time,
         end_time: appt.end_time,
         status: appt.status,
+        approval_status: appt.approval_status,
         service: appt.service?.name,
         price: appt.service?.price,
         dentist: appt.dentist?.profile?.full_name || 'TBD',
@@ -406,6 +463,11 @@ export const getPatientAppointments = async (patientId, status = null) => {
         notes: appt.notes,
         created_at: appt.created_at,
     }));
+
+    return {
+        appointments,
+        total: count || 0,
+    };
 };
 
 /**
@@ -658,7 +720,8 @@ export const rescheduleAppointment = async (appointmentId, patientId, newDate, n
  * @returns {object} Walk-in appointment details
  */
 export const bookWalkIn = async (patientId, serviceId, time = null, notes = null) => {
-    const today = new Date().toISOString().split('T')[0];
+    // 🌏 Philippine Time (UTC+8) — Today's date in PH timezone
+    const today = getTodayPH();
 
     // Get service info
     const { data: service } = await supabaseAdmin

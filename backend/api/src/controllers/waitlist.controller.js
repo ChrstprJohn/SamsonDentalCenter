@@ -3,6 +3,8 @@ import {
     getMyWaitlist,
     cancelWaitlistEntry,
     confirmWaitlistOffer,
+    getWaitlistByToken,
+    confirmWaitlistByToken,
 } from '../services/waitlist.service.js';
 import { bookAppointment } from '../services/appointment.service.js';
 
@@ -12,13 +14,17 @@ import { bookAppointment } from '../services/appointment.service.js';
  */
 export const join = async (req, res, next) => {
     try {
-        const { service_id, date, time, priority } = req.body;
+        const { service_id, date, time, priority, preferred_date, preferred_time } = req.body;
 
-        if (!service_id || !date) {
+        // Support aliases for frontend compatibility
+        const finalDate = date || preferred_date;
+        const finalTime = time || preferred_time;
+
+        if (!service_id || !finalDate) {
             return res.status(400).json({ error: 'service_id and date are required.' });
         }
 
-        const result = await joinWaitlist(req.user.id, service_id, date, time, priority);
+        const result = await joinWaitlist(req.user.id, service_id, finalDate, finalTime, priority);
         res.status(201).json(result);
     } catch (err) {
         if (err.status) return res.status(err.status).json({ error: err.message });
@@ -93,6 +99,60 @@ export const confirm = async (req, res, next) => {
             service_id: result.service_id,
             date: result.date,
         });
+    } catch (err) {
+        if (err.status) return res.status(err.status).json({ error: err.message });
+        next(err);
+    }
+};
+
+/**
+ * GET /api/waitlist/offer?token=xxx
+ * Public: Fetch offer details using token.
+ */
+export const getPublicOffer = async (req, res, next) => {
+    try {
+        const { token } = req.query;
+        if (!token) return res.status(400).json({ error: 'Token is required.' });
+
+        const result = await getWaitlistByToken(token);
+        res.json(result);
+    } catch (err) {
+        if (err.status) return res.status(err.status).json({ error: err.message });
+        next(err);
+    }
+};
+
+/**
+ * POST /api/waitlist/confirm?token=xxx
+ * Public: Confirm offer using token.
+ */
+export const confirmPublicOffer = async (req, res, next) => {
+    try {
+        const { token } = req.query;
+        if (!token) return res.status(400).json({ error: 'Token is required.' });
+
+        // 1. Confirm the offer
+        const result = await confirmWaitlistByToken(token);
+
+        // 2. Auto-book the appointment (Guest/Public flow)
+        if (result.time) {
+            const booking = await bookAppointment(
+                result.patient_id, // Use ID from waitlist entry
+                result.service_id,
+                result.date,
+                result.time,
+                true // sendEmail
+            );
+            
+            return res.json({
+                message: result.swapped
+                    ? 'Appointment swapped! Old one cancelled, new booked.'
+                    : 'Waitlist confirmed and appointment booked! ✨',
+                ...booking,
+            });
+        }
+
+        res.json(result);
     } catch (err) {
         if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);

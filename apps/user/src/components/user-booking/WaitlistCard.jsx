@@ -1,91 +1,86 @@
 import { Trash2, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 
+import { Trash2, Clock, CheckCircle, AlertCircle, Lock, Calendar, Plus } from 'lucide-react';
+
 const WaitlistCard = ({ entry, onRemove, onAccept, onDecline, loadingId }) => {
     const isOfferPending = entry.status === 'OFFER_PENDING';
     const timeLeftMs = new Date(entry.offer_expires_at) - new Date();
     const minutesLeft = Math.ceil(timeLeftMs / 1000 / 60);
 
     return (
-        <div className='border border-slate-200 rounded-xl p-5 hover:shadow-md transition-shadow'>
-            <div className='flex justify-between items-start mb-4'>
-                <div>
-                    <h3 className='font-semibold text-slate-900'>{entry.service_name}</h3>
-                    <p className='text-sm text-slate-600'>
-                        {entry.preferred_date} at {entry.preferred_time}
-                    </p>
-                </div>
-                <div className='flex items-center gap-2'>
-                    {entry.status === 'WAITING' && (
-                        <span className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium'>
-                            <Clock size={12} />
-                            Waiting
-                        </span>
-                    )}
-                    {isOfferPending && (
-                        <span className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium'>
-                            <AlertCircle size={12} />
-                            Offer Pending
-                        </span>
-                    )}
-                </div>
+        <div className={`bg-amber-50/20 rounded-[32px] border border-amber-100/50 p-8 shadow-sm hover:shadow-md transition-all duration-300 relative group overflow-hidden ${isOfferPending ? 'ring-2 ring-amber-400 border-transparent shadow-xl shadow-amber-100/50' : ''}`}>
+            {/* Lock Icon Overlay / Status Indicator */}
+            <div className="absolute top-8 right-8 text-amber-300 group-hover:text-amber-500 transition-colors">
+                <Lock size={18} />
             </div>
 
-            {entry.status === 'WAITING' && (
-                <div className='bg-slate-50 rounded-lg p-3 mb-4'>
-                    <p className='text-sm text-slate-700'>
-                        Position: <span className='font-bold text-sky-600'>#{entry.position}</span>
-                    </p>
-                    <p className='text-xs text-slate-500 mt-1'>
-                        Joined {new Date(entry.joined_at).toLocaleDateString()}
-                    </p>
-                </div>
-            )}
+            {/* Status Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100/60 text-amber-700 text-[10px] font-black uppercase tracking-[0.1em] rounded-lg mb-4">
+                {isOfferPending ? <AlertCircle size={12} /> : <Clock size={12} />}
+                {isOfferPending ? 'Offer Pending' : 'Active Waitlist'}
+            </div>
 
+            {/* Main Content */}
+            <div className="mb-8">
+                <h3 className="text-xl font-black text-slate-800 mb-1 tracking-tight group-hover:text-amber-700 transition-colors">
+                    {entry.service_name || entry.service?.name || 'Teeth Whitening Session'}
+                </h3>
+                <p className="text-sm font-bold text-slate-400">
+                    Requested for: {entry.preferred_date || 'Any Morning Slot'}
+                </p>
+            </div>
+
+            {/* Offer Timer Section */}
             {isOfferPending && (
-                <div className='bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4'>
-                    <p className='text-sm font-semibold text-amber-900 mb-2'>⏰ Offer expires in</p>
-                    <p className='text-2xl font-bold text-amber-600'>
-                        {minutesLeft > 0 ? `${minutesLeft} min` : 'Expired'}
-                    </p>
+                <div className="bg-amber-100/40 rounded-2xl p-4 mb-6 border border-amber-100">
+                    <div className="flex items-center justify-between">
+                        <span className="text-xs font-black text-amber-800 uppercase tracking-widest">Time Remaining</span>
+                        <span className="text-xl font-black text-amber-600 animate-pulse">{minutesLeft > 0 ? `${minutesLeft} min` : 'Expired'}</span>
+                    </div>
                 </div>
             )}
 
-            <div className='flex gap-2 flex-wrap'>
-                {entry.status === 'WAITING' && (
-                    <button
-                        onClick={() => onRemove(entry.id)}
-                        disabled={loadingId === entry.id}
-                        className='flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-medium
-                                   px-3 py-2 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50'
-                    >
-                        <Trash2 size={16} />
-                        Remove
-                    </button>
-                )}
-
-                {isOfferPending && (
-                    <>
-                        <button
-                            onClick={() => onDecline(entry.id)}
-                            disabled={loadingId === entry.id}
-                            className='flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg
-                                       hover:bg-slate-50 font-medium text-sm transition-colors disabled:opacity-50'
-                        >
-                            Decline
-                        </button>
-                        <button
-                            onClick={() => onAccept(entry.id)}
-                            disabled={loadingId === entry.id}
-                            className='flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600
-                                       text-white rounded-lg font-medium text-sm transition-colors disabled:opacity-50
-                                       shadow-lg shadow-emerald-500/25'
-                        >
-                            <CheckCircle size={16} />
-                            Accept
-                        </button>
-                    </>
-                )}
+            {/* Position Footer */}
+            <div className="pt-6 border-t border-amber-100 flex items-center justify-between text-[11px] font-bold text-amber-700">
+                <div className="flex items-center gap-2">
+                    <span className="opacity-50 text-[14px]">⌛</span>
+                    Position: <span className="font-black">#{entry.position || '2'} in queue</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-300">
+                    Added {new Date(entry.joined_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                </div>
             </div>
+
+            {/* Action Buttons for Offer Pending */}
+            {isOfferPending && (
+                <div className="mt-8 flex gap-3">
+                    <button
+                        onClick={() => onAccept(entry.id)}
+                        disabled={loadingId === entry.id}
+                        className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest shadow-lg shadow-amber-200 transition-all active:scale-95 disabled:opacity-50"
+                    >
+                        Accept Slot
+                    </button>
+                    <button
+                        onClick={() => onDecline(entry.id)}
+                        disabled={loadingId === entry.id}
+                        className="px-6 py-4 border-2 border-amber-200 text-amber-700 font-black rounded-2xl text-[10px] uppercase tracking-widest hover:bg-amber-50 transition-all active:scale-95 disabled:opacity-50"
+                    >
+                        Decline
+                    </button>
+                </div>
+            )}
+
+            {/* Delete Option (Visible on Hover for Waiting) */}
+            {!isOfferPending && (
+                <button
+                    onClick={() => onRemove(entry.id)}
+                    disabled={loadingId === entry.id}
+                    className="absolute bottom-4 right-4 p-2 text-slate-200 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                >
+                    <Trash2 size={16} />
+                </button>
+            )}
         </div>
     );
 };

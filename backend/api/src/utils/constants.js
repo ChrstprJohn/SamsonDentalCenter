@@ -1,9 +1,10 @@
 // Appointment status values — use these everywhere instead of typing strings
+// ✅ NOTE: Waitlist entries are stored in the WAITLIST table, not as appointments.
+// Appointments only exist when a slot is secured (PENDING or CONFIRMED).
 export const APPOINTMENT_STATUS = {
-    PENDING: 'PENDING',
-    CONFIRMED: 'CONFIRMED',
+    PENDING: 'PENDING', // Awaiting approval (e.g., specialized service)
+    CONFIRMED: 'CONFIRMED', // Approved and ready
     IN_PROGRESS: 'IN_PROGRESS', // 🪑 Patient seated, treatment in progress
-    WAITLISTED: 'WAITLISTED', // Patient on waitlist waiting for slot
     LATE_CANCEL: 'LATE_CANCEL', // Cancelled less than 24h before appointment
     CANCELLED: 'CANCELLED', // Cancelled with ≥24h notice
     COMPLETED: 'COMPLETED', // Treatment done (dentist marks this)
@@ -53,6 +54,7 @@ export const CLINIC_CONFIG = {
     CLOSING_HOUR: 17, // 5:00 PM
     SLOT_DURATION_MINUTES: 30, // Each appointment slot is 30 minutes
     WAITLIST_TIMEOUT_MINUTES: 25, // 25 min to confirm waitlist offer
+    WAITLIST_MIN_NOTICE_MINUTES: 180, // 🔴 3 hours = 180 minutes. Don't notify if cancellation < 3 hours before appointment
     CANCEL_NOTICE_HOURS: 24, // <24h = LATE_CANCEL
     NO_SHOW_GRACE_MINUTES: 15, // Wait 15 min past appointment time before marking no-show
     NO_SHOW_RESTRICT_THRESHOLD: 3, // 3+ no-shows → restrict patient booking

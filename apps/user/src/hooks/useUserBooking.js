@@ -1,9 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import useSlotHold from './useSlotHold';
 
 const STEPS = ['service', 'datetime', 'review', 'confirm'];
 const STEPS_WITH_OTHER_INFO = ['service', 'datetime', 'other_info', 'review', 'confirm'];
+
+// Session ID management
+const STORAGE_KEY = 'user_session_id'; // CHANGED
+
+const getOrCreateSessionId = () => {
+    let sessionId = sessionStorage.getItem(STORAGE_KEY); // CHANGED
+    if (!sessionId) {
+        // Generate UUID v4
+        sessionId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            const r = (Math.random() * 16) | 0,
+                v = c === 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+        });
+        sessionStorage.setItem(STORAGE_KEY, sessionId); // CHANGED
+    }
+    return sessionId;
+};
 
 /**
  * Manages user booking wizard state and submission.
@@ -27,6 +45,7 @@ const STEPS_WITH_OTHER_INFO = ['service', 'datetime', 'other_info', 'review', 'c
  */
 const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
     const { token } = useAuth();
+    const [sessionId, setSessionId] = useState(null);
     const [book_for_others, setBookForOthers] = useState(false);
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState({
@@ -35,10 +54,24 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         date: '',
         time: '',
         booked_for_name: '', // Empty string = booking for self
+        // ✅ NEW: Deferred Waitlist Fields
+        waitlist_date: '', // Selected full slot date
+        waitlist_time: '', // Selected full slot time
     });
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [result, setResult] = useState(null);
+    // ✅ Track submission timestamp to prevent rapid resubmissions
+    const [lastSubmissionTime, setLastSubmissionTime] = useState(null);
+
+    // ✅ Initialize slot hold hook at the wizard level to survive step changes
+    const slotHold = useSlotHold(sessionId);
+
+    // ✅ Generate session ID on component mount
+    useEffect(() => {
+        const id = getOrCreateSessionId();
+        setSessionId(id);
+    }, []);
 
     // Dynamically choose steps based on booking preference
     const steps = book_for_others ? STEPS_WITH_OTHER_INFO : STEPS;
@@ -78,10 +111,18 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         if (index < step) setStep(index);
     };
 
-    // Submit booking to API
+    // Submit booking to API with unified atomic endpoint
     const submit = async () => {
+        // ✅ Implement client-side rate limiting (minimum 1 second between submissions)
+        const now = Date.now();
+        if (lastSubmissionTime && now - lastSubmissionTime < 1000) {
+            setError('Please wait a moment before trying again.');
+            return;
+        }
+
         setSubmitting(true);
         setError(null);
+        setLastSubmissionTime(now);
 
         // 15 second timeout
         const timeoutId = setTimeout(() => {
@@ -90,66 +131,86 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         }, 15000);
 
         try {
+            // ✅ Unified Atomic Body
             const body = {
                 service_id: formData.service_id,
-                date: formData.date,
-                time: formData.time,
+                booking: formData.time ? {
+                    date: formData.date,
+                    time: formData.time,
+                    booked_for_name: book_for_others && formData.booked_for_name.trim() 
+                        ? formData.booked_for_name.trim() 
+                        : null,
+                    user_session_id: sessionId,
+                } : null,
+                waitlist: formData.waitlist_time ? {
+                    date: formData.waitlist_date,
+                    time: formData.waitlist_time,
+                    priority: 0 // Default priority
+                } : null
             };
 
-            // Only include booked_for_name if booking for someone else
-            if (book_for_others && formData.booked_for_name.trim()) {
-                body.booked_for_name = formData.booked_for_name.trim();
-            }
-
-            const data = await api.post('/appointments/book-user', body, token);
-
+            const response = await api.post('/appointments/submit-wizard', body, token);
+            
             clearTimeout(timeoutId);
 
-            if (data.booked) {
-                setResult(data);
-            } else {
-                setSubmitting(false);
-                setError(
-                    data.error ||
-                        'Booking failed. The slot may no longer be available. Please try a different time.',
-                );
+            // Clean up the active hold after processing results
+            slotHold.clearHold();
+
+            const { booking, waitlist } = response;
+
+            // Handle results based on what was requested and what succeeded
+            const bookingSuccess = booking?.booked;
+            const waitlistSuccess = waitlist?.message === 'Added to waitlist!';
+
+            // ✅ SCENARIO 1: Both succeeded ✅
+            if (bookingSuccess && waitlistSuccess) {
+                setResult({
+                    booked: true,
+                    bookingData: booking,
+                    waitlistData: waitlist,
+                    message: 'Both booking and waitlist confirmed!',
+                    success: true,
+                });
             }
+            // ✅ SCENARIO 2: Booking only succeeded ✅
+            else if (bookingSuccess && !formData.waitlist_time) {
+                setResult({
+                    booked: true,
+                    bookingData: booking,
+                    waitlistData: null,
+                    message: 'Appointment confirmed!',
+                    success: true,
+                });
+            }
+            // ✅ SCENARIO 3: Waitlist only succeeded ✅
+            else if (waitlistSuccess && !formData.time) {
+                setResult({
+                    booked: false,
+                    bookingData: null,
+                    waitlistData: waitlist,
+                    message: 'Successfully added to the waitlist!',
+                    success: true,
+                });
+            }
+            // ✅ SCENARIO 4: Fallback (Partial success or unexpected states handled by backend error)
+            else {
+                setResult({
+                    booked: bookingSuccess,
+                    bookingData: booking,
+                    waitlistData: waitlist,
+                    success: bookingSuccess || waitlistSuccess,
+                    message: bookingSuccess ? 'Booking confirmed' : 'Waitlist confirmed',
+                });
+            }
+
+            setSubmitting(false);
         } catch (err) {
             clearTimeout(timeoutId);
             setSubmitting(false);
 
-            if (err.status === 409) {
-                setError('This slot was just booked. Please choose a different time.');
-            } else if (err.status === 400) {
-                setError('Invalid booking data. Please try again.');
-            } else if (err.status === 503) {
-                setError('Server is temporarily unavailable. Please try again later.');
-            } else {
-                setError(err.message || 'Something went wrong. Please try again.');
-            }
-        }
-    };
-
-    // Join waitlist for a full slot
-    const joinWaitlist = async (service_id, date, time) => {
-        try {
-            const data = await api.post(
-                '/waitlist/join',
-                {
-                    service_id,
-                    preferred_date: date,
-                    preferred_time: time,
-                },
-                token,
-            );
-
-            if (data.success) {
-                // User successfully joined waitlist
-                // They can continue booking for another time OR go to dashboard
-                return { success: true, position: data.waitlist_entry.position };
-            }
-        } catch (err) {
-            throw new Error(err.message || 'Failed to join waitlist');
+            // Backend returns specific error stage if one fails
+            const prefix = err.stage ? `[${err.stage}] ` : '';
+            setError(`${prefix}${err.message || 'Submission failed. Please try again.'}`);
         }
     };
 
@@ -161,14 +222,19 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
             date: '',
             time: '',
             booked_for_name: '',
+            // ✅ Clear waitlist fields on reset
+            waitlist_date: '',
+            waitlist_time: '',
         });
         setError(null);
         setResult(null);
         setBookForOthers(false);
+        slotHold.clearHold();
     };
 
     return {
         // State
+        sessionId,
         step,
         currentStep,
         steps,
@@ -177,6 +243,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         submitting,
         error,
         result,
+        slotHold, // pass the hold hook to children
         // Actions
         updateField,
         updateFields,
@@ -185,7 +252,6 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         prevStep,
         goToStep,
         submit,
-        joinWaitlist,
         reset,
     };
 };

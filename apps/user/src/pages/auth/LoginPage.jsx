@@ -15,7 +15,7 @@ const LoginPage = () => {
         setLoading(true);
         try {
             await login(email, password);
-            navigate('/patient');
+            navigate('/patient/book');
         } catch (err) {
             setError(err.message || 'Login failed');
         }

@@ -1,6 +1,6 @@
 import StepIndicator from '../guest-booking/StepIndicator';
 import ServiceStep from '../guest-booking/ServiceStep';
-import DateTimeStep from '../guest-booking/DateTimeStep';
+import DateTimeStep from './DateTimeStep';
 import UserOtherInfoStep from './UserOtherInfoStep';
 import UserReviewStep from './UserReviewStep';
 import UserConfirmStep from './UserConfirmStep';
@@ -8,6 +8,7 @@ import UserBookingSuccess from './UserBookingSuccess';
 
 const UserBookingWizard = ({ booking }) => {
     const {
+        sessionId,
         step,
         currentStep,
         formData,
@@ -23,6 +24,7 @@ const UserBookingWizard = ({ booking }) => {
         submit,
         joinWaitlist,
         reset,
+        slotHold,
     } = booking;
 
     if (result) {
@@ -73,10 +75,13 @@ const UserBookingWizard = ({ booking }) => {
             {/* Step 2: Date & Time Selection */}
             {currentStep === 'datetime' && (
                 <DateTimeStep
+                    formData={formData}
                     serviceId={formData.service_id}
                     selectedDate={formData.date}
                     selectedTime={formData.time}
                     serviceName={formData.service_name}
+                    sessionId={sessionId}
+                    slotHold={slotHold}
                     onUpdate={(fields) => updateFields(fields)}
                     onNext={nextStep}
                     onBack={prevStep}

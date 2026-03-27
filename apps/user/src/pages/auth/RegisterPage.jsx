@@ -24,7 +24,7 @@ const RegisterPage = () => {
         try {
             const fullName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
             await register(email, password, fullName, phone);
-            navigate('/patient');
+            navigate('/patient/book');
         } catch (err) {
             setError(err.message || 'Registration failed');
         }
