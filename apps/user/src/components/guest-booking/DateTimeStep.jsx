@@ -51,12 +51,16 @@ const DateTimeStep = ({
             const next = new Date(prev);
             next.setDate(next.getDate() + (direction === 'next' ? 7 : -7));
 
-            // Issue #1: Only allow forward if within max booking range
-            // Only allow backward if not already on the week containing today
+            // ✅ FIXED: Only allow forward if within max booking range
+            // ✅ FIXED: Only allow backward if the week end date (Saturday) would be before today
             if (direction === 'next' && next > maxDate) {
                 return prev;
             }
-            if (direction === 'prev' && next < today) {
+            // Calculate end of week (Saturday) for backward navigation check
+            const nextWeekEnd = new Date(next);
+            nextWeekEnd.setDate(nextWeekEnd.getDate() + 6); // Saturday of that week
+
+            if (direction === 'prev' && nextWeekEnd < today) {
                 return prev;
             }
 
@@ -234,10 +238,11 @@ const DateTimeStep = ({
                 {weekDays.map((date) => {
                     const key = formatDateKey(date);
                     const isPast = date < today;
+                    const isSameDay = date.getTime() === today.getTime(); // ✅ NEW: Disable same-day bookings
                     const isSelected = key === selectedDate;
                     const isSunday = date.getDay() === 0;
                     const isBeyondMax = date > maxDate;
-                    const isDisabled = isPast || isSunday || isBeyondMax;
+                    const isDisabled = isPast || isSunday || isBeyondMax || isSameDay; // ✅ NEW: Added isSameDay
 
                     return (
                         <button
@@ -252,11 +257,13 @@ const DateTimeStep = ({
                                       : 'bg-white border border-slate-100 hover:border-sky-200 text-slate-700 cursor-pointer'
                             }`}
                             title={
-                                isSunday
-                                    ? 'Clinic closed on Sundays'
-                                    : isPast
-                                      ? 'Date has passed'
-                                      : undefined
+                                isSameDay
+                                    ? 'Cannot book on the same day'
+                                    : isSunday
+                                      ? 'Clinic closed on Sundays'
+                                      : isPast
+                                        ? 'Date has passed'
+                                        : undefined
                             }
                         >
                             <span className='font-medium'>{dayNames[date.getDay()]}</span>
@@ -300,7 +307,9 @@ const DateTimeStep = ({
                             {slots.map((slot) => {
                                 // ✅ Guest booking shows only available slots
                                 // Each slot has: {time, rawTime, displayTime, available}
-                                const isHeldByMe = activeHold?.time === slot.rawTime && selectedDate === activeHold.date;
+                                const isHeldByMe =
+                                    activeHold?.time === slot.rawTime &&
+                                    selectedDate === activeHold.date;
 
                                 // ✅ NEW: If I hold it, it's effectively available to ME
                                 const effectiveAvailable = slot.available + (isHeldByMe ? 1 : 0);

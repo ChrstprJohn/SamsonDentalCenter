@@ -30,6 +30,24 @@ SAMPLE DATA THAT WILL BE RETURNED
 */
 
 export const getAvailableSlots = async (date, serviceId, filterSessionId = null) => {
+    // ✅ NEW: Check if date is today (same-day booking prevention)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const requestedDate = new Date(date);
+    requestedDate.setHours(0, 0, 0, 0);
+
+    if (requestedDate.getTime() === today.getTime()) {
+        // Same day booking not allowed
+        return {
+            all_slots: [],
+            date,
+            service: 'N/A',
+            total_available: 0,
+            total_full: 0,
+            message: 'Same-day bookings are not allowed. Please select a future date.',
+        };
+    }
+
     // ── 1. Get the service to know its duration ──
     const { data: service, error: serviceError } = await supabaseAdmin
         .from('services')

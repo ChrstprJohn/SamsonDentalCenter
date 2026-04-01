@@ -4,10 +4,11 @@ import Footer from '../components/public/Footer';
 
 const PublicLayout = () => {
     const location = useLocation();
+    const isBookPage = location.pathname === '/book';
 
     return (
         <div className='font-sans antialiased text-slate-800'>
-            <Navbar />
+            {!isBookPage && <Navbar />}
             <main>
                 <Outlet />
             </main>
