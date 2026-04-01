@@ -122,14 +122,16 @@ export const getAvailableSlots = async (date, serviceId, filterSessionId = null)
     // ── 4. Check dentist availability blocks (leave, sick, etc.) ──
     const { data: blocks } = await supabaseAdmin
         .from('dentist_availability_blocks')
-        .select('dentist_id')
+        .select('dentist_id, start_time, end_time')
         .eq('block_date', date);
 
-    const blockedDentistIds = (blocks || []).map((b) => b.dentist_id);
+    // Filter out dentists who are blocked for the ENTIRE day (no start/end time)
+    const fullDayBlockedIds = (blocks || [])
+        .filter((b) => !b.start_time && !b.end_time)
+        .map((b) => b.dentist_id);
 
-    // Filter out blocked dentists from schedules
     const activeSchedules = dentistSchedules.filter(
-        (s) => !blockedDentistIds.includes(s.dentist_id),
+        (s) => !fullDayBlockedIds.includes(s.dentist_id),
     );
 
     if (activeSchedules.length === 0) {
@@ -153,38 +155,26 @@ export const getAvailableSlots = async (date, serviceId, filterSessionId = null)
         .eq('appointment_date', date)
         .not('status', 'in', '("CANCELLED","LATE_CANCEL")');
 
-    // ── 5b. Get active slot holds on that date (RACE CONDITION FIX) ──
-    // Holds represent temporary reservations that should be treated like booked slots
+    // ── 5b. Get active slot holds on that date (GLOBAL capacity check) ──
     const now = new Date();
     let holdQuery = supabaseAdmin
         .from('slot_holds')
-        .select('start_time, user_session_id')
-        .eq('service_id', serviceId)
+        .select('start_time, service:services(duration_minutes), user_session_id')
         .eq('appointment_date', date)
         .eq('status', 'active')
-        .gt('expires_at', now.toISOString()); // Only non-expired holds
+        .gt('expires_at', now.toISOString());
 
     if (filterSessionId) {
         holdQuery = holdQuery.neq('user_session_id', filterSessionId);
     }
     const { data: activeHolds } = await holdQuery;
 
-    // Combine holds and appointments into a single "occupied" list
-    // We'll use this to check availability
-    const occupiedSlots = [
-        ...(existingAppointments || []).map((a) => ({
-            type: 'appointment',
-            start_time: a.start_time,
-            end_time: a.end_time,
-            dentist_id: a.dentist_id,
-        })),
-        ...(activeHolds || []).map((h) => ({
-            type: 'hold',
-            start_time: h.start_time,
-            end_time: addMinutes(h.start_time, durationMinutes),
-            dentist_id: null, // Holds don't apply to specific dentists yet
-        })),
-    ];
+    // Combine appointments for dentist-specific occupied list
+    const existingAppts = (existingAppointments || []).map((a) => ({
+        start_time: a.start_time,
+        end_time: a.end_time,
+        dentist_id: a.dentist_id,
+    }));
 
     // ── 6. Generate ALL possible time slots from clinic hours (once) ──
     // Use the first active schedule's hours as the clinic hours
@@ -204,23 +194,38 @@ export const getAvailableSlots = async (date, serviceId, filterSessionId = null)
     // For each dentist, increment the available count for their free slots
     for (const schedule of activeSchedules) {
         const dentistId = schedule.dentist_id;
-        const startTime = schedule.start_time;
-        const endTime = schedule.end_time;
+        const dentistStartTime = schedule.start_time;
+        const dentistEndTime = schedule.end_time;
+
+        // Get this dentist's partial blocks
+        const dentistBlocks = (blocks || []).filter(
+            (b) => b.dentist_id === dentistId && (b.start_time || b.end_time),
+        );
+
+        // Get this dentist's existing appointments
+        const dentistAppts = existingAppts.filter((a) => a.dentist_id === dentistId);
 
         // Generate all possible slots for this dentist
-        const possibleSlots = generateTimeSlots(startTime, endTime, durationMinutes);
-
-        // Filter out slots that conflict with existing appointments AND active holds
-        const dentistOccupied = occupiedSlots.filter(
-            (occupied) => occupied.dentist_id === null || occupied.dentist_id === dentistId,
-        );
+        const possibleSlots = generateTimeSlots(dentistStartTime, dentistEndTime, durationMinutes);
 
         const freeSlots = possibleSlots.filter((slot) => {
             const slotEnd = addMinutes(slot, durationMinutes);
-            // Check if this slot overlaps with any existing appointment or active hold
-            return !dentistOccupied.some((occupied) =>
-                timesOverlap(slot, slotEnd, occupied.start_time, occupied.end_time),
+
+            // Check if this slot overlaps with any existing appointment
+            const hasAppointmentConflict = dentistAppts.some((appt) =>
+                timesOverlap(slot, slotEnd, appt.start_time, appt.end_time),
             );
+            if (hasAppointmentConflict) return false;
+
+            // Check if this slot overlaps with any partial day block (leave/training)
+            const hasBlockConflict = dentistBlocks.some((block) => {
+                const bStart = block.start_time || '00:00';
+                const bEnd = block.end_time || '23:59';
+                return timesOverlap(slot, slotEnd, bStart, bEnd);
+            });
+            if (hasBlockConflict) return false;
+
+            return true;
         });
 
         // Increment availability count for this dentist's free slots
@@ -229,6 +234,24 @@ export const getAvailableSlots = async (date, serviceId, filterSessionId = null)
                 allSlots.get(slot).available += 1;
             }
         });
+    }
+
+    // ── 7b. Subtract holds from available count (GLOBAL clinic capacity) ──
+    const holdUnits = (activeHolds || []).map((h) => ({
+        start_time: h.start_time,
+        end_time: addMinutes(h.start_time, h.service.duration_minutes),
+    }));
+
+    sortedHoldSlots: for (const slot of allSlots.keys()) {
+        const slotEnd = addMinutes(slot, durationMinutes);
+        const holdCount = holdUnits.filter((hold) =>
+            timesOverlap(slot, slotEnd, hold.start_time, hold.end_time),
+        ).length;
+
+        if (holdCount > 0) {
+            const slotData = allSlots.get(slot);
+            slotData.available = Math.max(0, slotData.available - holdCount);
+        }
     }
 
     // ── 8. Sort and build response with all slots ──
