@@ -3,8 +3,7 @@ import { api } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import useSlotHold from './useSlotHold';
 
-const STEPS = ['service', 'datetime', 'review', 'confirm'];
-const STEPS_WITH_OTHER_INFO = ['service', 'datetime', 'other_info', 'review', 'confirm'];
+const STEPS = ['service', 'datetime', 'other_info', 'review', 'confirm'];
 
 // Session ID management
 const STORAGE_KEY = 'user_session_id'; // CHANGED
@@ -84,7 +83,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
     }, [formData.service_id, slotHold]);
 
     // Dynamically choose steps based on booking preference
-    const steps = book_for_others ? STEPS_WITH_OTHER_INFO : STEPS;
+    const steps = STEPS;
     const currentStep = steps[step];
 
     // Clear error when user makes changes
@@ -100,8 +99,6 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
 
     const setBookForOthersMode = (enabled) => {
         setBookForOthers(enabled);
-        // Reset to step 0 when toggling mode
-        setStep(0);
         // ✅ IMPROVEMENT #3: Clear booked_for_name if switching to "book for self"
         if (!enabled) {
             setFormData((prev) => ({ ...prev, booked_for_name: '' }));

@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { User, Mail } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
+const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthersMode, onNext, onBack }) => {
     const { user } = useAuth();
     const [errors, setErrors] = useState({});
 
     const validate = () => {
         const newErrors = {};
 
-        if (!formData.booked_for_name.trim()) {
+        if (book_for_others && !formData.booked_for_name.trim()) {
             newErrors.booked_for_name = 'Name is required.';
         }
 
@@ -22,8 +22,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     };
 
     const handleChange = (field, value) => {
-        onUpdate({ [field]: value }); // ✅ FIX: Pass object, not separate params
-        // Clear field error on change
+        onUpdate({ [field]: value });
         if (errors[field]) {
             setErrors((prev) => ({ ...prev, [field]: undefined }));
         }
@@ -31,75 +30,130 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
 
     return (
         <div>
-            <h2 className='text-xl font-bold text-slate-900 mb-2'>Who is this appointment for?</h2>
+            <h2 className='text-xl font-bold text-slate-900 mb-2'>Patient Information</h2>
             <p className='text-slate-500 text-sm mb-6'>
-                Enter the name of the person this appointment is being booked for. Confirmation will
-                be sent to your account email.
+                Please confirm who this appointment is for.
             </p>
 
-            <div className='space-y-5 max-w-lg'>
-                {/* Person's Name */}
-                <div>
-                    <label className='flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5'>
-                        <User
-                            size={16}
-                            className='text-sky-500'
-                        />
-                        Name <span className='text-red-400'>*</span>
+            <div className='space-y-6 max-w-lg'>
+                {/* 🎠 Who is it for? Custom Slider Toggle */}
+                <div className='bg-slate-50 p-4 rounded-2xl border border-slate-100'>
+                    <label className='block text-sm font-semibold text-slate-700 mb-4'>
+                        Who is this appointment for?
                     </label>
-                    <input
-                        type='text'
-                        value={formData.booked_for_name}
-                        onChange={(e) => handleChange('booked_for_name', e.target.value)}
-                        placeholder='Jane Doe'
-                        className={`w-full px-4 py-2.5 border rounded-xl text-sm
-                                    focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-400
-                                    transition-colors ${
-                                        errors.booked_for_name
-                                            ? 'border-red-300 bg-red-50'
-                                            : 'border-slate-200 bg-white'
-                                    }`}
-                    />
-                    {errors.booked_for_name && (
-                        <p className='text-sm text-red-500 mt-1'>{errors.booked_for_name}</p>
-                    )}
+                    <div className='flex p-1 bg-slate-200/50 rounded-xl relative'>
+                        {/* Sliding Background */}
+                        <div
+                            className={`absolute inset-y-1 w-1/2 bg-white rounded-lg shadow-sm transition-all duration-300 ease-out ${
+                                book_for_others ? 'translate-x-[98%]' : 'translate-x-0'
+                            }`}
+                        />
+                        
+                        <button
+                            type='button'
+                            onClick={() => setBookForOthersMode(false)}
+                            className={`flex-1 py-2 text-sm font-medium z-10 rounded-lg transition-colors ${
+                                !book_for_others ? 'text-sky-600' : 'text-slate-500 hover:text-slate-700'
+                            }`}
+                        >
+                            Myself
+                        </button>
+                        <button
+                            type='button'
+                            onClick={() => setBookForOthersMode(true)}
+                            className={`flex-1 py-2 text-sm font-medium z-10 rounded-lg transition-colors ${
+                                book_for_others ? 'text-sky-600' : 'text-slate-500 hover:text-slate-700'
+                            }`}
+                        >
+                            Someone Else
+                        </button>
+                    </div>
                 </div>
 
-                {/* Account Email (Read-only) */}
-                <div>
-                    <label className='flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5'>
-                        <Mail
-                            size={16}
-                            className='text-sky-500'
-                        />
-                        Confirmation Email (Your Account)
-                    </label>
-                    <input
-                        type='email'
-                        value={user?.email || ''}
-                        disabled
-                        className='w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-slate-50 text-slate-600 cursor-not-allowed'
-                    />
-                    <p className='text-xs text-slate-500 mt-1.5'>
-                        Confirmation will be sent to your account email, not theirs.
-                    </p>
+                {/* Conditional Form Fields */}
+                <div className='space-y-5 animate-in fade-in slide-in-from-top-2 duration-300'>
+                    {!book_for_others ? (
+                        /* Case: Myself (Autofilled) */
+                        <div className='space-y-5 p-4 border border-sky-100 bg-sky-50/30 rounded-2xl'>
+                            <div>
+                                <label className='flex items-center gap-2 text-xs font-bold text-sky-700 uppercase tracking-wider mb-2'>
+                                    <User size={14} />
+                                    Your Profile Name
+                                </label>
+                                <div className='px-4 py-3 bg-white border border-sky-100 rounded-xl text-sm text-slate-700 font-medium'>
+                                    {user?.full_name || user?.name || 'Authorized User'}
+                                </div>
+                            </div>
+                            <div>
+                                <label className='flex items-center gap-2 text-xs font-bold text-sky-700 uppercase tracking-wider mb-2'>
+                                    <Mail size={14} />
+                                    Email Address
+                                </label>
+                                <div className='px-4 py-3 bg-white border border-sky-100 rounded-xl text-sm text-slate-500'>
+                                    {user?.email}
+                                </div>
+                            </div>
+                            <p className='text-[10px] text-sky-600 italic'>
+                                * This appointment will be linked directly to your patient records.
+                            </p>
+                        </div>
+                    ) : (
+                        /* Case: Someone Else (Input) */
+                        <div className='space-y-5 p-4 border border-amber-100 bg-amber-50/30 rounded-2xl'>
+                            <div>
+                                <label className='flex items-center gap-2 text-xs font-bold text-amber-700 uppercase tracking-wider mb-2'>
+                                    <User size={14} />
+                                    Appointee's Full Name <span className='text-red-400'>*</span>
+                                </label>
+                                <input
+                                    type='text'
+                                    value={formData.booked_for_name}
+                                    onChange={(e) => handleChange('booked_for_name', e.target.value)}
+                                    placeholder="Enter person's full name"
+                                    className={`w-full px-4 py-3 border rounded-xl text-sm
+                                                focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-400
+                                                transition-all ${
+                                                    errors.booked_for_name
+                                                        ? 'border-red-300 bg-red-50'
+                                                        : 'border-amber-100 bg-white'
+                                                }`}
+                                    autoFocus
+                                />
+                                {errors.booked_for_name && (
+                                    <p className='text-xs text-red-500 mt-1 font-medium'>{errors.booked_for_name}</p>
+                                )}
+                            </div>
+                            <div>
+                                <label className='flex items-center gap-2 text-xs font-bold text-slate-600 uppercase tracking-wider mb-2'>
+                                    <Mail size={14} />
+                                    Email (Notifications sent to you)
+                                </label>
+                                <div className='px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm text-slate-400 italic'>
+                                    {user?.email}
+                                </div>
+                            </div>
+                            <p className='text-[10px] text-amber-700 italic'>
+                                * You are booking on behalf of someone else. You will receive all email communications.
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 
             {/* Navigation */}
-            <div className='mt-8 flex justify-between'>
+            <div className='mt-10 flex justify-between'>
                 <button
                     onClick={onBack}
-                    className='text-slate-500 hover:text-slate-700 font-medium text-sm px-4 py-2.5'
+                    className='text-slate-500 hover:text-slate-700 font-medium text-sm px-4 py-2.5 transition-colors'
                 >
                     ← Back
                 </button>
                 <button
                     onClick={handleNext}
-                    className='bg-sky-500 hover:bg-sky-600 text-white font-semibold px-8 py-3 rounded-xl 
-                               transition-colors shadow-lg shadow-sky-500/25'
+                    className='bg-sky-500 hover:bg-sky-600 text-white font-semibold px-10 py-3 rounded-xl 
+                               transition-all shadow-lg shadow-sky-500/25 active:scale-95'
                 >
-                    Next
+                    Next Step
                 </button>
             </div>
         </div>

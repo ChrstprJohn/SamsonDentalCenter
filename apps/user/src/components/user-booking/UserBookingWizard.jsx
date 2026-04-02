@@ -41,26 +41,13 @@ const UserBookingWizard = ({ booking }) => {
             {/* Step Indicator */}
             <StepIndicator
                 currentStep={step}
+                labels={['Service', 'Date & Time', 'Patient Info', 'Review', 'Confirm']}
                 onStepClick={goToStep}
             />
 
             {/* Step 1: Service Selection */}
             {currentStep === 'service' && (
                 <div>
-                    {/* Book For Others Toggle */}
-                    <div className='mb-6 p-4 bg-slate-50 rounded-xl'>
-                        <label className='flex items-center gap-3 cursor-pointer'>
-                            <input
-                                type='checkbox'
-                                checked={book_for_others}
-                                onChange={(e) => setBookForOthersMode(e.target.checked)}
-                                className='w-4 h-4 rounded accent-amber-500'
-                            />
-                            <span className='text-sm font-medium text-slate-700'>
-                                Book appointment for someone else
-                            </span>
-                        </label>
-                    </div>
 
                     <ServiceStep
                         selectedServiceId={formData.service_id}
@@ -89,11 +76,13 @@ const UserBookingWizard = ({ booking }) => {
                 />
             )}
 
-            {/* Step 3: Other Info (Appointee Name) - Only if booking for others */}
+            {/* Step 3: Patient Information (Always show) */}
             {currentStep === 'other_info' && (
                 <UserOtherInfoStep
                     formData={formData}
+                    book_for_others={book_for_others}
                     onUpdate={(fields) => updateFields(fields)}
+                    setBookForOthersMode={setBookForOthersMode}
                     onNext={nextStep}
                     onBack={prevStep}
                 />

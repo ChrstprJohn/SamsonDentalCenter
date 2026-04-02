@@ -74,6 +74,7 @@ const GuestBookingWizard = ({ booking }) => {
         <div>
             <StepIndicator
                 currentStep={step}
+                labels={['Service', 'Date & Time', 'Your Info', 'Review', 'Confirm']}
                 onStepClick={goToStep}
             />
 

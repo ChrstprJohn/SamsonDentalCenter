@@ -1,8 +1,9 @@
 import { Check } from 'lucide-react';
 
-const stepLabels = ['Service', 'Date & Time', 'Your Info', 'Review'];
+const StepIndicator = ({ currentStep, onStepClick, labels }) => {
+    const defaultLabels = ['Service', 'Date & Time', 'Your Info', 'Review', 'Confirm'];
+    const stepLabels = labels || defaultLabels;
 
-const StepIndicator = ({ currentStep, onStepClick }) => {
     return (
         <div className='flex items-center justify-center gap-2 sm:gap-4 mb-10'>
             {stepLabels.map((label, index) => {
