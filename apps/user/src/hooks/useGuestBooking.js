@@ -7,15 +7,18 @@ const STEPS = ['service', 'datetime', 'info', 'review'];
 // Session ID management (use sessionStorage so it clears when tab closes)
 const STORAGE_KEY = 'guest_session_id';
 
+const generateSessionId = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = (Math.random() * 16) | 0,
+            v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+};
+
 const getOrCreateSessionId = () => {
     let sessionId = sessionStorage.getItem(STORAGE_KEY);
     if (!sessionId) {
-        // Generate UUID v4
-        sessionId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            const r = (Math.random() * 16) | 0,
-                v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-        });
+        sessionId = generateSessionId();
         sessionStorage.setItem(STORAGE_KEY, sessionId);
     }
     return sessionId;
@@ -123,6 +126,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
 
             if (data.booked) {
                 setResult(data);
+                setSubmitting(false); // ✅ Clear submitting state on success
                 // Clean up the hold
                 slotHold.clearHold();
             } else {
@@ -163,7 +167,14 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
             phone: '',
         });
         setError(null);
+        setSubmitting(false); // ✅ Safety reset
         setResult(null);
+
+        // ✅ Rotate session ID to ensure "Book Another" starts fresh
+        const newId = generateSessionId();
+        sessionStorage.setItem(STORAGE_KEY, newId);
+        setSessionId(newId);
+
         slotHold.clearHold();
     };
 

@@ -9,16 +9,19 @@ const STEPS_WITH_OTHER_INFO = ['service', 'datetime', 'other_info', 'review', 'c
 // Session ID management
 const STORAGE_KEY = 'user_session_id'; // CHANGED
 
+const generateSessionId = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = (Math.random() * 16) | 0,
+            v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+};
+
 const getOrCreateSessionId = () => {
-    let sessionId = sessionStorage.getItem(STORAGE_KEY); // CHANGED
+    let sessionId = sessionStorage.getItem(STORAGE_KEY);
     if (!sessionId) {
-        // Generate UUID v4
-        sessionId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            const r = (Math.random() * 16) | 0,
-                v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-        });
-        sessionStorage.setItem(STORAGE_KEY, sessionId); // CHANGED
+        sessionId = generateSessionId();
+        sessionStorage.setItem(STORAGE_KEY, sessionId);
     }
     return sessionId;
 };
@@ -234,8 +237,15 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
             waitlist_time: '',
         });
         setError(null);
+        setSubmitting(false); // ✅ Safety reset
         setResult(null);
         setBookForOthers(false);
+
+        // ✅ Rotate session ID to ensure "Book Another" starts fresh
+        const newId = generateSessionId();
+        sessionStorage.setItem(STORAGE_KEY, newId);
+        setSessionId(newId);
+
         slotHold.clearHold();
     };
 
