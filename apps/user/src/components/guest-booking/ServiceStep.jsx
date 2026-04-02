@@ -16,6 +16,8 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, onUpdateFields }) =>
     const { user } = useAuth();
     const [specializedService, setSpecializedService] = useState(null);
 
+    const [filter, setFilter] = useState('all');
+
     const handleSelect = (service) => {
         // If specialized service AND user is NOT logged in → show modal
         if (service.tier === 'specialized' && !user) {
@@ -31,12 +33,34 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, onUpdateFields }) =>
         }
     };
 
+    const filteredServices = (services || []).filter((s) => {
+        if (filter === 'all') return true;
+        return s.tier === filter;
+    });
+
     return (
         <div>
             <h2 className='text-xl font-bold text-slate-900 mb-2'>Select a Service</h2>
             <p className='text-slate-500 text-sm mb-6'>
                 Choose the dental service you'd like to book.
             </p>
+
+            {/* Service Type Filter */}
+            <div className='flex flex-wrap gap-2 mb-6'>
+                {['all', 'general', 'specialized'].map((t) => (
+                    <button
+                        key={t}
+                        onClick={() => setFilter(t)}
+                        className={`px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${
+                            filter === t
+                                ? 'bg-sky-500 text-white shadow-md shadow-sky-500/20 ring-2 ring-sky-500/10'
+                                : 'bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700'
+                        }`}
+                    >
+                        {t === 'all' ? 'All Services' : `${t} Services`}
+                    </button>
+                ))}
+            </div>
 
             {loading && <div className='text-center text-slate-400 py-12'>Loading services...</div>}
 
@@ -46,9 +70,9 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, onUpdateFields }) =>
                 </div>
             )}
 
-            {!loading && !error && services && services.length > 0 && (
+            {!loading && !error && filteredServices && filteredServices.length > 0 && (
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8'>
-                    {services.map((service) => {
+                    {filteredServices.map((service) => {
                         const isSelected = service.id === selectedServiceId;
                         const isSpecialized = service.tier === 'specialized';
                         const isLocked = isSpecialized && !user; // Only locked if specialized AND not logged in
