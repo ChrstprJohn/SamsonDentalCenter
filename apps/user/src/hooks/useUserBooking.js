@@ -73,6 +73,13 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         setSessionId(id);
     }, []);
 
+    // ✅ Auto-release hold if user goes back and changes the service
+    useEffect(() => {
+        if (slotHold.activeHold && slotHold.activeHold.service_id !== formData.service_id) {
+            slotHold.releaseHold();
+        }
+    }, [formData.service_id, slotHold]);
+
     // Dynamically choose steps based on booking preference
     const steps = book_for_others ? STEPS_WITH_OTHER_INFO : STEPS;
     const currentStep = steps[step];

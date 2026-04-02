@@ -60,6 +60,15 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
         setSessionId(id);
     }, []);
 
+    // ✅ Auto-release hold if user goes back and changes the service
+    // This handles the case where a user already picked a time, then goes back to Step 1
+    useEffect(() => {
+        if (slotHold.activeHold && slotHold.activeHold.service_id !== formData.service_id) {
+            console.log('Service changed, releasing previous hold...');
+            slotHold.releaseHold();
+        }
+    }, [formData.service_id, slotHold]);
+
     const currentStep = STEPS[step];
 
     // Issue #8: Clear error when user makes changes

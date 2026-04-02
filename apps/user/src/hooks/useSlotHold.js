@@ -12,24 +12,8 @@ import { api } from '../utils/api';
  */
 const useSlotHold = (sessionId) => {
     // ✅ Initialize from localStorage to persist hold when navigating away and back
-    const [activeHold, setActiveHold] = useState(() => {
-        if (typeof window === 'undefined') return null;
-        try {
-            const stored = localStorage.getItem('activeSlotHold');
-            if (!stored) return null;
-
-            const parsed = JSON.parse(stored);
-            // Check if hold is still valid (not expired)
-            const expiresAt = new Date(parsed.expires_at);
-            if (expiresAt <= new Date()) {
-                localStorage.removeItem('activeSlotHold');
-                return null;
-            }
-            return parsed;
-        } catch (e) {
-            return null;
-        }
-    });
+    // ✅ Removed localStorage initialization to ensure hold resets on page refresh/reload
+    const [activeHold, setActiveHold] = useState(null);
 
     const [previousHoldId, setPreviousHoldId] = useState(null);
     const [holdLoading, setHoldLoading] = useState(false);
@@ -62,24 +46,8 @@ const useSlotHold = (sessionId) => {
         };
     }, [activeHold?.hold_id]);
 
-    // ✅ Persist active hold to localStorage for navigation persistence
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        if (activeHold) {
-            try {
-                localStorage.setItem('activeSlotHold', JSON.stringify(activeHold));
-            } catch (e) {
-                // Silently fail if localStorage is unavailable
-            }
-        } else {
-            try {
-                localStorage.removeItem('activeSlotHold');
-            } catch (e) {
-                // Silently fail if localStorage is unavailable
-            }
-        }
-    }, [activeHold]);
+    // ✅ Removed localStorage persistence effect — holds now live in memory only
+    // This allows a fresh start when the user reloads the page
 
     // Update countdown timer every second
     useEffect(() => {
