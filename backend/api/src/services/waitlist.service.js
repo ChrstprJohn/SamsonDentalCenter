@@ -166,18 +166,28 @@ export const cancelWaitlistEntry = async (waitlistId, patientId) => {
 export const notifyWaitlist = async (freedSlot) => {
     const { date, start_time, service_id } = freedSlot;
 
+    // ── 0. Normalize time format (HH:MM) to avoid database mismatch (HH:MM:SS) ──
+    const normalizedTime = start_time?.substring(0, 5);
+
     // ── 1. Find waitlisted patients for this date and service ──
     // Match patients who want this specific time OR any time (preferred_time is null)
-    // Order by: priority DESC (urgent first), then created_at ASC (first come first served)
+    console.log(`🔍 [WAITLIST] Searching for waitlisted patients for date: ${date}, time: ${normalizedTime}, service: ${service_id}`);
+
     const { data: waitlistEntries, error } = await supabaseAdmin
         .from('waitlist')
         .select('*')
         .eq('preferred_date', date)
         .eq('service_id', service_id)
         .eq('status', WAITLIST_STATUS.WAITING)
-        .or(`preferred_time.eq.${start_time},preferred_time.is.null`)
+        .or(`preferred_time.eq.${normalizedTime},preferred_time.is.null`)
         .order('priority', { ascending: false })
         .order('created_at', { ascending: true });
+
+    if (error) {
+        console.error('❌ [WAITLIST] Search query error:', error);
+    }
+    
+    console.log(`📋 [WAITLIST] Found ${waitlistEntries?.length || 0} matching entries.`);
 
     if (error || !waitlistEntries || waitlistEntries.length === 0) {
         return { notified: false, message: 'No one on waitlist for this slot.' };
@@ -211,21 +221,28 @@ export const notifyWaitlist = async (freedSlot) => {
 
     const token = crypto.randomBytes(32).toString('hex');
 
-    await supabaseAdmin
+    const { data: updated, error: updateError } = await supabaseAdmin
         .from('waitlist')
         .update({
             status: WAITLIST_STATUS.NOTIFIED,
             notified_at: new Date().toISOString(),
             expires_at: expiresAt.toISOString(),
-            // Store the actual offered time so we know which slot to book on confirm
             preferred_time: start_time,
             claim_token: token,
             updated_at: new Date().toISOString(),
         })
-        .eq('id', firstInLine.id);
+        .eq('id', firstInLine.id)
+        .select()
+        .single();
+
+    if (updateError) {
+        console.error('❌ [WAITLIST] Failed to update waitlist entry:', updateError);
+        return { notified: false, message: 'Database error during notification.' };
+    }
+
+    console.log(`✅ [WAITLIST] Notified patient ${firstInLine.patient_id} for ${date} @ ${start_time}`);
 
     // ── 3. Create a notification record ──
-    // (If Module 11 is built, this would also send email/SMS)
     await supabaseAdmin.from('notifications').insert({
         user_id: firstInLine.patient_id,
         type: 'WAITLIST',
@@ -295,19 +312,6 @@ export const confirmWaitlistOffer = async (waitlistId, patientId) => {
     }
 
     // ── 3. SWAP LOGIC: Check if patient already has CONFIRMED or PENDING for same date + service ──
-    // 🔴 CRITICAL FIX: Check BOTH statuses to handle specialized services
-    //
-    // Scenario 1 (General Service): Patient has CONFIRMED appointment
-    //   → Auto-cancel + free slot + cascade to waitlist
-    //
-    // Scenario 2 (Specialized Service): Patient has PENDING appointment (awaiting approval)
-    //   → User accepts waitlist BEFORE receptionist approves
-    //   → Auto-cancel the PENDING (it's not live yet, no cascade needed)
-    //   → Proceed with new waitlist appointment
-    //
-    // Example: Patient has Cleaning at 09:00 on March 2 (status: PENDING/CONFIRMED).
-    //          Waitlist offer is Cleaning at 10:00 on March 2.
-    //          Auto-cancel the 09:00, which frees it (if CONFIRMED, cascade via notifyWaitlist).
     const { data: existingAppointment } = await supabaseAdmin
         .from('appointments')
         .select('id, start_time, status')
@@ -315,41 +319,50 @@ export const confirmWaitlistOffer = async (waitlistId, patientId) => {
         .eq('service_id', entry.service_id)
         .eq('appointment_date', entry.preferred_date)
         .in('status', [APPOINTMENT_STATUS.CONFIRMED, APPOINTMENT_STATUS.PENDING])
-        .single();
+        .maybeSingle();
 
+    // ── 4. ATTEMPT BOOKING FIRST (Atomicity check) ──
+    const { bookAppointment, cancelAppointment } = await import('./appointment.service.js');
+    
+    // Normalize time to HH:MM (avoid database HH:MM:SS mismatch)
+    const normalizedTime = entry.preferred_time?.substring(0, 5);
+
+    console.log(`🎟️ [WAITLIST] Attempting to book slot for waitlist claim: ${entry.preferred_date} @ ${normalizedTime}`);
+    
+    const bookingResult = await bookAppointment(
+        patientId,
+        entry.service_id,
+        entry.preferred_date,
+        normalizedTime,
+        true // sendEmail
+    );
+
+    if (!bookingResult.booked) {
+        console.warn(`❌ [WAITLIST] Booking failed during claim: ${bookingResult.message}`);
+        throw { 
+            status: 409, 
+            message: `Could not secure slot: ${bookingResult.message}. It may have been taken by someone else just now.`
+        };
+    }
+
+    // ── 5. SUCCESS: Handle Swap (Cancel old appointment) ──
     if (existingAppointment) {
-        const { cancelAppointment } = await import('./appointment.service.js');
-        const cancelResult = await cancelAppointment(
+        await cancelAppointment(
             existingAppointment.id,
             patientId,
             'Auto-cancelled: patient confirmed a waitlist offer for a different time',
         );
 
-        // ── Only cascade if the cancelled appointment was CONFIRMED ──
-        // PENDING appointments are not yet live, so no cascade needed
-        if (existingAppointment.status === APPOINTMENT_STATUS.CONFIRMED) {
-            // The freed slot from the old appointment should cascade to waitlist
-            await notifyWaitlist(cancelResult.freed_slot);
-            console.log(
-                `🔄 Swap (CONFIRMED): Patient ${patientId} swapped ${existingAppointment.start_time} → ${entry.preferred_time} on ${entry.preferred_date}`,
-            );
-        } else {
-            // PENDING appointment was cancelled, no cascade needed
-            console.log(
-                `🔄 Auto-Cancel (PENDING): Patient ${patientId}'s pending request was auto-cancelled. Waitlist offer now proceeding.`,
-            );
-        }
+        console.log(`🔄 [WAITLIST] Swap complete: ${existingAppointment.start_time} → ${entry.preferred_time}`);
     }
 
-    // ── 4. Mark waitlist entry as confirmed ──
+    // ── 6. Mark waitlist entry as confirmed ──
     await supabaseAdmin
         .from('waitlist')
         .update({ status: WAITLIST_STATUS.CONFIRMED, updated_at: new Date().toISOString() })
         .eq('id', waitlistId);
 
-    // ── 5. CLEANUP: Remove other WAITING entries for same patient + date + service ──
-    // If the patient had multiple waitlist entries (e.g., waiting for 09:00 AND 10:00),
-    // cancel the remaining ones since they got a slot.
+    // ── 7. CLEANUP: Remove other WAITING entries for same patient + date + service ──
     await supabaseAdmin
         .from('waitlist')
         .update({ status: WAITLIST_STATUS.CANCELLED, updated_at: new Date().toISOString() })
@@ -361,15 +374,13 @@ export const confirmWaitlistOffer = async (waitlistId, patientId) => {
 
     return {
         confirmed: true,
+        booked: true,
+        appointment: bookingResult.appointment,
         message: existingAppointment
             ? 'Waitlist confirmed! Old appointment was auto-cancelled (swapped).'
-            : 'Waitlist offer confirmed! Now proceeding to book your appointment.',
+            : 'Waitlist offer confirmed and appointment booked! ✨',
         swapped: !!existingAppointment,
         swapped_from: existingAppointment?.start_time || null,
-        service_id: entry.service_id,
-        date: entry.preferred_date,
-        time: entry.preferred_time,
-        patient_id: entry.patient_id, // Added for public confirm logic
     };
 };
 

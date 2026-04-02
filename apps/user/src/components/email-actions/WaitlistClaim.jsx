@@ -15,12 +15,15 @@ const WaitlistClaim = () => {
     const token = searchParams.get('token');
     const { user, loading: authLoading } = useAuth();
 
-    // REDIRECT LOGIC: If user is logged in, redirect to dashboard waitlist
+    // REDIRECT LOGIC: Removed for testing/standalone support
+    // (In future, logged-in users might be handled differently)
+    /*
     useEffect(() => {
         if (!authLoading && user) {
             navigate('/patient/waitlist', { replace: true });
         }
     }, [user, authLoading, navigate]);
+    */
 
     const [offer, setOffer] = useState(null);
     const [loading, setLoading] = useState(true);

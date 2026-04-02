@@ -303,6 +303,10 @@ export const reschedule = async (req, res, next) => {
         const result = await rescheduleAppointment(id, req.user.id, date, time);
 
         if (result.rescheduled) {
+            // ── Trigger waitlist notification for the FREED old slot ──
+            if (result.freed_slot) {
+                await notifyWaitlist(result.freed_slot);
+            }
             res.json(result);
         } else {
             res.status(200).json(result); // Alternatives returned

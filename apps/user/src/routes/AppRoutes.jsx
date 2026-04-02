@@ -35,6 +35,7 @@ import ContactPage from '../pages/public/ContactPage';
 import GuestBookingPage from '../pages/guest/GuestBookingPage';
 
 import UserBookingPage from '../pages/patient/UserBookingPage';
+import PatientDashboard from '../pages/patient/PatientDashboard';
 
 const AppRoutes = () => {
     return (
@@ -124,14 +125,22 @@ const AppRoutes = () => {
                 />
 
                 {/* ── Standalone Patient Booking (Full Page) ── */}
-                <Route
-                    path='/patient/book'
-                    element={
-                        <ProtectedRoute>
-                            <UserBookingPage />
-                        </ProtectedRoute>
-                    }
-                />
+                    <Route
+                        path='/patient/book'
+                        element={
+                            <ProtectedRoute>
+                                <UserBookingPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path='/patient'
+                        element={
+                            <ProtectedRoute>
+                                <PatientDashboard />
+                            </ProtectedRoute>
+                        }
+                    />
 
                 {/* ── Catch-all ── */}
                 <Route

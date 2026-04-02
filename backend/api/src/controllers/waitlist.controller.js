@@ -69,36 +69,10 @@ export const remove = async (req, res, next) => {
  */
 export const confirm = async (req, res, next) => {
     try {
-        // 1. Confirm the waitlist offer (handles expiry cascade, swap, cleanup)
+        // 1. Confirm the waitlist offer (handles expiry cascade, swap, cleanup, and booking)
         const result = await confirmWaitlistOffer(req.params.id, req.user.id);
 
-        if (!result.confirmed) {
-            return res.json(result);
-        }
-
-        // 2. If confirmed and we have a specific time, auto-book the appointment
-        if (result.time) {
-            const booking = await bookAppointment(
-                req.user.id,
-                result.service_id,
-                result.date,
-                result.time,
-            );
-            return res.json({
-                message: result.swapped
-                    ? `Appointment swapped! Old (${result.swapped_from}) cancelled, new booked.`
-                    : 'Waitlist confirmed and appointment booked!',
-                swapped: result.swapped,
-                ...booking,
-            });
-        }
-
-        // 3. If no specific time, tell them to pick a slot
-        res.json({
-            message: 'Waitlist confirmed! Please select an available time slot.',
-            service_id: result.service_id,
-            date: result.date,
-        });
+        res.json(result);
     } catch (err) {
         if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
@@ -131,26 +105,8 @@ export const confirmPublicOffer = async (req, res, next) => {
         const { token } = req.query;
         if (!token) return res.status(400).json({ error: 'Token is required.' });
 
-        // 1. Confirm the offer
+        // 1. Confirm the offer (the service now handles booking internally)
         const result = await confirmWaitlistByToken(token);
-
-        // 2. Auto-book the appointment (Guest/Public flow)
-        if (result.time) {
-            const booking = await bookAppointment(
-                result.patient_id, // Use ID from waitlist entry
-                result.service_id,
-                result.date,
-                result.time,
-                true // sendEmail
-            );
-            
-            return res.json({
-                message: result.swapped
-                    ? 'Appointment swapped! Old one cancelled, new booked.'
-                    : 'Waitlist confirmed and appointment booked! ✨',
-                ...booking,
-            });
-        }
 
         res.json(result);
     } catch (err) {
