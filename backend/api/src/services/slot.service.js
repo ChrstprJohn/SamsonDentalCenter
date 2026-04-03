@@ -29,7 +29,12 @@ SAMPLE DATA THAT WILL BE RETURNED
 }
 */
 
-export const getAvailableSlots = async (date, serviceId, filterSessionId = null) => {
+export const getAvailableSlots = async (
+    date,
+    serviceId,
+    filterSessionId = null,
+    skipNextSearch = false,
+) => {
     // ✅ NEW: Check if date is today (same-day booking prevention)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -38,14 +43,15 @@ export const getAvailableSlots = async (date, serviceId, filterSessionId = null)
 
     if (requestedDate.getTime() === today.getTime()) {
         // Same day booking not allowed
-        return {
-            all_slots: [],
+        return handleNoSlots(
             date,
-            service: 'N/A',
-            total_available: 0,
-            total_full: 0,
-            message: 'Same-day bookings are not allowed. Please select a future date.',
-        };
+            'N/A',
+            0,
+            'Same-day bookings are not allowed. Please select a future date.',
+            serviceId,
+            filterSessionId,
+            skipNextSearch,
+        );
     }
 
     // ── 1. Get the service to know its duration ──
@@ -71,14 +77,15 @@ export const getAvailableSlots = async (date, serviceId, filterSessionId = null)
         .single();
 
     if (!clinicDay || !clinicDay.is_open) {
-        return {
-            all_slots: [],
+        return handleNoSlots(
             date,
-            service: service.name,
-            total_available: 0,
-            total_full: 0,
-            message: 'Clinic is closed on this day.',
-        };
+            service.name,
+            durationMinutes,
+            'Clinic is closed on this day.',
+            serviceId,
+            filterSessionId,
+            skipNextSearch,
+        );
     }
 
     // ── 3. Get all active dentists qualified for this service tier ──
@@ -97,14 +104,15 @@ export const getAvailableSlots = async (date, serviceId, filterSessionId = null)
     const { data: dentists } = await dentistQuery;
 
     if (!dentists || dentists.length === 0) {
-        return {
-            all_slots: [],
+        return handleNoSlots(
             date,
-            service: service.name,
-            total_available: 0,
-            total_full: 0,
-            message: 'No dentists available.',
-        };
+            service.name,
+            durationMinutes,
+            'No dentists available.',
+            serviceId,
+            filterSessionId,
+            skipNextSearch,
+        );
     }
 
     const dentistIds = dentists.map((d) => d.id);
@@ -118,14 +126,15 @@ export const getAvailableSlots = async (date, serviceId, filterSessionId = null)
         .eq('is_working', true);
 
     if (!dentistSchedules || dentistSchedules.length === 0) {
-        return {
-            all_slots: [],
+        return handleNoSlots(
             date,
-            service: service.name,
-            total_available: 0,
-            total_full: 0,
-            message: 'No dentists working on this day.',
-        };
+            service.name,
+            durationMinutes,
+            'No dentists working on this day.',
+            serviceId,
+            filterSessionId,
+            skipNextSearch,
+        );
     }
 
     // ── 4. Check dentist availability blocks (leave, sick, etc.) ──
@@ -144,14 +153,15 @@ export const getAvailableSlots = async (date, serviceId, filterSessionId = null)
     );
 
     if (activeSchedules.length === 0) {
-        return {
-            all_slots: [],
+        return handleNoSlots(
             date,
-            service: service.name,
-            total_available: 0,
-            total_full: 0,
-            message: 'No dentists available on this day (blocked/on leave).',
-        };
+            service.name,
+            durationMinutes,
+            'No dentists available on this day (blocked/on leave).',
+            serviceId,
+            filterSessionId,
+            skipNextSearch,
+        );
     }
 
     // ── 5. Get existing appointments on that date (not cancelled) ──
@@ -269,7 +279,7 @@ export const getAvailableSlots = async (date, serviceId, filterSessionId = null)
     const totalAvailable = sortedSlots.filter((s) => s.available > 0).length;
     const totalFull = sortedSlots.filter((s) => s.available === 0).length;
 
-    return {
+    const response = {
         all_slots: sortedSlots,
         date,
         service: service.name,
@@ -277,6 +287,118 @@ export const getAvailableSlots = async (date, serviceId, filterSessionId = null)
         total_available: totalAvailable,
         total_full: totalFull,
     };
+
+    // ✅ If no slots available, find the next available date (unless we are already searching)
+    if (totalAvailable === 0 && !skipNextSearch) {
+        response.next_available_date = await findNextAvailableDate(date, serviceId, filterSessionId);
+    }
+
+    return response;
+};
+
+/**
+ * Handle returns when no slots are available (unifies the suggestion logic)
+ */
+async function handleNoSlots(
+    date,
+    serviceName,
+    durationMinutes,
+    message,
+    serviceId,
+    filterSessionId,
+    skipNextSearch,
+) {
+    const response = {
+        all_slots: [],
+        date,
+        service: serviceName,
+        duration_minutes: durationMinutes,
+        total_available: 0,
+        total_full: 0,
+        message,
+    };
+
+    if (!skipNextSearch) {
+        response.next_available_date = await findNextAvailableDate(date, serviceId, filterSessionId);
+    }
+
+    return response;
+}
+
+/**
+ * Find the next available date with at least one free slot.
+ * Searches up to 14 days into the future.
+ */
+export const findNextAvailableDate = async (startDate, serviceId, filterSessionId = null) => {
+    try {
+        // 1. Get service tier to filter dentists efficiently
+        const { data: service } = await supabaseAdmin
+            .from('services')
+            .select('tier')
+            .eq('id', serviceId)
+            .single();
+        if (!service) return null;
+
+        // 2. Get clinic open days from schedule
+        const { data: clinicSchedule } = await supabaseAdmin
+            .from('clinic_schedule')
+            .select('day_of_week')
+            .eq('is_open', true);
+        const openClinicDays = new Set((clinicSchedule || []).map((d) => d.day_of_week));
+        if (openClinicDays.size === 0) return null;
+
+        // 3. Get IDs of active dentists who handle this tier
+        let dentistQuery = supabaseAdmin.from('dentists').select('id').eq('is_active', true);
+        if (service.tier === 'general') {
+            dentistQuery = dentistQuery.in('tier', ['general', 'both']);
+        } else if (service.tier === 'specialized') {
+            dentistQuery = dentistQuery.in('tier', ['specialized', 'both']);
+        }
+        const { data: dentists } = await dentistQuery;
+        if (!dentists || dentists.length === 0) return null;
+        const dentistIds = dentists.map((d) => d.id);
+
+        // 4. Get days of week where these dentists are scheduled to work
+        const { data: workingDays } = await supabaseAdmin
+            .from('dentist_schedule')
+            .select('day_of_week')
+            .eq('is_working', true)
+            .in('dentist_id', dentistIds);
+        const openDentistDays = new Set((workingDays || []).map((d) => d.day_of_week));
+
+        // Combined intersection: skip any day where either the clinic is closed OR no dentists work
+        const allowedDays = new Set([...openClinicDays].filter((x) => openDentistDays.has(x)));
+
+        const start = new Date(startDate);
+
+        // 5. Search forward for up to 90 days (optimized loop)
+        for (let i = 1; i <= 90; i++) {
+            const nextDate = new Date(start);
+            nextDate.setDate(nextDate.getDate() + i);
+
+            const dayOfWeek = nextDate.getDay();
+            if (!allowedDays.has(dayOfWeek)) continue;
+
+            // ✅ Use local parts to avoid timezone shifting
+            const year = nextDate.getFullYear();
+            const month = String(nextDate.getMonth() + 1).padStart(2, '0');
+            const day = String(nextDate.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+
+            try {
+                // Use skipNextSearch=true to prevent infinite loops and deep recursion
+                const result = await getAvailableSlots(dateStr, serviceId, filterSessionId, true);
+                if (result.total_available > 0) {
+                    return dateStr;
+                }
+            } catch (e) {
+                // Silently skip check errors for a specific day
+            }
+        }
+    } catch (err) {
+        console.error('Error in findNextAvailableDate:', err);
+    }
+    return null;
 };
 
 /**

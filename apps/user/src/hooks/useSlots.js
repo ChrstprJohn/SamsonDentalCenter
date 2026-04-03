@@ -3,6 +3,7 @@ import { api } from '../utils/api';
 
 const useSlots = (date, serviceId, includeFullSlots = false, sessionId = null) => {
     const [slots, setSlots] = useState([]);
+    const [nextAvailableDate, setNextAvailableDate] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -23,6 +24,7 @@ const useSlots = (date, serviceId, includeFullSlots = false, sessionId = null) =
     const performFetch = useCallback(async () => {
         if (!date || !serviceId) {
             setSlots([]);
+            setNextAvailableDate(null);
             return;
         }
 
@@ -52,9 +54,11 @@ const useSlots = (date, serviceId, includeFullSlots = false, sessionId = null) =
             }));
 
             setSlots(normalized);
+            setNextAvailableDate(data.next_available_date || null);
         } catch (err) {
             setError(err.message);
             setSlots([]);
+            setNextAvailableDate(null);
         } finally {
             setLoading(false);
             isFetchingRef.current = false;
@@ -90,7 +94,7 @@ const useSlots = (date, serviceId, includeFullSlots = false, sessionId = null) =
         };
     }, [performFetch]);
 
-    return { slots, loading, error, refetch };
+    return { slots, nextAvailableDate, loading, error, refetch };
 };
 
 export default useSlots;

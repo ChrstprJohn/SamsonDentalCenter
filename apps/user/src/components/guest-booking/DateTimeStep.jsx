@@ -68,19 +68,37 @@ const DateTimeStep = ({
         });
     };
 
-    const formatDateKey = (d) => d.toISOString().split('T')[0]; // YYYY-MM-DD
+    // ✅ FIX: Use local date parts to avoid timezone shifting (e.g. UTC-8 or UTC+8 issues)
+    const formatDateKey = (d) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
 
     // ✅ Guest booking: Fetch ALL slots (available + full) so we can see OUR own holds
     // Filter out other full slots in the render logic below
     // Only fetch if both date and serviceId are valid
     const {
         slots,
+        nextAvailableDate,
         loading: slotsLoading,
         refetch: refetchSlots,
     } = useSlots(selectedDate || null, serviceId || null, true, sessionId);
 
     const handleDateClick = (date) => {
-        const key = formatDateKey(date);
+        // Create a copy and normalize to midnight local time
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+
+        const key = formatDateKey(d);
+
+        // ✅ Ensure the calendar jumps to the week of the selected date
+        const newWeekStart = new Date(d);
+        newWeekStart.setDate(d.getDate() - d.getDay()); // Sunday of that week
+        newWeekStart.setHours(0, 0, 0, 0);
+        setWeekStart(newWeekStart);
+
         onUpdate({ date: key, time: '' }); // Reset time when date changes
     };
 
@@ -348,8 +366,30 @@ const DateTimeStep = ({
                             })}
                         </div>
                     ) : (
-                        <div className='text-sm text-slate-400 py-4 bg-slate-50 rounded-xl px-4'>
-                            No available slots for this date. Try another day.
+                        <div className='text-sm text-slate-500 py-4 bg-slate-50 rounded-xl px-4 flex flex-col gap-2'>
+                            <p>No available slots for this date.</p>
+                            {/* ✅ NEW: Suggest next available date if provided by backend */}
+                            {nextAvailableDate && (
+                                <p className='text-sky-600 font-medium text-sm'>
+                                    Next available date:{' '}
+                                    <button
+                                        onClick={() =>
+                                            handleDateClick(new Date(nextAvailableDate))
+                                        }
+                                        className='underline hover:text-sky-700 transition-colors'
+                                    >
+                                        {new Date(nextAvailableDate).toLocaleDateString(
+                                            'en-US',
+                                            {
+                                                weekday: 'short',
+                                                month: 'short',
+                                                day: 'numeric',
+                                            },
+                                        )}
+                                    </button>
+                                </p>
+                            )}
+                            {!nextAvailableDate && <p>Try another day.</p>}
                         </div>
                     )}
                 </div>
