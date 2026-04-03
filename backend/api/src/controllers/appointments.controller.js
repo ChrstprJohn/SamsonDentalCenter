@@ -35,11 +35,6 @@ export const bookGuest = async (req, res) => {
     try {
         const { service_id, date, time, email, phone, full_name, user_session_id } = req.body;
 
-        // Validation
-        if (!service_id || !date || !time || !email || !full_name) {
-            return res.status(400).json({ error: 'Missing required fields' });
-        }
-
         const result = await bookAppointmentGuest(
             service_id,
             date,
@@ -68,10 +63,6 @@ export const confirmEmail = async (req, res) => {
     try {
         const { token } = req.query;
 
-        if (!token) {
-            return res.status(400).json({ error: 'Missing confirmation token.' });
-        }
-
         const result = await confirmAppointmentByToken(token);
 
         // Return JSON — frontend (React Router) handles the navigation
@@ -90,10 +81,6 @@ export const confirmEmail = async (req, res) => {
 export const resendConfirmation = async (req, res) => {
     try {
         const { appointment_id, email } = req.body;
-
-        if (!appointment_id || !email) {
-            return res.status(400).json({ error: 'appointment_id and email are required.' });
-        }
 
         const result = await resendConfirmationEmail(appointment_id, email);
         return res.json(result);
@@ -114,14 +101,6 @@ export const resendConfirmation = async (req, res) => {
 export const bookUser = async (req, res, next) => {
     try {
         const { service_id, date, time, booked_for_name, user_session_id, dentist_id } = req.body;
-
-        // ── Validate ──
-        if (!service_id || !date || !time) {
-            return res.status(400).json({
-                error: 'service_id, date, and time are required.',
-                example: { service_id: 'uuid', date: '2026-03-02', time: '09:00' },
-            });
-        }
 
         // Check date is in the future (using Philippine Time)
         const todayPH = getTodayPH();
@@ -169,10 +148,6 @@ export const submitWizard = async (req, res, next) => {
     try {
         const { service_id, booking, waitlist } = req.body;
         const results = { booking: null, waitlist: null };
-
-        if (!service_id) {
-            return res.status(400).json({ error: 'service_id is required.' });
-        }
 
         // 1. Process Booking if requested
         if (booking && booking.date && booking.time) {
@@ -242,8 +217,8 @@ export const getMyAppointments = async (req, res, next) => {
             req.user.id,
             status,
             sort,
-            Number(page),
-            Number(limit),
+            page,
+            limit,
         );
 
         res.json({
@@ -301,10 +276,6 @@ export const reschedule = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { date, time } = req.body;
-
-        if (!date || !time) {
-            return res.status(400).json({ error: 'New date and time are required.' });
-        }
 
         const result = await rescheduleAppointment(id, req.user.id, date, time);
 
@@ -417,7 +388,6 @@ export const guestCancelConfirm = async (req, res, next) => {
 export const guestRescheduleInfo = async (req, res, next) => {
     try {
         const { token } = req.query;
-        if (!token) return res.status(400).json({ error: 'Token is required.' });
 
         const result = await validateGuestActionToken(token, 'reschedule');
 
@@ -461,11 +431,6 @@ export const guestRescheduleConfirm = async (req, res, next) => {
     try {
         const { token } = req.query;
         const { date, time } = req.body;
-
-        if (!token) return res.status(400).json({ error: 'Token is required.' });
-        if (!date || !time) {
-            return res.status(400).json({ error: 'New date and time are required.' });
-        }
 
         const result = await validateGuestActionToken(token, 'reschedule');
         const oldAppt = result.appointment;
@@ -590,13 +555,6 @@ export const holdSlotHandler = async (req, res) => {
     try {
         const { service_id, date, time, user_session_id } = req.body;
 
-        // Validation
-        if (!service_id || !date || !time || !user_session_id) {
-            return res.status(400).json({
-                error: 'Missing required fields: service_id, date, time, user_session_id',
-            });
-        }
-
         const result = await holdSlot(service_id, date, time, user_session_id);
         return res.status(200).json(result);
     } catch (err) {
@@ -615,10 +573,6 @@ export const holdSlotHandler = async (req, res) => {
 export const releaseSlotHold = async (req, res) => {
     try {
         const { hold_id } = req.body;
-
-        if (!hold_id) {
-            return res.status(400).json({ error: 'Missing hold_id' });
-        }
 
         const result = await releaseHold(hold_id);
         return res.status(200).json(result);

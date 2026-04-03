@@ -5,8 +5,11 @@ export const validate = (schema) => (req, res, next) => {
             query: req.query,
             params: req.params,
         });
-        // Attach parsed (and type-coerced) values
-        req.validated = result;
+        // Attach parsed (and type-coerced) values back to the request
+        req.body = result.body;
+        req.query = result.query;
+        req.params = result.params;
+        req.validated = result; // Keep this just in case
         next();
     } catch (err) {
         return res.status(400).json({

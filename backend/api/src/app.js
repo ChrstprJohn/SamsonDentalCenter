@@ -1,6 +1,8 @@
 import express, { Router } from 'express';
+import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { errorHandler } from './middleware/error.middleware.js';
 
@@ -19,15 +21,34 @@ import smartSlotsRoutes from './routes/smart-slots.routes.js';
 const app = express();
 
 // ── Global Middleware ──
-app.use(express.json());
+app.use(
+    helmet({
+        contentSecurityPolicy: {
+            directives: {
+                ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+                'img-src': ["'self'", 'https://*.supabase.co'],
+            },
+        },
+    }),
+);
+app.use(express.json({ limit: '1mb' }));
+app.use(cookieParser());
 app.use(morgan('dev')); // Request logging
 app.use(
     cors({
-        origin: [
-            process.env.FRONTEND_URL || 'http://localhost:5173',
-            'http://localhost:3000',
-            'http://localhost:5173',
-        ],
+        origin: (origin, callback) => {
+            const allowedOrigins = [
+                process.env.FRONTEND_URL || 'http://localhost:5173',
+                'http://localhost:3000',
+                'http://localhost:5173',
+            ].concat((process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean));
+
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
         credentials: true,
     }),
 );
@@ -50,6 +71,13 @@ const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: isDevelopment ? 1000 : 10, // 1000 auth attempts in dev, 10 in prod
     message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
+    skip: (req, res) => isDevelopment && process.env.DISABLE_RATE_LIMIT === 'true',
+});
+
+const holdLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: isDevelopment ? 1000 : 10, // 10 holds per 15 min per IP in prod
+    message: { error: 'Too many slot hold attempts. Please try again later.' },
     skip: (req, res) => isDevelopment && process.env.DISABLE_RATE_LIMIT === 'true',
 });
 
@@ -83,6 +111,10 @@ v1Router.use('/notifications', notificationsRoutes);
 v1Router.use('/admin', adminRoutes);
 v1Router.use('/admin/analytics', analyticsRoutes);
 v1Router.use('/doctor', doctorRoutes);
+
+// Apply rate limiting to hold routes
+v1Router.use('/appointments/slots/hold', holdLimiter);
+v1Router.use('/appointments/slots/release-hold', holdLimiter);
 
 // Mount v1 router under /api/v1
 app.use('/api/v1', apiLimiter, v1Router);

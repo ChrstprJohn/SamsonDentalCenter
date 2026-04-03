@@ -6,6 +6,7 @@ import {
     CLINIC_CONFIG,
     APPOINTMENT_SOURCE,
 } from '../utils/constants.js';
+import { AppError } from '../utils/errors.js';
 
 /**
  * Add a patient to the waitlist.
@@ -39,10 +40,7 @@ export const joinWaitlist = async (patientId, serviceId, date, time = null, prio
     const { data: existing } = await query.maybeSingle();
 
     if (existing) {
-        throw {
-            status: 400,
-            message: 'You are already on the waitlist for this date, service, and time.',
-        };
+        throw new AppError('You are already on the waitlist for this date, service, and time.', 400);
     }
 
     // ── 2. Add to waitlist ──
@@ -65,7 +63,7 @@ export const joinWaitlist = async (patientId, serviceId, date, time = null, prio
         )
         .single();
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     // ── 3. Calculate queue position ──
     const { count } = await supabaseAdmin
@@ -108,7 +106,7 @@ export const getMyWaitlist = async (patientId) => {
         .order('preferred_date')
         .order('created_at');
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     // Calculate position for each entry (based on priority and created_at)
     const positionMap = {};
@@ -156,7 +154,7 @@ export const cancelWaitlistEntry = async (waitlistId, patientId) => {
         .single();
 
     if (error || !data) {
-        throw { status: 404, message: 'Waitlist entry not found or cannot be cancelled.' };
+        throw new AppError('Waitlist entry not found or cannot be cancelled.', 404);
     }
 
     return { message: 'Removed from waitlist.', entry: data };
@@ -291,7 +289,7 @@ export const confirmWaitlistOffer = async (waitlistId, patientId) => {
         .single();
 
     if (fetchErr || !entry) {
-        throw { status: 404, message: 'Waitlist offer not found or already expired.' };
+        throw new AppError('Waitlist offer not found or already expired.', 404);
     }
 
     // ── 2. Check if the offer has expired ──
@@ -310,11 +308,7 @@ export const confirmWaitlistOffer = async (waitlistId, patientId) => {
             service_id: entry.service_id,
         });
 
-        throw {
-            status: 410,
-            message:
-                'This offer has expired. The slot has been offered to the next person in line.',
-        };
+        throw new AppError('This offer has expired. The slot has been offered to the next person in line.', 410);
     }
 
     // ── 3. SWAP LOGIC: Check if patient already has CONFIRMED or PENDING for same date + service ──
@@ -347,10 +341,7 @@ export const confirmWaitlistOffer = async (waitlistId, patientId) => {
 
     if (!bookingResult.booked) {
         console.warn(`❌ [WAITLIST] Booking failed during claim: ${bookingResult.message}`);
-        throw { 
-            status: 409, 
-            message: `Could not secure slot: ${bookingResult.message}. It may have been taken by someone else just now.`
-        };
+        throw new AppError(`Could not secure slot: ${bookingResult.message}. It may have been taken by someone else just now.`, 409);
     }
 
     // ── 5. SUCCESS: Handle Swap (Cancel old appointment) ──
@@ -414,12 +405,12 @@ export const getWaitlistByToken = async (token) => {
         .single();
 
     if (error || !data) {
-        throw { status: 404, message: 'Waitlist offer not found or expired.' };
+        throw new AppError('Waitlist offer not found or expired.', 404);
     }
 
     // Check if expired
     if (new Date() > new Date(data.expires_at)) {
-        throw { status: 410, message: 'This claim window has expired.' };
+        throw new AppError('This claim window has expired.', 410);
     }
 
     return {
@@ -445,7 +436,7 @@ export const confirmWaitlistByToken = async (token) => {
         .single();
 
     if (error || !entry) {
-        throw { status: 404, message: 'Invalid or expired claim token.' };
+        throw new AppError('Invalid or expired claim token.', 404);
     }
 
     // 2. Delegate to the main confirm service (reusing all swap/cleanup logic)

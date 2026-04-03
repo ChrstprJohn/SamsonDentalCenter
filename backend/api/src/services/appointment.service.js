@@ -16,6 +16,7 @@ import {
     APPOINTMENT_SOURCE,
 } from '../utils/constants.js';
 import { getTodayPH } from '../utils/timezone.js';
+import { AppError } from '../utils/errors.js';
 
 /**
  * Book an appointment for a guest (no user account).
@@ -38,10 +39,13 @@ export const bookAppointmentGuest = async (
     guestName,
     userSessionId = null,
 ) => {
+    // Normalize guest email
+    const normalizedEmail = guestEmail?.trim().toLowerCase();
+
     // ── 0. Validate date is in the future (using Philippine Time) ──
     const todayPH = getTodayPH();
     if (date < todayPH) {
-        throw { status: 400, message: 'Cannot book appointments in the past.' };
+        throw new AppError('Cannot book appointments in the past.', 400);
     }
 
     // ── 1. Get service duration (and check if it exists before proceeding!) ──
@@ -52,16 +56,14 @@ export const bookAppointmentGuest = async (
         .single();
 
     if (serviceError || !service) {
-        throw { status: 404, message: 'Service not found.' };
+        throw new AppError('Service not found.', 404);
     }
 
     // ── 1b. GUEST BOOKING RESTRICTION: Only General services allowed ──
     if (service.tier === SERVICE_TIER.SPECIALIZED) {
-        throw {
-            status: 403,
-            message: 'Specialized services require an account to book. Please sign up or log in.',
-            requires_account: true,
-        };
+        const error = new AppError('Specialized services require an account to book. Please sign up or log in.', 403);
+        error.requires_account = true;
+        throw error;
     }
 
     // Calculate endTime ONCE here to avoid calling the function multiple times
@@ -86,7 +88,7 @@ export const bookAppointmentGuest = async (
     const dentistId = await assignDentist(date, time, endTime);
 
     if (!dentistId) {
-        throw { status: 409, message: 'No dentist available for this slot.' };
+        throw new AppError('No dentist available for this slot.', 409);
     }
 
     // ── 4. Create appointment as PENDING (not confirmed yet!) ──
@@ -94,7 +96,7 @@ export const bookAppointmentGuest = async (
         .from('appointments')
         .insert({
             patient_id: null, // Guests have no account
-            guest_email: guestEmail,
+            guest_email: normalizedEmail,
             guest_phone: guestPhone,
             guest_name: guestName,
             dentist_id: dentistId,
@@ -116,7 +118,7 @@ export const bookAppointmentGuest = async (
 
     if (insertError) {
         console.error('Insert Error:', insertError);
-        throw { status: 500, message: insertError.message };
+        throw new AppError(insertError.message, 500);
     }
 
     // ── 5. Generate confirmation token & send email ──
@@ -193,12 +195,7 @@ export const bookAppointment = async (
                 const maxDate = new Date();
                 maxDate.setDate(maxDate.getDate() + patient.max_advance_booking_days);
                 if (new Date(date) > maxDate) {
-                    throw {
-                        status: 403,
-                        message: `Due to missed appointments, you can only book up to ${patient.max_advance_booking_days} days in advance.`,
-                        restriction: true,
-                        no_show_count: patient.no_show_count,
-                    };
+                    throw new AppError(`Due to missed appointments, you can only book up to ${patient.max_advance_booking_days} days in advance.`, 403);
                 }
             }
         }
@@ -212,7 +209,7 @@ export const bookAppointment = async (
         .single();
 
     if (!service) {
-        throw { status: 404, message: 'Service not found.' };
+        throw new AppError('Service not found.', 404);
     }
 
     const endTime = addMinutesToTime(time, service.duration_minutes);
@@ -250,12 +247,9 @@ export const bookAppointment = async (
 
         if (error) {
             if (error.code === '23505') {
-                throw {
-                    status: 409,
-                    message: 'This slot was just taken. Please try another time.',
-                };
+                throw new AppError('This slot was just taken. Please try another time.', 409);
             }
-            throw { status: 500, message: error.message };
+            throw new AppError(error.message, 500);
         }
 
         // ── 5. Send booking request receipt email to authenticated patient ──
@@ -314,11 +308,7 @@ export const bookAppointment = async (
     const dentistId = preferredDentistId || (await assignDentist(date, time, endTime, SERVICE_TIER.GENERAL));
 
     if (!dentistId) {
-        throw {
-            status: 409,
-            message:
-                'No dentist available for this slot. This should not happen — please contact support.',
-        };
+        throw new AppError('No dentist available for this slot. This should not happen — please contact support.', 409);
     }
 
     // ── 4. Create the appointment ──
@@ -353,9 +343,9 @@ export const bookAppointment = async (
     if (error) {
         // This catches the unique index violation (double booking)
         if (error.code === '23505') {
-            throw { status: 409, message: 'This slot was just taken. Please try another time.' };
+            throw new AppError('This slot was just taken. Please try another time.', 409);
         }
-        throw { status: 500, message: error.message };
+        throw new AppError(error.message, 500);
     }
 
     // ── 5. Send booking request receipt email to authenticated patient ──
@@ -470,7 +460,7 @@ export const getPatientAppointments = async (
     const { data, error, count } = await query;
 
     if (error) {
-        throw { status: 500, message: error.message };
+        throw new AppError(error.message, 500);
     }
 
     const appointments = data.map((appt) => ({
@@ -514,7 +504,7 @@ export const getAppointmentById = async (appointmentId, patientId) => {
         .single();
 
     if (error || !data) {
-        throw { status: 404, message: 'Appointment not found.' };
+        throw new AppError('Appointment not found.', 404);
     }
 
     return data;
@@ -543,16 +533,16 @@ export const cancelAppointment = async (
         .single();
 
     if (fetchError || !appointment) {
-        throw { status: 404, message: 'Appointment not found or you do not own it.' };
+        throw new AppError('Appointment not found or you do not own it.', 404);
     }
 
     // ── 2. Check if it can be cancelled ──
     if (appointment.status === APPOINTMENT_STATUS.CANCELLED) {
-        throw { status: 400, message: 'This appointment is already cancelled.' };
+        throw new AppError('This appointment is already cancelled.', 400);
     }
 
     if (appointment.status === APPOINTMENT_STATUS.COMPLETED) {
-        throw { status: 400, message: 'Cannot cancel a completed appointment.' };
+        throw new AppError('Cannot cancel a completed appointment.', 400);
     }
 
     // ── 3. Check if it's a last-minute cancellation ──
@@ -582,7 +572,7 @@ export const cancelAppointment = async (
         .single();
 
     if (updateError) {
-        throw { status: 500, message: updateError.message };
+        throw new AppError(updateError.message, 500);
     }
 
     // ── 5b. Send cancellation email ──
@@ -660,14 +650,11 @@ export const rescheduleAppointment = async (appointmentId, patientId, newDate, n
         .single();
 
     if (error || !original) {
-        throw { status: 404, message: 'Appointment not found.' };
+        throw new AppError('Appointment not found.', 404);
     }
 
     if (original.status !== APPOINTMENT_STATUS.CONFIRMED) {
-        throw {
-            status: 400,
-            message: `Cannot reschedule appointment with status: ${original.status}`,
-        };
+        throw new AppError(`Cannot reschedule appointment with status: ${original.status}`, 400);
     }
 
     // ── 2. Try to book the new slot first (sendEmail = false — reschedule email sent instead) ──
@@ -768,10 +755,7 @@ export const bookWalkIn = async (patientId, serviceId, time = null, notes = null
     const dentistId = await assignDentist(today, walkInTime, endTime, 'general');
 
     if (!dentistId) {
-        throw {
-            status: 409,
-            message: 'No dentist available right now for a walk-in.',
-        };
+        throw new AppError('No dentist available right now for a walk-in.', 409);
     }
 
     const { data: appointment, error } = await supabaseAdmin

@@ -2,15 +2,16 @@ import { supabaseAdmin } from '../config/supabase.js';
 
 export const requireAuth = async (req, res, next) => {
     try {
-        // 1. Get the Authorization header
-        const authHeader = req.headers.authorization;
+        // 1. Get the token from cookie or Authorization header
+        let token = req.cookies?.['sb-access-token'];
 
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ error: 'No token provided. Please log in.' });
+        if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+            token = req.headers.authorization.split(' ')[1];
         }
 
-        // 2. Extract the token (everything after "Bearer ")
-        const token = authHeader.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ error: 'No token provided. Please log in.' });
+        }
 
         // 3. Ask Supabase to verify the token
         const {
@@ -27,7 +28,7 @@ export const requireAuth = async (req, res, next) => {
         // 4. Get the user's profile from our profiles table
         const { data: profile, error: profileError } = await supabaseAdmin
             .from('profiles')
-            .select('*')
+            .select('id, email, full_name, phone, role')
             .eq('id', user.id)
             .single();
 
@@ -39,7 +40,9 @@ export const requireAuth = async (req, res, next) => {
         req.user = {
             id: user.id,
             email: user.email,
-            ...profile,
+            full_name: profile.full_name,
+            phone: profile.phone,
+            role: profile.role,
         };
 
         // 6. Continue to the next middleware/controller
@@ -49,46 +52,57 @@ export const requireAuth = async (req, res, next) => {
     }
 };
 
-// /**
-//  * OPTIONAL: Tries to identify the user, but lets guests through.
-//  * req.user will be null if not logged in.
-//  * Use this for the /book-guest route.
-//  */
-// export const optionalAuth = async (req, res, next) => {
-//     try {
-//         const authHeader = req.headers.authorization;
+/**
+ * OPTIONAL: Tries to identify the user, but lets guests through.
+ * req.user will be null if not logged in.
+ * Use this for the /book-guest route.
+ */
+export const optionalAuth = async (req, res, next) => {
+    try {
+        // 1. Get the token from cookie or Authorization header
+        let token = req.cookies?.['sb-access-token'];
 
-//         // If no token, they are a guest. Move to controller.
-//         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-//             req.user = null;
-//             return next();
-//         }
+        if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+            token = req.headers.authorization.split(' ')[1];
+        }
 
-//         const token = authHeader.split(' ')[1];
-//         const {
-//             data: { user },
-//             error,
-//         } = await supabaseAdmin.auth.getUser(token);
+        // If no token, they are a guest. Move to controller.
+        if (!token) {
+            req.user = null;
+            return next();
+        }
+        const {
+            data: { user },
+            error,
+        } = await supabaseAdmin.auth.getUser(token);
 
-//         // If token is bad, we still treat them as a guest rather than blocking them
-//         if (error || !user) {
-//             req.user = null;
-//             return next();
-//         }
+        // If token is bad, we still treat them as a guest rather than blocking them
+        if (error || !user) {
+            req.user = null;
+            return next();
+        }
 
-//         const { data: profile } = await supabaseAdmin
-//             .from('profiles')
-//             .select('*')
-//             .eq('id', user.id)
-//             .single();
+        const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('id, email, full_name, phone, role')
+            .eq('id', user.id)
+            .single();
 
-//         // Attach profile if found, otherwise stay as guest
-//         req.user = profile ? { id: user.id, email: user.email, ...profile } : null;
+        // Attach profile if found, otherwise stay as guest
+        req.user = profile
+            ? {
+                  id: user.id,
+                  email: user.email,
+                  full_name: profile.full_name,
+                  phone: profile.phone,
+                  role: profile.role,
+              }
+            : null;
 
-//         next();
-//     } catch (err) {
-//         // Errors in optional auth shouldn't crash the request for a guest
-//         req.user = null;
-//         next();
-//     }
-// };
+        next();
+    } catch (err) {
+        // Errors in optional auth shouldn't crash the request for a guest
+        req.user = null;
+        next();
+    }
+};

@@ -1,5 +1,5 @@
-import { supabaseAdmin } from '../config/supabase.js';
 import { CLINIC_CONFIG } from '../utils/constants.js';
+import { AppError } from '../utils/errors.js';
 
 /**
  * Get all time slots for a given date and service (including full ones).
@@ -63,7 +63,7 @@ export const getAvailableSlots = async (
         .single();
 
     if (serviceError || !service) {
-        throw { status: 404, message: 'Service not found.' };
+        throw new AppError('Service not found.', 404);
     }
 
     const durationMinutes = service.duration_minutes;

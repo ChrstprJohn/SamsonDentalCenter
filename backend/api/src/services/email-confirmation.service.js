@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { supabaseAdmin } from '../config/supabase.js';
 import { APPOINTMENT_STATUS, CLINIC_CONFIG } from '../utils/constants.js';
+import { AppError } from '../utils/errors.js';
 import { Resend } from 'resend';
 import fs from 'fs';
 import path from 'path';
@@ -40,7 +41,7 @@ export const createConfirmationToken = async (appointmentId) => {
 
     if (error) {
         console.error('Failed to create confirmation token:', error.message);
-        throw { status: 500, message: 'Failed to create confirmation token.' };
+        throw new AppError('Failed to create confirmation token.', 500);
     }
 
     return { token };
@@ -98,15 +99,12 @@ export const confirmAppointmentByToken = async (token) => {
         .single();
 
     if (tokenError || !tokenRecord) {
-        throw { status: 404, message: 'Invalid confirmation link. It may have already been used.' };
+        throw new AppError('Invalid confirmation link. It may have already been used.', 404);
     }
 
     // ── 2. Check if token is expired ──
     if (new Date(tokenRecord.expires_at) < new Date()) {
-        throw {
-            status: 410,
-            message: 'This confirmation link has expired. Please book a new appointment.',
-        };
+        throw new AppError('This confirmation link has expired. Please book a new appointment.', 410);
     }
 
     // ── 3. Check appointment status ──
@@ -136,7 +134,7 @@ export const confirmAppointmentByToken = async (token) => {
         .single();
 
     if (updateError) {
-        throw { status: 500, message: 'Failed to verify request.' };
+        throw new AppError('Failed to verify request.', 500);
     }
 
     // ── 5. Send "Verification Success" email (Awaiting Admin) ──
@@ -190,7 +188,7 @@ export const resendConfirmationEmail = async (appointmentId, email) => {
         .single();
 
     if (!appointment) {
-        throw { status: 404, message: 'No pending appointment found for this email.' };
+        throw new AppError('No pending appointment found for this email.', 404);
     }
 
     // ── 2. Delete old token(s) for this appointment ──
@@ -479,7 +477,7 @@ export const createGuestActionTokens = async (appointmentId, appointmentDate, ap
 
     if (error) {
         console.error('Failed to create guest action tokens:', error.message);
-        throw { status: 500, message: 'Failed to create action tokens.' };
+        throw new AppError('Failed to create action tokens.', 500);
     }
 
     return { cancelToken, rescheduleToken };
@@ -512,25 +510,22 @@ export const validateGuestActionToken = async (token, expectedAction) => {
         .single();
 
     if (error || !tokenRecord) {
-        throw { status: 404, message: 'Invalid or expired link.' };
+        throw new AppError('Invalid or expired link.', 404);
     }
 
     // Check if already used
     if (tokenRecord.used_at) {
-        throw { status: 410, message: 'This link has already been used.' };
+        throw new AppError('This link has already been used.', 410);
     }
 
     // Check if expired
     if (new Date() > new Date(tokenRecord.expires_at)) {
-        throw { status: 410, message: 'This link has expired.' };
+        throw new AppError('This link has expired.', 410);
     }
 
     // Check appointment status
     if (tokenRecord.appointment?.status !== 'CONFIRMED') {
-        throw {
-            status: 400,
-            message: `Cannot ${expectedAction} — appointment is already ${tokenRecord.appointment?.status}.`,
-        };
+        throw new AppError(`Cannot ${expectedAction} — appointment is already ${tokenRecord.appointment?.status}.`, 400);
     }
 
     return {

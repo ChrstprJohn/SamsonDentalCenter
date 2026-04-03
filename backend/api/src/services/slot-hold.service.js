@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import { v4 as uuidv4 } from 'uuid';
+import { AppError } from '../utils/errors.js';
 
 const HOLD_DURATION_MINUTES = 5;
 
@@ -33,38 +34,25 @@ export const holdSlot = async (serviceId, date, startTime, userSessionId) => {
     if (otherHolds && otherHolds.length > 0) {
         // Another user already locked this slot!
         console.warn(`Slot ${serviceId} on ${date} at ${startTime} already locked by another user`);
-        throw { status: 409, message: 'This time slot was just booked by someone else.' };
+        throw new AppError('This time slot was just booked by someone else.', 409);
     }
 
-    // ── 1. Check if THIS USER already has an active hold on this date/service ──
+    // ── 1. Check if THIS USER already has ANY active hold ──
     const { data: existingHolds } = await supabaseAdmin
         .from('slot_holds')
-        .select('id, start_time, expires_at')
-        .eq('service_id', serviceId)
-        .eq('appointment_date', date)
+        .select('id, start_time, appointment_date, expires_at')
         .eq('user_session_id', userSessionId)
         .eq('status', 'active')
         .gt('expires_at', now.toISOString());
 
     let previousHoldId = null;
 
-    // ── 2. If they have a hold on a DIFFERENT time, release it ──
+    // ── 2. If they have a hold, handle it ──
     if (existingHolds && existingHolds.length > 0) {
         const oldHold = existingHolds[0];
 
-        // Only auto-switch if it's a different time
-        if (oldHold.start_time !== startTime) {
-            previousHoldId = oldHold.id;
-
-            // Release the old hold (non-blocking)
-            await supabaseAdmin
-                .from('slot_holds')
-                .update({ status: 'released', updated_at: new Date().toISOString() })
-                .eq('id', oldHold.id);
-
-            console.log(`Auto-released previous hold ${oldHold.id} for session ${userSessionId}`);
-        } else {
-            // Same time clicked again — return existing hold (no duplicate)
+        // If it's for the SAME EXACT SLOT, return existing
+        if (oldHold.appointment_date === date && oldHold.start_time === startTime) {
             return {
                 hold_id: oldHold.id,
                 previous_hold_id: null,
@@ -73,6 +61,15 @@ export const holdSlot = async (serviceId, date, startTime, userSessionId) => {
                 already_held: true,
             };
         }
+
+        // Otherwise (different slot), release the old one to allow the new one
+        previousHoldId = oldHold.id;
+        await supabaseAdmin
+            .from('slot_holds')
+            .update({ status: 'released', updated_at: new Date().toISOString() })
+            .eq('id', oldHold.id);
+
+        console.log(`Auto-released previous hold ${oldHold.id} for session ${userSessionId}`);
     }
 
     // ── 3. Create new hold ──
@@ -95,7 +92,7 @@ export const holdSlot = async (serviceId, date, startTime, userSessionId) => {
 
     if (error) {
         console.error('Hold slot error:', error);
-        throw { status: 500, message: 'Failed to hold slot.' };
+        throw new AppError('Failed to hold slot.', 500);
     }
 
     return {
