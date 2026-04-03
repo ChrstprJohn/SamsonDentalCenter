@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../utils/api';
 
-const useSlots = (date, serviceId, includeFullSlots = false, sessionId = null) => {
+const useSlots = (date, serviceId, includeFullSlots = false, sessionId = null, dentistId = null) => {
     const [slots, setSlots] = useState([]);
     const [nextAvailableDate, setNextAvailableDate] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -41,6 +41,9 @@ const useSlots = (date, serviceId, includeFullSlots = false, sessionId = null) =
             if (sessionId) {
                 url += `&session_id=${sessionId}`;
             }
+            if (dentistId) {
+                url += `&dentist_id=${dentistId}`;
+            }
 
             const data = await api.get(url);
             const allSlots = data.all_slots || [];
@@ -63,7 +66,7 @@ const useSlots = (date, serviceId, includeFullSlots = false, sessionId = null) =
             setLoading(false);
             isFetchingRef.current = false;
         }
-    }, [date, serviceId, includeFullSlots, sessionId]);
+    }, [date, serviceId, includeFullSlots, sessionId, dentistId]);
 
     // Manual immediate refetch (e.g. for "Refresh" button)
     const refetch = useCallback(() => {

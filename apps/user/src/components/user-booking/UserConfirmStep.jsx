@@ -23,17 +23,7 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
     const isDualSelection = hasBooking && hasWaitlist;
 
     // Determine if this is a specialized service
-    const specializedServices = [
-        'Orthodontics',
-        'Implants',
-        'TMJ Splint',
-        'Oral Surgery',
-        'Laser Periodontal',
-    ];
-    const isSpecialized = specializedServices.some(
-        (service) =>
-            service.toLowerCase().trim() === (formData.service_name || '').toLowerCase().trim(),
-    );
+    const isSpecialized = formData.service_tier === 'specialized';
 
     // Dynamic title based on scenario
     let stepTitle = 'Review & Submit Request';
@@ -150,6 +140,18 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                         <span className='text-sm text-slate-500'>Time</span>
                         <span className='text-sm font-medium text-slate-900'>{formData.time}</span>
                     </div>
+                    {formData.dentist_id && (
+                        <div className='flex items-center gap-3 mt-1'>
+                            <User
+                                size={18}
+                                className='text-sky-500 shrink-0'
+                            />
+                            <span className='text-sm text-slate-500'>Dentist</span>
+                            <span className='text-sm font-medium text-slate-900'>
+                                Specific Specialist Selected
+                            </span>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -247,6 +249,16 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                                         {formData.time}
                                     </span>
                                 </div>
+                                {formData.dentist_id && (
+                                    <div className='flex items-center gap-2 text-sm mt-1'>
+                                        <User
+                                            size={16}
+                                            className='text-sky-600'
+                                        />
+                                        <span className='text-slate-500'>Dentist:</span>
+                                        <span className='font-medium'>Specific Specialist Selected</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -361,8 +373,7 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                             </p>
                             <p className='text-sm text-amber-800'>
                                 To ensure the best care, all online requests are reviewed by our
-                                clinical team. Your appointment will be confirmed once a dentist is
-                                assigned (usually within 24 hours).
+                                clinical team. Your appointment will be confirmed once {formData.dentist_id ? 'your selected specialist is confirmed' : 'a dentist is assigned'} (usually within 24 hours).
                             </p>
                         </div>
                     </div>
@@ -380,7 +391,7 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                                 </p>
                                 <ol className='text-sm text-blue-800 space-y-1 ml-2 list-decimal'>
                                     <li>Your request is submitted for review</li>
-                                    <li>Our team reviews and assigns a dentist</li>
+                                    <li>Our team reviews and {formData.dentist_id ? 'confirms the specialist' : 'assigns a dentist'}</li>
                                     <li>You'll receive a confirmation email once approved</li>
                                     <li>You can then view/manage it from your dashboard</li>
                                 </ol>

@@ -26,7 +26,7 @@ const GuestBookingPage = () => {
 
     return (
         <section className='py-12 sm:py-16 bg-white min-h-screen'>
-            <div className='max-w-3xl mx-auto px-4 sm:px-6 lg:px-8'>
+            <div className='max-w-5xl mx-auto px-4 sm:px-6 lg:px-8'>
                 <GuestBookingWizard booking={booking} />
             </div>
         </section>

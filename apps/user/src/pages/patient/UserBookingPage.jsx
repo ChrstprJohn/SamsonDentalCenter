@@ -41,7 +41,7 @@ const UserBookingPage = () => {
 
     return (
         <div className='min-h-screen bg-white py-12 px-6'>
-            <div className='max-w-3xl mx-auto'>
+            <div className='max-w-5xl mx-auto'>
                 {/* Exit Navigation */}
                 <div className="mb-12">
                     <Link 

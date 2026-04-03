@@ -168,6 +168,7 @@ export const bookAppointment = async (
     bookedForName = null,
     source = APPOINTMENT_SOURCE.USER_BOOKING,
     userSessionId = null,
+    preferredDentistId = null,
 ) => {
     // ── 0. Check if patient is restricted (3+ no-shows or 3+ cancellations) ──
     const { data: patient } = await supabaseAdmin
@@ -228,7 +229,7 @@ export const bookAppointment = async (
             .from('appointments')
             .insert({
                 patient_id: patientId,
-                dentist_id: null, // ← Not assigned yet! Admin assigns during approval
+                dentist_id: preferredDentistId || null, // ✅ Honor preference if provided
                 service_id: serviceId,
                 appointment_date: date,
                 start_time: time,
@@ -309,7 +310,8 @@ export const bookAppointment = async (
     }
 
     // ── 3. Auto-assign a dentist (tier-aware) ──
-    const dentistId = await assignDentist(date, time, endTime, SERVICE_TIER.GENERAL);
+    // Use preferred dentist if provided, otherwise auto-assign
+    const dentistId = preferredDentistId || (await assignDentist(date, time, endTime, SERVICE_TIER.GENERAL));
 
     if (!dentistId) {
         throw {

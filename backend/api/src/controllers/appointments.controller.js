@@ -113,7 +113,7 @@ export const resendConfirmation = async (req, res) => {
  */
 export const bookUser = async (req, res, next) => {
     try {
-        const { service_id, date, time, booked_for_name, user_session_id } = req.body;
+        const { service_id, date, time, booked_for_name, user_session_id, dentist_id } = req.body;
 
         // ── Validate ──
         if (!service_id || !date || !time) {
@@ -139,6 +139,7 @@ export const bookUser = async (req, res, next) => {
             booked_for_name?.trim() || null, // null = for self, name = for someone else
             APPOINTMENT_SOURCE.USER_BOOKING, // source
             user_session_id,                 // user_session_id
+            dentist_id,                      // preferredDentistId
         );
 
         if (result.booked) {
@@ -185,6 +186,7 @@ export const submitWizard = async (req, res, next) => {
                     booking.booked_for_name?.trim() || null,
                     APPOINTMENT_SOURCE.USER_BOOKING, // source
                     booking.user_session_id,         // user_session_id
+                    booking.dentist_id,              // preferredDentistId
                 );
             } catch (err) {
                 // If booking fails, we might still want to proceed with waitlist or stop?

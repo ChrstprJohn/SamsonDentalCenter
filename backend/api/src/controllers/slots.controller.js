@@ -27,7 +27,7 @@ export const getSuggestionsPublic = async (req, res, next) => {
 // ── FOR GUESTS (no auth) ──
 export const getAvailablePublic = async (req, res, next) => {
     try {
-        const { date, service_id, session_id } = req.query;
+        const { date, service_id, session_id, dentist_id } = req.query;
 
         const missingParams = [];
         if (!date) missingParams.push('date');
@@ -49,7 +49,7 @@ export const getAvailablePublic = async (req, res, next) => {
             return res.status(400).json({ error: 'Cannot check availability for past dates.' });
         }
 
-        const result = await getAvailableSlots(date, service_id, session_id);
+        const result = await getAvailableSlots(date, service_id, session_id, false, dentist_id);
         res.json(result);
     } catch (err) {
         if (err.status) return res.status(err.status).json({ error: err.message });
@@ -66,7 +66,7 @@ export const getAvailablePublic = async (req, res, next) => {
 
 export const getAvailable = async (req, res, next) => {
     try {
-        const { date, service_id, session_id } = req.query;
+        const { date, service_id, session_id, dentist_id } = req.query;
 
         // ── Validate ──
         if (!date || !service_id) {
@@ -86,7 +86,7 @@ export const getAvailable = async (req, res, next) => {
         }
 
         // ── Get available slots ──
-        const result = await getAvailableSlots(date, service_id, session_id);
+        const result = await getAvailableSlots(date, service_id, session_id, false, dentist_id);
 
         res.json(result);
     } catch (err) {

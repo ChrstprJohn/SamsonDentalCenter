@@ -11,17 +11,7 @@ const UserReviewStep = ({ formData, book_for_others, onNext, onBack }) => {
     const isDualSelection = hasBooking && hasWaitlist;
 
     // Determine if this is a specialized service
-    const specializedServices = [
-        'Orthodontics',
-        'Implants',
-        'TMJ Splint',
-        'Oral Surgery',
-        'Laser Periodontal',
-    ];
-    const isSpecialized = specializedServices.some(
-        (service) =>
-            service.toLowerCase().trim() === (formData.service_name || '').toLowerCase().trim(),
-    );
+    const isSpecialized = formData.service_tier === 'specialized';
 
     // Dynamic step title based on scenario
     let stepTitle = 'Review Appointment';
@@ -138,6 +128,16 @@ const UserReviewStep = ({ formData, book_for_others, onNext, onBack }) => {
                                         {formData.time}
                                     </span>
                                 </div>
+                                {formData.dentist_id && (
+                                    <div className='text-sm mt-1'>
+                                        <span className='text-slate-500'>Dentist: </span>
+                                        <span className='font-medium text-slate-900'>
+                                            {/* Note: In a real app we'd show the name here. 
+                                                Since we only have the ID, we'll indicate a specialist is chosen */}
+                                            Specific Specialist Selected
+                                        </span>
+                                    </div>
+                                )}
                                 <div
                                     className={`text-xs font-medium mt-2 ${isSpecialized ? 'text-amber-600' : 'text-sky-600'
                                         }`}
@@ -223,6 +223,14 @@ const UserReviewStep = ({ formData, book_for_others, onNext, onBack }) => {
                                 <span className='text-slate-500'>Time: </span>
                                 <span className='font-medium text-slate-900'>{formData.time}</span>
                             </div>
+                            {formData.dentist_id && (
+                                <div className='text-sm mt-1'>
+                                    <span className='text-slate-500'>Dentist: </span>
+                                    <span className='font-medium text-slate-900 text-xs bg-sky-100 px-2 py-0.5 rounded-full'>
+                                        Specific Specialist Selected
+                                    </span>
+                                </div>
+                            )}
                             <div
                                 className={`text-xs font-medium mt-2 ${isSpecialized ? 'text-amber-600' : 'text-sky-600'
                                     }`}
@@ -349,7 +357,9 @@ const UserReviewStep = ({ formData, book_for_others, onNext, onBack }) => {
                                 <li>✓ We'll confirm within 24-48 hours</li>
                                 <li>✓ Check your email for updates</li>
                                 <li>✓ No charge until approved</li>
-                                <li>✓ The dentist will be assigned during review</li>
+                                <li>
+                                    ✓ {formData.dentist_id ? 'The selected dentist will be notified' : 'The dentist will be assigned during review'}
+                                </li>
                             </ul>
                         </div>
                     </div>

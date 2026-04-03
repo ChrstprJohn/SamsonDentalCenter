@@ -27,7 +27,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, onUpdateFields }) =>
 
         // ✅ When service changes, clear the previously selected date and time
         // (Different services have different time slots)
-        onSelect(service.id, service.name);
+        onSelect(service.id, service.name, service.tier);
         if (onUpdateFields) {
             onUpdateFields({ date: '', time: '' });
         }

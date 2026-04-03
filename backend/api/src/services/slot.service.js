@@ -34,6 +34,7 @@ export const getAvailableSlots = async (
     serviceId,
     filterSessionId = null,
     skipNextSearch = false,
+    dentistId = null,
 ) => {
     // ✅ NEW: Check if date is today (same-day booking prevention)
     const today = new Date();
@@ -99,6 +100,11 @@ export const getAvailableSlots = async (
         dentistQuery = dentistQuery.in('tier', ['general', 'both']);
     } else if (service.tier === 'specialized') {
         dentistQuery = dentistQuery.in('tier', ['specialized', 'both']);
+    }
+
+    // 🎯 NEW: Optional dentist filter
+    if (dentistId) {
+        dentistQuery = dentistQuery.eq('id', dentistId);
     }
 
     const { data: dentists } = await dentistQuery;
@@ -290,7 +296,12 @@ export const getAvailableSlots = async (
 
     // ✅ If no slots available, find the next available date (unless we are already searching)
     if (totalAvailable === 0 && !skipNextSearch) {
-        response.next_available_date = await findNextAvailableDate(date, serviceId, filterSessionId);
+        response.next_available_date = await findNextAvailableDate(
+            date,
+            serviceId,
+            filterSessionId,
+            dentistId,
+        );
     }
 
     return response;
@@ -329,7 +340,12 @@ async function handleNoSlots(
  * Find the next available date with at least one free slot.
  * Searches up to 14 days into the future.
  */
-export const findNextAvailableDate = async (startDate, serviceId, filterSessionId = null) => {
+export const findNextAvailableDate = async (
+    startDate,
+    serviceId,
+    filterSessionId = null,
+    dentistId = null,
+) => {
     try {
         // 1. Get service tier to filter dentists efficiently
         const { data: service } = await supabaseAdmin
@@ -353,6 +369,11 @@ export const findNextAvailableDate = async (startDate, serviceId, filterSessionI
             dentistQuery = dentistQuery.in('tier', ['general', 'both']);
         } else if (service.tier === 'specialized') {
             dentistQuery = dentistQuery.in('tier', ['specialized', 'both']);
+        }
+
+        // 🎯 NEW: Optional dentist filter
+        if (dentistId) {
+            dentistQuery = dentistQuery.eq('id', dentistId);
         }
         const { data: dentists } = await dentistQuery;
         if (!dentists || dentists.length === 0) return null;
@@ -387,7 +408,13 @@ export const findNextAvailableDate = async (startDate, serviceId, filterSessionI
 
             try {
                 // Use skipNextSearch=true to prevent infinite loops and deep recursion
-                const result = await getAvailableSlots(dateStr, serviceId, filterSessionId, true);
+                const result = await getAvailableSlots(
+                    dateStr,
+                    serviceId,
+                    filterSessionId,
+                    true,
+                    dentistId,
+                );
                 if (result.total_available > 0) {
                     return dateStr;
                 }

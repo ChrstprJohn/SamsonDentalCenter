@@ -51,8 +51,17 @@ const UserBookingWizard = ({ booking }) => {
 
                     <ServiceStep
                         selectedServiceId={formData.service_id}
-                        onSelect={(serviceId, serviceName) =>
-                            updateFields({ service_id: serviceId, service_name: serviceName })
+                        onSelect={(serviceId, serviceName, serviceTier) =>
+                            updateFields({
+                                service_id: serviceId,
+                                service_name: serviceName,
+                                service_tier: serviceTier,
+                                date: '',
+                                time: '',
+                                waitlist_date: '',
+                                waitlist_time: '',
+                                dentist_id: '',
+                            })
                         }
                         onNext={nextStep}
                     />
@@ -67,6 +76,7 @@ const UserBookingWizard = ({ booking }) => {
                     selectedDate={formData.date}
                     selectedTime={formData.time}
                     serviceName={formData.service_name}
+                    serviceTier={formData.service_tier}
                     sessionId={sessionId}
                     slotHold={slotHold}
                     onUpdate={(fields) => updateFields(fields)}

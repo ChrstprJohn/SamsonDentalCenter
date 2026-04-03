@@ -315,3 +315,50 @@ export const deleteService = async (req, res, next) => {
         next(err);
     }
 };
+
+/**
+ * GET /api/v1/services/:id/specialists
+ *
+ * Get all dentists qualified for this service (based on tier).
+ */
+export const getServiceSpecialists = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        // 1. Get service tier
+        const { data: service } = await supabaseAdmin
+            .from('services')
+            .select('tier')
+            .eq('id', id)
+            .single();
+
+        if (!service) {
+            return res.status(404).json({ error: 'Service not found.' });
+        }
+
+        const tierFilter =
+            service.tier === 'specialized' ? ['specialized', 'both'] : ['general', 'both'];
+
+        // 2. Get active dentists matching the tier
+        const { data: dentists, error } = await supabaseAdmin
+            .from('dentists')
+            .select(
+                `
+            id,
+            tier,
+            photo_url,
+            profile:profiles(id, full_name)
+        `,
+            )
+            .in('tier', tierFilter)
+            .eq('is_active', true);
+
+        if (error) {
+            return res.status(500).json({ error: error.message });
+        }
+
+        res.json({ specialists: dentists });
+    } catch (err) {
+        next(err);
+    }
+};

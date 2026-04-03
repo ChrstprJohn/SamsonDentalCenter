@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Lock, X, AlertCircle, RefreshCw } from 'lucide-react';
+import { api } from '../../utils/api';
 import useSlots from '../../hooks/useSlots';
 import JoinWaitlistModal from './JoinWaitlistModal';
 
@@ -13,9 +14,12 @@ const DateTimeStep = ({
     onNext,
     onBack,
     serviceName,
+    serviceTier, // ✅ NEW: Tier to decide whether to show specialist selection
     sessionId,
     slotHold,
 }) => {
+    const [specialists, setSpecialists] = useState([]);
+    const [specialistsLoading, setSpecialistsLoading] = useState(false);
     const [showWaitlistModal, setShowWaitlistModal] = useState(false);
     const [waitlistSlot, setWaitlistSlot] = useState(null);
     // ✅ NEW: Add validation error state
@@ -75,6 +79,26 @@ const DateTimeStep = ({
         });
     };
 
+    // ✅ Fetch specialists if service is specialized
+    useEffect(() => {
+        if (serviceTier === 'specialized' && serviceId) {
+            const fetchSpecialists = async () => {
+                setSpecialistsLoading(true);
+                try {
+                    const response = await api.get(`/services/${serviceId}/specialists`);
+                    setSpecialists(response.specialists || []);
+                } catch (err) {
+                    console.error('Failed to fetch specialists:', err);
+                } finally {
+                    setSpecialistsLoading(false);
+                }
+            };
+            fetchSpecialists();
+        } else {
+            setSpecialists([]);
+        }
+    }, [serviceId, serviceTier]);
+
     // ✅ FIX: Use local date parts to avoid timezone shifting (e.g. UTC-8 or UTC+8 issues)
     const formatDateKey = (d) => {
         const year = d.getFullYear();
@@ -91,7 +115,13 @@ const DateTimeStep = ({
         nextAvailableDate,
         loading: slotsLoading,
         refetch: refetchSlots,
-    } = useSlots(selectedDate || null, serviceId || null, true, sessionId);
+    } = useSlots(
+        selectedDate || null,
+        serviceId || null,
+        true,
+        sessionId,
+        formData?.dentist_id || null, // 🎯 Pass selected dentist to filter slots
+    );
 
     const handleDateClick = (date) => {
         // Create a copy and normalize to midnight local time
@@ -233,16 +263,89 @@ const DateTimeStep = ({
     const canGoPrev = weekStart > today;
     const canGoNext = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000) <= maxDate;
 
+    // ✅ NEW: Handle specialist change (reset time and release hold)
+    const handleSpecialistChange = async (dentistId) => {
+        setValidationError(null);
+        if (formData.time) {
+            await releaseHold();
+        }
+        onUpdate({
+            dentist_id: dentistId,
+            time: '',
+            waitlist_time: '',
+        });
+    };
+
+    // Specialist list Component
+    const SpecialistSidebar = () => (
+        <div className='flex flex-col gap-3 min-w-[200px]'>
+            <h3 className='text-sm font-semibold text-slate-700 mb-1'>Select Specialist</h3>
+            <button
+                onClick={() => handleSpecialistChange('')}
+                className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+                    !formData?.dentist_id
+                        ? 'border-sky-500 bg-sky-50 shadow-sm'
+                        : 'border-slate-100 bg-white hover:border-sky-200'
+                }`}
+            >
+                <div className='w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400'>
+                    ✨
+                </div>
+                <div>
+                    <p className='text-sm font-bold text-slate-900'>Any Specialist</p>
+                    <p className='text-xs text-slate-500'>Pick for best availability</p>
+                </div>
+            </button>
+
+            {specialistsLoading ? (
+                <div className='p-4 text-center text-xs text-slate-400'>Loading dentists...</div>
+            ) : (
+                specialists.map((s) => (
+                    <button
+                        key={s.id}
+                        onClick={() => handleSpecialistChange(s.id)}
+                        className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+                            formData?.dentist_id === s.id
+                                ? 'border-sky-500 bg-sky-50 shadow-sm'
+                                : 'border-slate-100 bg-white hover:border-sky-200'
+                        }`}
+                    >
+                        {s.photo_url ? (
+                            <img
+                                src={s.photo_url}
+                                alt={s.profile?.full_name}
+                                className='w-10 h-10 rounded-full object-cover border border-slate-200'
+                            />
+                        ) : (
+                            <div className='w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 font-bold'>
+                                {s.profile?.full_name?.charAt(0)}
+                            </div>
+                        )}
+                        <div>
+                            <p className='text-sm font-bold text-slate-900'>Dr. {s.profile?.full_name}</p>
+                            <p className='text-xs text-slate-500 capitalize'>{s.tier} Specialist</p>
+                        </div>
+                    </button>
+                ))
+            )}
+        </div>
+    );
+
     return (
         <div>
             <h2 className='text-xl font-bold text-slate-900 mb-2'>Pick Date & Time</h2>
             <p className='text-slate-500 text-sm mb-6'>
-                Choose your preferred appointment date and time. Full slots show a 🔒 lock icon —
-                click to join the waitlist.
+                Choose your preferred appointment date and time. {serviceTier === 'specialized' && 'Select a specific dentist or "Any Specialist" to see availability.'}
             </p>
 
-            {/* Week navigation */}
-            <div className='flex items-center justify-between mb-4'>
+            <div className={`flex flex-col ${serviceTier === 'specialized' ? 'md:flex-row' : ''} gap-8`}>
+                {/* 🎯 Specialist Sidebar (Only for specialized) */}
+                {serviceTier === 'specialized' && <SpecialistSidebar />}
+
+                {/* Main Content (Calendar + Slots) */}
+                <div className='flex-grow'>
+                    {/* Week navigation */}
+                    <div className='flex items-center justify-between mb-4'>
                 <button
                     onClick={() => navigateWeek('prev')}
                     disabled={!canGoPrev}
@@ -330,7 +433,15 @@ const DateTimeStep = ({
             {selectedDate && (
                 <div className='mb-8'>
                     <div className='flex items-center justify-between mb-3'>
-                        <h3 className='text-sm font-semibold text-slate-700'>Available Times</h3>
+                        <h3 className='text-sm font-semibold text-slate-700'>
+                            Available Times for{' '}
+                            <span className='font-bold text-slate-900'>
+                                {new Date(selectedDate).toLocaleDateString('en-US', {
+                                    month: 'long',
+                                    day: 'numeric',
+                                })}
+                            </span>
+                        </h3>
                         {/* ✅ Refresh Button */}
                         <button
                             onClick={refetchSlots}
@@ -660,6 +771,9 @@ const DateTimeStep = ({
                     </div>
                 </div>
             )}
+
+                </div>
+            </div>
 
             {/* Navigation */}
             <div className='flex justify-between'>
