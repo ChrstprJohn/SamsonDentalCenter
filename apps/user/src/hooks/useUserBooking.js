@@ -83,13 +83,9 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         }
     }, [formData.service_id, slotHold]);
 
-    // ✅ Dynamically compute steps based on booking mode (self vs other)
-    const steps = STEPS.filter((s) => {
-        if (s === 'other_info') return book_for_others;
-        return true;
-    });
-
-    const currentStep = steps[step] || steps[0];
+    // Always use all steps
+    const steps = STEPS;
+    const currentStep = steps[step];
 
     // Clear error when user makes changes
     const updateField = (field, value) => {
@@ -206,8 +202,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
                 setResult(null);
                 setError(booking?.message || waitlist?.message || 'The selected slot is no longer available. Please try another time.');
                 // Only go back to datetime step if it's a conflict/unavailability error
-                const dtIndex = steps.indexOf('datetime');
-                if (dtIndex !== -1) setStep(dtIndex);
+                setStep(STEPS.indexOf('datetime'));
             }
 
             setSubmitting(false);
@@ -222,8 +217,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
             // ✅ NEW: Smarter redirection (Audit Item 10)
             // If the error is a 409 Conflict (slot taken/expired), go back to datetime
             if (err.status === 409) {
-                const dtIndex = steps.indexOf('datetime');
-                if (dtIndex !== -1) setStep(dtIndex);
+                setStep(STEPS.indexOf('datetime'));
             }
         }
     };

@@ -40,13 +40,14 @@ const UserBookingWizard = ({ booking }) => {
         return <UserBookingSuccess result={result} onReset={reset} />;
     }
 
-    // ✅ Compute dynamic labels for indicator
-    const currentLabels = steps.map((s) => STEP_LABELS[s]);
-
     return (
         <div>
             {/* Step Indicator */}
-            <StepIndicator currentStep={step} labels={currentLabels} onStepClick={goToStep} />
+            <StepIndicator
+                currentStep={step}
+                labels={['Service', 'Date & Time', 'Patient Info', 'Review', 'Submit']}
+                onStepClick={goToStep}
+            />
 
             {/* ✅ GLOBAL: Hold Expiring Soon Warning (Visible on any step except Service) */}
             {slotHold.activeHold && slotHold.isExpiringSoon && currentStep !== 'service' && (
