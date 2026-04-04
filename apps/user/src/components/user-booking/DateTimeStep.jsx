@@ -167,11 +167,10 @@ const DateTimeStep = ({
                     // ✅ Update time only after hold is confirmed
                     handleTimeUpdate({
                         time: slotData.rawTime,
-                        // Keep waitlist selection if it exists - do NOT clear it
                     });
                 } else if (holdResult?.error === 'SLOT_TAKEN') {
-                    // ✅ FIX: Show user-friendly error when slot was taken by someone else
-                    // holdError is already set by holdSlot, so it will show in the error banner
+                    // ✅ Slot was taken — refresh so user sees updated count, error shown via holdError
+                    refetchSlots();
                     return;
                 }
             }
@@ -344,6 +343,14 @@ const DateTimeStep = ({
 
                 {/* Main Content (Calendar + Slots) */}
                 <div className='flex-grow'>
+                    {/* ✅ Hold error banner - shown when slot was taken by another user */}
+                    {holdError && (
+                        <div className='mb-4 flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm'>
+                            <AlertCircle size={16} className='shrink-0 mt-0.5' />
+                            <span>{holdError}</span>
+                        </div>
+                    )}
+
                     {/* Week navigation */}
                     <div className='flex items-center justify-between mb-4'>
                 <button

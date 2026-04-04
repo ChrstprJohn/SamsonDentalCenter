@@ -245,8 +245,26 @@ export const bookAppointment = async (
         // Auto-assign a specialized dentist if no preference was given
         let finalDentistId = preferredDentistId;
 
+        // ✅ NEW: Try to use the dentist from the hold first
+        if (!finalDentistId && userSessionId) {
+            const { data: hold } = await supabaseAdmin
+                .from('slot_holds')
+                .select('dentist_id')
+                .eq('user_session_id', userSessionId)
+                .eq('appointment_date', date)
+                .eq('start_time', time)
+                .eq('status', 'active')
+                .gt('expires_at', new Date().toISOString())
+                .single();
+
+            if (hold?.dentist_id) {
+                finalDentistId = hold.dentist_id;
+                console.log(`[Specialized] Using held dentist ${finalDentistId} for session ${userSessionId}`);
+            }
+        }
+
         if (!finalDentistId) {
-            finalDentistId = await assignDentist(date, time, endTime, SERVICE_TIER.SPECIALIZED);
+            finalDentistId = await assignDentist(date, time, endTime, SERVICE_TIER.SPECIALIZED, userSessionId);
         }
 
         if (!finalDentistId) {
@@ -360,7 +378,7 @@ export const bookAppointment = async (
 
     // If still no dentist, auto-assign
     if (!finalDentistId) {
-        finalDentistId = await assignDentist(date, time, endTime, SERVICE_TIER.GENERAL);
+        finalDentistId = await assignDentist(date, time, endTime, SERVICE_TIER.GENERAL, userSessionId);
     }
 
     if (!finalDentistId) {

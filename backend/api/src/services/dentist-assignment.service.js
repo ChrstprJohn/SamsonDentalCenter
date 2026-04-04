@@ -15,7 +15,7 @@ import { supabaseAdmin } from '../config/supabase.js';
  * @param {string} serviceTier - 'general' or 'specialized' (default: 'general')
  * @returns {string|null} dentist ID or null if nobody is free
  */
-export const assignDentist = async (date, startTime, endTime, serviceTier = 'general') => {
+export const assignDentist = async (date, startTime, endTime, serviceTier = 'general', filterSessionId = null) => {
     const dayOfWeek = new Date(date).getDay();
 
     // ── 1. Get dentists matching the service tier ──
@@ -93,7 +93,7 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
     const busyByAppointmentIds = (conflictingAppointments || []).map((a) => a.dentist_id);
     
     // ✅ NEW: Check which of these dentists are HELD at this time
-    const { data: conflictingHolds } = await supabaseAdmin
+    let holdQuery = supabaseAdmin
         .from('slot_holds')
         .select('dentist_id')
         .eq('appointment_date', date)
@@ -101,6 +101,12 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         .gt('expires_at', new Date().toISOString())
         .in('dentist_id', unblockedDentistIds)
         .lt('start_time', endTime);
+    
+    if (filterSessionId) {
+        holdQuery = holdQuery.neq('user_session_id', filterSessionId);
+    }
+    
+    const { data: conflictingHolds } = await holdQuery;
     
     const busyByHoldIds = (conflictingHolds || [])
         .filter(h => h.dentist_id !== null)
@@ -150,8 +156,9 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
 
     candidates.sort((a, b) => {
         if (a.rank !== b.rank) return a.rank - b.rank;
-        return a.count - b.count;
+        if (a.count !== b.count) return a.count - b.count;
+        return Math.random() - 0.5; // ✅ Randomize among equal candidates to avoid concurrent collisions
     });
 
-    return candidates[0].id; // Return dentist_id of the best candidate
+    return candidates[0].id;
 };
