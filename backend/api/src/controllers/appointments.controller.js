@@ -195,10 +195,24 @@ export const submitWizard = async (req, res, next) => {
                     results.booking?.appointment?.id || null // ✅ NEW: link the bundled appointment
                 );
             } catch (err) {
+                // ── ATOMICITY ROLLBACK: If waitlist fails, cancel the backup booking ──
+                if (results.booking?.booked && results.booking.appointment?.id) {
+                    try {
+                        console.warn(`⚠️ Rolling back booking ${results.booking.appointment.id} due to waitlist failure.`);
+                        await cancelAppointment(
+                            results.booking.appointment.id,
+                            req.user.id,
+                            'Rollback: waitlist registration failed during atomic submission.',
+                            false, // sendEmail = false to avoid confusing the user
+                        );
+                    } catch (rollbackErr) {
+                        console.error('❌ Critical: Rollback failed:', rollbackErr);
+                    }
+                }
+
                 return res.status(err.status || 500).json({
-                    error: `Waitlist failed: ${err.message}`,
+                    error: `Waitlist failed: ${err.message}. Your backup booking was rolled back for atomicity.`,
                     stage: 'waitlist',
-                    booking: results.booking, // Return the success of the first stage if it passed
                 });
             }
         }
