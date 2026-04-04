@@ -169,6 +169,12 @@ export const submitWizard = async (req, res, next) => {
                     booking.user_session_id,         // user_session_id
                     booking.dentist_id,              // preferredDentistId
                 );
+
+                // ✅ NEW: Immediately release the hold once booked to free up capacity
+                if (results.booking?.booked && booking.user_session_id) {
+                    const { releaseHoldBySession } = await import('../services/slot-hold.service.js');
+                    await releaseHoldBySession(booking.user_session_id, booking.date, booking.time);
+                }
             } catch (err) {
                 // If booking fails, we might still want to proceed with waitlist or stop?
                 // The user asked for "Atomic", so if one fails, we should probably stop if they intended both.
@@ -465,10 +471,22 @@ export const guestRescheduleConfirm = async (req, res, next) => {
         }
 
         // 3. Create new appointment (CONFIRMED — guest already verified via original booking)
-        const newAppointment = await insertConfirmedGuestAppointment(oldAppt, dentistId, date, time, endTime);
+        let newAppointment;
+        try {
+            newAppointment = await insertConfirmedGuestAppointment(oldAppt, dentistId, date, time, endTime);
+        } catch (insertErr) {
+            throw { status: 500, message: `Failed to create new appointment: ${insertErr.message}` };
+        }
 
-        // 4. Cancel old appointment
-        await cancelGuestAppointmentAction(oldAppt.id, 'Rescheduled by guest via reminder email link.');
+        // 4. Cancel old appointment with ROLLBACK on failure
+        try {
+            await cancelGuestAppointmentAction(oldAppt.id, 'Rescheduled by guest via reminder email link.');
+        } catch (cancelErr) {
+            // ROLLBACK: Delete the newly created appointment if we can't cancel the old one
+            console.error(`⚠️ Rollback: Deleting new appointment ${newAppointment.id} because old cancellation failed.`);
+            await supabaseAdmin.from('appointments').delete().eq('id', newAppointment.id);
+            throw { status: 500, message: `Rescheduling failed: ${cancelErr.message}. No changes were made.` };
+        }
 
         // 5. Trigger waitlist for the freed old slot
         await notifyWaitlist({
@@ -527,7 +545,10 @@ export const holdSlotHandler = async (req, res) => {
     try {
         const { service_id, date, time, user_session_id, dentist_id } = req.body;
 
-        const result = await holdSlot(service_id, date, time, user_session_id, dentist_id);
+        // ✅ Optimization: getAvailableSlots already fetched the service, pass it to holdSlot
+        const availability = await getAvailableSlots(date, service_id, user_session_id, true, dentist_id);
+        
+        const result = await holdSlot(service_id, date, time, user_session_id, dentist_id, availability.service_data);
         return res.status(200).json(result);
     } catch (err) {
         console.error('Hold slot error:', err);

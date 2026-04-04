@@ -67,53 +67,55 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
     // ── 4. Check which of these dentists are NOT booked at this time ──
     const eligibleDentistIds = eligibleDentists.map((d) => d.dentist_id);
 
-    // Check dentist availability blocks (leave, sick, etc.)
-    const { data: blocks } = await supabaseAdmin
+    // ✅ PERFORMANCE: Run availability and conflict checks in parallel
+    const blocksPromise = supabaseAdmin
         .from('dentist_availability_blocks')
         .select('dentist_id')
         .eq('block_date', date)
         .in('dentist_id', eligibleDentistIds);
 
-    const blockedIds = (blocks || []).map((b) => b.dentist_id);
-    const unblockedDentistIds = eligibleDentistIds.filter((id) => !blockedIds.includes(id));
-
-    if (unblockedDentistIds.length === 0) {
-        return null; // All are blocked/on leave
-    }
-
-    const { data: conflictingAppointments } = await supabaseAdmin
+    const appointmentsPromise = supabaseAdmin
         .from('appointments')
         .select('dentist_id')
         .eq('appointment_date', date)
         .not('status', 'in', '("CANCELLED","LATE_CANCEL")')
-        .in('dentist_id', unblockedDentistIds)
+        .in('dentist_id', eligibleDentistIds)
         .lt('start_time', endTime)
         .gt('end_time', startTime);
 
-    const busyByAppointmentIds = (conflictingAppointments || []).map((a) => a.dentist_id);
-    
-    // ✅ NEW: Check which of these dentists are HELD at this time
     let holdQuery = supabaseAdmin
         .from('slot_holds')
         .select('dentist_id')
         .eq('appointment_date', date)
         .eq('status', 'active')
         .gt('expires_at', new Date().toISOString())
-        .in('dentist_id', unblockedDentistIds)
+        .in('dentist_id', eligibleDentistIds)
         .lt('start_time', endTime);
-    
+
     if (filterSessionId) {
         holdQuery = holdQuery.neq('user_session_id', filterSessionId);
     }
-    
-    const { data: conflictingHolds } = await holdQuery;
-    
+
+    const [
+        { data: blocks },
+        { data: conflictingAppointments },
+        { data: conflictingHolds }
+    ] = await Promise.all([
+        blocksPromise,
+        appointmentsPromise,
+        holdQuery
+    ]);
+
+    const blockedIds = (blocks || []).map((b) => b.dentist_id);
+    const busyByAppointmentIds = (conflictingAppointments || []).map((a) => a.dentist_id);
     const busyByHoldIds = (conflictingHolds || [])
         .filter(h => h.dentist_id !== null)
         .map((h) => h.dentist_id);
 
-    const freeDentists = unblockedDentistIds.filter(
-        (id) => !busyByAppointmentIds.includes(id) && !busyByHoldIds.includes(id)
+    const freeDentists = eligibleDentistIds.filter(
+        (id) => !blockedIds.includes(id) && 
+                !busyByAppointmentIds.includes(id) && 
+                !busyByHoldIds.includes(id)
     );
 
     if (freeDentists.length === 0) {
