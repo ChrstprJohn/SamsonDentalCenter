@@ -24,13 +24,19 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
 
     const { data: tierDentists } = await supabaseAdmin
         .from('dentists')
-        .select('id')
+        .select('id, tier')
         .in('tier', tierFilter)
         .eq('is_active', true);
 
     if (!tierDentists || tierDentists.length === 0) {
         return null; // No dentists for this tier
     }
+
+    // Map for quick tier lookup
+    const dentistTierMap = {};
+    tierDentists.forEach((d) => {
+        dentistTierMap[d.id] = d.tier;
+    });
 
     const tierDentistIds = tierDentists.map((d) => d.id);
 
@@ -59,17 +65,17 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
     }
 
     // ── 4. Check which of these dentists are NOT booked at this time ──
-    const dentistIds = eligibleDentists.map((d) => d.dentist_id);
+    const eligibleDentistIds = eligibleDentists.map((d) => d.dentist_id);
 
     // Check dentist availability blocks (leave, sick, etc.)
     const { data: blocks } = await supabaseAdmin
         .from('dentist_availability_blocks')
         .select('dentist_id')
         .eq('block_date', date)
-        .in('dentist_id', dentistIds);
+        .in('dentist_id', eligibleDentistIds);
 
     const blockedIds = (blocks || []).map((b) => b.dentist_id);
-    const unblockedDentistIds = dentistIds.filter((id) => !blockedIds.includes(id));
+    const unblockedDentistIds = eligibleDentistIds.filter((id) => !blockedIds.includes(id));
 
     if (unblockedDentistIds.length === 0) {
         return null; // All are blocked/on leave
@@ -80,10 +86,7 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         .select('dentist_id')
         .eq('appointment_date', date)
         // ✅ Only exclude actual cancellations. PENDING and CONFIRMED both count as booked slots.
-        // Waitlist entries are in a separate table (waitlist), not appointments.
         .not('status', 'in', '("CANCELLED","LATE_CANCEL")')
-        // IMPORTANT: Include PENDING appointments in conflicts!
-        // PENDING = unconfirmed but slot is reserved, must not double-book
         .in('dentist_id', unblockedDentistIds)
         // Check for time overlap
         .lt('start_time', endTime)
@@ -96,7 +99,15 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         return null; // All dentists booked at this time
     }
 
-    // ── 5. Among free dentists, pick the LEAST BUSY one ──
+    // ── 5. Among free dentists, pick based on PRIORITY then LEAST BUSY ──
+    // Priority Rank: 0 (Match), 1 (Both)
+    const getPriorityRank = (dentistId) => {
+        const tier = dentistTierMap[dentistId];
+        if (tier === serviceTier) return 0; // Perfect match (general->general or specialized->specialized)
+        if (tier === 'both') return 1; // "Both" is secondary
+        return 2; // Fallback
+    };
+
     const { data: dayCounts } = await supabaseAdmin
         .from('appointments')
         .select('dentist_id')
@@ -115,8 +126,17 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         }
     });
 
-    // Sort by count (ascending) and pick the first (least busy)
-    const sorted = Object.entries(countMap).sort((a, b) => a[1] - b[1]);
+    // Sort by: 1. Priority Rank (Match > Both), 2. Appointment count (Least busy)
+    const candidates = freeDentists.map((id) => ({
+        id,
+        rank: getPriorityRank(id),
+        count: countMap[id],
+    }));
 
-    return sorted[0][0]; // Return dentist_id of least busy
+    candidates.sort((a, b) => {
+        if (a.rank !== b.rank) return a.rank - b.rank;
+        return a.count - b.count;
+    });
+
+    return candidates[0].id; // Return dentist_id of the best candidate
 };
