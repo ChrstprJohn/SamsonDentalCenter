@@ -6,6 +6,7 @@ import PatientPortalLayout from '../layouts/PatientPortalLayout';
 
 // Route utils
 import ProtectedRoute from './ProtectedRoute';
+import GuestOnlyRoute from './GuestOnlyRoute';
 import ScrollToTop from './ScrollToTop';
 
 // Auth pages
@@ -41,6 +42,7 @@ import AppointmentDetails from '../pages/patient/AppointmentDetails';
 import PatientProfile from '../pages/patient/PatientProfile';
 import NotificationsPage from '../pages/patient/NotificationsPage';
 import WaitlistPage from '../pages/patient/WaitlistPage';
+import UserBookingPage from '../pages/patient/UserBookingPage';
 
 const AppRoutes = () => {
     return (
@@ -74,10 +76,14 @@ const AppRoutes = () => {
                         element={<ContactPage />}
                     />
 
-                    {/* Guest Booking — inside PublicLayout (Module 05) */}
+                    {/* Guest Booking — logged-in users are redirected to /patient/book */}
                     <Route
                         path='/book'
-                        element={<GuestBookingPage />}
+                        element={
+                            <GuestOnlyRoute>
+                                <GuestBookingPage />
+                            </GuestOnlyRoute>
+                        }
                     />
                 </Route>
 
@@ -145,6 +151,16 @@ const AppRoutes = () => {
                     <Route path='notifications' element={<NotificationsPage />} />
                     <Route path='waitlist' element={<WaitlistPage />} />
                 </Route>
+
+                {/* ── Patient Booking (standalone — no sidebar layout) ── */}
+                <Route
+                    path='/patient/book'
+                    element={
+                        <ProtectedRoute>
+                            <UserBookingPage />
+                        </ProtectedRoute>
+                    }
+                />
 
                 {/* ── Catch-all ── */}
                 <Route

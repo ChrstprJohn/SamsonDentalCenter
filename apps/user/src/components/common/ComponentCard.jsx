@@ -4,7 +4,7 @@ const ComponentCard = ({ title, children, className = '', desc = '', action = nu
             className={`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] shadow-theme-sm ${className}`}
         >
             {/* Card Header */}
-            <div className='px-6 py-5 flex items-center justify-between'>
+            <div className='px-6 py-5 flex flex-col gap-4 sm:flex-row sm:items-center justify-between'>
                 <div>
                     <h3 className='text-base font-medium text-gray-800 dark:text-white/90'>
                         {title}
@@ -16,7 +16,7 @@ const ComponentCard = ({ title, children, className = '', desc = '', action = nu
                     )}
                 </div>
                 {action && (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
                         {action}
                     </div>
                 )}
