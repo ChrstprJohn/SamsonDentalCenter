@@ -1,9 +1,4 @@
-import React from 'react';
-
-/**
- * Barrel export file for UI components
- * Makes it easy to import: import { Button, Input } from '@/components/ui'
- */
-
-export { Button } from './Button';
-export { Input } from './Input';
+export { default as Button } from './Button';
+export { default as Input } from './Input';
+export { default as Label } from './Label';
+export { Modal } from './Modal';

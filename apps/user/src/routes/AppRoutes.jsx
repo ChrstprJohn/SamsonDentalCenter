@@ -36,6 +36,7 @@ import GuestBookingPage from '../pages/guest/GuestBookingPage';
 
 // Patient pages
 import PatientDashboard from '../pages/patient/PatientDashboard';
+import PatientProfile from '../pages/patient/PatientProfile';
 
 const AppRoutes = () => {
     return (
@@ -135,7 +136,7 @@ const AppRoutes = () => {
                 >
                     <Route index element={<PatientDashboard />} />
                     <Route path='appointments' element={<PatientDashboard />} />
-                    <Route path='profile' element={<div className="text-gray-500 text-center py-12">Profile page coming soon...</div>} />
+                    <Route path='profile' element={<PatientProfile />} />
                 </Route>
 
                 {/* ── Catch-all ── */}
