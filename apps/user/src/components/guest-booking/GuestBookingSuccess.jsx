@@ -81,14 +81,13 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
             <div className='flex flex-col sm:flex-row items-center justify-center gap-3'>
                 <button
                     onClick={() => navigate('/')}
-                    className='border border-slate-200 text-slate-700 font-medium
-                               px-6 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-sm'
+                    className='flex-1 lg:flex-none inline-flex items-center justify-center font-bold text-sm bg-white text-slate-700 hover:bg-slate-50 transition-all duration-300 ring-1 ring-slate-200 px-8 py-4 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-300'
                 >
                     Back to Home
                 </button>
                 <button
                     onClick={onReset}
-                    className='text-sky-500 hover:text-sky-600 font-medium text-sm px-6 py-2.5'
+                    className='bg-sky-500 hover:bg-sky-600 text-white font-medium px-8 py-4 rounded-2xl transition-all duration-300 shadow-lg shadow-sky-500/25 active:scale-95'
                 >
                     Book Another Appointment
                 </button>

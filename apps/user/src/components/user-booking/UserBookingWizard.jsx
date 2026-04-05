@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import StepIndicator from '../guest-booking/StepIndicator';
 import ServiceStep from '../guest-booking/ServiceStep';
 import DateTimeStep from './DateTimeStep';
@@ -26,6 +27,11 @@ const UserBookingWizard = ({ booking }) => {
         reset,
         slotHold,
     } = booking;
+
+    // ✅ Auto-scroll to top when step changes
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [step]);
 
     if (result && result.success) {
         return (

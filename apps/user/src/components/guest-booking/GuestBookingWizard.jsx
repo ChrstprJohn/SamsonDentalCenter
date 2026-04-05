@@ -60,6 +60,11 @@ const GuestBookingWizard = ({ booking }) => {
         };
     }, []);
 
+    // ✅ Auto-scroll to top when step changes
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [step]);
+
     const breadcrumbLabels = ['Service', 'Date & Time', 'Your Info', 'Review', 'Verification'];
 
     // If booking succeeded, show success screen
