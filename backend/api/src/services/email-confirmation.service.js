@@ -1,8 +1,24 @@
 import crypto from 'crypto';
 import { supabaseAdmin } from '../config/supabase.js';
 import { APPOINTMENT_STATUS, CLINIC_CONFIG } from '../utils/constants.js';
+import { AppError } from '../utils/errors.js';
 import { Resend } from 'resend';
+import fs from 'fs';
+import path from 'path';
+
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+const getTemplate = (templateName, data) => {
+    const templatePath = path.join(process.cwd(), '..', '..', 'EmailTemplates', templateName);
+    let html = fs.readFileSync(templatePath, 'utf-8');
+
+    for (const [key, value] of Object.entries(data)) {
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        html = html.replace(regex, value || '');
+    }
+
+    return html;
+};
 
 /**
  * Generate a secure confirmation token and save it to the database.
@@ -13,9 +29,9 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export const createConfirmationToken = async (appointmentId) => {
     const token = crypto.randomBytes(32).toString('hex');
 
-    // Token expires in 24 hours
+    // Token expires in 15 minutes
     const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + CLINIC_CONFIG.GUEST_CONFIRM_EXPIRY_HOURS);
+    expiresAt.setMinutes(expiresAt.getMinutes() + CLINIC_CONFIG.GUEST_CONFIRM_EXPIRY_MINUTES);
 
     const { error } = await supabaseAdmin.from('appointment_confirmation_tokens').insert({
         appointment_id: appointmentId,
@@ -25,7 +41,7 @@ export const createConfirmationToken = async (appointmentId) => {
 
     if (error) {
         console.error('Failed to create confirmation token:', error.message);
-        throw { status: 500, message: 'Failed to create confirmation token.' };
+        throw new AppError('Failed to create confirmation token.', 500);
     }
 
     return { token };
@@ -43,53 +59,21 @@ export const sendGuestConfirmationEmail = async (email, name, details) => {
 
     const confirmUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/email/confirm?token=${token}`;
 
-    // Alternative if you want the backend to handle it directly:
-    // const confirmUrl = `${process.env.API_URL}/api/appointments/confirm-email?token=${token}`;
-
     try {
+        const html = getTemplate('guest-verification.html', {
+            name,
+            service,
+            date,
+            start_time,
+            confirmUrl,
+            expiryMinutes: CLINIC_CONFIG.GUEST_CONFIRM_EXPIRY_MINUTES,
+        });
+
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Primera Denta <noreply@primeradenta.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
             to: email,
-            subject: 'Confirm Your Dental Appointment — Primera Denta',
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #0ea5e9;">Confirm Your Appointment</h2>
-                    <p>Hi ${name},</p>
-                    <p>Thank you for booking with <strong>Primera Denta</strong>!</p>
-                    <p>Here are your appointment details:</p>
-                    <table style="border-collapse: collapse; margin: 16px 0;">
-                        <tr>
-                            <td style="padding: 8px; font-weight: bold;">Service:</td>
-                            <td style="padding: 8px;">${service}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; font-weight: bold;">Date:</td>
-                            <td style="padding: 8px;">${date}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; font-weight: bold;">Time:</td>
-                            <td style="padding: 8px;">${start_time}</td>
-                        </tr>
-                    </table>
-                    <p><strong>⚠️ Your appointment is not confirmed yet!</strong></p>
-                    <p>Please click the button below to confirm:</p>
-                    <a href="${confirmUrl}"
-                       style="display: inline-block; background: #0ea5e9; color: white;
-                              padding: 12px 24px; text-decoration: none; border-radius: 8px;
-                              font-weight: bold; margin: 16px 0;">
-                        ✅ Confirm My Appointment
-                    </a>
-                    <p style="color: #666; font-size: 14px;">
-                        This link expires in ${CLINIC_CONFIG.GUEST_CONFIRM_EXPIRY_HOURS} hours.
-                        If you did not make this booking, you can ignore this email.
-                    </p>
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-                    <p style="color: #999; font-size: 12px;">
-                        Primera Denta Dental Clinic<br/>
-                        7 Himalayan Rd, Tandang Sora, Quezon City
-                    </p>
-                </div>
-            `,
+            subject: 'Verify Your Booking Request — Samson Dental',
+            html,
         });
         console.log(`📧 Confirmation email sent to ${email}`);
     } catch (err) {
@@ -115,15 +99,12 @@ export const confirmAppointmentByToken = async (token) => {
         .single();
 
     if (tokenError || !tokenRecord) {
-        throw { status: 404, message: 'Invalid confirmation link. It may have already been used.' };
+        throw new AppError('Invalid confirmation link. It may have already been used.', 404);
     }
 
     // ── 2. Check if token is expired ──
     if (new Date(tokenRecord.expires_at) < new Date()) {
-        throw {
-            status: 410,
-            message: 'This confirmation link has expired. Please book a new appointment.',
-        };
+        throw new AppError('This confirmation link has expired. Please book a new appointment.', 410);
     }
 
     // ── 3. Check appointment status ──
@@ -135,49 +116,56 @@ export const confirmAppointmentByToken = async (token) => {
         };
     }
 
-    // ── 4. Update appointment to CONFIRMED ──
+    // ── 4. Update appointment to mark as verified (but stay PENDING) ──
     const { data: updatedAppointment, error: updateError } = await supabaseAdmin
         .from('appointments')
         .update({
-            status: APPOINTMENT_STATUS.CONFIRMED,
+            patient_confirmed: true, // Used here to mean "Email Verified"
             confirmed_at: new Date().toISOString(),
+            // status remains PENDING for admin approval
         })
         .eq('id', tokenRecord.appointment_id)
         .select(
             `
             *,
-            service:services(name, price),
-            dentist:dentists(profile:profiles(full_name))
+            service:services(name, price)
         `,
         )
         .single();
 
     if (updateError) {
-        throw { status: 500, message: 'Failed to confirm appointment.' };
+        throw new AppError('Failed to verify request.', 500);
     }
 
-    // ── 5. Send booking success email to guest ──
-    await sendBookingSuccessEmail(updatedAppointment.guest_email, updatedAppointment.guest_name, {
-        date: updatedAppointment.appointment_date,
-        start_time: updatedAppointment.start_time,
-        end_time: updatedAppointment.end_time,
-        service: updatedAppointment.service?.name,
-        dentist: updatedAppointment.dentist?.profile?.full_name || 'Assigned',
-    });
+    // ── 5. Send "Verification Success" email (Awaiting Admin) ──
+    try {
+        const html = getTemplate('verification-success.html', {
+            name: updatedAppointment.guest_name,
+            serviceName: updatedAppointment.service?.name,
+            appointmentDate: updatedAppointment.appointment_date,
+        });
 
-    // ── 6. Delete used token (one-time use) ──
+        await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            to: updatedAppointment.guest_email,
+            subject: '📧 Request Verified — Samson Dental',
+            html,
+        });
+    } catch (err) {
+        console.error('Failed to send verification success email:', err.message);
+    }
+
+    // ── 6. Delete used token ──
     await supabaseAdmin.from('appointment_confirmation_tokens').delete().eq('id', tokenRecord.id);
 
     return {
         confirmed: true,
-        message: 'Your appointment is confirmed! See you soon.',
+        message: 'Request verified! Our team will review it and notify you soon.',
         appointment: {
             id: updatedAppointment.id,
             date: updatedAppointment.appointment_date,
             start_time: updatedAppointment.start_time,
-            end_time: updatedAppointment.end_time,
             service: updatedAppointment.service?.name,
-            dentist: updatedAppointment.dentist?.profile?.full_name || 'Assigned',
         },
     };
 };
@@ -200,7 +188,7 @@ export const resendConfirmationEmail = async (appointmentId, email) => {
         .single();
 
     if (!appointment) {
-        throw { status: 404, message: 'No pending appointment found for this email.' };
+        throw new AppError('No pending appointment found for this email.', 404);
     }
 
     // ── 2. Delete old token(s) for this appointment ──
@@ -235,34 +223,56 @@ export const sendBookingSuccessEmail = async (email, name, details) => {
     const { date, start_time, end_time, service, dentist } = details;
 
     try {
+        const html = getTemplate('booking-confirmed.html', {
+            name,
+            service,
+            date,
+            start_time,
+            end_time,
+            dentist,
+        });
+
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Primera Denta <noreply@primeradenta.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
             to: email,
-            subject: '✅ Appointment Confirmed — Primera Denta',
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #22c55e;">Your Appointment is Confirmed! ✅</h2>
-                    <p>Hi ${name},</p>
-                    <p>Your appointment at <strong>Primera Denta</strong> has been confirmed.</p>
-                    <table style="border-collapse: collapse; margin: 16px 0; width: 100%;">
-                        <tr><td style="padding: 8px; font-weight: bold;">Service:</td><td style="padding: 8px;">${service}</td></tr>
-                        <tr><td style="padding: 8px; font-weight: bold;">Date:</td><td style="padding: 8px;">${date}</td></tr>
-                        <tr><td style="padding: 8px; font-weight: bold;">Time:</td><td style="padding: 8px;">${start_time} - ${end_time}</td></tr>
-                        <tr><td style="padding: 8px; font-weight: bold;">Dentist:</td><td style="padding: 8px;">${dentist}</td></tr>
-                    </table>
-                    <p>� <strong>Location:</strong> 7 Himalayan Rd, Tandang Sora, Quezon City</p>
-                    <p style="color: #666; font-size: 14px;">
-                        If you need to cancel or reschedule, please do so at least 24 hours before your appointment.
-                    </p>
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-                    <p style="color: #999; font-size: 12px;">Primera Denta Dental Clinic</p>
-                </div>
-            `,
+            subject: '✅ Appointment Confirmed — Samson Dental',
+            html,
         });
         console.log(`📧 Booking success email sent to ${email}`);
     } catch (err) {
         console.error('Failed to send booking success email:', err.message);
         // Don't throw — booking was successful, email failure shouldn't break it
+    }
+};
+
+/**
+ * Send a "Booking Request Received" email for authenticated patients.
+ * Used when their appointment needs admin approval (all online bookings now).
+ *
+ * @param {string} email - Patient email
+ * @param {string} name - Patient name
+ * @param {object} details - { date, start_time, service }
+ */
+export const sendBookingRequestReceivedEmail = async (email, name, details) => {
+    const { date, start_time, service } = details;
+
+    try {
+        const html = getTemplate('booking-request-received.html', {
+            name,
+            serviceName: service,
+            appointmentDate: date,
+            startTime: start_time,
+        });
+
+        await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            to: email,
+            subject: '📧 Booking Request Received — Samson Dental',
+            html,
+        });
+        console.log(`📧 Booking request receipt sent to ${email}`);
+    } catch (err) {
+        console.error('Failed to send booking request receipt:', err.message);
     }
 };
 
@@ -282,39 +292,30 @@ export const sendCancellationEmail = async (email, name, details) => {
     const { date, start_time, service, isLastMinute } = details;
 
     const subject = isLastMinute
-        ? '⚠️ Appointment Cancelled (Late Cancellation) — Primera Denta'
-        : '❌ Appointment Cancelled — Primera Denta';
+        ? '⚠️ Appointment Cancelled (Late Cancellation) — Samson Dental'
+        : '❌ Appointment Cancelled — Samson Dental';
 
     const lateNotice = isLastMinute
         ? `<p style="color: #f59e0b; font-weight: bold;">
-               ⚠️ This was a late cancellation (less than 24 hours notice).
-               Frequent late cancellations may affect your booking privileges.
+               ⚠️ This was a late cancellation (less than ${CLINIC_CONFIG.LATE_CANCELLATION_HOURS} hours notice).
+               Frequent late cancellations may affect your future booking requests.
            </p>`
         : '';
 
     try {
+        const html = getTemplate('booking-cancelled.html', {
+            name,
+            service,
+            date,
+            start_time,
+            lateNotice,
+        });
+
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Primera Denta <noreply@primeradenta.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
             to: email,
             subject,
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #ef4444;">Appointment Cancelled</h2>
-                    <p>Hi ${name},</p>
-                    <p>Your appointment at <strong>Primera Denta</strong> has been cancelled.</p>
-                    <table style="border-collapse: collapse; margin: 16px 0; width: 100%;">
-                        <tr><td style="padding: 8px; font-weight: bold;">Service:</td><td style="padding: 8px;">${service}</td></tr>
-                        <tr><td style="padding: 8px; font-weight: bold;">Date:</td><td style="padding: 8px;">${date}</td></tr>
-                        <tr><td style="padding: 8px; font-weight: bold;">Time:</td><td style="padding: 8px;">${start_time}</td></tr>
-                    </table>
-                    ${lateNotice}
-                    <p style="color: #666; font-size: 14px;">
-                        If you'd like to book a new appointment, visit our website or contact us.
-                    </p>
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-                    <p style="color: #999; font-size: 12px;">Primera Denta Dental Clinic</p>
-                </div>
-            `,
+            html,
         });
         console.log(`📧 Cancellation email sent to ${email}`);
     } catch (err) {
@@ -335,41 +336,21 @@ export const sendRescheduleEmail = async (email, name, details) => {
     const { oldDate, oldTime, newDate, newTime, service, dentist } = details;
 
     try {
+        const html = getTemplate('appointment-rescheduled.html', {
+            name,
+            service,
+            oldDate,
+            oldTime,
+            newDate,
+            newTime,
+            dentist,
+        });
+
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Primera Denta <noreply@primeradenta.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
             to: email,
-            subject: '🔄 Appointment Rescheduled — Primera Denta',
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #0ea5e9;">Appointment Rescheduled</h2>
-                    <p>Hi ${name},</p>
-                    <p>Your appointment at <strong>Primera Denta</strong> has been moved to a new time.</p>
-                    <table style="border-collapse: collapse; margin: 16px 0; width: 100%;">
-                        <tr>
-                            <td style="padding: 8px; font-weight: bold;">Service:</td>
-                            <td style="padding: 8px;">${service}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; font-weight: bold; color: #ef4444;">Old Date:</td>
-                            <td style="padding: 8px; text-decoration: line-through; color: #999;">${oldDate} at ${oldTime}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; font-weight: bold; color: #22c55e;">New Date:</td>
-                            <td style="padding: 8px; font-weight: bold;">${newDate} at ${newTime}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; font-weight: bold;">Dentist:</td>
-                            <td style="padding: 8px;">${dentist}</td>
-                        </tr>
-                    </table>
-                    <p>📍 <strong>Location:</strong> 7 Himalayan Rd, Tandang Sora, Quezon City</p>
-                    <p style="color: #666; font-size: 14px;">
-                        If you need to cancel or reschedule again, please do so at least 24 hours before your appointment.
-                    </p>
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-                    <p style="color: #999; font-size: 12px;">Primera Denta Dental Clinic</p>
-                </div>
-            `,
+            subject: '🔄 Appointment Rescheduled — Samson Dental',
+            html,
         });
         console.log(`📧 Reschedule email sent to ${email}`);
     } catch (err) {
@@ -395,52 +376,29 @@ export const sendGuestReminderEmail = async (email, name, details) => {
     const cancelUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/email/cancel?token=${cancelToken}`;
     const rescheduleUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/email/reschedule?token=${rescheduleToken}`;
 
+    const actionButtons = `
+        <a href="${rescheduleUrl}" style="display: inline-block; background-color: #0ea5e9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 0 5px 10px;">📅 Reschedule</a>
+        <a href="${cancelUrl}" style="display: inline-block; background-color: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 0 5px 10px;">❌ Cancel</a>
+    `;
+
+    const footerNote = `These links expire when your appointment starts. If you cannot make it, please cancel at least 24 hours before your appointment.`;
+
     try {
+        const html = getTemplate('appointment-reminder.html', {
+            name,
+            service,
+            date,
+            start_time,
+            dentist,
+            actionButtons,
+            footerNote,
+        });
+
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Primera Denta <noreply@primeradenta.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
             to: email,
-            subject: `⏰ Reminder: Your Appointment in ${hoursUntil} Hours — Primera Denta`,
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #0ea5e9;">Appointment Reminder</h2>
-                    <p>Hi ${name},</p>
-                    <p>This is a friendly reminder about your upcoming appointment at <strong>Primera Denta</strong>.</p>
-
-                    <table style="border-collapse: collapse; margin: 16px 0; width: 100%;">
-                        <tr><td style="padding: 8px; font-weight: bold;">Service:</td><td style="padding: 8px;">${service}</td></tr>
-                        <tr><td style="padding: 8px; font-weight: bold;">Date:</td><td style="padding: 8px;">${date}</td></tr>
-                        <tr><td style="padding: 8px; font-weight: bold;">Time:</td><td style="padding: 8px;">${start_time}</td></tr>
-                        <tr><td style="padding: 8px; font-weight: bold;">Dentist:</td><td style="padding: 8px;">${dentist}</td></tr>
-                    </table>
-
-                    <p>📍 <strong>Location:</strong> 7 Himalayan Rd, Tandang Sora, Quezon City</p>
-
-                    <p style="margin-top: 24px;">Need to make changes?</p>
-
-                    <div style="margin: 16px 0;">
-                        <a href="${rescheduleUrl}"
-                           style="display: inline-block; background: #0ea5e9; color: white;
-                                  padding: 12px 24px; text-decoration: none; border-radius: 8px;
-                                  font-weight: bold; margin-right: 12px;">
-                            📅 Reschedule
-                        </a>
-                        <a href="${cancelUrl}"
-                           style="display: inline-block; background: #ef4444; color: white;
-                                  padding: 12px 24px; text-decoration: none; border-radius: 8px;
-                                  font-weight: bold;">
-                            ❌ Cancel
-                        </a>
-                    </div>
-
-                    <p style="color: #666; font-size: 14px;">
-                        These links expire when your appointment starts. If you cannot make it,
-                        please cancel at least 24 hours before your appointment.
-                    </p>
-
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-                    <p style="color: #999; font-size: 12px;">Primera Denta Dental Clinic</p>
-                </div>
-            `,
+            subject: `⏰ Reminder: Your Appointment in ${hoursUntil} Hours — Samson Dental`,
+            html,
         });
         console.log(`📧 Guest reminder email (${hoursUntil}h) sent to ${email}`);
     } catch (err) {
@@ -461,34 +419,24 @@ export const sendGuestReminderEmail = async (email, name, details) => {
 export const sendPatientReminderEmail = async (email, name, details) => {
     const { date, start_time, service, dentist, hoursUntil } = details;
 
+    const footerNote = `Need to cancel or reschedule? Log in to your account on our website to manage your appointments.`;
+
     try {
+        const html = getTemplate('appointment-reminder.html', {
+            name,
+            service,
+            date,
+            start_time,
+            dentist,
+            actionButtons: '',
+            footerNote,
+        });
+
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Primera Denta <noreply@primeradenta.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
             to: email,
-            subject: `⏰ Reminder: Your Appointment in ${hoursUntil} Hours — Primera Denta`,
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #0ea5e9;">Appointment Reminder</h2>
-                    <p>Hi ${name},</p>
-                    <p>This is a friendly reminder about your upcoming appointment at <strong>Primera Denta</strong>.</p>
-
-                    <table style="border-collapse: collapse; margin: 16px 0; width: 100%;">
-                        <tr><td style="padding: 8px; font-weight: bold;">Service:</td><td style="padding: 8px;">${service}</td></tr>
-                        <tr><td style="padding: 8px; font-weight: bold;">Date:</td><td style="padding: 8px;">${date}</td></tr>
-                        <tr><td style="padding: 8px; font-weight: bold;">Time:</td><td style="padding: 8px;">${start_time}</td></tr>
-                        <tr><td style="padding: 8px; font-weight: bold;">Dentist:</td><td style="padding: 8px;">${dentist}</td></tr>
-                    </table>
-
-                    <p>📍 <strong>Location:</strong> 7 Himalayan Rd, Tandang Sora, Quezon City</p>
-
-                    <p style="color: #666; font-size: 14px;">
-                        Need to cancel or reschedule? Log in to your account on our website to manage your appointments.
-                    </p>
-
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-                    <p style="color: #999; font-size: 12px;">Primera Denta Dental Clinic</p>
-                </div>
-            `,
+            subject: `⏰ Reminder: Your Appointment in ${hoursUntil} Hours — Samson Dental`,
+            html,
         });
         console.log(`📧 Patient reminder email (${hoursUntil}h) sent to ${email}`);
     } catch (err) {
@@ -529,7 +477,7 @@ export const createGuestActionTokens = async (appointmentId, appointmentDate, ap
 
     if (error) {
         console.error('Failed to create guest action tokens:', error.message);
-        throw { status: 500, message: 'Failed to create action tokens.' };
+        throw new AppError('Failed to create action tokens.', 500);
     }
 
     return { cancelToken, rescheduleToken };
@@ -562,25 +510,22 @@ export const validateGuestActionToken = async (token, expectedAction) => {
         .single();
 
     if (error || !tokenRecord) {
-        throw { status: 404, message: 'Invalid or expired link.' };
+        throw new AppError('Invalid or expired link.', 404);
     }
 
     // Check if already used
     if (tokenRecord.used_at) {
-        throw { status: 410, message: 'This link has already been used.' };
+        throw new AppError('This link has already been used.', 410);
     }
 
     // Check if expired
     if (new Date() > new Date(tokenRecord.expires_at)) {
-        throw { status: 410, message: 'This link has expired.' };
+        throw new AppError('This link has expired.', 410);
     }
 
     // Check appointment status
     if (tokenRecord.appointment?.status !== 'CONFIRMED') {
-        throw {
-            status: 400,
-            message: `Cannot ${expectedAction} — appointment is already ${tokenRecord.appointment?.status}.`,
-        };
+        throw new AppError(`Cannot ${expectedAction} — appointment is already ${tokenRecord.appointment?.status}.`, 400);
     }
 
     return {

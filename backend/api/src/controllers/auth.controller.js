@@ -1,5 +1,12 @@
 import { supabaseAdmin, supabasePublic } from '../config/supabase.js';
 
+const COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+    maxAge: 60 * 60 * 1000 * 24 * 7, // 7 days
+};
+
 /**
  * POST /api/auth/register
  *
@@ -106,6 +113,10 @@ export const login = async (req, res, next) => {
                 .json({ error: `Failed to fetch profile: ${profileError.message}` });
         }
 
+        // ── Set httpOnly cookies ──
+        res.cookie('sb-access-token', data.session.access_token, COOKIE_OPTIONS);
+        res.cookie('sb-refresh-token', data.session.refresh_token, COOKIE_OPTIONS);
+
         // ── Return token + profile ──
         res.json({
             message: 'Login successful!',
@@ -183,6 +194,21 @@ export const updateProfile = async (req, res, next) => {
         }
 
         res.json({ message: 'Profile updated!', user: data });
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/auth/logout
+ *
+ * Clear auth cookies.
+ */
+export const logout = async (req, res, next) => {
+    try {
+        res.clearCookie('sb-access-token', COOKIE_OPTIONS);
+        res.clearCookie('sb-refresh-token', COOKIE_OPTIONS);
+        res.json({ message: 'Logged out successfully.' });
     } catch (err) {
         next(err);
     }

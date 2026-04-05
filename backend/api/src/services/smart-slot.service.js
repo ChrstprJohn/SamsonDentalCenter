@@ -1,3 +1,4 @@
+import { AppError } from '../utils/errors.js';
 import { supabaseAdmin } from '../config/supabase.js';
 
 /**
@@ -140,7 +141,7 @@ export const suggestOptimalSlots = async (date, serviceId) => {
         .eq('id', serviceId)
         .single();
 
-    if (!service) throw { status: 404, message: 'Service not found.' };
+    if (!service) throw new AppError('Service not found.', 404);
 
     const dayOfWeek = new Date(date).getDay();
 

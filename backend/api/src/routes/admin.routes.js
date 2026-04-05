@@ -30,30 +30,30 @@ import {
     getPatients,
     viewPatientHistory,
     toggleRestriction,
-    quickRegisterPatient, // NEW
+    quickRegisterPatientHandler, // NEW
     // User Management (Admin Only)
-    getUsers,
-    createUser,
-    changeUserRole,
-    deactivateUser,
-    getSystemHealth,
+    getUsersHandler,
+    createUserHandler,
+    changeUserRoleHandler,
+    deactivateUserHandler,
+    getSystemHealthHandler,
     // Revenue & Payments
-    recordPayment,
-    getPaymentDetails,
-    updatePayment,
+    recordPaymentHandler,
+    getPaymentDetailsHandler,
+    updatePaymentHandler,
     // Content / Promotions / Holidays
-    getPromotions,
-    createPromotion,
-    getHolidays,
-    createHoliday,
+    getPromotionsHandler,
+    createPromotionHandler,
+    getHolidaysHandler,
+    createHolidayHandler,
     // Feedback & Internal Comments
-    getFeedback,
-    getAppointmentComments,
-    addAppointmentComment,
+    getFeedbackHandler,
+    getAppointmentCommentsHandler,
+    addAppointmentCommentHandler,
     // Schedule Requests
-    getScheduleRequests,
-    approveScheduleRequest,
-    rejectScheduleRequest,
+    getScheduleRequestsHandler,
+    approveScheduleRequestHandler,
+    rejectScheduleRequestHandler,
     // Reassignment
     reassignAppointment,
     getAvailableDentistsForReassignment,
@@ -78,12 +78,12 @@ router.patch('/appointments/:id/cancel', adminCancel);
 router.patch('/appointments/:id/reassign', reassignAppointment); // NEW
 
 // ── Internal Comments ── (NEW)
-router.get('/appointments/:id/comments', getAppointmentComments);
-router.post('/appointments/:id/comments', addAppointmentComment);
+router.get('/appointments/:id/comments', getAppointmentCommentsHandler);
+router.post('/appointments/:id/comments', addAppointmentCommentHandler);
 
 // ── Walk-In & Patients ──
 router.post('/walk-in', addWalkIn);
-router.post('/walk-in/quick', quickRegisterPatient); // NEW: create patient profile without full auth signup
+router.post('/walk-in/quick', quickRegisterPatientHandler); // NEW: create patient profile without full auth signup
 router.get('/patients', getPatients);
 router.get('/patients/:id/history', viewPatientHistory);
 router.patch('/patients/:id/restriction', toggleRestriction);
@@ -97,15 +97,15 @@ router.patch('/announcements/:id', editAnnouncement);
 router.delete('/announcements/:id', removeAnnouncement);
 
 // ── Revenue & Payments ── (NEW)
-router.post('/payments', recordPayment);
-router.get('/payments/:appointmentId', getPaymentDetails);
-router.patch('/payments/:id', updatePayment);
+router.post('/payments', recordPaymentHandler);
+router.get('/payments/:appointmentId', getPaymentDetailsHandler);
+router.patch('/payments/:id', updatePaymentHandler);
 
 // ── Promotions & Holidays ── (NEW)
-router.get('/promotions', getPromotions);
-router.post('/promotions', createPromotion);
-router.get('/holidays', getHolidays);
-router.post('/holidays', createHoliday);
+router.get('/promotions', getPromotionsHandler);
+router.post('/promotions', createPromotionHandler);
+router.get('/holidays', getHolidaysHandler);
+router.post('/holidays', createHolidayHandler);
 
 // ── Schedule Management ──
 router.get('/dentists', getDentists);
@@ -118,20 +118,20 @@ router.delete('/dentists/:id/block/:blockId', removeDentistBlock);
 router.post('/emergency-slot', openEmergencySlot);
 
 // ── Doctor Schedule Requests ── (NEW)
-router.get('/schedule-requests', getScheduleRequests);
-router.patch('/schedule-requests/:id/approve', approveScheduleRequest);
-router.patch('/schedule-requests/:id/reject', rejectScheduleRequest);
+router.get('/schedule-requests', getScheduleRequestsHandler);
+router.patch('/schedule-requests/:id/approve', approveScheduleRequestHandler);
+router.patch('/schedule-requests/:id/reject', rejectScheduleRequestHandler);
 
 // ── Patient Feedback ── (NEW)
-router.get('/feedback', getFeedback);
+router.get('/feedback', getFeedbackHandler);
 
 // ==========================================
 // ADMIN-ONLY ROUTES (Require requireAdmin)
 // ==========================================
-router.get('/users', requireAdmin, getUsers);
-router.post('/users', requireAdmin, createUser);
-router.patch('/users/:id/role', requireAdmin, changeUserRole);
-router.patch('/users/:id/deactivate', requireAdmin, deactivateUser);
-router.get('/system/health', requireAdmin, getSystemHealth);
+router.get('/users', requireAdmin, getUsersHandler);
+router.post('/users', requireAdmin, createUserHandler);
+router.patch('/users/:id/role', requireAdmin, changeUserRoleHandler);
+router.patch('/users/:id/deactivate', requireAdmin, deactivateUserHandler);
+router.get('/system/health', requireAdmin, getSystemHealthHandler);
 
 export default router;

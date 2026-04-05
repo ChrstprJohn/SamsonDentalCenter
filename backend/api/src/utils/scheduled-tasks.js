@@ -1,4 +1,4 @@
-﻿import cron from 'node-cron';
+import cron from 'node-cron';
 import { autoDetectNoShows } from '../services/noshow.service.js';
 import { sendReminder, send48hConfirmReminder } from '../services/notification.service.js';
 import {
@@ -6,7 +6,9 @@ import {
     sendPatientReminderEmail,
     createGuestActionTokens,
 } from '../services/email-confirmation.service.js';
+import { notifyWaitlist } from '../services/waitlist.service.js';
 import { supabaseAdmin } from '../config/supabase.js';
+import { WAITLIST_STATUS } from '../utils/constants.js';
 
 // 🧪 DEBUG MODE: Set to true to log emails instead of sending them
 const DEBUG_MODE = process.env.DEBUG_SCHEDULED_TASKS === 'true';
@@ -200,8 +202,8 @@ export const startScheduledTasks = () => {
         }
     });
 
-    // ── 4. Guest cleanup: every hour — cancel PENDING guests who did not confirm email ──
-    cron.schedule('0 * * * *', async () => {
+    // ── 4. Guest cleanup: every minute — cancel PENDING guests who did not confirm email ──
+    cron.schedule('* * * * *', async () => {
         console.log('Cleaning up expired PENDING guest appointments...');
         try {
             const now = new Date().toISOString();
@@ -222,7 +224,7 @@ export const startScheduledTasks = () => {
                 .from('appointments')
                 .update({
                     status: 'CANCELLED',
-                    cancellation_reason: 'Guest did not confirm via email within 24 hours.',
+                    cancellation_reason: 'Guest did not confirm via email within 15 minutes.',
                     cancelled_at: now,
                 })
                 .in('id', expiredIds)
@@ -240,6 +242,86 @@ export const startScheduledTasks = () => {
         }
     });
 
+    // ── 5. 🔴 CRITICAL: Ghost Offer Sweep — every minute ──
+    // FATAL FLAW FIX: If a patient ignores a waitlist offer, it gets stuck FOREVER unless we sweep.
+    // This job finds all NOTIFIED entries that have passed their expires_at and cascades them.
+    //
+    // Scenario: Patient A gets notified, puts phone down, forgets to respond.
+    // Without this sweep: Offer stays NOTIFIED forever, Patient B never gets notified (STUCK).
+    // With this sweep: Every minute, we check for expired NOTIFIED entries and pass to next person.
+    //
+    // The fix is automatic and silent — no email to Patient A, just cascade to Patient B.
+    cron.schedule('* * * * *', async () => {
+        // Every minute
+        try {
+            const now = new Date().toISOString();
+
+            // Find all NOTIFIED waitlist entries that have passed their expires_at
+            const { data: ghostOffers, error } = await supabaseAdmin
+                .from('waitlist')
+                .select('*')
+                .eq('status', WAITLIST_STATUS.NOTIFIED)
+                .lt('expires_at', now);
+
+            if (error) {
+                console.error('   Error fetching ghost offers:', error.message);
+                return;
+            }
+
+            if (!ghostOffers || ghostOffers.length === 0) {
+                // Silently return — no offers to clean up
+                return;
+            }
+
+            console.log(
+                `👻 [GHOST OFFER SWEEP] Found ${ghostOffers.length} expired NOTIFIED offers. Cascading...`,
+            );
+
+            let cascaded = 0;
+            let failed = 0;
+
+            for (const ghostOffer of ghostOffers) {
+                try {
+                    // Mark this entry as EXPIRED
+                    await supabaseAdmin
+                        .from('waitlist')
+                        .update({
+                            status: WAITLIST_STATUS.EXPIRED,
+                            updated_at: new Date().toISOString(),
+                        })
+                        .eq('id', ghostOffer.id);
+
+                    // Cascade to the next person in line
+                    const cascadeResult = await notifyWaitlist({
+                        date: ghostOffer.preferred_date,
+                        start_time: ghostOffer.preferred_time,
+                        service_id: ghostOffer.service_id,
+                    });
+
+                    if (cascadeResult.notified) {
+                        cascaded++;
+                        console.log(
+                            `   ✅ Cascaded to next: ${ghostOffer.service_id} on ${ghostOffer.preferred_date} @ ${ghostOffer.preferred_time}`,
+                        );
+                    } else {
+                        // Cascade succeeded but no one to notify (no more in waitlist)
+                        console.log(
+                            `   ℹ️ No one else in waitlist for ${ghostOffer.service_id} on ${ghostOffer.preferred_date}`,
+                        );
+                        cascaded++;
+                    }
+                } catch (err) {
+                    failed++;
+                    console.error(`   ❌ Failed to cascade ${ghostOffer.id}: ${err.message}`);
+                }
+            }
+
+            console.log(`👻 [GHOST OFFER SWEEP] Complete: ${cascaded} cascaded, ${failed} failed.`);
+        } catch (err) {
+            console.error('   Error in ghost offer sweep:', err.message);
+        }
+    });
+
     console.log('Scheduled tasks started:');
     console.log('   No-show detection: every 15 min (clinic hours)');
     console.log(
@@ -249,6 +331,7 @@ export const startScheduledTasks = () => {
         '   24h reminders: daily at 8am (patients: in-app + email | guests: email with links)',
     );
     console.log('   Guest PENDING cleanup: every hour');
+    console.log('   👻 Ghost Offer Sweep (CRITICAL): every minute');
 };
 
 /**

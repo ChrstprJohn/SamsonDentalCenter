@@ -5,7 +5,7 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
  * All hooks use this — if the base URL or auth header format changes,
  * you only change this one file.
  */
-const request = async (method, path, { body = null, token = null } = {}) => {
+const request = async (method, path, { body = null, token = null, keepalive = false } = {}) => {
     const headers = {};
 
     if (body) {
@@ -20,6 +20,7 @@ const request = async (method, path, { body = null, token = null } = {}) => {
         method,
         headers,
         body: body ? JSON.stringify(body) : null,
+        keepalive,
     });
 
     const data = await res.json();
@@ -37,7 +38,7 @@ const request = async (method, path, { body = null, token = null } = {}) => {
 
 export const api = {
     get: (path, token) => request('GET', path, { token }),
-    post: (path, body, token) => request('POST', path, { body, token }),
+    post: (path, body, token, keepalive = false) => request('POST', path, { body, token, keepalive }),
     patch: (path, body, token) => request('PATCH', path, { body, token }),
     delete: (path, token) => request('DELETE', path, { token }),
 };

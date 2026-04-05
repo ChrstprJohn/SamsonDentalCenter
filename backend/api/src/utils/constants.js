@@ -1,9 +1,10 @@
 // Appointment status values — use these everywhere instead of typing strings
+// ✅ NOTE: Waitlist entries are stored in the WAITLIST table, not as appointments.
+// Appointments only exist when a slot is secured (PENDING or CONFIRMED).
 export const APPOINTMENT_STATUS = {
-    PENDING: 'PENDING',
-    CONFIRMED: 'CONFIRMED',
+    PENDING: 'PENDING', // Awaiting approval (e.g., specialized service)
+    CONFIRMED: 'CONFIRMED', // Approved and ready
     IN_PROGRESS: 'IN_PROGRESS', // 🪑 Patient seated, treatment in progress
-    WAITLISTED: 'WAITLISTED', // Patient on waitlist waiting for slot
     LATE_CANCEL: 'LATE_CANCEL', // Cancelled less than 24h before appointment
     CANCELLED: 'CANCELLED', // Cancelled with ≥24h notice
     COMPLETED: 'COMPLETED', // Treatment done (dentist marks this)
@@ -17,6 +18,14 @@ export const WAITLIST_STATUS = {
     CONFIRMED: 'CONFIRMED',
     EXPIRED: 'EXPIRED',
     CANCELLED: 'CANCELLED',
+};
+
+// Appointment source tracking
+export const APPOINTMENT_SOURCE = {
+    WALK_IN: 'WALK_IN',
+    GUEST_BOOKING: 'GUEST_BOOKING',
+    USER_BOOKING: 'USER_BOOKING',
+    WAITLIST: 'WAITLIST',
 };
 
 // User roles
@@ -53,6 +62,7 @@ export const CLINIC_CONFIG = {
     CLOSING_HOUR: 17, // 5:00 PM
     SLOT_DURATION_MINUTES: 30, // Each appointment slot is 30 minutes
     WAITLIST_TIMEOUT_MINUTES: 25, // 25 min to confirm waitlist offer
+    WAITLIST_MIN_NOTICE_MINUTES: 0, // 🔴 0 = Immediate offers for testing (any cancellation triggers offer)
     CANCEL_NOTICE_HOURS: 24, // <24h = LATE_CANCEL
     NO_SHOW_GRACE_MINUTES: 15, // Wait 15 min past appointment time before marking no-show
     NO_SHOW_RESTRICT_THRESHOLD: 3, // 3+ no-shows → restrict patient booking
@@ -62,7 +72,7 @@ export const CLINIC_CONFIG = {
     CONFIRM_REMINDER_HOURS: 48, // 48h reminder asks patient to confirm
     EMERGENCY_BUFFER_SLOTS: 1, // Reserve 1 slot per day for emergencies
     OVERBOOK_LOW_RISK_PERCENT: 10, // Allow 10% overbooking on low no-show risk hours
-    GUEST_CONFIRM_EXPIRY_HOURS: 24, // Guest must confirm via email within 24 hours
+    GUEST_CONFIRM_EXPIRY_MINUTES: 15, // Guest must confirm via email within 15 minutes
     MAX_ADVANCE_BOOKING_MONTHS: 3, // Online booking up to 3 months ahead
     NO_SAME_DAY_ONLINE: true, // ❌ No same-day booking for online
 };

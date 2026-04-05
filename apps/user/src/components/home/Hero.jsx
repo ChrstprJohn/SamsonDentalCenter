@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -7,6 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Hero = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const heroRef = useRef(null);
     const bgRef = useRef(null);
     const contentRef = useRef(null);
@@ -137,10 +139,9 @@ const Hero = () => {
                         team dedicated to your oral health and aesthetic goals.
                     </p>
 
-                    {/* CTA Buttons - improved sizes for tap targets */}
                     <div className='hero-anim flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-2'>
                         <button
-                            onClick={() => navigate('/book')}
+                            onClick={() => navigate(user ? '/patient/book' : '/book')}
                             className='group inline-flex items-center justify-center px-8 py-4 text-[clamp(1rem,1.5vw,1.125rem)] font-bold text-white transition-all duration-300 ease-out bg-sky-500 rounded-2xl hover:bg-sky-600 hover:shadow-[0_8px_30px_rgb(14,165,233,0.3)] hover:-translate-y-1 w-full sm:w-auto'
                         >
                             Make an Appointment

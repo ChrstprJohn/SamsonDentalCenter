@@ -1,3 +1,4 @@
+import { AppError } from '../utils/errors.js';
 import { supabaseAdmin } from '../config/supabase.js';
 import { APPOINTMENT_STATUS } from '../utils/constants.js';
 import { sendDelayNotification, sendFollowUpReminder } from './notification.service.js';
@@ -28,7 +29,7 @@ export const getTodaySchedule = async (dentistId) => {
         .not('status', 'in', '("CANCELLED","LATE_CANCEL")')
         .order('start_time', { ascending: true });
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     return data.map((appt) => ({
         id: appt.id,
@@ -74,7 +75,7 @@ export const getScheduleRange = async (dentistId, startDate, endDate) => {
         .order('appointment_date', { ascending: true })
         .order('start_time', { ascending: true });
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     return data.map((appt) => ({
         id: appt.id,
@@ -99,7 +100,7 @@ export const getOwnSchedule = async (dentistId) => {
         .eq('dentist_id', dentistId)
         .order('day_of_week', { ascending: true });
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
     return data;
 };
 
@@ -116,7 +117,7 @@ export const getOwnBlocks = async (dentistId) => {
         .gte('block_date', today)
         .order('block_date', { ascending: true });
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
     return data;
 };
 
@@ -137,7 +138,7 @@ export const requestBlock = async (dentistId, blockDate, reason, notes = '') => 
         .select()
         .single();
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
     return block;
 };
 
@@ -158,7 +159,7 @@ export const addTreatmentNote = async (dentistId, appointmentId, noteData) => {
         .single();
 
     if (!appt) {
-        throw { status: 404, message: 'Appointment not found or not assigned to you.' };
+        throw new AppError('Appointment not found or not assigned to you.', 404);
     }
 
     const { data: note, error } = await supabaseAdmin
@@ -175,7 +176,7 @@ export const addTreatmentNote = async (dentistId, appointmentId, noteData) => {
         .select()
         .single();
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
     return note;
 };
 
@@ -189,7 +190,7 @@ export const getTreatmentNotes = async (dentistId, appointmentId) => {
         .eq('appointment_id', appointmentId)
         .eq('dentist_id', dentistId);
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
     return data;
 };
 
@@ -219,7 +220,7 @@ export const getPatientHistory = async (patientId) => {
         .eq('patient_id', patientId)
         .order('created_at', { ascending: false });
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     return {
         patient: {
@@ -256,11 +257,7 @@ export const startAppointment = async (dentistId, appointmentId) => {
         .single();
 
     if (error || !data) {
-        throw {
-            status: 400,
-            message:
-                'Cannot start this appointment. It may not be CONFIRMED or not assigned to you.',
-        };
+        throw new AppError('Cannot start this appointment. It may not be CONFIRMED or not assigned to you.', 400);
     }
 
     return data;
@@ -280,7 +277,7 @@ export const completeAppointment = async (dentistId, appointmentId) => {
         .single();
 
     if (!appt) {
-        throw { status: 404, message: 'Appointment not found or not assigned to you.' };
+        throw new AppError('Appointment not found or not assigned to you.', 404);
     }
 
     // Can complete from CONFIRMED or IN_PROGRESS
@@ -288,10 +285,7 @@ export const completeAppointment = async (dentistId, appointmentId) => {
         appt.status !== APPOINTMENT_STATUS.CONFIRMED &&
         appt.status !== APPOINTMENT_STATUS.IN_PROGRESS
     ) {
-        throw {
-            status: 400,
-            message: `Cannot complete appointment. Current status: ${appt.status}. Must be CONFIRMED or IN_PROGRESS.`,
-        };
+        throw new AppError(`Cannot complete appointment. Current status: ${appt.status}. Must be CONFIRMED or IN_PROGRESS.`, 400);
     }
 
     const { data, error } = await supabaseAdmin
@@ -304,7 +298,7 @@ export const completeAppointment = async (dentistId, appointmentId) => {
         .select()
         .single();
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
     return data;
 };
 
@@ -323,10 +317,7 @@ export const markAppointmentNoShow = async (dentistId, appointmentId, notes = ''
         .single();
 
     if (!appt) {
-        throw {
-            status: 404,
-            message: 'Appointment not found or already completed.',
-        };
+        throw new AppError('Appointment not found or already completed.', 404);
     }
 
     // Update appointment status
@@ -341,7 +332,7 @@ export const markAppointmentNoShow = async (dentistId, appointmentId, notes = ''
         .select()
         .single();
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     // Increment patient's no-show counter
     if (appt.patient_id) {
@@ -377,7 +368,7 @@ export const updatePatientMedicalInfo = async (dentistId, appointmentId, medical
         .single();
 
     if (!appt) {
-        throw { status: 404, message: 'Appointment not found or not assigned to you.' };
+        throw new AppError('Appointment not found or not assigned to you.', 404);
     }
 
     const patientId = appt.patient_id;
@@ -419,7 +410,7 @@ export const updatePatientMedicalInfo = async (dentistId, appointmentId, medical
         .select()
         .single();
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     return {
         message: 'Patient medical info updated.',
@@ -442,7 +433,7 @@ export const createFollowUp = async (dentistId, followUpData) => {
         .single();
 
     if (!appt) {
-        throw { status: 404, message: 'Appointment not found or not assigned to you.' };
+        throw new AppError('Appointment not found or not assigned to you.', 404);
     }
 
     const { data: followUp, error } = await supabaseAdmin
@@ -459,7 +450,7 @@ export const createFollowUp = async (dentistId, followUpData) => {
         .select()
         .single();
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     // Notify patient about follow-up
     try {
@@ -485,7 +476,7 @@ export const reportDelay = async (dentistId, appointmentId, delayMinutes, reason
         .single();
 
     if (!appt) {
-        throw { status: 404, message: 'Appointment not found or not in CONFIRMED status.' };
+        throw new AppError('Appointment not found or not in CONFIRMED status.', 404);
     }
 
     // Update appointment notes with delay info
@@ -535,7 +526,7 @@ export const getDoctorProfile = async (dentistId) => {
         .eq('id', dentistId)
         .single();
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
     return data;
 };
 
@@ -567,7 +558,7 @@ export const updateDoctorProfile = async (dentistId, updates) => {
         )
         .single();
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
     return data;
 };
 
@@ -584,7 +575,7 @@ export const requestScheduleChange = async (dentistId, requestData) => {
         .select()
         .single();
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
     return data;
 };
 
@@ -598,7 +589,7 @@ export const getScheduleRequests = async (dentistId) => {
         .eq('dentist_id', dentistId)
         .order('created_at', { ascending: false });
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
     return data;
 };
 
@@ -617,7 +608,7 @@ export const getDoctorFeedback = async (dentistId) => {
         .eq('dentist_id', dentistId)
         .order('created_at', { ascending: false });
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     // Anonymize if needed
     return data.map((f) => ({

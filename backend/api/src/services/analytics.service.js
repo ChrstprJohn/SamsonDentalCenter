@@ -29,7 +29,6 @@ export const getDashboardStats = async (startDate, endDate) => {
         LATE_CANCEL: 0,
         NO_SHOW: 0,
         PENDING: 0,
-        WAITLISTED: 0,
     };
 
     (statusCounts || []).forEach((a) => {

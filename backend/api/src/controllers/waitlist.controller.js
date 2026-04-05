@@ -3,6 +3,8 @@ import {
     getMyWaitlist,
     cancelWaitlistEntry,
     confirmWaitlistOffer,
+    getWaitlistByToken,
+    confirmWaitlistByToken,
 } from '../services/waitlist.service.js';
 import { bookAppointment } from '../services/appointment.service.js';
 
@@ -12,13 +14,17 @@ import { bookAppointment } from '../services/appointment.service.js';
  */
 export const join = async (req, res, next) => {
     try {
-        const { service_id, date, time, priority } = req.body;
+        const { service_id, date, time, priority, preferred_date, preferred_time } = req.body;
 
-        if (!service_id || !date) {
+        // Support aliases for frontend compatibility
+        const finalDate = date || preferred_date;
+        const finalTime = time || preferred_time;
+
+        if (!service_id || !finalDate) {
             return res.status(400).json({ error: 'service_id and date are required.' });
         }
 
-        const result = await joinWaitlist(req.user.id, service_id, date, time, priority);
+        const result = await joinWaitlist(req.user.id, service_id, finalDate, finalTime, priority);
         res.status(201).json(result);
     } catch (err) {
         if (err.status) return res.status(err.status).json({ error: err.message });
@@ -63,36 +69,46 @@ export const remove = async (req, res, next) => {
  */
 export const confirm = async (req, res, next) => {
     try {
-        // 1. Confirm the waitlist offer (handles expiry cascade, swap, cleanup)
+        // 1. Confirm the waitlist offer (handles expiry cascade, swap, cleanup, and booking)
         const result = await confirmWaitlistOffer(req.params.id, req.user.id);
 
-        if (!result.confirmed) {
-            return res.json(result);
-        }
+        res.json(result);
+    } catch (err) {
+        if (err.status) return res.status(err.status).json({ error: err.message });
+        next(err);
+    }
+};
 
-        // 2. If confirmed and we have a specific time, auto-book the appointment
-        if (result.time) {
-            const booking = await bookAppointment(
-                req.user.id,
-                result.service_id,
-                result.date,
-                result.time,
-            );
-            return res.json({
-                message: result.swapped
-                    ? `Appointment swapped! Old (${result.swapped_from}) cancelled, new booked.`
-                    : 'Waitlist confirmed and appointment booked!',
-                swapped: result.swapped,
-                ...booking,
-            });
-        }
+/**
+ * GET /api/waitlist/offer?token=xxx
+ * Public: Fetch offer details using token.
+ */
+export const getPublicOffer = async (req, res, next) => {
+    try {
+        const { token } = req.query;
+        if (!token) return res.status(400).json({ error: 'Token is required.' });
 
-        // 3. If no specific time, tell them to pick a slot
-        res.json({
-            message: 'Waitlist confirmed! Please select an available time slot.',
-            service_id: result.service_id,
-            date: result.date,
-        });
+        const result = await getWaitlistByToken(token);
+        res.json(result);
+    } catch (err) {
+        if (err.status) return res.status(err.status).json({ error: err.message });
+        next(err);
+    }
+};
+
+/**
+ * POST /api/waitlist/confirm?token=xxx
+ * Public: Confirm offer using token.
+ */
+export const confirmPublicOffer = async (req, res, next) => {
+    try {
+        const { token } = req.query;
+        if (!token) return res.status(400).json({ error: 'Token is required.' });
+
+        // 1. Confirm the offer (the service now handles booking internally)
+        const result = await confirmWaitlistByToken(token);
+
+        res.json(result);
     } catch (err) {
         if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);

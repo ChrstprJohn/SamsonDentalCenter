@@ -3,6 +3,7 @@ import { markNoShow } from '../services/noshow.service.js';
 import { notifyWaitlist } from '../services/waitlist.service.js';
 import { bookWalkIn } from '../services/appointment.service.js';
 import { APPOINTMENT_STATUS } from '../utils/constants.js';
+import { sendBookingSuccessEmail, sendCancellationEmail } from '../services/email-confirmation.service.js';
 import {
     getPendingRequests,
     approveRequest,
@@ -227,6 +228,20 @@ export const approve = async (req, res, next) => {
     try {
         const { dentist_id } = req.body;
         const appointment = await approveRequest(req.params.id, req.user.id, dentist_id || null);
+
+        // Notify patient/guest
+        try {
+            await sendBookingSuccessEmail(appointment.patient?.email || appointment.guest_email, appointment.patient?.full_name || appointment.guest_name, {
+                date: appointment.appointment_date,
+                start_time: appointment.start_time,
+                end_time: appointment.end_time,
+                service: appointment.service?.name,
+                dentist: appointment.dentist?.profile?.full_name || 'Assigned',
+            });
+        } catch (e) {
+            console.error('Failed to send approval email:', e);
+        }
+
         res.json({ message: 'Appointment approved.', appointment });
     } catch (err) {
         if (err.status) return res.status(err.status).json({ error: err.message });
@@ -256,14 +271,24 @@ export const reject = async (req, res, next) => {
 
         const result = await rejectRequest(req.params.id, req.user.id, reason, suggested_date);
 
-        // TODO: Send rejection email to patient
-        // await sendRejectionEmail(result.appointment.patient?.email, ...);
+        // Notify patient/guest
+        try {
+            await sendCancellationEmail(result.appointment.patient?.email || result.appointment.guest_email, result.appointment.patient?.full_name || result.appointment.guest_name, {
+                date: result.appointment.appointment_date,
+                start_time: result.appointment.start_time,
+                service: result.appointment.service?.name,
+                isLastMinute: false, // Rejection isn't a "cancellation" in the policy sense
+            });
+        } catch (e) {
+            console.error('Failed to send rejection email:', e);
+        }
 
         res.json({
             message: 'Appointment request rejected.',
             appointment: {
                 id: result.appointment.id,
                 status: result.appointment.status,
+                approval_status: result.appointment.approval_status,
                 rejection_reason: result.appointment.rejection_reason,
                 patient: result.appointment.patient?.full_name,
                 service: result.appointment.service?.name,
@@ -662,7 +687,7 @@ export const toggleRestriction = async (req, res, next) => {
  * POST /api/admin/walk-in/quick
  * Body: { full_name, email, phone, date_of_birth?, address? }
  */
-export const quickRegisterPatient = async (req, res, next) => {
+export const quickRegisterPatientHandler = async (req, res, next) => {
     try {
         const patient = await quickRegisterPatient(req.body);
         res.status(201).json({

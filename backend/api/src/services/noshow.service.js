@@ -1,3 +1,4 @@
+import { AppError } from '../utils/errors.js';
 import { supabaseAdmin } from '../config/supabase.js';
 import { APPOINTMENT_STATUS, CLINIC_CONFIG } from '../utils/constants.js';
 
@@ -16,17 +17,14 @@ export const markNoShow = async (appointmentId) => {
         .single();
 
     if (error || !appointment) {
-        throw { status: 404, message: 'Appointment not found.' };
+        throw new AppError('Appointment not found.', 404);
     }
 
     if (
         appointment.status !== APPOINTMENT_STATUS.CONFIRMED &&
         appointment.status !== APPOINTMENT_STATUS.IN_PROGRESS
     ) {
-        throw {
-            status: 400,
-            message: `Cannot mark as no-show. Current status: ${appointment.status}. Must be CONFIRMED or IN_PROGRESS.`,
-        };
+        throw new AppError(`Cannot mark as no-show. Current status: ${appointment.status}. Must be CONFIRMED or IN_PROGRESS.`, 400);
     }
 
     // ── 2. Update status to NO_SHOW ──
@@ -40,7 +38,7 @@ export const markNoShow = async (appointmentId) => {
         .select()
         .single();
 
-    if (updateError) throw { status: 500, message: updateError.message };
+    if (updateError) throw new AppError(updateError.message, 500);
 
     // ── 3. Log to no_show_log (for AI model later) ──
     const bookedDate = new Date(appointment.created_at);
@@ -179,7 +177,7 @@ export const getPatientNoShowHistory = async (patientId) => {
         .eq('patient_id', patientId)
         .order('created_at', { ascending: false });
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     return {
         patient_id: patientId,

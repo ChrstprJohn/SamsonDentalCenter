@@ -1,3 +1,4 @@
+import { AppError } from '../utils/errors.js';
 import { supabaseAdmin } from '../config/supabase.js';
 
 /**
@@ -147,7 +148,7 @@ export const getUserNotifications = async (userId, unreadOnly = false) => {
     }
 
     const { data, error } = await query;
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     return data;
 };
@@ -168,7 +169,7 @@ export const markAsRead = async (notificationId, userId) => {
         .single();
 
     if (error || !data) {
-        throw { status: 404, message: 'Notification not found.' };
+        throw new AppError('Notification not found.', 404);
     }
 
     return data;
@@ -187,7 +188,7 @@ export const markAllAsRead = async (userId) => {
         .eq('user_id', userId)
         .eq('is_read', false);
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     return { message: 'All notifications marked as read.' };
 };
@@ -202,7 +203,7 @@ export const getUnreadCount = async (userId) => {
         .eq('user_id', userId)
         .eq('is_read', false);
 
-    if (error) throw { status: 500, message: error.message };
+    if (error) throw new AppError(error.message, 500);
 
     return { unread_count: count };
 };
