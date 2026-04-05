@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AuthLayout from '../../layouts/AuthLayout';
 import LoginContainer from '../../components/auth/Login/LoginContainer';
@@ -7,6 +7,7 @@ import LoginContainer from '../../components/auth/Login/LoginContainer';
 const LoginPage = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -15,7 +16,8 @@ const LoginPage = () => {
         setLoading(true);
         try {
             await login(email, password);
-            navigate('/patient/book');
+            const from = location.state?.from || '/patient/book';
+            navigate(from);
         } catch (err) {
             setError(err.message || 'Login failed');
         }
