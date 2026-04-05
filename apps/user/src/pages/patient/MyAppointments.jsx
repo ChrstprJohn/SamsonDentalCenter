@@ -147,43 +147,43 @@ const MyAppointments = () => {
                                 <TableRow>
                                     <TableCell
                                         isHeader
-                                        className='px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 min-w-[120px]'
+                                        className='px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400 min-w-[120px]'
                                     >
                                         Date
                                     </TableCell>
                                     <TableCell
                                         isHeader
-                                        className='px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 min-w-[150px]'
+                                        className='px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400 min-w-[150px]'
                                     >
                                         Time
                                     </TableCell>
                                     <TableCell
                                         isHeader
-                                        className='px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400'
+                                        className='px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400'
                                     >
                                         Service
                                     </TableCell>
                                     <TableCell
                                         isHeader
-                                        className='px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400'
+                                        className='px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400'
                                     >
                                         Dentist
                                     </TableCell>
                                     <TableCell
                                         isHeader
-                                        className='px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400'
+                                        className='px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400'
                                     >
                                         Patient
                                     </TableCell>
                                     <TableCell
                                         isHeader
-                                        className='px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400'
+                                        className='px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400'
                                     >
                                         Status
                                     </TableCell>
                                     <TableCell
                                         isHeader
-                                        className='px-4 py-3 font-medium text-gray-500 text-end text-theme-xs dark:text-gray-400'
+                                        className='px-4 py-3 font-medium text-gray-500 text-end text-sm dark:text-gray-400'
                                     >
                                         Action
                                     </TableCell>
