@@ -45,7 +45,7 @@ const ThreeDotsIcon = () => (
     </svg>
 );
 
-const appointmentsData = [
+export const appointmentsData = [
     {
         id: 'APP-001',
         dentist: {

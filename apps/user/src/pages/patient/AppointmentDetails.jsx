@@ -3,28 +3,44 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import { Badge } from '../../components/ui';
 
-// Dummy data
+import { appointmentsData } from './MyAppointments';
+
+// Dummy data generator combining specific row data with full details
 const getAppointmentData = (id) => {
+    const found = appointmentsData.find(a => a.id === id);
+    
+    // Map list statuses to our strict 3 (Approved, Pending, Rejected)
+    let mappedStatus = 'Pending';
+    let rejectionReason = null;
+    
+    if (found) {
+        if (found.status === 'Scheduled' || found.status === 'Completed') mappedStatus = 'Approved';
+        if (found.status === 'Cancelled') {
+            mappedStatus = 'Rejected';
+            rejectionReason = 'Patient requested cancellation.';
+        }
+        if (found.status === 'Pending') mappedStatus = 'Pending';
+    }
+
     return {
         id: id,
-        dentist: {
+        dentist: found?.dentist || {
             name: 'Dr. Sarah Smith',
             specialty: 'General Dentist',
             image: '/images/user/user-01.jpg',
         },
-        patient: 'John Doe',
-        service: 'Routine Checkup',
-        date: 'Oct 24, 2024',
-        time: '10:00 AM',
-        endTime: '11:00 AM',
-        duration: '1 Hour',
-        serviceTier: 'Standard',
-        approvalStatus: 'Pending',
-        status: 'Scheduled',
+        patient: found?.patient || 'John Doe',
+        service: found?.service || 'Routine Checkup',
+        date: found?.date || 'Oct 24, 2024',
+        time: found?.time || '10:00 AM',
+        endTime: '11:00 AM', // Dummy static
+        duration: '1 Hour', // Dummy static
+        status: mappedStatus,
+        rejectionReason: rejectionReason,
         preTreatmentNotes: [
             'Please arrive 10 minutes early to fill out any necessary forms.',
             'Avoid eating heavy meals 2 hours before the appointment.'
-        ]
+        ],
     };
 };
 
@@ -48,6 +64,26 @@ const AppointmentDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const app = getAppointmentData(id);
+    const [showStatusDetails, setShowStatusDetails] = React.useState(false);
+    const statusRef = React.useRef(null);
+
+    React.useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (statusRef.current && !statusRef.current.contains(event.target)) {
+                setShowStatusDetails(false);
+            }
+        };
+
+        if (showStatusDetails) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showStatusDetails]);
 
     return (
         <>
@@ -59,8 +95,8 @@ const AppointmentDetails = () => {
             
             <div className="space-y-6">
                 {/* Header Card */}
-                <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 bg-white dark:bg-white/[0.03] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-theme-sm">
-                    <div className="flex flex-col items-center w-full gap-6 xl:flex-row xl:w-auto">
+                <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 bg-white dark:bg-white/[0.03] flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-6 shadow-theme-sm">
+                    <div className="flex flex-col items-center w-full gap-6 xl:flex-row xl:w-auto pb-6 xl:pb-0 border-b xl:border-b-0 border-gray-100 dark:border-gray-800">
                         <div className='w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-brand-50 text-brand-600 font-bold text-2xl'>
                             {app.dentist.name.replace('Dr. ', '').charAt(0)}
                         </div>
@@ -76,26 +112,54 @@ const AppointmentDetails = () => {
                         </div>
                     </div>
                     
-                    <div className="flex flex-col items-start md:items-end gap-3 xl:justify-end xl:w-auto w-full">
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500 dark:text-gray-400 mr-1">Appointment Status:</span>
-                            <Badge
-                                size='sm'
-                                color={
-                                    app.status === 'Scheduled' ? 'primary' :
-                                    app.status === 'Completed' ? 'success' :
-                                    app.status === 'Cancelled' ? 'error' : 'warning'
-                                }
-                            >
-                                {app.status}
-                            </Badge>
+                    <div ref={statusRef} className="flex flex-col items-center xl:items-end gap-3 xl:justify-end xl:w-auto w-full pt-1 xl:pt-0 relative">
+                        <div 
+                            className="flex items-center justify-center xl:justify-end gap-2.5 mb-1.5 cursor-pointer select-none group"
+                            onClick={() => setShowStatusDetails(!showStatusDetails)}
+                        >
+                            <span className="text-base font-semibold text-gray-700 dark:text-gray-300">Appointment Status:</span>
+                            <div className="scale-110 origin-left flex items-center gap-1.5">
+                                <Badge
+                                    size='sm'
+                                    color={
+                                        app.status === 'Approved' ? 'success' :
+                                        app.status === 'Pending' ? 'warning' :
+                                        app.status === 'Rejected' || app.status === 'Cancelled' ? 'error' : 'primary'
+                                    }
+                                >
+                                    {app.status}
+                                </Badge>
+                                <div className="p-1 rounded bg-gray-100 dark:bg-white/[0.05] text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200 transition-colors">
+                                    <svg 
+                                        className={`w-3.5 h-3.5 transition-transform duration-200 ${showStatusDetails ? 'rotate-180' : ''}`}
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500 dark:text-gray-400 mr-1">Approval Status:</span>
-                            <span className={`text-sm font-semibold ${app.approvalStatus === 'Approved' ? 'text-success-600 dark:text-success-500' : 'text-warning-600 dark:text-warning-500'}`}>
-                                {app.approvalStatus}
-                            </span>
-                        </div>
+
+                        {/* Expandable Status Details */}
+                        {showStatusDetails && (
+                            <div className="absolute top-full right-0 mt-3 w-full xl:w-max min-w-[280px] flex justify-center xl:justify-end origin-top z-20 shadow-lg rounded-xl animate-[fadeIn_0.15s_ease-out]">
+                                {app.status === 'Pending' && (
+                                    <p className="text-sm font-medium text-warning-700 dark:text-warning-500 bg-warning-50 dark:bg-warning-500/10 px-4 py-3 rounded-xl border border-warning-100 dark:border-warning-500/20 text-center xl:text-right w-full">
+                                        This appointment requires confirmation from our clinic. We will notify you once approved.
+                                    </p>
+                                )}
+                                {app.status === 'Rejected' && (
+                                    <p className="text-sm font-medium text-error-700 dark:text-error-500 bg-error-50 dark:bg-error-500/10 px-4 py-3 rounded-xl border border-error-100 dark:border-error-500/20 text-center xl:text-right w-full">
+                                        Reason: {app.rejectionReason || 'No reason provided.'}
+                                    </p>
+                                )}
+                                {app.status === 'Approved' && (
+                                    <p className="text-sm font-medium text-success-700 dark:text-success-500 bg-success-50 dark:bg-success-500/10 px-4 py-3 rounded-xl border border-success-100 dark:border-success-500/20 text-center xl:text-right w-full">
+                                        Your appointment has been confirmed by our senior dentist.
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -151,7 +215,6 @@ const AppointmentDetails = () => {
                                         <div>
                                             <p className="text-sm text-gray-500 dark:text-gray-400">Service</p>
                                             <p className="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">{app.service}</p>
-                                            <p className="text-xs text-gray-400 mt-0.5">Tier: {app.serviceTier}</p>
                                         </div>
                                     </div>
                                 </div>
