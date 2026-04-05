@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import ComponentCard from '../../components/common/ComponentCard';
@@ -28,6 +28,12 @@ const ThreeDotsIcon = () => (
         <path d='M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
         <path d='M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
         <path d='M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+    </svg>
+);
+
+const PlusIcon = () => (
+    <svg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+        <path d='M12 5V19M5 12H19' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
     </svg>
 );
 
@@ -127,39 +133,65 @@ const MyAppointments = () => {
                 title='My Appointments'
                 desc='View and manage your upcoming and past dental visits.'
                 action={
-                    <div className='flex items-center gap-2 w-full sm:w-auto'>
-                        {/* Search */}
-                        <div className='relative flex-grow'>
-                            <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'>
-                                <svg width='16' height='16' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                                    <path d='M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
-                                </svg>
-                            </span>
-                            <input
-                                type='text'
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder='Search service, dentist...'
-                                className='pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm bg-transparent dark:border-white/[0.05] dark:text-gray-200 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 w-full sm:w-[220px]'
-                            />
-                        </div>
-                        {/* Status filter */}
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => { setStatusFilter(e.target.value); goToPage(1); }}
-                            className='px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white dark:bg-white/[0.03] dark:text-gray-300 dark:border-white/[0.05] focus:outline-none focus:border-brand-500 flex-shrink-0'
-                        >
-                            <option value=''>All</option>
-                            <option value='upcoming'>Upcoming</option>
-                            <option value='pending'>Pending</option>
-                            <option value='cancel'>Cancelled</option>
-                            <option value='completed'>Completed</option>
-                        </select>
-                    </div>
+                    <Link
+                        to='/patient/book'
+                        className='inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 transition-colors w-full sm:w-auto shadow-theme-xs'
+                    >
+                        <PlusIcon />
+                        Make an Appointment
+                    </Link>
                 }
             >
-                <div className='rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]'>
-                    <div className='max-w-full overflow-x-auto overflow-y-visible min-h-[285px]'>
+                <div className='rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-hidden'>
+                    {/* Search & Filter Container */}
+                    <div className='flex flex-col sm:flex-row items-center justify-end px-5 py-4 border-b border-gray-100 dark:border-white/[0.05] gap-4 bg-white dark:bg-white/[0.02]'>
+                        <div className='flex items-center gap-3 w-full sm:w-auto'>
+                            {/* Search */}
+                            <div className='relative flex-grow sm:flex-none'>
+                                <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'>
+                                    <svg
+                                        width='16'
+                                        height='16'
+                                        viewBox='0 0 24 24'
+                                        fill='none'
+                                        xmlns='http://www.w3.org/2000/svg'
+                                    >
+                                        <path
+                                            d='M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z'
+                                            stroke='currentColor'
+                                            strokeWidth='2'
+                                            strokeLinecap='round'
+                                            strokeLinejoin='round'
+                                        />
+                                    </svg>
+                                </span>
+                                <input
+                                    type='text'
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder='Search service, dentist...'
+                                    className='pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm bg-transparent dark:border-white/[0.05] dark:text-gray-200 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 w-full sm:w-[320px]'
+                                />
+                            </div>
+                            {/* Status filter */}
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => {
+                                    setStatusFilter(e.target.value);
+                                    goToPage(1);
+                                }}
+                                className='px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white dark:bg-white/[0.03] dark:text-gray-300 dark:border-white/[0.05] focus:outline-none focus:border-brand-500 flex-shrink-0'
+                            >
+                                <option value=''>All Statuses</option>
+                                <option value='upcoming'>Upcoming</option>
+                                <option value='pending'>Pending</option>
+                                <option value='cancel'>Cancelled</option>
+                                <option value='completed'>Completed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className='max-w-full overflow-x-auto overflow-y-visible min-h-[400px] md:min-h-[285px]'>
                         <Table>
                             <TableHeader className='border-b border-gray-100 dark:border-white/[0.05]'>
                                 <TableRow>
