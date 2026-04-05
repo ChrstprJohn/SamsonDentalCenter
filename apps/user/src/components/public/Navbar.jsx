@@ -4,6 +4,8 @@ import { Menu, X, LogOut, Settings } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useAuth } from '../../context/AuthContext';
+import PatientNotification from '../patient/PatientNotification';
+import useClickOutside from '../../hooks/useClickOutside';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,6 +22,7 @@ const Navbar = () => {
     const { user, logout } = useAuth();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const profileRef = useRef(null);
     const navRef = useRef(null);
     const lastScrollY = useRef(0);
     const [isVisible, setIsVisible] = useState(true);
@@ -91,6 +94,10 @@ const Navbar = () => {
             ease: 'power2.inOut',
         });
     }, [isVisible]);
+
+    useClickOutside(profileRef, () => {
+        if (isProfileMenuOpen) setIsProfileMenuOpen(false);
+    });
 
     const isScrolled = scrollY > 20;
 
@@ -195,63 +202,111 @@ const Navbar = () => {
                                     </button>
                                 </>
                             ) : (
-                                <div className='relative'>
-                                    <button
-                                        onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                                        className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-2xl transition-all duration-300 ${isScrolled ? 'hover:bg-slate-100 bg-white ring-1 ring-slate-200' : 'hover:bg-white/20 bg-white/10 ring-1 ring-white/20'}`}
-                                        title={user?.full_name || user?.email}
+                                <div className='flex items-center gap-2 lg:gap-4'>
+                                    <PatientNotification />
+                                    <div
+                                        className='relative'
+                                        ref={profileRef}
                                     >
-                                        <div
-                                            className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${isScrolled ? 'bg-blue-600' : 'bg-sky-500'}`}
+                                        <button
+                                            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                                            className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 ${
+                                                isScrolled
+                                                    ? 'hover:bg-slate-100 bg-white ring-1 ring-slate-200'
+                                                    : 'hover:bg-white/20 bg-white/10 ring-1 ring-white/20'
+                                            }`}
+                                            title={user?.full_name || user?.email}
                                         >
-                                            {user?.full_name?.charAt(0).toUpperCase() ||
-                                                user?.email?.charAt(0).toUpperCase()}
-                                        </div>
-                                        <span
-                                            className={`hidden md:inline text-sm font-medium ${isScrolled ? 'text-slate-700' : 'text-white'}`}
-                                        >
-                                            {user?.full_name?.split(' ')[0] || 'Profile'}
-                                        </span>
-                                    </button>
+                                            <span
+                                                className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                                                    isScrolled ? 'bg-blue-600' : 'bg-sky-500'
+                                                }`}
+                                            >
+                                                {user?.full_name?.charAt(0).toUpperCase() ||
+                                                    user?.email?.charAt(0).toUpperCase()}
+                                            </span>
+                                            <svg
+                                                className={`transition-transform duration-200 flex-shrink-0 ${
+                                                    isProfileMenuOpen ? 'rotate-180' : ''
+                                                } ${isScrolled ? 'text-slate-500' : 'text-white/70'}`}
+                                                width='18'
+                                                height='20'
+                                                viewBox='0 0 18 20'
+                                                fill='none'
+                                                xmlns='http://www.w3.org/2000/svg'
+                                            >
+                                                <path
+                                                    d='M4.3125 8.65625L9 13.3437L13.6875 8.65625'
+                                                    stroke='currentColor'
+                                                    strokeWidth='1.5'
+                                                    strokeLinecap='round'
+                                                    strokeLinejoin='round'
+                                                />
+                                            </svg>
+                                        </button>
 
-                                    {/* Profile Dropdown */}
-                                    {isProfileMenuOpen && (
-                                        <div
-                                            className={`absolute right-0 mt-2 w-48 rounded-xl shadow-lg z-50 py-2 ${isScrolled ? 'bg-white ring-1 ring-slate-200' : 'bg-slate-900 ring-1 ring-slate-700'}`}
-                                        >
+                                        {isProfileMenuOpen && (
                                             <div
-                                                className={`px-4 py-2 border-b ${isScrolled ? 'border-slate-200 text-slate-600' : 'border-slate-700 text-slate-300'}`}
+                                                className='absolute right-0 mt-3 w-[260px] rounded-2xl shadow-theme-lg z-50 p-3 border bg-white border-gray-200'
                                             >
-                                                <p className='text-sm font-semibold'>
-                                                    {user?.full_name || 'User'}
-                                                </p>
-                                                <p className='text-xs'>{user?.email}</p>
-                                            </div>
+                                                    <div className='px-4 py-2 mb-2'>
+                                                        <span className='block font-semibold text-sm truncate text-gray-800'>
+                                                            {user?.full_name || 'User'}
+                                                        </span>
+                                                        <span className='mt-0.5 block text-xs truncate text-gray-500'>
+                                                            {user?.email}
+                                                        </span>
+                                                    </div>
 
-                                            <button
-                                                onClick={() => {
-                                                    navigate('/patient');
-                                                    setIsProfileMenuOpen(false);
-                                                }}
-                                                className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors ${isScrolled ? 'text-slate-700 hover:bg-blue-50' : 'text-slate-300 hover:bg-slate-800'}`}
-                                            >
-                                                <Settings size={16} />
-                                                Dashboard
-                                            </button>
+                                                    <ul className='flex flex-col gap-1 pt-2 pb-2 border-t border-b border-gray-100'>
+                                                        <li>
+                                                            <Link
+                                                                to='/patient'
+                                                                className='flex items-center gap-3 px-3 py-2 font-medium rounded-lg group text-sm transition-colors text-gray-700 hover:bg-gray-100'
+                                                                onClick={() => setIsProfileMenuOpen(false)}
+                                                            >
+                                                                <Settings size={18} />
+                                                                Dashboard
+                                                            </Link>
+                                                        </li>
+                                                        <li>
+                                                            <Link
+                                                                to='/patient/profile'
+                                                                className='flex items-center gap-3 px-3 py-2 font-medium rounded-lg group text-sm transition-colors text-gray-700 hover:bg-gray-100'
+                                                                onClick={() => setIsProfileMenuOpen(false)}
+                                                            >
+                                                                <svg
+                                                                    className='w-5 h-5 fill-current opacity-70'
+                                                                    viewBox='0 0 24 24'
+                                                                    fill='none'
+                                                                    xmlns='http://www.w3.org/2000/svg'
+                                                                >
+                                                                    <path
+                                                                        fillRule='evenodd'
+                                                                        clipRule='evenodd'
+                                                                        d='M12 3.5C7.30558 3.5 3.5 7.30558 3.5 12C3.5 14.1526 4.3002 16.1184 5.61936 17.616C6.17279 15.3096 8.24852 13.5955 10.7246 13.5955H13.2746C15.7509 13.5955 17.8268 15.31 18.38 17.6167C19.6996 16.119 20.5 14.153 20.5 12C20.5 7.30558 16.6944 3.5 12 3.5ZM17.0246 18.8566V18.8455C17.0246 16.7744 15.3457 15.0955 13.2746 15.0955H10.7246C8.65354 15.0955 6.97461 16.7744 6.97461 18.8455V18.856C8.38223 19.8895 10.1198 20.5 12 20.5C13.8798 20.5 15.6171 19.8898 17.0246 18.8566ZM2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12ZM11.9991 7.25C10.8847 7.25 9.98126 8.15342 9.98126 9.26784C9.98126 10.3823 10.8847 11.2857 11.9991 11.2857C13.1135 11.2857 14.0169 10.3823 14.0169 9.26784C14.0169 8.15342 13.1135 7.25 11.9991 7.25ZM8.48126 9.26784C8.48126 7.32499 10.0563 5.75 11.9991 5.75C13.9419 5.75 15.5169 7.32499 15.5169 9.26784C15.5169 11.2107 13.9419 12.7857 11.9991 12.7857C10.0563 12.7857 8.48126 11.2107 8.48126 9.26784Z'
+                                                                        fill='currentColor'
+                                                                    />
+                                                                </svg>
+                                                                Account Settings
+                                                            </Link>
+                                                        </li>
+                                                    </ul>
 
-                                            <button
-                                                onClick={() => {
-                                                    logout();
-                                                    setIsProfileMenuOpen(false);
-                                                    navigate('/');
-                                                }}
-                                                className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors border-t ${isScrolled ? 'border-slate-200 text-red-600 hover:bg-red-50' : 'border-slate-700 text-red-400 hover:bg-slate-800'}`}
-                                            >
-                                                <LogOut size={16} />
-                                                Logout
-                                            </button>
-                                        </div>
-                                    )}
+                                                    <button
+                                                        onClick={() => {
+                                                            logout();
+                                                            setIsProfileMenuOpen(false);
+                                                            navigate('/');
+                                                        }}
+                                                        className='w-full text-left px-3 py-2 mt-2 text-sm flex items-center gap-3 rounded-lg transition-colors font-medium border border-transparent text-red-600 hover:bg-red-50 hover:border-red-100'
+                                                    >
+                                                        <LogOut size={18} />
+                                                        Logout
+                                                    </button>
+                                                </div>
+                                        )}
+                                    </div>
                                 </div>
                             )}
                         </div>

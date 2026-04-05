@@ -1,9 +1,15 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import useClickOutside from '../../hooks/useClickOutside';
 
 const PatientNotification = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [notifying, setNotifying] = useState(true);
+    const notificationRef = useRef(null);
+
+    useClickOutside(notificationRef, () => {
+        if (isOpen) setIsOpen(false);
+    });
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
@@ -11,7 +17,7 @@ const PatientNotification = () => {
     };
 
     return (
-        <div className='relative'>
+        <div className='relative' ref={notificationRef}>
             <button
                 className='relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-gray-700 h-10 w-10 hover:bg-gray-100 lg:h-11 lg:w-11'
                 onClick={toggleDropdown}
@@ -39,51 +45,48 @@ const PatientNotification = () => {
             </button>
 
             {isOpen && (
-                <>
-                    <div className='fixed inset-0 z-40' onClick={() => setIsOpen(false)} />
-                    <div className='absolute right-[-100px] sm:right-0 mt-3 flex h-auto max-h-[480px] w-[300px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg z-50 sm:w-[350px]'>
-                        <div className='flex items-center justify-between pb-3 mb-3 border-b border-gray-100'>
-                            <h5 className='text-lg font-semibold text-gray-800'>
-                                Notification
-                            </h5>
-                        </div>
-                        <ul className='flex flex-col h-auto overflow-y-auto no-scrollbar gap-1'>
-                            <li className='flex gap-3 rounded-lg border-b border-gray-50 p-3 hover:bg-gray-50 transition-colors'>
-                                <div className='flex items-center justify-center w-10 h-10 rounded-full bg-brand-50 text-brand-500 flex-shrink-0'>
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin='round' strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                <div className='block text-left'>
-                                    <p className='text-sm text-gray-800 mb-1'>
-                                        <span className='font-medium'>Appointment reminder</span>: You have a checkup tomorrow at 10:00 AM.
-                                    </p>
-                                    <span className='text-xs text-gray-500'>2 hours ago</span>
-                                </div>
-                            </li>
-                            <li className='flex gap-3 rounded-lg border-b border-gray-50 p-3 hover:bg-gray-50 transition-colors text-left font-normal'>
-                                <div className='flex items-center justify-center w-10 h-10 rounded-full bg-brand-50 text-brand-500 flex-shrink-0'>
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div className='block'>
-                                    <p className='text-sm text-gray-800 mb-1'>
-                                        <span className='font-medium'>Profile updated</span>: Your contact information has been successfully updated.
-                                    </p>
-                                    <span className='text-xs text-gray-500'>Yesterday</span>
-                                </div>
-                            </li>
-                        </ul>
-                        <Link
-                            to='#'
-                            className='block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors'
-                            onClick={() => setIsOpen(false)}
-                        >
-                            View All Notifications
-                        </Link>
+                <div className='absolute right-[-100px] sm:right-0 mt-3 flex h-auto max-h-[480px] w-[300px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg z-50 sm:w-[350px]'>
+                    <div className='flex items-center justify-between pb-3 mb-3 border-b border-gray-100'>
+                        <h5 className='text-lg font-semibold text-gray-800'>
+                            Notification
+                        </h5>
                     </div>
-                </>
+                    <ul className='flex flex-col h-auto overflow-y-auto no-scrollbar gap-1'>
+                        <li className='flex gap-3 rounded-lg border-b border-gray-50 p-3 hover:bg-gray-50 transition-colors'>
+                            <div className='flex items-center justify-center w-10 h-10 rounded-full bg-brand-50 text-brand-500 flex-shrink-0'>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin='round' strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div className='block text-left'>
+                                <p className='text-sm text-gray-800 mb-1'>
+                                    <span className='font-medium'>Appointment reminder</span>: You have a checkup tomorrow at 10:00 AM.
+                                </p>
+                                <span className='text-xs text-gray-500'>2 hours ago</span>
+                            </div>
+                        </li>
+                        <li className='flex gap-3 rounded-lg border-b border-gray-50 p-3 hover:bg-gray-50 transition-colors text-left font-normal'>
+                            <div className='flex items-center justify-center w-10 h-10 rounded-full bg-brand-50 text-brand-500 flex-shrink-0'>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div className='block'>
+                                <p className='text-sm text-gray-800 mb-1'>
+                                    <span className='font-medium'>Profile updated</span>: Your contact information has been successfully updated.
+                                </p>
+                                <span className='text-xs text-gray-500'>Yesterday</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <Link
+                        to='#'
+                        className='block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors'
+                        onClick={() => setIsOpen(false)}
+                    >
+                        View All Notifications
+                    </Link>
+                </div>
             )}
         </div>
     );
