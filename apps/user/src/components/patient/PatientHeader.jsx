@@ -46,9 +46,20 @@ const PatientHeader = () => {
 
                     {/* Mobile Logo */}
                     <Link to='/patient' className='lg:hidden'>
-                        <span className='text-lg font-bold text-brand-500'>
-                            Primera Dental
-                        </span>
+                        <img
+                            className='dark:hidden'
+                            src='/images/logo/logo.svg'
+                            alt='Logo'
+                            width={150}
+                            height={40}
+                        />
+                        <img
+                            className='hidden dark:block'
+                            src='/images/logo/logo-dark.svg'
+                            alt='Logo'
+                            width={150}
+                            height={40}
+                        />
                     </Link>
                 </div>
 
@@ -59,12 +70,12 @@ const PatientHeader = () => {
                     <div className='relative'>
                         <button
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className='flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900'
+                            className='flex items-center text-gray-700 dropdown-toggle'
                         >
-                            <div className='flex items-center justify-center w-10 h-10 rounded-full bg-brand-100 text-brand-600 font-bold text-sm'>
+                            <span className='mr-3 overflow-hidden rounded-full h-11 w-11 bg-brand-100 flex items-center justify-center text-brand-600 font-bold text-sm'>
                                 {user?.full_name?.[0]?.toUpperCase() || 'U'}
-                            </div>
-                            <span className='hidden sm:block font-medium truncate max-w-[120px]'>
+                            </span>
+                            <span className='hidden sm:block mr-1 font-medium truncate max-w-[120px] text-theme-sm'>
                                 {user?.full_name?.split(' ')[0] || 'User'}
                             </span>
                             <svg className={`stroke-gray-500 transition-transform duration-200 flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} width='18' height='20' viewBox='0 0 18 20' fill='none' xmlns='http://www.w3.org/2000/svg'>

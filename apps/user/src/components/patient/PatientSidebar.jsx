@@ -140,7 +140,7 @@ const HorizontalDots = ({ className }) => (
         <path
             fillRule='evenodd'
             clipRule='evenodd'
-            d='M5.99902 10.4951C6.82745 10.4951 7.49902 11.1667 7.49902 11.9951V12.0051C7.49902 12.8335 6.82745 13.5051 5.99902 13.5051C5.1706 13.5051 4.49902 12.8335 4.49902 12.0051V11.9951C4.49902 11.1667 5.1706 10.4951 5.99902 10.4951ZM17.999 10.4951C18.8275 10.4951 19.499 11.1667 19.499 11.9951V12.0051C19.499 12.8335 18.8275 13.5051 17.999 13.5051C17.1706 13.5051 16.499 12.8335 16.499 12.0051V11.9951C16.499 11.1667 17.1706 10.4951 17.999 10.4951ZM13.499 11.9951C13.499 11.1667 12.8275 10.4951 11.999 10.4951C11.1706 10.4951 10.499 11.1667 10.499 11.9951V12.0051C10.499 12.8335 11.1706 13.5051 11.999 13.5051C12.8275 13.5051 13.499 12.8335 13.499 12.0051V11.9951Z'
+            d='M5.99902 10.4951C6.82745 10.4951 7.49902 11.1667 7.49902 11.9951V12.0051C7.49902 12.8335 6.82745 13.5051 5.99902 13.5051C5.1706 13.5051 4.49902 12.8335 4.49902 12.0051V11.9951C4.49902 11.1667 5.1706 10.4951 5.99902 10.4951ZM17.999 10.4951C18.8275 10.4951 19.499 11.1667 19.499 11.9951V12.0051C19.499 12.8335 18.8275 13.5051 17.999 13.5051C17.1706 13.5051 16.499 12.8335 16.499 12.0051V11.9951C16.499 11.1667 17.1706 10.4951 17.999 10.4951ZM13.499 11.9951C13.499 11.1667 12.8275 10.4951 11.999 10.4951C11.1706 10.4951 10.499 11.1667 10.499 11.9951V12.0051C10.499 12.8335 11.1706 13.5051 11.999 13.5051C12.8275 13.5051 13.499 12.0051V11.9951Z'
             fill='currentColor'
         />
     </svg>
@@ -185,7 +185,7 @@ const PatientSidebar = () => {
 
     return (
         <aside
-            className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+            className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 pb-4 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
                 ${
                     isExpanded || isMobileOpen
                         ? 'w-[290px]'
@@ -206,15 +206,31 @@ const PatientSidebar = () => {
                         : 'justify-start'
                 }`}
             >
-                <Link to='/patient' className='flex items-center gap-2'>
+                <Link to='/patient'>
                     {isExpanded || isHovered || isMobileOpen ? (
-                        <span className='text-xl font-bold text-brand-500'>
-                            Primera Dental
-                        </span>
+                        <>
+                            <img
+                                className='dark:hidden'
+                                src='/images/logo/logo.svg'
+                                alt='Logo'
+                                width={150}
+                                height={40}
+                            />
+                            <img
+                                className='hidden dark:block'
+                                src='/images/logo/logo-dark.svg'
+                                alt='Logo'
+                                width={150}
+                                height={40}
+                            />
+                        </>
                     ) : (
-                        <span className='text-xl font-bold text-brand-500'>
-                            PD
-                        </span>
+                        <img
+                            src='/images/logo/logo-icon.svg'
+                            alt='Logo'
+                            width={32}
+                            height={32}
+                        />
                     )}
                 </Link>
             </div>
@@ -222,7 +238,7 @@ const PatientSidebar = () => {
             {/* Nav */}
             <div className='flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar'>
                 <nav className='mb-6'>
-                    <div className='flex flex-col gap-4'>
+                    <div className='flex flex-col'>
                         <div>
                             <h2
                                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
@@ -237,7 +253,7 @@ const PatientSidebar = () => {
                                     <HorizontalDots className='size-6' />
                                 )}
                             </h2>
-                            <ul className='flex flex-col gap-4'>
+                            <ul className='flex flex-col gap-1'>
                                 {navItems.map((nav) => (
                                     <li key={nav.name}>
                                         <Link
@@ -246,6 +262,10 @@ const PatientSidebar = () => {
                                                 isActive(nav.path)
                                                     ? 'menu-item-active'
                                                     : 'menu-item-inactive'
+                                            } ${
+                                                !isExpanded && !isHovered
+                                                    ? 'lg:justify-center'
+                                                    : 'lg:justify-start'
                                             }`}
                                         >
                                             <span
