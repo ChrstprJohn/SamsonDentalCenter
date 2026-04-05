@@ -57,6 +57,7 @@ export const appointmentsData = [
         service: 'Routine Checkup',
         date: 'Oct 24, 2024',
         time: '10:00 AM',
+        endTime: '11:00 AM',
         status: 'Approved',
     },
     {
@@ -70,6 +71,7 @@ export const appointmentsData = [
         service: 'Braces Adjustment',
         date: 'Oct 20, 2024',
         time: '02:30 PM',
+        endTime: '04:00 PM',
         status: 'Approved',
     },
     {
@@ -83,6 +85,7 @@ export const appointmentsData = [
         service: 'Tooth Extraction',
         date: 'Oct 15, 2024',
         time: '09:00 AM',
+        endTime: '09:45 AM',
         status: 'Cancelled',
         rejectionReason: 'Clinic requested cancellation due to schedule conflict.',
     },
@@ -97,6 +100,7 @@ export const appointmentsData = [
         service: 'Gum Treatment',
         date: 'Nov 05, 2024',
         time: '11:15 AM',
+        endTime: '12:00 PM',
         status: 'Pending',
     },
     {
@@ -110,6 +114,7 @@ export const appointmentsData = [
         service: 'Teeth Whitening',
         date: 'Nov 12, 2024',
         time: '04:00 PM',
+        endTime: '05:30 PM',
         status: 'Pending',
     },
 ];
@@ -142,9 +147,15 @@ const MyAppointments = () => {
                                 <TableRow>
                                     <TableCell
                                         isHeader
+                                        className='px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 min-w-[120px]'
+                                    >
+                                        Date
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
                                         className='px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 min-w-[150px]'
                                     >
-                                        Date & Time
+                                        Time
                                     </TableCell>
                                     <TableCell
                                         isHeader
@@ -183,15 +194,15 @@ const MyAppointments = () => {
                             <TableBody className='divide-y divide-gray-100 dark:divide-white/[0.05]'>
                                 {appointmentsData.map((app) => (
                                     <TableRow key={app.id}>
+                                        <TableCell className='px-4 py-3 text-start min-w-[120px]'>
+                                            <span className='block font-medium text-gray-800 text-theme-sm dark:text-white/90'>
+                                                {app.date}
+                                            </span>
+                                        </TableCell>
                                         <TableCell className='px-4 py-3 text-start min-w-[150px]'>
-                                            <div className='flex flex-col sm:flex-row sm:items-center sm:gap-3'>
-                                                <span className='font-medium text-gray-800 text-theme-sm dark:text-white/90'>
-                                                    {app.date}
-                                                </span>
-                                                <span className='text-gray-500 text-theme-xs dark:text-gray-400'>
-                                                    {app.time}
-                                                </span>
-                                            </div>
+                                            <span className='block text-gray-500 text-theme-sm dark:text-gray-400'>
+                                                {app.time} - {app.endTime}
+                                            </span>
                                         </TableCell>
                                         <TableCell className='px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400'>
                                             {app.service}
@@ -267,6 +278,47 @@ const MyAppointments = () => {
                                 ))}
                             </TableBody>
                         </Table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-white/[0.05]">
+                        <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg dark:bg-white/[0.03] dark:text-gray-300 dark:border-white/[0.05] hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            Previous
+                        </button>
+
+                        <div className="hidden md:flex items-center gap-1">
+                            <button className="w-8 h-8 flex items-center justify-center text-sm font-medium rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-500">
+                                1
+                            </button>
+                            <button className="w-8 h-8 flex items-center justify-center text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/[0.05] transition-colors">
+                                2
+                            </button>
+                            <button className="w-8 h-8 flex items-center justify-center text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/[0.05] transition-colors">
+                                3
+                            </button>
+                            <span className="w-8 h-8 flex items-center justify-center text-sm text-gray-500 dark:text-gray-400">
+                                ...
+                            </span>
+                            <button className="w-8 h-8 flex items-center justify-center text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/[0.05] transition-colors">
+                                8
+                            </button>
+                            <button className="w-8 h-8 flex items-center justify-center text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/[0.05] transition-colors">
+                                9
+                            </button>
+                            <button className="w-8 h-8 flex items-center justify-center text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/[0.05] transition-colors">
+                                10
+                            </button>
+                        </div>
+
+                        <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg dark:bg-white/[0.03] dark:text-gray-300 dark:border-white/[0.05] hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
+                            Next
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </ComponentCard>

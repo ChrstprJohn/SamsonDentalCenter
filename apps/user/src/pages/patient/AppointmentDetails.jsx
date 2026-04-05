@@ -31,7 +31,7 @@ const getAppointmentData = (id) => {
         service: found?.service || 'Routine Checkup',
         date: found?.date || 'Oct 24, 2024',
         time: found?.time || '10:00 AM',
-        endTime: '11:00 AM', // Dummy static
+        endTime: found?.endTime || '11:00 AM',
         duration: '1 Hour', // Dummy static
         status: mappedStatus,
         rejectionReason: rejectionReason,
