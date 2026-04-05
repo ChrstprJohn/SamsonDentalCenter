@@ -57,7 +57,7 @@ export const appointmentsData = [
         service: 'Routine Checkup',
         date: 'Oct 24, 2024',
         time: '10:00 AM',
-        status: 'Scheduled',
+        status: 'Approved',
     },
     {
         id: 'APP-002',
@@ -70,7 +70,7 @@ export const appointmentsData = [
         service: 'Braces Adjustment',
         date: 'Oct 20, 2024',
         time: '02:30 PM',
-        status: 'Completed',
+        status: 'Approved',
     },
     {
         id: 'APP-003',
@@ -84,6 +84,7 @@ export const appointmentsData = [
         date: 'Oct 15, 2024',
         time: '09:00 AM',
         status: 'Cancelled',
+        rejectionReason: 'Clinic requested cancellation due to schedule conflict.',
     },
     {
         id: 'APP-004',
@@ -109,7 +110,7 @@ export const appointmentsData = [
         service: 'Teeth Whitening',
         date: 'Nov 12, 2024',
         time: '04:00 PM',
-        status: 'Scheduled',
+        status: 'Pending',
     },
 ];
 
@@ -221,13 +222,9 @@ const MyAppointments = () => {
                                             <Badge
                                                 size='sm'
                                                 color={
-                                                    app.status === 'Scheduled'
-                                                        ? 'primary'
-                                                        : app.status ===
-                                                          'Completed'
+                                                    app.status === 'Approved'
                                                         ? 'success'
-                                                        : app.status ===
-                                                          'Cancelled'
+                                                        : app.status === 'Cancelled'
                                                         ? 'error'
                                                         : 'warning'
                                                 }

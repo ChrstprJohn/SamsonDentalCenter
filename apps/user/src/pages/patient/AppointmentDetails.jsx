@@ -9,17 +9,15 @@ import { appointmentsData } from './MyAppointments';
 const getAppointmentData = (id) => {
     const found = appointmentsData.find(a => a.id === id);
     
-    // Map list statuses to our strict 3 (Approved, Pending, Rejected)
+    // Map list statuses directly
     let mappedStatus = 'Pending';
     let rejectionReason = null;
     
     if (found) {
-        if (found.status === 'Scheduled' || found.status === 'Completed') mappedStatus = 'Approved';
+        mappedStatus = found.status || 'Pending';
         if (found.status === 'Cancelled') {
-            mappedStatus = 'Rejected';
-            rejectionReason = 'Patient requested cancellation.';
+            rejectionReason = found.rejectionReason || 'Patient requested cancellation.';
         }
-        if (found.status === 'Pending') mappedStatus = 'Pending';
     }
 
     return {
@@ -35,8 +33,8 @@ const getAppointmentData = (id) => {
         time: found?.time || '10:00 AM',
         endTime: '11:00 AM', // Dummy static
         duration: '1 Hour', // Dummy static
-        status: 'Pending',
-        rejectionReason: null, // e.g., 'Schedule conflict.'
+        status: mappedStatus,
+        rejectionReason: rejectionReason,
         description: 'Routine checkup and general cleaning. Patient requested special attention to lower molars due to recent sensitivity.',
         preTreatmentNotes: [
             'Please arrive 10 minutes early to fill out any necessary forms.',
@@ -126,7 +124,7 @@ const AppointmentDetails = () => {
                                     color={
                                         app.status === 'Approved' ? 'success' :
                                         app.status === 'Pending' ? 'warning' :
-                                        app.status === 'Rejected' || app.status === 'Cancelled' ? 'error' : 'primary'
+                                        app.status === 'Cancelled' ? 'error' : 'primary'
                                     }
                                 >
                                     {app.status}
@@ -150,9 +148,9 @@ const AppointmentDetails = () => {
                                         This appointment requires confirmation from our clinic. We will notify you once approved.
                                     </p>
                                 )}
-                                {app.status === 'Rejected' && (
+                                {app.status === 'Cancelled' && (
                                     <p className="text-sm font-medium text-error-700 dark:text-error-500 bg-error-50 dark:bg-error-500/10 px-4 py-3 rounded-xl border border-error-100 dark:border-error-500/20 text-center xl:text-right w-full">
-                                        Reason: {app.rejectionReason || 'No reason provided.'}
+                                        Cancellation Reason: {app.rejectionReason || 'No reason provided.'}
                                     </p>
                                 )}
                                 {app.status === 'Approved' && (
@@ -227,7 +225,7 @@ const AppointmentDetails = () => {
                         <div>
                             <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7 font-outfit">Manage Appointment</h3>
                             <div className="flex flex-col gap-3">
-                                {app.status !== 'Cancelled' && app.status !== 'Completed' && (
+                                {app.status !== 'Cancelled' && app.status !== 'Completed' ? (
                                     <>
                                         <button className="w-full px-4 py-3 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors flex justify-center items-center gap-2 shadow-theme-xs">
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -244,7 +242,13 @@ const AppointmentDetails = () => {
                                             Cancel Appointment
                                         </button>
                                     </>
-                                )}
+                                ) : app.status === 'Cancelled' ? (
+                                    <div className="text-center p-5 rounded-xl border border-gray-100 bg-gray-50/50 dark:bg-white/[0.02] dark:border-white/[0.05]">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                                            This appointment is cancelled. <br />You can <button className="text-brand-500 hover:text-brand-600 font-medium transition-colors" onClick={() => navigate('/patient/appointments')}>book a new one</button> or <button className="text-brand-500 hover:text-brand-600 font-medium transition-colors" onClick={() => setActiveTab('contact')}>contact us</button>.
+                                        </p>
+                                    </div>
+                                ) : null}
                             </div>
                         </div>
                     </div>
