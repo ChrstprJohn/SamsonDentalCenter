@@ -70,13 +70,13 @@ const MyAppointments = () => {
     // Client-side search against service / dentist / date
     const filtered = search.trim()
         ? appointments.filter((a) => {
-              const q = search.toLowerCase();
-              return (
-                  (a.service || '').toLowerCase().includes(q) ||
-                  (a.dentist || '').toLowerCase().includes(q) ||
-                  (formatDate(a.date) || '').toLowerCase().includes(q)
-              );
-          })
+            const q = search.toLowerCase();
+            return (
+                (a.service || '').toLowerCase().includes(q) ||
+                (a.dentist || '').toLowerCase().includes(q) ||
+                (formatDate(a.date) || '').toLowerCase().includes(q)
+            );
+        })
         : appointments;
 
     const toggleDropdown = (id) => setOpenDropdown(openDropdown === id ? null : id);
@@ -108,11 +108,10 @@ const MyAppointments = () => {
                 <button
                     key={num}
                     onClick={() => goToPage(num)}
-                    className={`w-8 h-8 flex items-center justify-center text-sm font-medium rounded-lg transition-colors ${
-                        num === page
+                    className={`w-8 h-8 flex items-center justify-center text-sm font-medium rounded-lg transition-colors ${num === page
                             ? 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-500'
                             : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/[0.05]'
-                    }`}
+                        }`}
                 >
                     {num}
                 </button>
