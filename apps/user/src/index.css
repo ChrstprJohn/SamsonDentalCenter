@@ -1,1 +1,103 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap")
+layer(base);
+
 @import 'tailwindcss';
+
+@theme {
+    --font-*: initial;
+    --font-outfit: Outfit, sans-serif;
+
+    --breakpoint-2xsm: 375px;
+    --breakpoint-xsm: 425px;
+
+    --color-brand-25: #f2f7ff;
+    --color-brand-50: #ecf3ff;
+    --color-brand-100: #dde9ff;
+    --color-brand-200: #c2d6ff;
+    --color-brand-300: #9cb9ff;
+    --color-brand-400: #7592ff;
+    --color-brand-500: #465fff;
+    --color-brand-600: #3641f5;
+    --color-brand-700: #2a31d8;
+    --color-brand-800: #252dae;
+    --color-brand-900: #262e89;
+    --color-brand-950: #161950;
+
+    --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1),
+        0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+    --shadow-theme-lg: 0px 12px 16px -4px rgba(16, 24, 40, 0.08),
+        0px 4px 6px -2px rgba(16, 24, 40, 0.03);
+    --shadow-theme-sm: 0px 1px 3px 0px rgba(16, 24, 40, 0.1),
+        0px 1px 2px 0px rgba(16, 24, 40, 0.06);
+    --shadow-theme-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+
+    --z-index-1: 1;
+    --z-index-9: 9;
+    --z-index-99: 99;
+    --z-index-999: 999;
+    --z-index-9999: 9999;
+    --z-index-99999: 99999;
+    --z-index-999999: 999999;
+}
+
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
+}
+
+/* ── Sidebar Menu Utilities ── */
+@utility menu-item {
+    @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm;
+}
+
+@utility menu-item-active {
+    @apply bg-brand-50 text-brand-500;
+}
+
+@utility menu-item-inactive {
+    @apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700;
+}
+
+@utility menu-item-icon-active {
+    @apply text-brand-500;
+}
+
+@utility menu-item-icon-size {
+    & svg {
+        @apply !size-6;
+    }
+}
+
+@utility menu-item-icon-inactive {
+    @apply text-gray-500 group-hover:text-gray-700;
+}
+
+
+@utility menu-dropdown-item {
+    @apply relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium;
+}
+
+@utility menu-dropdown-item-active {
+    @apply bg-brand-50 text-brand-500;
+}
+
+@utility menu-dropdown-item-inactive {
+    @apply text-gray-700 hover:bg-gray-100;
+}
+
+@utility no-scrollbar {
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

@@ -2,13 +2,13 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Layouts
 import PublicLayout from '../layouts/PublicLayout';
-
+import PatientPortalLayout from '../layouts/PatientPortalLayout';
 
 // Route utils
 import ProtectedRoute from './ProtectedRoute';
 import ScrollToTop from './ScrollToTop';
 
-// Auth pages (existing ✅)
+// Auth pages
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 
@@ -34,7 +34,7 @@ import ContactPage from '../pages/public/ContactPage';
 // Guest booking (Module 05)
 import GuestBookingPage from '../pages/guest/GuestBookingPage';
 
-import UserBookingPage from '../pages/patient/UserBookingPage';
+// Patient pages
 import PatientDashboard from '../pages/patient/PatientDashboard';
 
 const AppRoutes = () => {
@@ -124,23 +124,19 @@ const AppRoutes = () => {
                     element={<WaitlistClaimPage />}
                 />
 
-                {/* ── Standalone Patient Booking (Full Page) ── */}
-                    <Route
-                        path='/patient/book'
-                        element={
-                            <ProtectedRoute>
-                                <UserBookingPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path='/patient'
-                        element={
-                            <ProtectedRoute>
-                                <PatientDashboard />
-                            </ProtectedRoute>
-                        }
-                    />
+                {/* ── Patient Portal (Sidebar Layout) ── */}
+                <Route
+                    path='/patient'
+                    element={
+                        <ProtectedRoute>
+                            <PatientPortalLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route index element={<PatientDashboard />} />
+                    <Route path='appointments' element={<PatientDashboard />} />
+                    <Route path='profile' element={<div className="text-gray-500 text-center py-12">Profile page coming soon...</div>} />
+                </Route>
 
                 {/* ── Catch-all ── */}
                 <Route
