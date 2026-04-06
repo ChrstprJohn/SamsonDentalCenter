@@ -14,6 +14,7 @@ import {
     SERVICE_TIER,
     APPROVAL_STATUS,
     APPOINTMENT_SOURCE,
+    CLINIC_CONFIG,
 } from '../utils/constants.js';
 import { getTodayPH } from '../utils/timezone.js';
 import { addMinutesToTime } from '../utils/time.js';
