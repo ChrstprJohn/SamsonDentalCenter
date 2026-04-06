@@ -50,8 +50,8 @@ const UserBookingSuccess = ({ result, onReset }) => {
                 </p>
             </div>
 
-            {/* Request Detail Cards: Optimized Grid for Side-by-Side Mobile */}
-            <div className={`grid ${isDualSelection ? 'grid-cols-2 lg:grid-cols-2' : 'grid-cols-1 max-w-2xl'} gap-3 sm:gap-6 mb-8`}>
+            {/* Request Detail Cards: Optimized Grid - Full width for single, Side-by-Side for Dual */}
+            <div className={`grid ${isDualSelection ? 'grid-cols-2 lg:grid-cols-2' : 'grid-cols-1 w-full'} gap-3 sm:gap-6 mb-8`}>
                 {/* Primary Request Card */}
                 {hasBooking && (
                     <div className="p-4 sm:p-6 border border-gray-200 rounded-[1.5rem] sm:rounded-2xl dark:border-gray-800 bg-white dark:bg-gray-900/50 shadow-sm flex flex-col h-full overflow-hidden">
