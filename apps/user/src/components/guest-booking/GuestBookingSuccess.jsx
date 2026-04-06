@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Mail, Loader2, MailWarning, Clock, Hash } from 'lucide-react';
 
@@ -6,9 +6,19 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
     const navigate = useNavigate();
     const [resending, setResending] = useState(false);
     const [resendStatus, setResendStatus] = useState(null);
+    const [cooldown, setCooldown] = useState(0);
+
+    // Countdown effect for the resend button
+    useEffect(() => {
+        if (cooldown <= 0) return;
+        const timer = setInterval(() => {
+            setCooldown((prev) => prev - 1);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [cooldown]);
 
     const handleResend = async () => {
-        if (!booking?.resendVerification) return;
+        if (!booking?.resendVerification || cooldown > 0) return;
         setResending(true);
         setResendStatus(null);
         
@@ -18,9 +28,16 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
         );
         
         setResending(false);
-        setResendStatus(res);
         
-        setTimeout(() => setResendStatus(null), 5000);
+        if (res?.success) {
+            setResendStatus({ success: true, message: "Verification email resent!" });
+            setCooldown(300); // 5 minutes block
+        } else {
+            setResendStatus(res);
+        }
+        
+        // Remove status message after 10 seconds to keep UI clean
+        setTimeout(() => setResendStatus(null), 10000);
     };
 
     return (
@@ -96,15 +113,19 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
                 <div className='mb-5 sm:mb-8 text-center'>
                     <button
                         onClick={handleResend}
-                        disabled={resending}
+                        disabled={resending || cooldown > 0}
                         className='inline-flex items-center justify-center gap-1 sm:gap-1.5 text-[11px] sm:text-[13px] font-bold text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 transition-colors disabled:opacity-50 tracking-wide uppercase'
                     >
                         {resending ? (
                             <Loader2 className='w-3 h-3 sm:w-3.5 sm:h-3.5 animate-spin' />
+                        ) : cooldown > 0 ? (
+                            <Clock className='w-3 h-3 sm:w-3.5 sm:h-3.5' />
                         ) : (
                             <Mail className='w-3 h-3 sm:w-3.5 sm:h-3.5' />
                         )}
-                        Didn't get the email? Resend
+                        {cooldown > 0 
+                            ? `Resend again in ${Math.floor(cooldown / 60)}:${(cooldown % 60).toString().padStart(2, '0')}`
+                            : "Didn't get the email? Resend"}
                     </button>
                     
                     {resendStatus && (
