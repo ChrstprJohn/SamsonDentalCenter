@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthersMode, onNext, onBack }) => {
     const { user } = useAuth();
     const [errors, setErrors] = useState({});
-    
+
     // Internal state for name parts (synced with formData for "Someone Else")
     const [nameParts, setNameParts] = useState({
         first: formData.booked_for_first_name || '',
@@ -32,7 +32,7 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
         if (book_for_others) {
             if (!nameParts.first?.trim()) newErrors.first = 'First name is required.';
             if (!nameParts.last?.trim()) newErrors.last = 'Last name is required.';
-            
+
             if (formData.booked_for_email?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.booked_for_email)) {
                 newErrors.email = 'Please enter a valid email address.';
             }
@@ -68,7 +68,7 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
         const fullName = [updatedParts.first, updatedParts.middle, updatedParts.last, updatedParts.suffix]
             .filter(Boolean)
             .join(' ');
-        
+
         onUpdate({
             [`booked_for_${part}_name`]: value,
             booked_for_name: fullName
@@ -106,22 +106,20 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
                 <button
                     type='button'
                     onClick={() => setBookForOthersMode(false)}
-                    className={`px-6 py-2 sm:px-8 sm:py-2.5 rounded-xl text-[12px] sm:text-[13px] font-bold transition-all duration-300 uppercase tracking-[0.1em] ${
-                        !book_for_others
+                    className={`px-6 py-2 sm:px-8 sm:py-2.5 rounded-xl text-[12px] sm:text-[13px] font-bold transition-all duration-300 uppercase tracking-[0.1em] ${!book_for_others
                             ? 'bg-white dark:bg-gray-800 text-brand-600 dark:text-brand-400 shadow-theme-sm ring-1 ring-black/5 dark:ring-white/5'
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                    }`}
+                        }`}
                 >
                     Myself
                 </button>
                 <button
                     type='button'
                     onClick={() => setBookForOthersMode(true)}
-                    className={`px-6 py-2 sm:px-8 sm:py-2.5 rounded-xl text-[12px] sm:text-[13px] font-bold transition-all duration-300 uppercase tracking-[0.1em] ${
-                        book_for_others
+                    className={`px-6 py-2 sm:px-8 sm:py-2.5 rounded-xl text-[12px] sm:text-[13px] font-bold transition-all duration-300 uppercase tracking-[0.1em] ${book_for_others
                             ? 'bg-white dark:bg-gray-800 text-brand-600 dark:text-brand-400 shadow-theme-sm ring-1 ring-black/5 dark:ring-white/5'
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                    }`}
+                        }`}
                 >
                     Others
                 </button>
@@ -129,7 +127,7 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
 
             {/* Premium Card Container */}
             <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-theme-sm overflow-hidden'>
-                
+
                 {!book_for_others ? (
                     /* CASE: MYSELF */
                     <section className="animate-in fade-in slide-in-from-top-2 duration-500">
@@ -178,75 +176,84 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
                 ) : (
                     /* CASE: SOMEONE ELSE */
                     <section className="animate-in fade-in slide-in-from-top-2 duration-500">
-                        {/* Section: Personal Details */}
-                        <div>
-                            <div className="px-6 py-6 sm:px-10 flex items-center gap-3">
+                        {/* Section: Patient Details */}
+                        <section>
+                            <div className="px-6 py-6 sm:px-10 flex items-center gap-3 border-b border-gray-50 dark:border-gray-800/50 mb-6">
                                 <UserCircle size={20} className="text-brand-500" />
                                 <h3 className="text-sm sm:text-base font-bold text-gray-800 dark:text-white/90 uppercase tracking-widest leading-none">Patient Details</h3>
                             </div>
 
                             <div className="px-6 pb-10 sm:px-10 space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                                    {/* Name Breakdown Logic */}
-                                    <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                        <div>
-                                            <label className={labelClasses}>First Name *</label>
-                                            <input
-                                                type='text'
-                                                value={nameParts.first}
-                                                onChange={(e) => handleNamePartChange('first', e.target.value)}
-                                                placeholder='John'
-                                                className={getInputClasses(errors.first_name)}
-                                            />
-                                            {errors.first_name && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.first_name}</p>}
-                                        </div>
-                                        <div>
-                                            <label className={labelClasses}>Last Name *</label>
-                                            <input
-                                                type='text'
-                                                value={nameParts.last}
-                                                onChange={(e) => handleNamePartChange('last', e.target.value)}
-                                                placeholder='Doe'
-                                                className={getInputClasses(errors.last_name)}
-                                            />
-                                            {errors.last_name && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.last_name}</p>}
-                                        </div>
-                                        <div>
-                                            <label className={labelClasses}>Middle Name</label>
-                                            <input
-                                                type='text'
-                                                value={nameParts.middle}
-                                                onChange={(e) => handleNamePartChange('middle', e.target.value)}
-                                                placeholder='Optional'
-                                                className={getInputClasses()}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className={labelClasses}>Suffix</label>
-                                            <input
-                                                type='text'
-                                                value={nameParts.suffix}
-                                                onChange={(e) => handleNamePartChange('suffix', e.target.value)}
-                                                placeholder='Jr., III'
-                                                className={getInputClasses()}
-                                            />
-                                        </div>
+                                <div className="grid grid-cols-2 gap-x-6 sm:gap-x-12 gap-y-8">
+                                    <div>
+                                        <label className={labelClasses}>First Name <span className='text-brand-500'>*</span></label>
+                                        <input
+                                            type='text'
+                                            value={nameParts.first}
+                                            onChange={(e) => handleNamePartChange('first', e.target.value)}
+                                            placeholder='John'
+                                            className={getInputClasses(errors.first_name)}
+                                        />
+                                        {errors.first_name && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.first_name}</p>}
                                     </div>
+                                    <div>
+                                        <label className={labelClasses}>Last Name <span className='text-brand-500'>*</span></label>
+                                        <input
+                                            type='text'
+                                            value={nameParts.last}
+                                            onChange={(e) => handleNamePartChange('last', e.target.value)}
+                                            placeholder='Doe'
+                                            className={getInputClasses(errors.last_name)}
+                                        />
+                                        {errors.last_name && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.last_name}</p>}
+                                    </div>
+                                    <div>
+                                        <label className={labelClasses}>Middle Name <span className="opacity-40 font-normal italic text-[9px]">(optional)</span></label>
+                                        <input
+                                            type='text'
+                                            value={nameParts.middle}
+                                            onChange={(e) => handleNamePartChange('middle', e.target.value)}
+                                            placeholder='Optional'
+                                            className={getInputClasses()}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className={labelClasses}>Suffix <span className="opacity-40 font-normal italic text-[9px]">(optional)</span></label>
+                                        <input
+                                            type='text'
+                                            value={nameParts.suffix}
+                                            onChange={(e) => handleNamePartChange('suffix', e.target.value)}
+                                            placeholder='Jr., III'
+                                            className={getInputClasses()}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
 
+                        {/* Section: Contact Information */}
+                        <section>
+                            <div className="px-6 py-6 sm:px-10 flex items-center gap-3 border-b border-gray-50 dark:border-gray-800/50 mb-6">
+                                <Contact size={20} className="text-brand-500" />
+                                <h3 className="text-sm sm:text-base font-bold text-gray-800 dark:text-white/90 uppercase tracking-widest leading-none">Contact Information</h3>
+                            </div>
+
+                            <div className="px-6 pb-10 sm:px-10 space-y-6">
+                                <div className="grid grid-cols-2 gap-x-6 sm:gap-x-12 gap-y-8">
                                     {/* Email Address (Pre-filled and Locked to User) */}
                                     <div>
-                                        <label className={labelClasses}>Notification Email <span className="opacity-40 font-normal italic text-[9px]">(primary)</span></label>
+                                        <label className={labelClasses}>Email Address <span className='text-brand-500'>*</span></label>
                                         <div className="relative group">
-                                            <div className='h-11 w-full rounded-lg border px-4 py-2.5 text-sm bg-slate-50 dark:bg-white/[0.02] border-slate-200 dark:border-gray-800 text-slate-500 dark:text-white/40 flex items-center shadow-theme-xs cursor-not-allowed'>
-                                                {user?.email}
+                                            <div className='h-11 w-full rounded-lg border px-4 py-2.5 text-sm bg-slate-50 dark:bg-white/[0.02] border-slate-200 dark:border-gray-800 text-slate-500 dark:text-white/40 flex items-center shadow-theme-xs cursor-not-allowed overflow-hidden'>
+                                                <span className="truncate w-full">{user?.email}</span>
                                             </div>
-                                            <Mail size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 opacity-50" />
+                                            <Mail size={14} className="hidden sm:block absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 opacity-50" />
                                         </div>
                                     </div>
 
                                     {/* Phone Number */}
                                     <div>
-                                        <label className={labelClasses}>Phone Number <span className="opacity-40 font-normal italic text-[9px]">(optional)</span></label>
+                                        <label className={labelClasses}>Phone Number <span className='text-brand-500'>*</span></label>
                                         <div className="relative group">
                                             <input
                                                 type='tel'
@@ -255,13 +262,13 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
                                                 placeholder='09171234567'
                                                 className={getInputClasses(errors.phone)}
                                             />
-                                            <Phone size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-400 transition-colors" />
+                                            <Phone size={14} className="hidden sm:block absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-400 transition-colors" />
                                         </div>
                                         {errors.phone && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.phone}</p>}
                                     </div>
                                 </div>
 
-                                 {/* Information Banner (Someone Else) */}
+                                {/* Information Banner (Someone Else) */}
                                 <div className="mt-8 bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100/50 dark:border-amber-500/10 rounded-2xl p-6 sm:p-8 animate-in zoom-in-95 duration-500 overflow-hidden">
                                     <div className="flex flex-col gap-4">
                                         <div className="flex items-center gap-4">
@@ -276,7 +283,7 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </section>
                     </section>
                 )}
             </div>

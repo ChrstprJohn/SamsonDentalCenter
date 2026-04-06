@@ -177,7 +177,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
 
                             {/* Phone Number */}
                             <div>
-                                <label className={labelClasses}>Phone <span className='text-brand-500'>*</span></label>
+                                <label className={labelClasses}>Phone Number <span className='text-brand-500'>*</span></label>
                                 <input
                                     type='tel'
                                     value={formData.phone}
