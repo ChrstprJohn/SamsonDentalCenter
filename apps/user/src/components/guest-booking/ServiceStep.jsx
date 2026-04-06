@@ -15,7 +15,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, onUpdateFields }) =>
             setSpecializedService(service);
             return;
         }
-        onSelect(service.id, service.name, service.tier);
+        onSelect(service.id, service.name, service.tier, service.duration_minutes);
         if (onUpdateFields) {
             onUpdateFields({ date: '', time: '' });
         }
@@ -127,18 +127,18 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, onUpdateFields }) =>
             )}
 
             {/* Navigation */}
-            <div className='flex justify-end pt-6 border-t border-gray-100 dark:border-gray-700'>
+            <div className='flex justify-end pt-6 sm:pt-8 border-t border-gray-100 dark:border-gray-700'>
                 <button
                     onClick={onNext}
                     disabled={!selectedServiceId}
-                    className='bg-brand-500 hover:bg-brand-600 active:scale-95
-                               text-white font-bold px-10 py-4 rounded-2xl
+                    className='w-full sm:w-auto bg-brand-500 hover:bg-brand-600 active:scale-95
+                               text-white font-black px-6 py-3.5 sm:px-10 sm:py-4 rounded-2xl
                                transition-all shadow-theme-md disabled:opacity-30 
                                disabled:cursor-not-allowed disabled:active:scale-100
-                               flex items-center gap-2 text-base'
+                               flex items-center justify-center gap-2 text-[14px] sm:text-base uppercase tracking-widest'
                 >
-                    Continue to Schedule
-                    <ArrowRight size={20} />
+                    Continue to Date & Time
+                    <ArrowRight size={20} className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
             </div>
 

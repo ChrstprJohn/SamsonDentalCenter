@@ -113,7 +113,7 @@ const GuestBookingWizard = ({ booking }) => {
                     {currentStep === 'service' && (
                         <ServiceStep
                             selectedServiceId={formData.service_id}
-                            onSelect={(id, name) => updateFields({ service_id: id, service_name: name })}
+                            onSelect={(id, name, tier, duration) => updateFields({ service_id: id, service_name: name, service_duration: duration })}
                             onUpdateFields={updateFields}
                             onNext={nextStep}
                         />

@@ -9,7 +9,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         first: formData.first_name || '',
         last: formData.last_name || '',
         middle: formData.middle_name || '',
-        suffix: formData.suffix || ''
+        suffix: formData.suffix_name || ''
     });
 
     const validate = () => {
@@ -206,19 +206,19 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
             </div>
 
             {/* Navigation Footer */}
-            <div className='flex justify-between items-center mt-12 pt-8 border-t border-gray-100 dark:border-gray-800'>
+            <div className='flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-4 sm:gap-0 mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-100 dark:border-gray-800'>
                 <button
                     onClick={onBack}
-                    className='text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-sm px-6 py-3 transition-colors uppercase tracking-widest'
+                    className='w-full sm:w-auto text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[13px] sm:text-sm px-6 py-3 sm:px-8 transition-colors uppercase tracking-widest'
                 >
                     Back
                 </button>
                 <button
                     onClick={handleNext}
-                    className='bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-10 py-4 rounded-2xl transition-all shadow-theme-md flex items-center gap-2.5 text-base uppercase tracking-widest'
+                    className='w-full sm:w-auto bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-2 sm:gap-2.5 text-[14px] sm:text-base uppercase tracking-widest'
                 >
-                    Review
-                    <ArrowRight size={20} />
+                    Continue to Review
+                    <ArrowRight size={20} className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
             </div>
         </div>
