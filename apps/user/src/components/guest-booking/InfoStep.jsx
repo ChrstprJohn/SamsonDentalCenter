@@ -189,15 +189,15 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             </div>
                         </div>
 
-                        {/* Information Banner */}
+                        {/* Information Banner (Exclusive Guest Communication) */}
                         <div className="mt-8 bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100/50 dark:border-brand-500/10 rounded-2xl p-5 flex items-start gap-4">
                             <div className="w-10 h-10 rounded-xl bg-white dark:bg-gray-800 shadow-theme-xs flex items-center justify-center text-brand-500 shrink-0">
                                 <Info size={20} />
                             </div>
                             <div className="space-y-1">
-                                <h4 className="text-[13px] font-bold text-gray-900 dark:text-white uppercase tracking-wider">Please ensure accuracy</h4>
-                                <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
-                                    The details you provide above are vital as they serve as our primary means of communication regarding your **appointment status, reminders, and important updates**.
+                                <h4 className="text-[13px] font-bold text-gray-900 dark:text-white uppercase tracking-wider leading-none">Please double-check your email address</h4>
+                                <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed font-medium mt-1">
+                                    Since you are booking as a guest, the address provided above is our **exclusive way** to send your appointment confirmation, clinic approvals, and important status updates.
                                 </p>
                             </div>
                         </div>
