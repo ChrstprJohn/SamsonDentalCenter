@@ -147,6 +147,7 @@ const GuestBookingWizard = ({ booking }) => {
                             formData={formData}
                             onSubmit={submit}
                             onBack={prevStep}
+                            onEdit={goToStep}
                             submitting={submitting}
                             error={error}
                         />
