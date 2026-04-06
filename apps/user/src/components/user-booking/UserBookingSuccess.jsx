@@ -191,7 +191,7 @@ const UserBookingSuccess = ({ result, onReset }) => {
                         onReset();
                         navigate('/patient/book');
                     }}
-                    className='bg-sky-500 hover:bg-sky-600 text-white font-medium px-6 py-2.5 rounded-xl transition-colors shadow-lg shadow-sky-500/25'
+                    className='bg-brand-500 hover:bg-brand-600 text-white font-medium px-6 py-2.5 rounded-xl transition-colors shadow-lg shadow-brand-500/25'
                 >
                     Book Another Appointment
                 </button>

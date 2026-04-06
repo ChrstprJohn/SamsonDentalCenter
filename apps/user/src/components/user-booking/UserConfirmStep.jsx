@@ -117,7 +117,7 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                     <div className='flex items-center gap-3'>
                         <Stethoscope
                             size={18}
-                            className='text-sky-500 shrink-0'
+                            className='text-brand-500 shrink-0'
                         />
                         <span className='text-sm text-slate-500'>Service</span>
                         <span className='text-sm font-medium text-slate-900'>
@@ -127,7 +127,7 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                     <div className='flex items-center gap-3'>
                         <Calendar
                             size={18}
-                            className='text-sky-500 shrink-0'
+                            className='text-brand-500 shrink-0'
                         />
                         <span className='text-sm text-slate-500'>Date</span>
                         <span className='text-sm font-medium text-slate-900'>{formData.date}</span>
@@ -135,7 +135,7 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                     <div className='flex items-center gap-3'>
                         <Clock
                             size={18}
-                            className='text-sky-500 shrink-0'
+                            className='text-brand-500 shrink-0'
                         />
                         <span className='text-sm text-slate-500'>Time</span>
                         <span className='text-sm font-medium text-slate-900'>{formData.time}</span>
@@ -144,7 +144,7 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                         <div className='flex items-center gap-3 mt-1'>
                             <User
                                 size={18}
-                                className='text-sky-500 shrink-0'
+                                className='text-brand-500 shrink-0'
                             />
                             <span className='text-sm text-slate-500'>Dentist</span>
                             <span className='text-sm font-medium text-slate-900'>
@@ -218,15 +218,15 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                 <>
                     <div className='space-y-4 mb-6'>
                         {/* Booking Card */}
-                        <div className='bg-sky-50 border border-sky-200 rounded-xl p-4'>
-                            <h4 className='text-sm font-semibold text-sky-900 mb-3 flex items-center gap-2'>
+                        <div className='bg-brand-50 border border-brand-200 rounded-xl p-4'>
+                            <h4 className='text-sm font-semibold text-brand-900 mb-3 flex items-center gap-2'>
                                 <span className='text-lg'>⏳</span> Appointment (For Approval)
                             </h4>
                             <div className='space-y-2 ml-6'>
                                 <div className='flex items-center gap-2 text-sm'>
                                     <Stethoscope
                                         size={16}
-                                        className='text-sky-600'
+                                        className='text-brand-600'
                                     />
                                     <span className='text-slate-500'>Service:</span>
                                     <span className='font-medium'>{formData.service_name}</span>
@@ -234,7 +234,7 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                                 <div className='flex items-center gap-2 text-sm'>
                                     <Calendar
                                         size={16}
-                                        className='text-sky-600'
+                                        className='text-brand-600'
                                     />
                                     <span className='text-slate-500'>Date:</span>
                                     <span className='font-medium'>{formData.date}</span>
@@ -242,10 +242,10 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                                 <div className='flex items-center gap-2 text-sm'>
                                     <Clock
                                         size={16}
-                                        className='text-sky-600'
+                                        className='text-brand-600'
                                     />
                                     <span className='text-slate-500'>Time:</span>
-                                    <span className='font-medium text-sky-600'>
+                                    <span className='font-medium text-brand-600'>
                                         {formData.time}
                                     </span>
                                 </div>
@@ -253,7 +253,7 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                                     <div className='flex items-center gap-2 text-sm mt-1'>
                                         <User
                                             size={16}
-                                            className='text-sky-600'
+                                            className='text-brand-600'
                                         />
                                         <span className='text-slate-500'>Dentist:</span>
                                         <span className='font-medium'>Specific Specialist Selected</span>
@@ -413,8 +413,8 @@ const UserConfirmStep = ({ formData, book_for_others, onSubmit, onBack, submitti
                 <button
                     onClick={onSubmit}
                     disabled={submitting || error}
-                    className='bg-sky-500 hover:bg-sky-600 text-white font-semibold px-8 py-3 rounded-xl 
-                               transition-colors shadow-lg shadow-sky-500/25 disabled:opacity-50 disabled:cursor-not-allowed 
+                    className='bg-brand-500 hover:bg-brand-600 text-white font-semibold px-8 py-3 rounded-xl 
+                               transition-colors shadow-lg shadow-brand-500/25 disabled:opacity-50 disabled:cursor-not-allowed 
                                flex items-center gap-2'
                 >
                     {submitting ? (

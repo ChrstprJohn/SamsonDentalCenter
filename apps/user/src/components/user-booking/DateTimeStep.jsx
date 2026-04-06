@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Lock, X, AlertCircle, RefreshCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Lock, X, AlertCircle, RefreshCw, Clock, Plus, ArrowRight, Hourglass, Calendar, MousePointer2, Loader2 } from 'lucide-react';
 import { api } from '../../utils/api';
 import useSlots from '../../hooks/useSlots';
 import JoinWaitlistModal from './JoinWaitlistModal';
@@ -24,9 +24,14 @@ const DateTimeStep = ({
     const [waitlistSlot, setWaitlistSlot] = useState(null);
     // ✅ NEW: Add validation error state
     const [validationError, setValidationError] = useState(null);
+    const [pendingSlot, setPendingSlot] = useState(null);
 
     // ✅ Slot holding for user booking (passed from parent)
-    const { activeHold, holdSlot, releaseHold, formattedTime, holdLoading, holdError } = slotHold;
+    const { activeHold, holdSlot, releaseHold, formattedTime, holdLoading, holdError, timeRemaining } = slotHold;
+
+    // VISIBILITY LIMIT: 3 columns * 6 rows = 18 slots
+    const INITIAL_VISIBLE_COUNT = 18;
+    const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
 
     // Simple date picker state — starts from today
     const today = useMemo(() => {
@@ -42,42 +47,38 @@ const DateTimeStep = ({
         [today],
     );
 
-    const [weekStart, setWeekStart] = useState(() => {
+    const [viewDate, setViewDate] = useState(() => {
+        if (selectedDate) return new Date(selectedDate);
         const d = new Date(today);
-        d.setDate(d.getDate() - d.getDay()); // Start of current week (Sunday)
+        d.setDate(1);
         return d;
     });
 
-    // Generate 7 days for the visible week
-    const weekDays = useMemo(() => {
-        return Array.from({ length: 7 }, (_, i) => {
-            const d = new Date(weekStart);
-            d.setDate(d.getDate() + i);
-            return d;
-        });
-    }, [weekStart]);
-
-    const navigateWeek = (direction) => {
-        setWeekStart((prev) => {
+    const navigateMonth = (direction) => {
+        setViewDate((prev) => {
             const next = new Date(prev);
-            next.setDate(next.getDate() + (direction === 'next' ? 7 : -7));
-
-            // ✅ FIXED: Only allow forward if within max booking range
-            // ✅ FIXED: Only allow backward if the week end date (Saturday) would be before today
-            if (direction === 'next' && next > maxDate) {
-                return prev;
-            }
-            // Calculate end of week (Saturday) for backward navigation check
-            const nextWeekEnd = new Date(next);
-            nextWeekEnd.setDate(nextWeekEnd.getDate() + 6); // Saturday of that week
-
-            if (direction === 'prev' && nextWeekEnd < today) {
-                return prev;
-            }
-
+            next.setMonth(prev.getMonth() + (direction === 'next' ? 1 : -1));
             return next;
         });
     };
+
+    const calendarDays = useMemo(() => {
+        const year = viewDate.getFullYear();
+        const month = viewDate.getMonth();
+        const firstDayOfMonth = new Date(year, month, 1);
+        const lastDayOfMonth = new Date(year, month + 1, 0);
+        const startOfGrid = new Date(firstDayOfMonth);
+        startOfGrid.setDate(1 - firstDayOfMonth.getDay());
+        const totalCells = Math.ceil((lastDayOfMonth.getDate() + firstDayOfMonth.getDay()) / 7) * 7;
+        const days = [];
+        for (let i = 0; i < totalCells; i++) {
+            const d = new Date(startOfGrid);
+            d.setDate(startOfGrid.getDate() + i);
+            d.setHours(0,0,0,0);
+            days.push(d);
+        }
+        return days;
+    }, [viewDate]);
 
     // ✅ Fetch specialists if service is specialized
     useEffect(() => {
@@ -124,61 +125,47 @@ const DateTimeStep = ({
     );
 
     const handleDateClick = (date) => {
-        // Create a copy and normalize to midnight local time
-        const d = new Date(date);
-        d.setHours(0, 0, 0, 0);
-
-        const key = formatDateKey(d);
-
-        // ✅ Ensure the calendar jumps to the week of the selected date
-        const newWeekStart = new Date(d);
-        newWeekStart.setDate(d.getDate() - d.getDay()); // Sunday of that week
-        newWeekStart.setHours(0, 0, 0, 0);
-        setWeekStart(newWeekStart);
-
-        handleTimeUpdate({ date: key, time: '' }); // Reset time when date changes
+        const key = formatDateKey(date);
+        // Toggle Logic: If clicking the SAME date that's already selected, clear it
+        if (selectedDate === key) {
+            releaseHold();
+            handleTimeUpdate({ date: '', time: '' });
+        } else {
+            handleTimeUpdate({ date: key, time: '' });
+        }
+        setVisibleCount(INITIAL_VISIBLE_COUNT);
     };
 
     // ✅ Handle both available and full slot clicks
     // ✅ UPDATED: Added toggle behavior + slot holding
     const handleTimeClick = async (slotData) => {
         const isAvailable = slotData.available > 0;
+        setPendingSlot(slotData.rawTime);
+        try {
+            if (isAvailable) {
+                // Available slot - toggle behavior
+                const isCurrentlySelected = selectedTime === slotData.rawTime;
 
-        if (isAvailable) {
-            // Available slot - toggle behavior
-            const isCurrentlySelected = selectedTime === slotData.rawTime;
-
-            if (isCurrentlySelected) {
-                // ✅ Toggle OFF: Click again to remove booking
-                // ✅ NEW: Call releaseHold on backend
-                await releaseHold();
-                handleTimeUpdate({
-                    time: '',
-                    // Keep waitlist selection if it exists
-                });
-            } else {
-                // ✅ Toggle ON: Select this available slot for booking
-                // ✅ NEW: Call holdSlot to create a 5-minute hold on backend
-                if (!serviceId || !selectedDate) return;
-
-                const holdResult = await holdSlot(serviceId, selectedDate, slotData.rawTime, formData?.dentist_id);
-
-                if (holdResult?.success) {
-                    // ✅ Update time only after hold is confirmed
-                    handleTimeUpdate({
-                        time: slotData.rawTime,
-                        // Keep waitlist selection if it exists - do NOT clear it
-                    });
-                } else if (holdResult?.error === 'SLOT_TAKEN') {
-                    // ✅ Slot was taken — auto-refresh so user sees updated availability
-                    refetchSlots();
-                    return;
+                if (isCurrentlySelected) {
+                    await releaseHold();
+                    handleTimeUpdate({ time: '' });
+                } else {
+                    if (!serviceId || !selectedDate) return;
+                    const holdResult = await holdSlot(serviceId, selectedDate, slotData.rawTime, formData?.dentist_id);
+                    if (holdResult?.success) {
+                        handleTimeUpdate({ time: slotData.rawTime });
+                    } else if (holdResult?.error === 'SLOT_TAKEN') {
+                        refetchSlots();
+                        return;
+                    }
                 }
+            } else {
+                // Full slot — show waitlist modal (don't call API yet)
+                setWaitlistSlot(slotData);
+                setShowWaitlistModal(true);
             }
-        } else {
-            // Full slot — show waitlist modal (don't call API yet)
-            setWaitlistSlot(slotData);
-            setShowWaitlistModal(true);
+        } finally {
+            setPendingSlot(null);
         }
     };
 
@@ -258,10 +245,37 @@ const DateTimeStep = ({
     };
 
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const canGoPrev = viewDate.getMonth() > today.getMonth() || viewDate.getFullYear() > today.getFullYear();
+    const canGoNext = viewDate < maxDate;
 
-    // Check if week navigation buttons should be disabled
-    const canGoPrev = weekStart > today;
-    const canGoNext = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000) <= maxDate;
+    // Calculation for Progress Bar
+    const holdProgress = useMemo(() => {
+        if (!activeHold || timeRemaining === null) return 0;
+        const totalDurationSeconds = (activeHold.expires_in_minutes || 15) * 60;
+        return Math.min(100, Math.max(0, (timeRemaining / totalDurationSeconds) * 100));
+    }, [activeHold, timeRemaining]);
+
+    const formatHoldDetail = () => {
+        if (!activeHold) return '';
+        const date = new Date(activeHold.date);
+        const dayName = dayNames[date.getDay()];
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${dayName}, ${monthNames[date.getMonth()]} ${date.getDate()} at ${activeHold.time}`;
+    };
+
+    // Filtered Slots for "Load More"
+    const visibleSlots = useMemo(() => {
+        if (!slots) return [];
+        return slots
+            .filter(slot => {
+                const isHeldByMe = activeHold?.time === slot.rawTime && selectedDate === activeHold.date;
+                // For user booking, we show ALL slots (including full ones) because they can join waitlist
+                return true; 
+            })
+            .slice(0, visibleCount);
+    }, [slots, visibleCount, activeHold, selectedDate]);
+
+    const hasMoreSlots = slots && slots.length > visibleCount;
 
     // ✅ NEW: Handle specialist change (reset time and release hold)
     const handleSpecialistChange = async (dentistId) => {
@@ -284,8 +298,8 @@ const DateTimeStep = ({
                 onClick={() => handleSpecialistChange('')}
                 className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
                     !formData?.dentist_id
-                        ? 'border-sky-500 bg-sky-50 shadow-sm'
-                        : 'border-slate-100 bg-white hover:border-sky-200'
+                        ? 'border-brand-500 bg-brand-50 shadow-sm'
+                        : 'border-slate-100 bg-white hover:border-brand-200'
                 }`}
             >
                 <div className='w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400'>
@@ -306,8 +320,8 @@ const DateTimeStep = ({
                         onClick={() => handleSpecialistChange(s.id)}
                         className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
                             formData?.dentist_id === s.id
-                                ? 'border-sky-500 bg-sky-50 shadow-sm'
-                                : 'border-slate-100 bg-white hover:border-sky-200'
+                                ? 'border-brand-500 bg-brand-50 shadow-sm'
+                                : 'border-slate-100 bg-white hover:border-brand-200'
                         }`}
                     >
                         {s.photo_url ? (
@@ -317,7 +331,7 @@ const DateTimeStep = ({
                                 className='w-10 h-10 rounded-full object-cover border border-slate-200'
                             />
                         ) : (
-                            <div className='w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 font-bold'>
+                            <div className='w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 font-bold'>
                                 {s.profile?.full_name?.charAt(0)}
                             </div>
                         )}
@@ -332,416 +346,228 @@ const DateTimeStep = ({
     );
 
     return (
-        <div>
-            <h2 className='text-xl font-bold text-slate-900 mb-2'>Pick Date & Time</h2>
-            <p className='text-slate-500 text-sm mb-6'>
-                Choose your preferred appointment date and time. {serviceTier === 'specialized' && 'Select a specific dentist or "Any Specialist" to see availability.'}
-            </p>
-
-            <div className={`flex flex-col ${serviceTier === 'specialized' ? 'md:flex-row' : ''} gap-8`}>
-                {/* 🎯 Specialist Sidebar (Only for specialized) */}
-                {serviceTier === 'specialized' && <SpecialistSidebar />}
-
-                {/* Main Content (Calendar + Slots) */}
-                <div className='flex-grow'>
-                    {/* Week navigation */}
-                    <div className='flex items-center justify-between mb-4'>
-                <button
-                    onClick={() => navigateWeek('prev')}
-                    disabled={!canGoPrev}
-                    className='p-2 hover:bg-slate-100 rounded-lg transition-colors
-                               disabled:opacity-30 disabled:cursor-not-allowed'
-                    title='Previous week'
-                >
-                    <ChevronLeft size={18} />
-                </button>
-                <span className='text-sm font-medium text-slate-700'>
-                    {weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                </span>
-                <div className='relative group'>
-                    <button
-                        onClick={() => navigateWeek('next')}
-                        disabled={!canGoNext}
-                        aria-label={
-                            !canGoNext
-                                ? `You can only book up to ${MAX_BOOKING_DAYS_AHEAD} days in advance`
-                                : 'Go to next week'
-                        }
-                        className='p-2 hover:bg-slate-100 rounded-lg transition-colors
-                                   disabled:opacity-30 disabled:cursor-not-allowed'
-                        title={
-                            !canGoNext
-                                ? `You can only book up to ${MAX_BOOKING_DAYS_AHEAD} days in advance`
-                                : 'Next week'
-                        }
-                    >
-                        <ChevronRight size={18} />
-                    </button>
-                    {/* Visual tooltip for disabled state */}
-                    {!canGoNext && (
-                        <div className='absolute bottom-full right-0 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg whitespace-nowrap shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none'>
-                            Max {MAX_BOOKING_DAYS_AHEAD} days ahead
-                            <div className='absolute top-full right-3 w-2 h-2 bg-slate-900 rotate-45 -mt-1'></div>
-                        </div>
-                    )}
-                </div>
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {/* Header Section */}
+            <div className='mb-8 sm:mb-10'>
+                <h2 className='text-3xl font-bold text-slate-900 dark:text-white mb-3 font-display tracking-tight uppercase'>
+                    Pick Date & Time
+                </h2>
+                <p className='text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-2xl leading-relaxed'>
+                    Choose your preferred appointment date and available time slot. {serviceTier === 'specialized' && 'Select a specific dentist or "Any Specialist" to see availability.'}
+                </p>
             </div>
 
-            {/* Day buttons */}
-            <div className='grid grid-cols-7 gap-2 mb-6'>
-                {weekDays.map((date) => {
-                    const key = formatDateKey(date);
-                    const isPast = date < today;
-                    const isSameDay = date.getTime() === today.getTime(); // ✅ NEW: Disable same-day bookings
-                    const isSelected = key === selectedDate;
-                    const isSunday = date.getDay() === 0;
-                    const isBeyondMax = date > maxDate;
-                    const isDisabled = isPast || isSunday || isBeyondMax || isSameDay; // ✅ NEW: Added isSameDay
-
-                    return (
-                        <button
-                            key={key}
-                            onClick={() => !isDisabled && handleDateClick(date)}
-                            disabled={isDisabled}
-                            className={`flex flex-col items-center p-2 rounded-xl text-xs transition-all ${
-                                isSelected
-                                    ? 'bg-sky-500 text-white ring-2 ring-sky-500/20'
-                                    : isDisabled
-                                      ? 'bg-slate-50 text-slate-300 cursor-not-allowed'
-                                      : 'bg-white border border-slate-100 hover:border-sky-200 text-slate-700 cursor-pointer'
-                            }`}
-                            title={
-                                isSameDay
-                                    ? 'Cannot book on the same day'
-                                    : isSunday
-                                      ? 'Clinic closed on Sundays'
-                                      : isPast
-                                        ? 'Date has passed'
-                                        : undefined
-                            }
-                        >
-                            <span className='font-medium'>{dayNames[date.getDay()]}</span>
-                            <span className={`text-lg font-bold ${isSelected ? 'text-white' : ''}`}>
-                                {date.getDate()}
-                            </span>
-                        </button>
-                    );
-                })}
-            </div>
-
-            {/* Time slots */}
-            {selectedDate && (
-                <div className='mb-8'>
-                    <div className='flex items-center justify-between mb-3'>
-                        <h3 className='text-sm font-semibold text-slate-700'>
-                            Available Times for{' '}
-                            <span className='font-bold text-slate-900'>
-                                {new Date(selectedDate).toLocaleDateString('en-US', {
-                                    month: 'long',
-                                    day: 'numeric',
-                                })}
-                            </span>
-                        </h3>
-                        {/* ✅ Refresh Button */}
-                        <button
-                            onClick={refetchSlots}
-                            disabled={slotsLoading}
-                            className='flex items-center gap-1 px-3 py-1 text-xs bg-sky-50 hover:bg-sky-100 text-sky-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-                        >
-                            <RefreshCw
-                                size={14}
-                                className={slotsLoading ? 'animate-spin' : ''}
-                            />
-                            Refresh
-                        </button>
-                    </div>
-
-                    {/* ✅ NEW: Hold Indicator with Countdown */}
-                    {activeHold && selectedDate === activeHold.date && (
-                        <div className='mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg'>
-                            <div className='flex items-start gap-2'>
-                                <Lock
-                                    size={16}
-                                    className='text-amber-600 mt-1 shrink-0'
-                                />
-                                <div className='grow'>
-                                    <p className='text-sm font-medium text-amber-900'>
-                                        🔒 Slot Reserved: {selectedDate} @ {activeHold.time}
-                                    </p>
-                                    <p className='text-xs text-amber-700 mt-1'>
-                                        Time remaining: <strong>{formattedTime}</strong>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ✅ NEW: Hold Error Banner */}
+            {/* ERROR / INFO Banners */}
+            {(holdError || validationError) && (
+                <div className='mb-6 space-y-3'>
                     {holdError && (
-                        <div className='mb-4 p-3 bg-red-50 border border-red-200 rounded-lg'>
-                            <div className='flex items-start gap-2'>
-                                <AlertCircle
-                                    size={16}
-                                    className='text-red-600 mt-0.5 shrink-0'
-                                />
-                                <p className='text-sm text-red-700'>{holdError}</p>
-                            </div>
+                        <div className='p-3.5 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-2xl flex gap-3'>
+                            <AlertCircle size={16} className='text-red-500 shrink-0' />
+                            <p className='text-xs text-red-700 dark:text-red-400 font-bold'>{holdError}</p>
                         </div>
                     )}
-
-                    {/* ✅ NEW: Validation Error Banner */}
                     {validationError && (
-                        <div className='mb-4 p-3 bg-red-50 border border-red-200 rounded-lg'>
-                            <div className='flex items-start gap-2'>
-                                <AlertCircle
-                                    size={16}
-                                    className='text-red-600 mt-0.5 shrink-0'
-                                />
-                                <p className='text-sm text-red-700'>{validationError}</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {slotsLoading ? (
-                        // Visual loading continuity with spinner
-                        <div className='flex items-center justify-center py-8'>
-                            <div className='flex flex-col items-center gap-2'>
-                                <div className='w-5 h-5 border-3 border-slate-200 border-t-sky-500 rounded-full animate-spin' />
-                                <p className='text-sm text-slate-400'>Checking availability...</p>
-                            </div>
-                        </div>
-                    ) : slots && slots.length > 0 ? (
-                        <div className='grid grid-cols-3 sm:grid-cols-5 gap-2'>
-                            {slots.map((slot) => {
-                                // ✅ Each slot object has: {time, rawTime, displayTime, available}
-                                // Available: available > 0 (show as clickable, blue border)
-                                // Full: available === 0 (show as clickable, gray, lock icon, opens waitlist modal)
-                                // ✅ NEW: Check if this slot is held by ME (this session)
-                                const isHeldByMe =
-                                    activeHold?.time === slot.rawTime &&
-                                    selectedDate === activeHold.date;
-
-                                // ✅ NEW: Effective availability: if I'm holding it, it's still available to me
-                                const effectiveAvailable = slot.available + (isHeldByMe ? 1 : 0);
-                                const isAvailable = effectiveAvailable > 0;
-
-                                const isSelectedForBooking = selectedTime === slot.rawTime;
-                                const isSelectedForWaitlist =
-                                    formData?.waitlist_time === slot.rawTime;
-
-                                return (
-                                    <button
-                                        key={slot.rawTime}
-                                        onClick={() => handleTimeClick(slot)}
-                                        title={
-                                            isAvailable
-                                                ? `${isSelectedForBooking ? 'Click to remove' : 'Click to book'} (${slot.available} dentist${slot.available > 1 ? 's' : ''})`
-                                                : isSelectedForWaitlist
-                                                  ? 'Click to remove from waitlist'
-                                                  : 'Full - Click to join waitlist'
-                                        }
-                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all relative ${
-                                            // ✅ NEW: Separate styling for booking vs waitlist selection
-                                            isSelectedForBooking && isAvailable
-                                                ? 'bg-sky-500 text-white ring-2 ring-sky-500/20'
-                                                : isSelectedForWaitlist && !isAvailable
-                                                  ? 'bg-amber-400 text-white ring-2 ring-amber-400/20'
-                                                  : isAvailable
-                                                    ? 'bg-white border border-slate-100 text-slate-700 hover:border-sky-200 hover:shadow-md cursor-pointer'
-                                                    : 'bg-slate-50 border border-slate-200 text-slate-600 opacity-60 hover:border-slate-300 cursor-pointer'
-                                        }`}
-                                    >
-                                        {slot.displayTime}
-                                        {/* Show lock icon for full slots */}
-                                        {!isAvailable && (
-                                            <Lock
-                                                size={12}
-                                                className={`absolute top-1 right-1 ${
-                                                    isSelectedForWaitlist
-                                                        ? 'text-white'
-                                                        : 'text-slate-400'
-                                                }`}
-                                            />
-                                        )}
-                                        {/* Show checkmark for selected booking slots */}
-                                        {isSelectedForBooking && isAvailable && (
-                                            <span className='absolute top-1 right-1 text-white font-bold'>
-                                                ✓
-                                            </span>
-                                        )}
-                                        {/* Show clock icon for selected waitlist slots */}
-                                        {isSelectedForWaitlist && !isAvailable && (
-                                            <span className='absolute top-1 right-1 text-white text-xs'>
-                                                ⏳
-                                            </span>
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div className='text-sm text-slate-500 py-4 bg-slate-50 rounded-xl px-4 flex flex-col gap-2'>
-                            <p>No slots for this date.</p>
-                            {/* ✅ NEW: Suggest next available date if provided by backend */}
-                            {nextAvailableDate && (
-                                <p className='text-sky-600 font-medium text-sm'>
-                                    Next available date:{' '}
-                                    <button
-                                        onClick={() =>
-                                            handleDateClick(new Date(nextAvailableDate))
-                                        }
-                                        className='underline hover:text-sky-700 transition-colors'
-                                    >
-                                        {new Date(nextAvailableDate).toLocaleDateString(
-                                            'en-US',
-                                            {
-                                                weekday: 'short',
-                                                month: 'short',
-                                                day: 'numeric',
-                                            },
-                                        )}
-                                    </button>
-                                </p>
-                            )}
-                            {!nextAvailableDate && <p>Try another day.</p>}
-                        </div>
-                    )}
-
-                    {/* Show info about full slots when they exist */}
-                    {selectedDate && slots && slots.some((s) => s.available === 0) && (
-                        <div className='mt-4 p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                            <p className='text-xs text-slate-600 flex items-center gap-2'>
-                                <Lock size={14} />
-                                <span>
-                                    <strong>Full slots</strong> (🔒) can't be booked directly, but
-                                    you can <strong>click to join the waitlist</strong> to be
-                                    notified when they open.
-                                </span>
-                            </p>
-                        </div>
-                    )}
-
-                    {/* ✅ UPDATED: Show both selections if they exist */}
-                    {selectedTime && (
-                        <div className='mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg'>
-                            <p className='text-sm text-blue-900 flex items-center justify-between'>
-                                <span>
-                                    ✅ <strong>Booking:</strong> {selectedDate} at {selectedTime}
-                                </span>
-                                <button
-                                    onClick={handleClearBooking}
-                                    className='text-blue-600 hover:text-blue-700 font-medium text-xs'
-                                    title='Clear booking selection'
-                                >
-                                    Clear
-                                </button>
-                            </p>
-                        </div>
-                    )}
-
-                    {/* ✅ NEW: Waitlist status banner - shows if user selected a waitlist slot */}
-                    {formData?.waitlist_time && (
-                        <div className='mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg'>
-                            <p className='text-sm text-amber-900 flex items-center justify-between'>
-                                <span>
-                                    ⏳ <strong>Waitlist:</strong> {formData.waitlist_date} at{' '}
-                                    {formData.waitlist_time}
-                                </span>
-                                <button
-                                    onClick={handleClearWaitlist}
-                                    className='text-amber-600 hover:text-amber-700 font-medium text-xs'
-                                    title='Clear waitlist selection'
-                                >
-                                    Clear
-                                </button>
-                            </p>
-                        </div>
-                    )}
-
-                    {/* ✅ NEW: Comprehensive selection summary at bottom */}
-                    {(selectedTime || formData?.waitlist_time) && (
-                        <div className='mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg'>
-                            <h4 className='font-semibold text-slate-900 text-sm mb-3'>
-                                📋 Your Selections
-                            </h4>
-                            <div className='space-y-2 text-sm'>
-                                {selectedTime && (
-                                    <div className='flex items-center justify-between p-2 bg-blue-50 border border-blue-100 rounded'>
-                                        <div className='flex items-center gap-2'>
-                                            <span className='text-lg'>✅</span>
-                                            <div>
-                                                <div className='font-medium text-slate-900'>
-                                                    Booking Appointment
-                                                </div>
-                                                <div className='text-xs text-slate-600'>
-                                                    {selectedDate} @ {selectedTime}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={handleClearBooking}
-                                            className='text-slate-400 hover:text-slate-600 transition-colors'
-                                            title='Remove booking selection'
-                                        >
-                                            <X size={16} />
-                                        </button>
-                                    </div>
-                                )}
-
-                                {formData?.waitlist_time && (
-                                    <div className='flex items-center justify-between p-2 bg-amber-50 border border-amber-100 rounded'>
-                                        <div className='flex items-center gap-2'>
-                                            <span className='text-lg'>⏳</span>
-                                            <div>
-                                                <div className='font-medium text-slate-900'>
-                                                    Waitlist
-                                                </div>
-                                                <div className='text-xs text-slate-600'>
-                                                    {formData.waitlist_date} @{' '}
-                                                    {formData.waitlist_time}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={handleClearWaitlist}
-                                            className='text-slate-400 hover:text-slate-600 transition-colors'
-                                            title='Remove waitlist selection'
-                                        >
-                                            <X size={16} />
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Tips based on selection */}
-                            <div className='mt-3 pt-3 border-t border-slate-200 text-xs text-slate-600 flex items-start gap-2'>
-                                <span className='text-sm leading-none'>💡</span>
-                                <div>
-                                    {selectedTime && formData?.waitlist_time ? (
-                                        <span>
-                                            You have <strong>both options selected</strong>. You'll
-                                            book the {selectedTime} slot and be added to the
-                                            waitlist for {formData.waitlist_time}.
-                                        </span>
-                                    ) : selectedTime ? (
-                                        <span>
-                                            You can still <strong>click a full slot</strong> to add
-                                            it to your waitlist options.
-                                        </span>
-                                    ) : formData?.waitlist_time ? (
-                                        <span>
-                                            You can still <strong>click an available slot</strong>{' '}
-                                            to book an appointment and keep this waitlist selection.
-                                        </span>
-                                    ) : null}
-                                </div>
-                            </div>
+                        <div className='p-3.5 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 rounded-2xl flex gap-3'>
+                            <AlertCircle size={16} className='text-amber-500 shrink-0' />
+                            <p className='text-xs text-amber-700 dark:text-amber-400 font-bold'>{validationError}</p>
                         </div>
                     )}
                 </div>
             )}
 
-            {/* ✅ UPDATED: Waitlist modal - now dumb UI, no API calls */}
+            {/* Specialist Selection (If specialized) */}
+            {serviceTier === 'specialized' && (
+                <div className="mb-10">
+                    <SpecialistSidebar />
+                </div>
+            )}
+
+            {/* SIDE-BY-SIDE Layout */}
+            <div className='grid grid-cols-1 lg:grid-cols-[1fr_0.8fr] gap-8 mb-10'>
+                
+                {/* Left Column: Calendar Grid */}
+                <div className='bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-theme-sm h-fit'>
+                    <div className='flex items-center justify-between mb-5'>
+                        <h3 className='text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'>
+                            <div className='p-1.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'><Calendar size={14} className='text-brand-500' /></div>
+                            {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        </h3>
+                        <div className='flex gap-1.5'>
+                            <button onClick={() => navigateMonth('prev')} disabled={!canGoPrev} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronLeft size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                            <button onClick={() => navigateMonth('next')} disabled={!canGoNext} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronRight size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                        </div>
+                    </div>
+                    <div className='grid grid-cols-7 gap-1 mb-2'>
+                        {dayNames.map(day => (<div key={day} className='text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center py-2'>{day}</div>))}
+                    </div>
+                    <div className='grid grid-cols-7 gap-1.5'>
+                        {calendarDays.map((date, idx) => {
+                            const key = formatDateKey(date);
+                            const isCurrentMonth = date.getMonth() === viewDate.getMonth();
+                            const isPast = date < today;
+                            const isToday = date.getTime() === today.getTime();
+                            const isSelected = key === selectedDate;
+                            const isDisabled = isPast || isToday || date.getDay() === 0 || date > maxDate;
+                            if (!isCurrentMonth) return <div key={idx} className="aspect-square" />;
+                            return (
+                                <button key={idx} onClick={() => !isDisabled && handleDateClick(date)} disabled={isDisabled} className={`relative flex flex-col items-center justify-center aspect-square rounded-xl transition-all duration-300 ${isSelected ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 scale-105 z-10' : isDisabled ? 'text-gray-300 dark:text-gray-700 cursor-not-allowed opacity-30 shadow-none bg-transparent border-2 border-slate-100/50 dark:border-gray-800/50' : 'bg-gray-50/50 dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-800 border-2 border-transparent hover:border-brand-200 dark:hover:border-brand-500/50 text-gray-700 dark:text-gray-300 shadow-theme-xs'}`}>
+                                    <span className={`text-[13px] sm:text-sm font-bold ${isSelected ? 'text-white' : ''}`}>{date.getDate()}</span>
+                                    {isToday && !isSelected && <div className="absolute bottom-1 sm:bottom-1.5 w-1 h-1 rounded-full bg-brand-500" />}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Right Column: Time Selection / Empty State */}
+                <div className='flex flex-col min-h-[400px]'>
+                    {!selectedDate ? (
+                        <div className='flex-grow bg-gray-50 dark:bg-white/[0.02] border border-dashed border-gray-200 dark:border-gray-800 rounded-3xl flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-500'>
+                            <div className='bg-white dark:bg-gray-800 w-14 h-14 rounded-2xl flex items-center justify-center shadow-theme-sm mb-5'><MousePointer2 size={28} className='text-brand-500' /></div>
+                            <h4 className='text-base font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight uppercase'>Pick a Date</h4>
+                            <p className='text-[12px] text-gray-500 dark:text-gray-400 max-w-[220px] leading-relaxed font-bold'>Select an available day from the calendar to see slots.</p>
+                        </div>
+                    ) : (
+                        <div className='animate-in fade-in slide-in-from-right-4 duration-500 h-full flex flex-col'>
+                            <div className='flex items-center justify-between mb-5'>
+                                <h3 className='text-[15px] font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'>
+                                    <div className='p-1.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'><Clock size={16} className='text-brand-500' /></div>
+                                    Available Times
+                                </h3>
+                                <button onClick={refetchSlots} disabled={slotsLoading} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={slotsLoading ? 'animate-spin' : ''} />Refresh</button>
+                            </div>
+
+                            {slotsLoading ? (
+                                <div className='grid grid-cols-2 xsm:grid-cols-3 gap-3'>{[1, 2, 3, 4, 5, 6].map(i => <div key={i} className='h-12 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-xl' />)}</div>
+                            ) : visibleSlots && visibleSlots.length > 0 ? (
+                                <>
+                                    <div className='grid grid-cols-2 xsm:grid-cols-3 gap-3 mb-6'>
+                                        {visibleSlots.map((slot) => {
+                                            const isHeldByMe = activeHold?.time === slot.rawTime && selectedDate === activeHold.date;
+                                            const isSelectedForBooking = selectedTime === slot.rawTime && !pendingSlot;
+                                            const isSelectedForWaitlist = formData?.waitlist_time === slot.rawTime;
+                                            const isAvailable = slot.available > 0 || isHeldByMe;
+
+                                            return (
+                                                <button 
+                                                    key={slot.rawTime} 
+                                                    onClick={() => handleTimeClick(slot)} 
+                                                    disabled={holdLoading && !isSelectedForBooking}
+                                                    title={slot.available > 0 ? `${slot.available} slots available` : 'Fully booked - Join waitlist'}
+                                                    className={`py-3 rounded-xl text-[12px] font-bold transition-all relative flex items-center justify-center ${
+                                                        isSelectedForBooking && isAvailable
+                                                        ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20 ring-4 ring-brand-500/10' 
+                                                        : isSelectedForWaitlist && !isAvailable
+                                                        ? 'bg-amber-400 text-white shadow-lg shadow-amber-400/20 ring-4 ring-amber-400/10'
+                                                        : isHeldByMe 
+                                                        ? 'bg-brand-50 dark:bg-brand-500/10 border-2 border-brand-200 text-brand-700 dark:text-brand-400' 
+                                                        : isAvailable
+                                                        ? 'bg-white dark:bg-white/[0.03] border-2 border-transparent hover:border-brand-200 dark:hover:border-brand-500/50 hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-theme-sm'
+                                                        : 'bg-transparent dark:bg-transparent border-2 border-slate-100 dark:border-gray-800 text-slate-400 dark:text-slate-600 opacity-60'
+                                                    }`}
+                                                >
+                                                    {pendingSlot === slot.rawTime && (isAvailable || isSelectedForBooking) ? (
+                                                        <Loader2 size={16} className={`animate-spin ${isSelectedForBooking ? 'text-white' : 'text-brand-500'}`} />
+                                                    ) : (
+                                                        <>
+                                                            {slot.displayTime}
+                                                            {!isAvailable && <Lock size={10} className={`absolute top-2 right-2 ${isSelectedForWaitlist ? 'text-white' : 'text-slate-400'}`} />}
+                                                            {isHeldByMe && !isSelectedForBooking && <Lock size={10} className='absolute top-2 right-2 text-brand-500' />}
+                                                        </>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    {hasMoreSlots && (
+                                        <button 
+                                            onClick={() => setVisibleCount(prev => prev + 18)}
+                                            className='mb-8 w-full py-3 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl text-[11px] font-black text-gray-500 hover:text-brand-500 hover:border-brand-200 dark:hover:border-brand-500/50 transition-all flex items-center justify-center gap-2 uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/30'
+                                        >
+                                            <Plus size={14} />
+                                            Show More Times
+                                        </button>
+                                    )}
+                                </>
+                            ) : (
+                                <div className='p-8 bg-gray-50 dark:bg-white/[0.02] rounded-2xl text-center border-2 border-dashed border-gray-200 dark:border-gray-800 flex-grow flex flex-col items-center justify-center leading-relaxed'><p className='text-gray-500 text-[14px] font-bold mb-2'>No available slots.</p>{nextAvailableDate && <button onClick={() => {const d = new Date(nextAvailableDate);setViewDate(new Date(d.getFullYear(), d.getMonth(), 1));handleDateClick(d);}} className='text-brand-500 text-[13px] font-black hover:underline underline-offset-4'>Try {new Date(nextAvailableDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</button>}</div>
+                            )}
+
+                            {/* DYNAMIC HOLD Status Indicator */}
+                            {activeHold && selectedDate === activeHold.date && (
+                                <div className='mt-auto p-4 bg-brand-50/50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 rounded-2xl animate-in slide-in-from-bottom duration-500'>
+                                    <div className='flex items-start gap-4'>
+                                        <div className='w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-theme-xs shrink-0'><Hourglass size={18} className='text-brand-500 animate-pulse' /></div>
+                                        <div className='grow'>
+                                            <p className='text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tight'>Slot Held</p>
+                                            <p className='text-[12px] text-slate-600 dark:text-slate-400 font-bold mt-0.5 leading-snug'>
+                                                Holding <span className="text-slate-900 dark:text-white">{formatHoldDetail()}</span>. Expires in <span className="text-brand-600 dark:text-brand-400">{formattedTime}</span>.
+                                            </p>
+                                            <div className='flex items-center gap-2 mt-2.5'>
+                                                <div className='h-1.5 flex-1 bg-gray-200 dark:bg-gray-700/50 rounded-full overflow-hidden'>
+                                                    <div className='h-full bg-brand-500 transition-all duration-1000 ease-linear' style={{ width: `${holdProgress}%` }} />
+                                                </div>
+                                                <span className='text-[10px] font-black text-brand-500 whitespace-nowrap uppercase italic'>
+                                                    {Math.ceil(holdProgress)}%
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* SELECTION SUMMARY (User-Specific) */}
+            {(selectedTime || formData?.waitlist_time) && (
+                <div className='mb-10 p-5 bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-theme-sm animate-in fade-in slide-in-from-bottom-4 duration-500'>
+                    <h4 className='text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4'>Your Selection Summary</h4>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                        {selectedTime && (
+                           <div className='flex items-center justify-between p-4 bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100/50 dark:border-brand-500/10 rounded-2xl'>
+                                <div className='flex items-center gap-3'>
+                                    <div className='w-10 h-10 rounded-xl bg-white dark:bg-brand-900/30 flex items-center justify-center text-brand-500 shadow-sm'>✅</div>
+                                    <div>
+                                        <p className='text-sm font-bold text-slate-900 dark:text-white'>Booking Confirmed</p>
+                                        <p className='text-xs text-slate-500 dark:text-slate-400'>{selectedDate} at {selectedTime}</p>
+                                    </div>
+                                </div>
+                                <button onClick={handleClearBooking} className='p-2 hover:bg-white dark:hover:bg-gray-800 rounded-lg text-slate-300 hover:text-red-500 transition-colors'><X size={16} /></button>
+                           </div>
+                        )}
+                        {formData?.waitlist_time && (
+                            <div className='flex items-center justify-between p-4 bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100/50 dark:border-amber-500/10 rounded-2xl'>
+                                <div className='flex items-center gap-3'>
+                                    <div className='w-10 h-10 rounded-xl bg-white dark:bg-amber-900/30 flex items-center justify-center text-amber-500 shadow-sm'>⏳</div>
+                                    <div>
+                                        <p className='text-sm font-bold text-slate-900 dark:text-white'>Waitlist Requested</p>
+                                        <p className='text-xs text-slate-500 dark:text-slate-400'>{formData.waitlist_date} at {formData.waitlist_time}</p>
+                                    </div>
+                                </div>
+                                <button onClick={handleClearWaitlist} className='p-2 hover:bg-white dark:hover:bg-gray-800 rounded-lg text-slate-300 hover:text-red-500 transition-colors'><X size={16} /></button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Navigation Footer */}
+            <div className='flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-4 sm:gap-0 pt-6 sm:pt-8 border-t border-gray-100 dark:border-gray-700'>
+                <button onClick={onBack} className='w-full sm:w-auto text-gray-400 hover:text-slate-900 dark:text-gray-500 dark:hover:text-white font-black text-[11px] px-8 py-4 transition-colors uppercase tracking-[0.2em]'>Back</button>
+                <button 
+                    onClick={handleNext} 
+                    disabled={!isValidSelection()} 
+                    className='w-full sm:w-auto bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-10 py-4.5 rounded-2xl transition-all shadow-xl shadow-brand-500/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-sm uppercase tracking-[0.1em]'
+                >
+                    Continue to Info
+                    <ArrowRight size={18} />
+                </button>
+            </div>
+
+            {/* Waitlist Modal */}
             {showWaitlistModal && waitlistSlot && (
                 <JoinWaitlistModal
                     serviceId={serviceId}
@@ -755,45 +581,6 @@ const DateTimeStep = ({
                     }}
                 />
             )}
-
-            {/* ✅ NEW: Validation Error Banner (GAP-1) */}
-            {validationError && (
-                <div className='bg-red-50 border-2 border-red-300 rounded-xl p-4 mb-6 flex items-start gap-3'>
-                    <AlertCircle
-                        size={20}
-                        className='text-red-600 shrink-0 mt-0.5'
-                    />
-                    <div>
-                        <p className='text-sm font-semibold text-red-900 mb-1'>
-                            Selection Required
-                        </p>
-                        <p className='text-sm text-red-800'>{validationError}</p>
-                    </div>
-                </div>
-            )}
-
-                </div>
-            </div>
-
-            {/* Navigation */}
-            <div className='flex justify-between'>
-                <button
-                    onClick={onBack}
-                    className='text-slate-500 hover:text-slate-700 font-medium text-sm px-4 py-2.5'
-                >
-                    ← Back
-                </button>
-                <button
-                    onClick={handleNext}
-                    // ✅ UPDATED: Allow proceed if user has EITHER regular time OR waitlist time
-                    disabled={!selectedDate || (!selectedTime && !formData?.waitlist_time)}
-                    className='bg-sky-500 hover:bg-sky-600 text-white font-semibold
-                               px-6 py-2.5 rounded-xl transition-colors
-                               disabled:opacity-50 disabled:cursor-not-allowed'
-                >
-                    Next: Your Info →
-                </button>
-            </div>
         </div>
     );
 };

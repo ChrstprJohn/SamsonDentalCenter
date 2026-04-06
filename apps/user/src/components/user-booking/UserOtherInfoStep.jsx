@@ -53,7 +53,7 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
                             type='button'
                             onClick={() => setBookForOthersMode(false)}
                             className={`flex-1 py-2 text-sm font-medium z-10 rounded-lg transition-colors ${
-                                !book_for_others ? 'text-sky-600' : 'text-slate-500 hover:text-slate-700'
+                                !book_for_others ? 'text-brand-600' : 'text-slate-500 hover:text-slate-700'
                             }`}
                         >
                             Myself
@@ -62,7 +62,7 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
                             type='button'
                             onClick={() => setBookForOthersMode(true)}
                             className={`flex-1 py-2 text-sm font-medium z-10 rounded-lg transition-colors ${
-                                book_for_others ? 'text-sky-600' : 'text-slate-500 hover:text-slate-700'
+                                book_for_others ? 'text-brand-600' : 'text-slate-500 hover:text-slate-700'
                             }`}
                         >
                             Someone Else
@@ -74,26 +74,26 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
                 <div className='space-y-5 animate-in fade-in slide-in-from-top-2 duration-300'>
                     {!book_for_others ? (
                         /* Case: Myself (Autofilled) */
-                        <div className='space-y-5 p-4 border border-sky-100 bg-sky-50/30 rounded-2xl'>
+                        <div className='space-y-5 p-4 border border-brand-100 bg-brand-50/30 rounded-2xl'>
                             <div>
-                                <label className='flex items-center gap-2 text-xs font-bold text-sky-700 uppercase tracking-wider mb-2'>
+                                <label className='flex items-center gap-2 text-xs font-bold text-brand-700 uppercase tracking-wider mb-2'>
                                     <User size={14} />
                                     Your Profile Name
                                 </label>
-                                <div className='px-4 py-3 bg-white border border-sky-100 rounded-xl text-sm text-slate-700 font-medium'>
+                                <div className='px-4 py-3 bg-white border border-brand-100 rounded-xl text-sm text-slate-700 font-medium'>
                                     {user?.full_name || user?.name || 'Authorized User'}
                                 </div>
                             </div>
                             <div>
-                                <label className='flex items-center gap-2 text-xs font-bold text-sky-700 uppercase tracking-wider mb-2'>
+                                <label className='flex items-center gap-2 text-xs font-bold text-brand-700 uppercase tracking-wider mb-2'>
                                     <Mail size={14} />
                                     Email Address
                                 </label>
-                                <div className='px-4 py-3 bg-white border border-sky-100 rounded-xl text-sm text-slate-500'>
+                                <div className='px-4 py-3 bg-white border border-brand-100 rounded-xl text-sm text-slate-500'>
                                     {user?.email}
                                 </div>
                             </div>
-                            <p className='text-[10px] text-sky-600 italic'>
+                            <p className='text-[10px] text-brand-600 italic'>
                                 * This appointment will be linked directly to your patient records.
                             </p>
                         </div>
@@ -150,8 +150,8 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
                 </button>
                 <button
                     onClick={handleNext}
-                    className='bg-sky-500 hover:bg-sky-600 text-white font-semibold px-10 py-3 rounded-xl 
-                               transition-all shadow-lg shadow-sky-500/25 active:scale-95'
+                    className='bg-brand-500 hover:bg-brand-600 text-white font-semibold px-10 py-3 rounded-xl 
+                               transition-all shadow-lg shadow-brand-500/25 active:scale-95'
                 >
                     Next Step
                 </button>

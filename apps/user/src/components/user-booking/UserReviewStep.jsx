@@ -67,7 +67,7 @@ const UserReviewStep = ({ formData, book_for_others, onNext, onBack }) => {
                     <h3 className='text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2'>
                         <User
                             size={16}
-                            className='text-sky-500'
+                            className='text-brand-500'
                         />
                         Your Details
                     </h3>
@@ -103,7 +103,7 @@ const UserReviewStep = ({ formData, book_for_others, onNext, onBack }) => {
                                     <>
                                         <Stethoscope
                                             size={16}
-                                            className='text-sky-500'
+                                            className='text-brand-500'
                                         />
                                         ✅ Confirmed Appointment
                                     </>
@@ -124,7 +124,7 @@ const UserReviewStep = ({ formData, book_for_others, onNext, onBack }) => {
                                 </div>
                                 <div className='text-sm'>
                                     <span className='text-slate-500'>Time: </span>
-                                    <span className='font-medium text-sky-600 text-lg'>
+                                    <span className='font-medium text-brand-600 text-lg'>
                                         {formData.time}
                                     </span>
                                 </div>
@@ -139,7 +139,7 @@ const UserReviewStep = ({ formData, book_for_others, onNext, onBack }) => {
                                     </div>
                                 )}
                                 <div
-                                    className={`text-xs font-medium mt-2 ${isSpecialized ? 'text-amber-600' : 'text-sky-600'
+                                    className={`text-xs font-medium mt-2 ${isSpecialized ? 'text-amber-600' : 'text-brand-600'
                                         }`}
                                 >
                                     Status:{' '}
@@ -202,7 +202,7 @@ const UserReviewStep = ({ formData, book_for_others, onNext, onBack }) => {
                                 <>
                                     <Stethoscope
                                         size={16}
-                                        className='text-sky-500'
+                                        className='text-brand-500'
                                     />
                                     Appointment Details
                                 </>
@@ -226,13 +226,13 @@ const UserReviewStep = ({ formData, book_for_others, onNext, onBack }) => {
                             {formData.dentist_id && (
                                 <div className='text-sm mt-1'>
                                     <span className='text-slate-500'>Dentist: </span>
-                                    <span className='font-medium text-slate-900 text-xs bg-sky-100 px-2 py-0.5 rounded-full'>
+                                    <span className='font-medium text-slate-900 text-xs bg-brand-100 px-2 py-0.5 rounded-full'>
                                         Specific Specialist Selected
                                     </span>
                                 </div>
                             )}
                             <div
-                                className={`text-xs font-medium mt-2 ${isSpecialized ? 'text-amber-600' : 'text-sky-600'
+                                className={`text-xs font-medium mt-2 ${isSpecialized ? 'text-amber-600' : 'text-brand-600'
                                     }`}
                             >
                                 Status:{' '}
@@ -409,8 +409,8 @@ const UserReviewStep = ({ formData, book_for_others, onNext, onBack }) => {
                 </button>
                 <button
                     onClick={onNext}
-                    className='bg-sky-500 hover:bg-sky-600 text-white font-semibold px-8 py-3 rounded-xl 
-                               transition-colors shadow-lg shadow-sky-500/25'
+                    className='bg-brand-500 hover:bg-brand-600 text-white font-semibold px-8 py-3 rounded-xl 
+                               transition-colors shadow-lg shadow-brand-500/25'
                 >
                     Next →
                 </button>

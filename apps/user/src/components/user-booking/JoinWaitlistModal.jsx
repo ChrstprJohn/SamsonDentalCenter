@@ -29,7 +29,7 @@ const JoinWaitlistModal = ({ serviceId, date, time, serviceName, onSuccess, onCl
                 <h3 className='text-lg font-bold text-slate-900 mb-4 flex items-center gap-2'>
                     <Clock
                         size={20}
-                        className='text-sky-500'
+                        className='text-brand-500'
                     />
                     Join Waitlist?
                 </h3>
@@ -70,8 +70,8 @@ const JoinWaitlistModal = ({ serviceId, date, time, serviceName, onSuccess, onCl
                     </button>
                     <button
                         onClick={handleJoinClick}
-                        className='flex-1 bg-sky-500 hover:bg-sky-600 text-white py-2.5 rounded-lg
-                                   font-semibold transition-colors shadow-lg shadow-sky-500/25'
+                        className='flex-1 bg-brand-500 hover:bg-brand-600 text-white py-2.5 rounded-lg
+                                   font-semibold transition-colors shadow-lg shadow-brand-500/25'
                     >
                         Join Waitlist
                     </button>

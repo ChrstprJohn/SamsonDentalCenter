@@ -40,24 +40,7 @@ const UserBookingPage = () => {
     if (!user) return null;
 
     return (
-        <div className='min-h-screen bg-white py-12 px-6'>
-            <div className='max-w-5xl mx-auto'>
-                {/* Exit Navigation */}
-                <div className="mb-12">
-                    <Link 
-                        to="/" 
-                        className="inline-flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.25em] text-slate-400 hover:text-slate-900 transition-all duration-300 group"
-                    >
-                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                        Exit
-                    </Link>
-                </div>
-
-                <div className='bg-white rounded-[40px] border border-slate-50 p-10 md:p-14 shadow-2xl shadow-slate-200/50 animate-in fade-in slide-in-from-bottom-6 duration-700'>
-                    <UserBookingWizard booking={booking} />
-                </div>
-            </div>
-        </div>
+        <UserBookingWizard booking={booking} />
     );
 };
 
