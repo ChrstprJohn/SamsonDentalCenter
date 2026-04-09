@@ -1,7 +1,6 @@
 import { BrowserRouter } from 'react-router-dom';
 import AppRoutes from './routes/AppRoutes';
 import useSmoothScroll from './hooks/useSmoothScroll';
-import ChatBot from './components/public/ChatBot.jsx';
 import { ServicesProvider } from './context/ServicesContext';
 
 const App = () => {
@@ -11,7 +10,6 @@ const App = () => {
         <BrowserRouter>
             <ServicesProvider>
                 <AppRoutes />
-                <ChatBot />
             </ServicesProvider>
         </BrowserRouter>
     );

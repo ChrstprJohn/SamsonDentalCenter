@@ -67,6 +67,21 @@ export const formatTime = (timeStr) => {
     return `${display}:${minute} ${period}`;
 };
 
+/**
+ * Format an ISO timestamp string → 'Oct 24, 2024, 10:00 AM'
+ */
+export const formatFullDateTime = (isoStr) => {
+    if (!isoStr) return '';
+    return new Date(isoStr).toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true,
+    });
+};
+
 // --- Hook ---
 
 const DEFAULT_LIMIT = 5;

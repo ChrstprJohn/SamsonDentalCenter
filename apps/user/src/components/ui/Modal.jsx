@@ -42,13 +42,13 @@ export const Modal = ({
 
     const contentClasses = isFullscreen
         ? 'w-full h-full'
-        : 'relative w-full rounded-3xl bg-white dark:bg-gray-900';
+        : 'relative w-full rounded-3xl bg-white dark:bg-gray-900 max-h-[90vh] flex flex-col overflow-hidden';
 
     return (
         <div className='fixed inset-0 flex items-center justify-center overflow-y-auto modal z-[999999]'>
             {!isFullscreen && (
                 <div
-                    className='fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]'
+                    className='fixed inset-0 h-full w-full bg-gray-900/60'
                     onClick={onClose}
                 ></div>
             )}
@@ -78,7 +78,7 @@ export const Modal = ({
                         </svg>
                     </button>
                 )}
-                <div>{children}</div>
+                <div className='flex-1 overflow-y-auto no-scrollbar'>{children}</div>
             </div>
         </div>
     );

@@ -32,7 +32,7 @@ This document summarizes the current implementation state, mapping rules, and pe
 
 - [ ] **Price Column in Table**: Add `₱ {Number(app.price).toLocaleString()}` to the [MyAppointments.jsx](file:///d:/webApp/PrimeraDental/apps/user/src/pages/patient/MyAppointments.jsx) table.
 - [ ] **Sort Direction Toggle**: Add an Asc/Desc button to [MyAppointments.jsx](file:///d:/webApp/PrimeraDental/apps/user/src/pages/patient/MyAppointments.jsx) (hook already supports `sort: 'asc'`).
-- [ ] **Booked-For Label**: Verify in [AppointmentDetails.jsx](file:///d:/webApp/PrimeraDental/apps/user/src/pages/patient/AppointmentDetails.jsx) that `raw.booked_for_name` correctly shows which dependent was booked for.
+- [x] **Booked-For Label**: Verify in [AppointmentDetails.jsx](file:///d:/webApp/PrimeraDental/apps/user/src/pages/patient/AppointmentDetails.jsx) that `raw.booked_for_name` correctly shows which dependent was booked for.
 - [ ] **Created At Date**: In details page, show the date/time the booking was first made (`appointment.created_at`).
 
 ---

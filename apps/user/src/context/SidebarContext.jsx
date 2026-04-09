@@ -41,6 +41,7 @@ export const SidebarProvider = ({ children }) => {
                 isHovered,
                 toggleSidebar,
                 toggleMobileSidebar,
+                setIsMobileOpen,
                 setIsHovered,
             }}
         >

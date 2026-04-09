@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import { Badge } from '../../components/ui';
 import useAppointmentDetail from '../../hooks/useAppointmentDetail';
-import { STATUS_LABEL, STATUS_COLOR, formatDate, formatTime } from '../../hooks/useAppointments';
+import { STATUS_LABEL, STATUS_COLOR, formatDate, formatTime, formatFullDateTime } from '../../hooks/useAppointments';
 
 // ---------------------------------------------------------------------------
 // Icons
@@ -85,10 +85,12 @@ const AppointmentDetails = () => {
 
     // Who is it booked for?
     const patientLabel = raw?.booked_for_name
-        ? `${raw.booked_for_name} (booked on their behalf)`
+        ? raw.booked_for_name
         : raw?.patient_id
         ? 'Yourself'
         : raw?.guest_name || '—';
+
+    const isRepresentativeBooking = !!raw?.booked_for_name;
 
     const handleCancel = async () => {
         const result = await cancelAppointment(cancelReason.trim() || 'Patient requested cancellation.');
@@ -194,6 +196,10 @@ const AppointmentDetails = () => {
                             </div>
                         </div>
 
+                        <p className='text-xs text-gray-400 mt-1 xl:text-right w-full'>
+                            Booked on: {formatFullDateTime(raw.created_at)}
+                        </p>
+
                         {/* Expandable status detail */}
                         {showStatusDetails && (
                             <div className='absolute top-full right-0 mt-3 w-full xl:w-max min-w-[280px] flex justify-center xl:justify-end origin-top z-20 shadow-lg rounded-xl animate-[fadeIn_0.15s_ease-out]'>
@@ -268,7 +274,14 @@ const AppointmentDetails = () => {
                                     </div>
                                     <div>
                                         <p className='text-sm text-gray-500 dark:text-gray-400'>Patient</p>
-                                        <p className='mt-1 text-sm font-medium text-gray-800 dark:text-white/90'>{patientLabel}</p>
+                                        <p className='mt-1 text-sm font-medium text-gray-800 dark:text-white/90'>
+                                            {patientLabel}
+                                            {isRepresentativeBooking && (
+                                                <span className="ml-2 px-2 py-0.5 text-[10px] font-bold bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 rounded-lg uppercase tracking-wider">
+                                                    Representative Booking
+                                                </span>
+                                            )}
+                                        </p>
                                     </div>
                                 </div>
                                 {/* Service */}

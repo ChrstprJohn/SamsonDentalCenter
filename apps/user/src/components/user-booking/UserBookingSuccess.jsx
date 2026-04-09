@@ -103,6 +103,14 @@ const UserBookingSuccess = ({ result, onReset }) => {
                                         </p>
                                     </div>
                                 </div>
+                                <div>
+                                    <p className="mb-1 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                        Patient
+                                    </p>
+                                    <p className="text-[11px] sm:text-[13px] md:text-[14px] font-bold text-gray-900 dark:text-white">
+                                        {bookingResult.appointment?.booked_for_name || bookingResult.booked_for_name || 'Yourself'}
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
@@ -164,6 +172,14 @@ const UserBookingSuccess = ({ result, onReset }) => {
                                             {formatTime(waitlistResult.preferred_time || waitlistResult.time)}
                                         </p>
                                     </div>
+                                </div>
+                                <div>
+                                    <p className="mb-1 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                        Patient
+                                    </p>
+                                    <p className="text-[11px] sm:text-[13px] md:text-[14px] font-bold text-gray-900 dark:text-white">
+                                        {waitlistResult.booked_for_name || 'Yourself'}
+                                    </p>
                                 </div>
                             </div>
                         </div>

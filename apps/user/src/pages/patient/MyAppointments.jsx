@@ -270,10 +270,10 @@ const MyAppointments = () => {
                                                 </div>
                                             </TableCell>
 
-                                            {/* Patient — it's always the logged-in user */}
+                                            {/* Patient */}
                                             <TableCell className='px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400'>
-                                                <span className='block' title={user?.full_name || ''}>
-                                                    {truncateText(user?.full_name || '—', 14)}
+                                                <span className='block' title={app.booked_for_name || user?.full_name || ''}>
+                                                    {truncateText(app.booked_for_name || user?.full_name || '—', 14)}
                                                 </span>
                                             </TableCell>
 
