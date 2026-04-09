@@ -553,6 +553,7 @@ export const getPatientAppointments = async (
         service: appt.service?.name,
         price: appt.service?.price,
         dentist: appt.dentist?.profile?.full_name || 'TBD',
+        booked_for_name: appt.booked_for_name,
         is_walk_in: appt.is_walk_in,
         notes: appt.notes,
         created_at: appt.created_at,

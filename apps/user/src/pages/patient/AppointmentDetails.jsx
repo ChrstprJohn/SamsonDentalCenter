@@ -85,10 +85,12 @@ const AppointmentDetails = () => {
 
     // Who is it booked for?
     const patientLabel = raw?.booked_for_name
-        ? `${raw.booked_for_name} (booked on their behalf)`
+        ? raw.booked_for_name
         : raw?.patient_id
         ? 'Yourself'
         : raw?.guest_name || '—';
+
+    const isRepresentativeBooking = !!raw?.booked_for_name;
 
     const handleCancel = async () => {
         const result = await cancelAppointment(cancelReason.trim() || 'Patient requested cancellation.');
@@ -268,7 +270,14 @@ const AppointmentDetails = () => {
                                     </div>
                                     <div>
                                         <p className='text-sm text-gray-500 dark:text-gray-400'>Patient</p>
-                                        <p className='mt-1 text-sm font-medium text-gray-800 dark:text-white/90'>{patientLabel}</p>
+                                        <p className='mt-1 text-sm font-medium text-gray-800 dark:text-white/90'>
+                                            {patientLabel}
+                                            {isRepresentativeBooking && (
+                                                <span className="ml-2 px-2 py-0.5 text-[10px] font-bold bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 rounded-lg uppercase tracking-wider">
+                                                    Representative Booking
+                                                </span>
+                                            )}
+                                        </p>
                                     </div>
                                 </div>
                                 {/* Service */}
