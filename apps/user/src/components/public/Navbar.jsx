@@ -13,7 +13,7 @@ const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
     { name: 'Services', path: '/services' },
-    { name: 'Inquiries', path: '/inquiries' },
+    // { name: 'Inquiries', path: '/inquiries' },
     { name: 'Contact', path: '/contact' },
 ];
 
@@ -41,7 +41,7 @@ const Navbar = () => {
                 setIsVisible(true);
             }
 
-            // GSAP smooth state changes
+            // GSAP smooth state changes - only based on scroll, not page
             if (currentScrollY > 20) {
                 gsap.to(navRef.current, {
                     backgroundColor: 'rgba(255, 255, 255, 1)',
