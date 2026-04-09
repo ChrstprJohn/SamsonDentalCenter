@@ -1,32 +1,39 @@
+import React from 'react';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
+import DashboardStats from '../../components/patient/dashboard/DashboardStats';
+import DashboardNotifications from '../../components/patient/dashboard/DashboardNotifications';
+import DashboardAppointments from '../../components/patient/dashboard/DashboardAppointments';
 
 const PatientDashboard = () => {
     return (
         <>
             <PageBreadcrumb pageTitle='Dashboard' />
-            <div className='rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-white/[0.03] shadow-theme-sm text-center'>
-                <div className='flex flex-col items-center justify-center min-h-[300px]'>
-                    <div className='w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center text-brand-600 mb-6'>
-                        <svg
-                            className='w-10 h-10'
-                            fill='none'
-                            viewBox='0 0 24 24'
-                            stroke='currentColor'
-                        >
-                            <path
-                                strokeLinecap='round'
-                                strokeLinejoin='round'
-                                strokeWidth={2}
-                                d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
-                            />
-                        </svg>
-                    </div>
-                    <h2 className='text-2xl font-bold text-gray-800 dark:text-white/90 mb-2'>
-                        Dashboard Coming Soon
+            
+            <div className='space-y-6'>
+                {/* Welcome Section */}
+                <div className='rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] shadow-theme-sm'>
+                    <h2 className='text-xl font-bold text-gray-800 dark:text-white/90 font-outfit'>
+                        Welcome back!
                     </h2>
-                    <p className='text-gray-500 dark:text-gray-400 max-w-sm mx-auto'>
-                        We are working hard to bring you a comprehensive overview of your dental health and upcoming activities.
+                    <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>
+                        Here's an overview of your dental health and upcoming appointments.
                     </p>
+                </div>
+
+                {/* Metrics Grid */}
+                <DashboardStats />
+
+                {/* Main Content: Notifications (Left) & Appointments (Right) */}
+                <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+                    {/* Notifications section (1 column on large screens) */}
+                    <div className='lg:col-span-1'>
+                        <DashboardNotifications />
+                    </div>
+
+                    {/* Appointments Table section (2 columns on large screens) */}
+                    <div className='lg:col-span-2'>
+                        <DashboardAppointments />
+                    </div>
                 </div>
             </div>
         </>
