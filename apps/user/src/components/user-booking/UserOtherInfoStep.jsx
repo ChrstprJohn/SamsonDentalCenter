@@ -184,7 +184,7 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
                             </div>
 
                             <div className="px-6 pb-10 sm:px-10 space-y-6">
-                                <div className="grid grid-cols-2 gap-x-6 sm:gap-x-12 gap-y-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                                     <div>
                                         <label className={labelClasses}>First Name <span className='text-brand-500'>*</span></label>
                                         <input
@@ -239,7 +239,7 @@ const UserOtherInfoStep = ({ formData, book_for_others, onUpdate, setBookForOthe
                             </div>
 
                             <div className="px-6 pb-10 sm:px-10 space-y-6">
-                                <div className="grid grid-cols-2 gap-x-6 sm:gap-x-12 gap-y-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                                     {/* Email Address (Pre-filled and Locked to User) */}
                                     <div>
                                         <label className={labelClasses}>Email Address <span className='text-brand-500'>*</span></label>
