@@ -1,4 +1,4 @@
-﻿import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Layouts
 import AdminPortalLayout from '../layouts/AdminPortalLayout';
@@ -19,17 +19,17 @@ const AppRoutes = () => {
         <>
             <ScrollToTop />
             <Routes>
-                {/* Ã¢â€â‚¬Ã¢â€â‚¬ Auth Ã¢â€â‚¬Ã¢â€â‚¬ */}
+                {/* Ã¢â€ â‚¬Ã¢â€ â‚¬ Auth Ã¢â€ â‚¬Ã¢â€ â‚¬ */}
                 <Route
                     path='/login'
                     element={<LoginPage />}
                 />
 
-                {/* Ã¢â€â‚¬Ã¢â€â‚¬ Admin Portal (Sidebar Layout) Ã¢â€â‚¬Ã¢â€â‚¬ */}
+                {/* Ã¢â€ â‚¬Ã¢â€ â‚¬ Admin Portal (Sidebar Layout) Ã¢â€ â‚¬Ã¢â€ â‚¬ */}
                 <Route
                     path='/'
                     element={
-                        <ProtectedRoute>
+                        <ProtectedRoute allowedRoles={['admin']}>
                             <AdminPortalLayout />
                         </ProtectedRoute>
                     }

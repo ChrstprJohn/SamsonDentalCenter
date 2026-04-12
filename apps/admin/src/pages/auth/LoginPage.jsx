@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AuthLayout from '../../layouts/AuthLayout';
@@ -15,7 +15,15 @@ const LoginPage = () => {
         setError(null);
         setLoading(true);
         try {
-            await login(email, password);
+            const { user: loggedInUser } = await login(email, password);
+            
+            // Immediate role check for Admin portal
+            if (loggedInUser.role !== 'admin') {
+                setError('Unauthorised: This portal requires an Administrator account.');
+                setLoading(false);
+                return;
+            }
+
             const from = location.state?.from || '/';
             navigate(from);
         } catch (err) {

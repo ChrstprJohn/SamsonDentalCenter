@@ -29,7 +29,7 @@ const AppRoutes = () => {
                 <Route
                     path='/'
                     element={
-                        <ProtectedRoute>
+                        <ProtectedRoute allowedRoles={['dentist', 'admin']}>
                             <DoctorPortalLayout />
                         </ProtectedRoute>
                     }

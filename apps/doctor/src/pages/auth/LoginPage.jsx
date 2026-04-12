@@ -15,7 +15,15 @@ const LoginPage = () => {
         setError(null);
         setLoading(true);
         try {
-            await login(email, password);
+            const { user: loggedInUser } = await login(email, password);
+            
+            // Immediate role check for Doctor portal
+            if (!['dentist', 'admin'].includes(loggedInUser.role)) {
+                setError('Unauthorised: This portal is for Dentists and Administrators only.');
+                setLoading(false);
+                return;
+            }
+
             const from = location.state?.from || '/';
             navigate(from);
         } catch (err) {

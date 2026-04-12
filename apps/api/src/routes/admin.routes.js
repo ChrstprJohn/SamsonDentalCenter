@@ -59,12 +59,12 @@ import {
     getAvailableDentistsForReassignment,
 } from '../controllers/admin.controller.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
-import { requireAdmin, requireSupervisor } from '../middleware/admin.middleware.js'; // UPDATED
+import { requireAdmin, requireAdminOrSecretary } from '../middleware/admin.middleware.js'; // UPDATED
 
 const router = Router();
 
-// All supervisor routes require: logged in + supervisor/admin role
-router.use(requireAuth, requireSupervisor);
+// All staff routes require: logged in + secretary/admin role
+router.use(requireAuth, requireAdminOrSecretary);
 
 // ── Appointments ──
 router.get('/appointments', getAllAppointments);

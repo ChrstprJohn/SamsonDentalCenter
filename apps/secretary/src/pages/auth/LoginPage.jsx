@@ -15,7 +15,16 @@ const LoginPage = () => {
         setError(null);
         setLoading(true);
         try {
-            await login(email, password);
+            const data = await login(email, password);
+            
+            // Immediate role check
+            const allowedRoles = ['secretary', 'dentist', 'admin'];
+            if (!allowedRoles.includes(data.user.role)) {
+                setError('Unauthorized: You do not have access to this portal.');
+                // Optional: logout if you don't want them to stay logged in as a patient on this domain
+                return;
+            }
+
             const from = location.state?.from || '/';
             navigate(from);
         } catch (err) {
@@ -24,12 +33,15 @@ const LoginPage = () => {
         setLoading(false);
     };
 
+    // Show error from ProtectedRoute if present
+    const authError = location.state?.error;
+
     return (
         <AuthLayout>
             <LoginContainer
                 onSubmit={handleLogin}
                 loading={loading}
-                error={error}
+                error={error || authError}
                 showSignUpLink={false}
                 showGuestLink={false}
             />

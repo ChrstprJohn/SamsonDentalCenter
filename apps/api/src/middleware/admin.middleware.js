@@ -1,14 +1,14 @@
-export const requireSupervisor = (req, res, next) => {
+export const requireAdminOrSecretary = (req, res, next) => {
     // req.user is set by requireAuth middleware
     if (!req.user) {
         return res.status(401).json({ error: 'Not authenticated.' });
     }
 
-    const allowedRoles = ['admin', 'supervisor'];
+    const allowedRoles = ['admin', 'secretary'];
 
     if (!allowedRoles.includes(req.user.role)) {
         return res.status(403).json({
-            error: 'Access denied. Supervisor role required.',
+            error: 'Access denied. Administrative or Secretary role required.',
         });
     }
 
@@ -32,7 +32,7 @@ export const requireStaff = (req, res, next) => {
         return res.status(401).json({ error: 'Not authenticated.' });
     }
 
-    const staffRoles = ['admin', 'supervisor', 'dentist'];
+    const staffRoles = ['admin', 'dentist', 'secretary'];
 
     if (!staffRoles.includes(req.user.role)) {
         return res.status(403).json({ error: 'Access denied. Staff role required.' });
