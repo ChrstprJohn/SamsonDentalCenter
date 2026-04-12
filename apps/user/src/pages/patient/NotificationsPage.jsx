@@ -178,16 +178,15 @@ const NotificationsPage = () => {
     const parentPath = selectedId ? '/patient/notifications' : null;
 
     return (
-        <div className='flex flex-col flex-grow'>
+        <>
             <PageBreadcrumb 
                 pageTitle={breadcrumbTitle} 
                 parentName={parentName} 
                 parentPath={parentPath}
-                className='mb-2'
             />
             
-            <div className='flex-grow min-h-0 relative -mx-4 sm:mx-0'>
-                {selectedId ? (
+            {selectedId ? (
+                <div className='flex-grow min-h-0 relative sm:mx-0'>
                     <NotificationDetailView 
                         notification={selectedNotification}
                         onBack={() => setSelectedId(null)}
@@ -195,21 +194,21 @@ const NotificationsPage = () => {
                         onToggleStar={handleToggleStar}
                         onDelete={handleDelete}
                     />
-                ) : (
-                    <NotificationInbox 
-                        notifications={filtered}
-                        activeFilter={activeFilter}
-                        onFilterChange={setActiveFilter}
-                        searchQuery={searchQuery}
-                        onSearchChange={setSearchQuery}
-                        onToggleRead={handleToggleRead}
-                        onToggleStar={handleToggleStar}
-                        onDelete={handleDelete}
-                        onNotificationClick={handleNotificationClick}
-                    />
-                )}
-            </div>
-        </div>
+                </div>
+            ) : (
+                <NotificationInbox 
+                    notifications={filtered}
+                    activeFilter={activeFilter}
+                    onFilterChange={setActiveFilter}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    onToggleRead={handleToggleRead}
+                    onToggleStar={handleToggleStar}
+                    onDelete={handleDelete}
+                    onNotificationClick={handleNotificationClick}
+                />
+            )}
+        </>
     );
 };
 

@@ -21,7 +21,7 @@ const NotificationInbox = ({
     onNotificationClick
 }) => {
     return (
-        <div className='flex flex-col h-full bg-transparent sm:bg-white dark:sm:bg-gray-900 sm:rounded-3xl border-y border-gray-100 dark:border-gray-800 sm:border sm:shadow-theme-sm overflow-hidden'>
+        <div className='flex-grow flex flex-col bg-white dark:bg-gray-900 sm:rounded-3xl border-t sm:border border-gray-100 dark:border-gray-800 sm:shadow-theme-sm overflow-hidden'>
             {/* Header / Search Area */}
             <div className='px-4 sm:px-6 py-5 border-b border-gray-100 dark:border-gray-800 space-y-4'>
                 <div className='relative'>
@@ -61,7 +61,7 @@ const NotificationInbox = ({
             </div>
 
             {/* List Area */}
-            <div className='overflow-y-auto grow pb-12 sm:pb-0'>
+            <div className='flex flex-col grow min-h-[400px] md:min-h-[285px] overflow-y-auto pb-14 sm:pb-0'>
                 {notifications.length > 0 ? (
                     notifications.map((n) => (
                         <NotificationRow 
@@ -86,11 +86,29 @@ const NotificationInbox = ({
             
             {/* Footer / Pagination Placeholder */}
             {notifications.length > 0 && (
-                <div className='fixed bottom-0 left-0 right-0 sm:relative z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-4 sm:px-6 py-3.5 sm:py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-[11px] text-gray-400 font-bold uppercase tracking-wider shadow-[0_-8px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-8px_20px_rgba(0,0,0,0.2)] sm:shadow-none'>
-                    <span>Showing {notifications.length} results</span>
-                    <div className='flex items-center gap-4'>
-                        <button className='hover:text-brand-500 dark:hover:text-brand-400 transition-colors'>Older</button>
-                        <button className='hover:text-brand-500 dark:hover:text-brand-400 transition-colors'>Newer</button>
+                <div className='fixed bottom-0 left-0 right-0 sm:relative z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-4 sm:px-6 py-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between shadow-[0_-8px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-8px_20px_rgba(0,0,0,0.2)] sm:shadow-none'>
+                    <div className='flex flex-row items-center justify-between w-full gap-2 sm:gap-0'>
+                        {/* Left: Results text */}
+                        <div className='w-auto sm:w-1/3 text-left'>
+                            <span className='text-[10px] sm:text-[11px] text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap'>
+                                Showing {notifications.length} results
+                            </span>
+                        </div>
+
+                        {/* Center: Mock Pagination */}
+                        <div className='flex items-center justify-end sm:justify-center w-auto sm:w-1/3'>
+                            <div className='flex items-center gap-1 justify-center shrink-0'>
+                                <button className='w-8 h-8 flex items-center justify-center text-sm font-bold rounded-lg transition-colors bg-brand-500 text-white shadow-md shadow-brand-500/20'>
+                                    1
+                                </button>
+                                <button className='w-8 h-8 flex items-center justify-center text-sm font-bold rounded-lg transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05]'>
+                                    2
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Right: Empty spacer to ensure exact center alignment on desktop */}
+                        <div className='hidden sm:block sm:w-1/3'></div>
                     </div>
                 </div>
             )}

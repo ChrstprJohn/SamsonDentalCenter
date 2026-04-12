@@ -8,7 +8,7 @@ const NotificationDetailView = ({ notification, onBack, onToggleStar, onToggleRe
     const { id, title, message, category, time, isStarred, fullMessage } = notification;
 
     return (
-        <div className='flex flex-col h-full bg-transparent sm:bg-white dark:sm:bg-gray-900 sm:rounded-3xl border-y border-gray-100 dark:border-gray-800 sm:border sm:shadow-theme-sm overflow-hidden animate-[fadeIn_0.2s_ease-out]'>
+        <div className='flex-grow flex flex-col h-full bg-white dark:bg-gray-900 sm:rounded-3xl border-t sm:border border-gray-100 dark:border-gray-800 sm:shadow-theme-sm overflow-hidden animate-[fadeIn_0.2s_ease-out]'>
             {/* Action Bar */}
             <div className='px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between'>
                 <button 
