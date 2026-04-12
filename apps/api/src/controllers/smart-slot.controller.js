@@ -56,7 +56,6 @@ export const optimalSlots = async (req, res, next) => {
             tip: 'Green slots have the best dentist availability. Choose one for faster appointments!',
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };

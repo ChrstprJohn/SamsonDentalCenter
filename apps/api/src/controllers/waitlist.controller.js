@@ -27,7 +27,6 @@ export const join = async (req, res, next) => {
         const result = await joinWaitlist(req.user.id, service_id, finalDate, finalTime, priority);
         res.status(201).json(result);
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -40,7 +39,6 @@ export const getMine = async (req, res, next) => {
         const entries = await getMyWaitlist(req.user.id);
         res.json({ waitlist: entries, total: entries.length });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -53,7 +51,6 @@ export const remove = async (req, res, next) => {
         const result = await cancelWaitlistEntry(req.params.id, req.user.id);
         res.json(result);
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -74,7 +71,6 @@ export const confirm = async (req, res, next) => {
 
         res.json(result);
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -91,7 +87,6 @@ export const getPublicOffer = async (req, res, next) => {
         const result = await getWaitlistByToken(token);
         res.json(result);
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -110,7 +105,6 @@ export const confirmPublicOffer = async (req, res, next) => {
 
         res.json(result);
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };

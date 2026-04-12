@@ -91,7 +91,7 @@ export const createService = async (req, res, next) => {
             .single();
 
         if (error) {
-            return res.status(400).json({ error: error.message });
+            return next(error);
         }
 
         res.status(201).json({ message: 'Service created!', service: data });

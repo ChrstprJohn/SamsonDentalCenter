@@ -7,7 +7,6 @@ export const getSuggestionsPublic = async (req, res, next) => {
         const result = await getSuggestedSlots(date, service_id, time);
         res.json(result);
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -29,7 +28,6 @@ export const getAvailablePublic = async (req, res, next) => {
         const result = await getAvailableSlots(date, service_id, session_id, false, dentist_id);
         res.json(result);
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -59,9 +57,6 @@ export const getAvailable = async (req, res, next) => {
 
         res.json(result);
     } catch (err) {
-        if (err.status) {
-            return res.status(err.status).json({ error: err.message });
-        }
         next(err);
     }
 };
@@ -79,9 +74,6 @@ export const getSuggestions = async (req, res, next) => {
 
         res.json(result);
     } catch (err) {
-        if (err.status) {
-            return res.status(err.status).json({ error: err.message });
-        }
         next(err);
     }
 };

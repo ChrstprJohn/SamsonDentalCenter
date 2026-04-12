@@ -1,4 +1,5 @@
 import { supabaseAdmin, supabasePublic } from '../config/supabase.js';
+import { humanizeError } from '../utils/errorMapper.js';
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
@@ -34,8 +35,6 @@ export const register = async (req, res, next) => {
         }
 
         // ── Create user via public client ──
-        // signUp() respects "Confirm email" in Supabase Dashboard and sends
-        // the confirmation email automatically. admin.createUser() bypasses this.
         const { data, error } = await supabasePublic.auth.signUp({
             email,
             password,
@@ -45,11 +44,10 @@ export const register = async (req, res, next) => {
         });
 
         if (error) {
-            return res.status(400).json({ error: error.message });
+            return next(error);
         }
 
         // ── Update phone and preferred_time if provided ──
-        // Use admin client here since the user may not be confirmed yet
         const profileUpdates = {};
         if (phone) profileUpdates.phone = phone;
         if (req.body.preferred_time) profileUpdates.preferred_time = req.body.preferred_time;
@@ -68,16 +66,12 @@ export const register = async (req, res, next) => {
             },
         });
     } catch (err) {
-        next(err); // Pass to error handler
+        next(err);
     }
 };
 
 /**
  * POST /api/auth/login
- *
- * Login with email and password.
- * Body: { email, password }
- * Returns: JWT token + user profile
  */
 export const login = async (req, res, next) => {
     try {
@@ -96,7 +90,7 @@ export const login = async (req, res, next) => {
 
         if (error) {
             console.error('SignIn error:', error);
-            return res.status(401).json({ error: `Auth failed: ${error.message}` });
+            return next(error);
         }
 
         // ── Get profile ──
@@ -108,9 +102,7 @@ export const login = async (req, res, next) => {
 
         if (profileError) {
             console.error('Profile fetch error:', profileError);
-            return res
-                .status(500)
-                .json({ error: `Failed to fetch profile: ${profileError.message}` });
+            return next(profileError);
         }
 
         // ── Set httpOnly cookies ──
@@ -138,13 +130,9 @@ export const login = async (req, res, next) => {
 
 /**
  * GET /api/auth/me
- *
- * Get current logged-in user's profile.
- * Requires: Auth token in header
  */
 export const getProfile = async (req, res, next) => {
     try {
-        // req.user is set by requireAuth middleware
         res.json({
             user: {
                 id: req.user.id,
@@ -162,15 +150,11 @@ export const getProfile = async (req, res, next) => {
 
 /**
  * PATCH /api/auth/me
- *
- * Update current user's profile.
- * Body: { full_name?, phone?, date_of_birth? }
  */
 export const updateProfile = async (req, res, next) => {
     try {
         const { full_name, phone, date_of_birth } = req.body;
 
-        // Build update object (only include fields that were sent)
         const updates = {};
         if (full_name) updates.full_name = full_name;
         if (phone) updates.phone = phone;
@@ -178,7 +162,6 @@ export const updateProfile = async (req, res, next) => {
         updates.updated_at = new Date().toISOString();
 
         if (Object.keys(updates).length <= 1) {
-            // only updated_at
             return res.status(400).json({ error: 'No fields to update.' });
         }
 
@@ -190,7 +173,7 @@ export const updateProfile = async (req, res, next) => {
             .single();
 
         if (error) {
-            return res.status(400).json({ error: error.message });
+            return next(error);
         }
 
         res.json({ message: 'Profile updated!', user: data });
@@ -201,8 +184,6 @@ export const updateProfile = async (req, res, next) => {
 
 /**
  * POST /api/auth/logout
- *
- * Clear auth cookies.
  */
 export const logout = async (req, res, next) => {
     try {

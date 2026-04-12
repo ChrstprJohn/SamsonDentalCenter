@@ -1,4 +1,5 @@
 import { AppError } from '../utils/errors.js';
+import { humanizeError } from '../utils/errorMapper.js';
 
 export const errorHandler = (err, req, res, next) => {
     // 1. Log the full error for developers
@@ -9,7 +10,7 @@ export const errorHandler = (err, req, res, next) => {
 
     // 2. Determine response status and message
     let statusCode = err.status || 500;
-    let message = err.message || 'Internal server error';
+    let message = humanizeError(err.message || 'Internal server error');
 
     // 3. Security: If it's NOT an operational error and we're in production,
     // mask the message to prevent leaking internal details.

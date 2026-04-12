@@ -36,7 +36,6 @@ export const todaySchedule = async (req, res, next) => {
             total: schedule.length,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -53,7 +52,6 @@ export const weeklySchedule = async (req, res, next) => {
         const schedule = await getScheduleRange(req.dentist.id, start, end);
         res.json({ appointments: schedule, total: schedule.length });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -68,7 +66,6 @@ export const myWorkingSchedule = async (req, res, next) => {
         const schedule = await getOwnSchedule(req.dentist.id);
         res.json({ dentist_id: req.dentist.id, schedule });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -83,7 +80,6 @@ export const myBlocks = async (req, res, next) => {
         const blocks = await getOwnBlocks(req.dentist.id);
         res.json({ dentist_id: req.dentist.id, blocks });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -103,7 +99,6 @@ export const requestDayOff = async (req, res, next) => {
         const block = await requestBlock(req.dentist.id, block_date, reason, notes);
         res.status(201).json({ message: 'Day off requested.', block });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -134,7 +129,6 @@ export const addNote = async (req, res, next) => {
 
         res.status(201).json({ message: 'Treatment note added.', note });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -147,7 +141,6 @@ export const getNotes = async (req, res, next) => {
         const notes = await getTreatmentNotes(req.dentist.id, req.params.appointmentId);
         res.json({ notes });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -160,7 +153,6 @@ export const patientHistory = async (req, res, next) => {
         const history = await getPatientHistory(req.params.patientId);
         res.json({ treatment_history: history });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -177,7 +169,6 @@ export const startAppointmentHandler = async (req, res, next) => {
         const appointment = await startAppointment(req.dentist.id, req.params.id);
         res.json({ message: 'Appointment started. Patient seated.', appointment });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -190,7 +181,6 @@ export const markComplete = async (req, res, next) => {
         const appointment = await completeAppointment(req.dentist.id, req.params.id);
         res.json({ message: 'Appointment marked as completed.', appointment });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -209,7 +199,6 @@ export const markNoShowHandler = async (req, res, next) => {
             appointment,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -236,7 +225,6 @@ export const updateMedicalInfoHandler = async (req, res, next) => {
 
         res.json(result);
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -267,7 +255,6 @@ export const addFollowUp = async (req, res, next) => {
             follow_up: followUp,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -289,7 +276,6 @@ export const reportAppointmentDelay = async (req, res, next) => {
         const result = await reportDelay(req.dentist.id, req.params.id, delay_minutes, reason);
         res.json(result);
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -306,7 +292,6 @@ export const getProfile = async (req, res, next) => {
         const profile = await getDoctorProfile(req.dentist.id);
         res.json({ profile });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -322,7 +307,6 @@ export const updateProfile = async (req, res, next) => {
         const profile = await updateDoctorProfile(req.dentist.id, req.body);
         res.json({ message: 'Profile updated.', profile });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -354,7 +338,6 @@ export const requestScheduleChangeHandler = async (req, res, next) => {
             request: data,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -369,7 +352,6 @@ export const getMyScheduleRequests = async (req, res, next) => {
         const requests = await getScheduleRequests(req.dentist.id);
         res.json({ requests });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -384,7 +366,6 @@ export const getMyFeedback = async (req, res, next) => {
         const feedback = await getDoctorFeedback(req.dentist.id);
         res.json({ feedback });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };

@@ -52,8 +52,7 @@ export const bookGuest = async (req, res) => {
         );
         return res.status(result.booked ? 201 : 409).json(result);
     } catch (err) {
-        console.error('Guest booking error:', err);
-        return res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 
@@ -74,8 +73,7 @@ export const confirmEmail = async (req, res) => {
         // Return JSON — frontend (React Router) handles the navigation
         return res.json(result);
     } catch (err) {
-        console.error('Email confirmation error:', err);
-        return res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 
@@ -91,8 +89,7 @@ export const resendConfirmation = async (req, res) => {
         const result = await resendConfirmationEmail(appointment_id, email);
         return res.json(result);
     } catch (err) {
-        console.error('Resend confirmation error:', err);
-        return res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 
@@ -170,14 +167,10 @@ export const submitWizard = async (req, res, next) => {
                     booking.dentist_id,              // preferredDentistId
                 );
             } catch (err) {
-                // If booking fails, we might still want to proceed with waitlist or stop?
-                // The user asked for "Atomic", so if one fails, we should probably stop if they intended both.
-                // However, usually they only do one or the other per slot.
-                // We'll return the error and stop.
-                return res.status(err.status || 500).json({
-                    error: `Booking failed: ${err.message}`,
-                    stage: 'booking',
-                });
+                // If booking fails, return error and stop.
+                // The global handler will humanize err.message.
+                err.stage = 'booking';
+                return next(err);
             }
         }
 
@@ -530,8 +523,7 @@ export const holdSlotHandler = async (req, res) => {
         const result = await holdSlot(service_id, date, time, user_session_id, dentist_id);
         return res.status(200).json(result);
     } catch (err) {
-        console.error('Hold slot error:', err);
-        return res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 

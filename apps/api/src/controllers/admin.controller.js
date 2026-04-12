@@ -102,7 +102,6 @@ export const getAllAppointments = async (req, res, next) => {
             pagination: result.pagination,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -133,7 +132,6 @@ export const getTodayAppointments = async (req, res, next) => {
             total: result.appointments.length,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -153,7 +151,6 @@ export const markAsComplete = async (req, res, next) => {
         const appointment = await markAppointmentComplete(req.params.id);
         res.json({ message: 'Appointment marked as completed.', appointment });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -183,7 +180,6 @@ export const adminCancel = async (req, res, next) => {
 
         res.json({ message: 'Appointment cancelled by admin.', appointment: result.appointment });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -198,7 +194,6 @@ export const markAsNoShow = async (req, res, next) => {
         await markNoShow(req.params.id);
         res.json({ message: 'Appointment marked as no-show.' });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -213,7 +208,6 @@ export const getPending = async (req, res, next) => {
         const requests = await getPendingRequests();
         res.json({ pending_requests: requests, total: requests.length });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -244,7 +238,6 @@ export const approve = async (req, res, next) => {
 
         res.json({ message: 'Appointment approved.', appointment });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -296,7 +289,6 @@ export const reject = async (req, res, next) => {
             suggested_date: result.suggested_date,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -321,7 +313,6 @@ export const addWalkIn = async (req, res, next) => {
         const result = await bookWalkIn(patient_id, service_id, time, notes);
         res.status(201).json(result);
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -340,7 +331,6 @@ export const getSettings = async (req, res, next) => {
         const settings = await getClinicSettings();
         res.json({ settings });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -356,7 +346,6 @@ export const updateSettings = async (req, res, next) => {
         const settings = await updateClinicSettings(req.body);
         res.json({ message: 'Clinic settings updated.', settings });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -371,7 +360,6 @@ export const listAnnouncements = async (req, res, next) => {
         const announcements = await getAnnouncements();
         res.json({ announcements });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -391,7 +379,6 @@ export const addAnnouncement = async (req, res, next) => {
         const announcement = await createAnnouncement(req.body, req.user.id);
         res.status(201).json({ message: 'Announcement created.', announcement });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -406,7 +393,6 @@ export const editAnnouncement = async (req, res, next) => {
         const announcement = await updateAnnouncement(req.params.id, req.body);
         res.json({ message: 'Announcement updated.', announcement });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -421,7 +407,6 @@ export const removeAnnouncement = async (req, res, next) => {
         await deleteAnnouncement(req.params.id);
         res.json({ message: 'Announcement deleted.' });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -451,7 +436,6 @@ export const getDentists = async (req, res, next) => {
             })),
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -466,7 +450,6 @@ export const viewDentistSchedule = async (req, res, next) => {
         const schedule = await getDentistSchedule(req.params.id);
         res.json({ dentist_id: req.params.id, schedule });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -494,7 +477,6 @@ export const updateDentistSchedule = async (req, res, next) => {
         });
         res.json({ message: 'Dentist schedule updated.', schedule });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -511,7 +493,6 @@ export const bulkUpdateSchedule = async (req, res, next) => {
         await setBulkSchedule(req.params.id, schedules);
         res.json({ message: 'Dentist schedule updated for the week.' });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -552,7 +533,6 @@ export const blockDentistAvailability = async (req, res, next) => {
             }),
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -568,7 +548,6 @@ export const viewDentistBlocks = async (req, res, next) => {
         const blocks = await getBlocks(req.params.id, today);
         res.json({ dentist_id: req.params.id, blocks });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -584,7 +563,6 @@ export const removeDentistBlock = async (req, res, next) => {
         await removeAvailabilityBlock(blockId);
         res.json({ message: 'Availability block removed.' });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -632,7 +610,6 @@ export const getPatients = async (req, res, next) => {
         const patients = await searchPatients(search || null);
         res.json({ patients });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -651,7 +628,6 @@ export const viewPatientHistory = async (req, res, next) => {
             total: history.length,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -678,7 +654,6 @@ export const toggleRestriction = async (req, res, next) => {
             patient: result,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -695,7 +670,6 @@ export const quickRegisterPatientHandler = async (req, res, next) => {
             patient,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -722,7 +696,6 @@ export const reassignAppointment = async (req, res, next) => {
             appointment: updated,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -744,7 +717,6 @@ export const getAvailableDentistsForReassignment = async (req, res, next) => {
         const available = await getAvailableDentistsForSlot(date, start_time, end_time, tier);
         res.json({ available, total: available.length });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -765,7 +737,6 @@ export const recordPaymentHandler = async (req, res, next) => {
             payment,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -778,7 +749,6 @@ export const getPaymentDetailsHandler = async (req, res, next) => {
         const payment = await getPaymentDetails(req.params.appointmentId);
         res.json({ payment });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -795,7 +765,6 @@ export const updatePaymentHandler = async (req, res, next) => {
             payment,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -812,7 +781,6 @@ export const getPromotionsHandler = async (req, res, next) => {
         const promotions = await getPromotions();
         res.json({ promotions, total: promotions.length });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -829,7 +797,6 @@ export const createPromotionHandler = async (req, res, next) => {
             promotion,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -842,7 +809,6 @@ export const getHolidaysHandler = async (req, res, next) => {
         const holidays = await getHolidays();
         res.json({ holidays, total: holidays.length });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -859,7 +825,6 @@ export const createHolidayHandler = async (req, res, next) => {
             holiday,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -878,7 +843,6 @@ export const getFeedbackHandler = async (req, res, next) => {
         const feedback = await getFeedback(dentist_id || null);
         res.json({ feedback, total: feedback.length });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -891,7 +855,6 @@ export const getAppointmentCommentsHandler = async (req, res, next) => {
         const comments = await getAppointmentComments(req.params.id);
         res.json({ appointment_id: req.params.id, comments, total: comments.length });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -914,7 +877,6 @@ export const addAppointmentCommentHandler = async (req, res, next) => {
             comment: result,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -931,7 +893,6 @@ export const getScheduleRequestsHandler = async (req, res, next) => {
         const requests = await getScheduleRequests();
         res.json({ requests, total: requests.length });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -947,7 +908,6 @@ export const approveScheduleRequestHandler = async (req, res, next) => {
             request,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -970,7 +930,6 @@ export const rejectScheduleRequestHandler = async (req, res, next) => {
             request,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -988,7 +947,6 @@ export const getUsersHandler = async (req, res, next) => {
         const users = await getAllUsers();
         res.json({ users, total: users.length });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -1006,7 +964,6 @@ export const createUserHandler = async (req, res, next) => {
             user,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -1030,7 +987,6 @@ export const changeUserRoleHandler = async (req, res, next) => {
             user,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
@@ -1047,7 +1003,6 @@ export const deactivateUserHandler = async (req, res, next) => {
             user,
         });
     } catch (err) {
-        if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);
     }
 };
