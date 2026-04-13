@@ -1,12 +1,14 @@
 import React from 'react';
-import { Search, ListChecks, SearchX, Clock, Calendar, Filter, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ListChecks, SearchX, Clock, Calendar, Filter, ChevronDown, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
+import { useSidebar } from '../../../context/SidebarContext';
 import ApprovalRow from './ApprovalRow';
 import Pagination from '../../common/Pagination';
 
 const CATEGORIES = [
     { id: 'all', label: 'All Requests', icon: ListChecks },
-    { id: 'stale', label: 'Stale (>24h)', icon: Clock },
-    { id: 'recent', label: 'Recent', icon: Calendar },
+    { id: 'urgent', label: 'Urgent', icon: Zap },
+    { id: 'stale', label: 'Needs Attention', icon: Clock },
+    { id: 'recent', label: 'Recent Request', icon: Calendar },
 ];
 
 const SERVICES = [
@@ -56,14 +58,14 @@ const MiniCalendar = ({ selectedDate, onDateChange, requestDates }) => {
                 </div>
             </div>
             <div className="grid grid-cols-7 gap-1 text-center mb-1">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-                    <span key={d} className="text-[10px] font-bold text-gray-400 py-1">{d}</span>
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                    <span key={`${d}-${i}`} className="text-[10px] font-bold text-gray-400 py-1">{d}</span>
                 ))}
             </div>
             <div className="grid grid-cols-7 gap-1">
                 {days.map((day, idx) => {
                     if (!day) return <div key={`empty-${idx}`} className="h-8" />;
-                    
+
                     const dateStr = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
                     const isSelected = selectedDate === dateStr;
                     const hasRequest = requestDates.includes(dateStr);
@@ -73,11 +75,10 @@ const MiniCalendar = ({ selectedDate, onDateChange, requestDates }) => {
                         <button
                             key={day}
                             onClick={() => onDateChange(dateStr)}
-                            className={`h-8 relative flex flex-col items-center justify-center rounded-xl text-xs font-medium transition-all group ${
-                                isSelected 
-                                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30' 
-                                : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-                            } ${isToday && !isSelected ? 'border border-brand-500/30' : ''}`}
+                            className={`h-8 relative flex flex-col items-center justify-center rounded-xl text-xs font-medium transition-all group ${isSelected
+                                    ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30'
+                                    : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                                } ${isToday && !isSelected ? 'border border-brand-500/30' : ''}`}
                         >
                             <span>{day}</span>
                             {hasRequest && (
@@ -91,12 +92,12 @@ const MiniCalendar = ({ selectedDate, onDateChange, requestDates }) => {
     );
 };
 
-const ApprovalInbox = ({ 
-    requests, 
+const ApprovalInbox = ({
+    requests,
     allRequests,
-    activeFilter, 
-    onFilterChange, 
-    searchQuery, 
+    activeFilter,
+    onFilterChange,
+    searchQuery,
     onSearchChange,
     selectedService,
     onServiceChange,
@@ -108,8 +109,9 @@ const ApprovalInbox = ({
     currentPage,
     onPageChange
 }) => {
+    const { isMobileOpen } = useSidebar();
     const [showFilters, setShowFilters] = React.useState(false);
-    
+
     // Local state for deferred filtering
     const [localService, setLocalService] = React.useState(selectedService);
     const [localDoctor, setLocalDoctor] = React.useState(selectedDoctor);
@@ -130,7 +132,7 @@ const ApprovalInbox = ({
         onDateChange(localDate);
         setShowFilters(false);
     };
-    
+
     const totalPages = Math.ceil(requests.length / ITEMS_PER_PAGE);
     const paginatedRequests = requests.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
@@ -142,31 +144,31 @@ const ApprovalInbox = ({
     }, [allRequests]);
 
     return (
-        <div className='flex-grow flex flex-col bg-white dark:bg-gray-900 sm:rounded-3xl border-t sm:border border-gray-100 dark:border-gray-800 sm:shadow-theme-sm overflow-hidden h-full'>
-            <div className='px-4 sm:px-6 py-5 border-b border-gray-100 dark:border-gray-800 space-y-4 shrink-0'>
+        <div className='flex-grow flex flex-col bg-white dark:bg-gray-900 sm:rounded-2xl border-t sm:border border-gray-200 dark:border-gray-800 sm:shadow-theme-sm overflow-hidden h-full'>
+            <div className='px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 dark:border-gray-800 space-y-4 shrink-0'>
                 <div className='flex flex-col md:flex-row gap-4'>
                     <div className='relative flex-grow'>
                         <span className='absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400'>
                             <Search size={18} />
                         </span>
-                        <input 
-                            type='text' 
+                        <input
+                            type='text'
                             placeholder='Search by patient name...'
                             className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/[0.03] border-none rounded-2xl text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-gray-800 transition-all outline-none'
                             value={searchQuery}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </div>
-                    
+
                     <div className='flex gap-2 shrink-0 items-center relative'>
-                        <div className="relative">
-                            <button 
+                        <div className="relative z-[100002] md:z-20">
+                            {/* Desktop Filter Button (Hidden on Mobile) */}
+                            <button
                                 onClick={() => setShowFilters(!showFilters)}
-                                className={`flex items-center gap-3 px-5 py-3 rounded-2xl text-xs font-bold transition-all border ${
-                                    showFilters || selectedService !== 'All Services' || selectedDoctor !== 'All Doctors' || selectedDate
-                                    ? 'bg-brand-50 border-brand-200 text-brand-600 dark:bg-brand-500/10 dark:border-brand-500/30'
-                                    : 'bg-white dark:bg-white/[0.03] border-gray-100 dark:border-gray-800 text-gray-600 hover:bg-gray-50 dark:hover:bg-white/[0.05]'
-                                }`}
+                                className={`hidden md:flex items-center gap-3 px-5 py-3 rounded-2xl text-xs font-bold transition-all border ${showFilters || selectedService !== 'All Services' || selectedDoctor !== 'All Doctors' || selectedDate
+                                        ? 'bg-brand-50 border-brand-200 text-brand-600 dark:bg-brand-500/10 dark:border-brand-500/30'
+                                        : 'bg-white dark:bg-white/[0.03] border-gray-100 dark:border-gray-800 text-gray-600 hover:bg-gray-50 dark:hover:bg-white/[0.05]'
+                                    }`}
                             >
                                 <Filter size={16} />
                                 <span>Filters {(selectedService !== 'All Services' || selectedDoctor !== 'All Doctors' || selectedDate) && '•'}</span>
@@ -176,17 +178,20 @@ const ApprovalInbox = ({
                                     </span>
                                 )}
                             </button>
+
                             {showFilters && (
                                 <>
-                                    <div className="fixed inset-0 z-40" onClick={() => setShowFilters(false)} />
-                                    <div className="absolute right-0 top-full mt-2 w-[820px] hidden md:block bg-white dark:bg-gray-900 rounded-[32px] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                                    <div className="fixed inset-0 bg-black/40 z-[100000] md:hidden animate-in fade-in duration-300" onClick={() => setShowFilters(false)} />
+                                    
+                                    {/* Desktop Filter Modal - No Animation */}
+                                    <div className="absolute right-0 top-full mt-2 w-[820px] hidden md:block bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden z-[50]">
                                         <div className="flex h-[440px]">
                                             {/* COLUMN 1: Calendar */}
                                             <div className="w-[280px] bg-gray-50/50 dark:bg-gray-800/20 border-r border-gray-100 dark:border-gray-800 p-6 flex flex-col h-full">
                                                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 block">Appointment Date</label>
                                                 <div className="flex-grow">
-                                                    <MiniCalendar 
-                                                        selectedDate={localDate} 
+                                                    <MiniCalendar
+                                                        selectedDate={localDate}
                                                         onDateChange={setLocalDate}
                                                         requestDates={requestDates}
                                                     />
@@ -205,14 +210,13 @@ const ApprovalInbox = ({
                                                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 block">Service Type</label>
                                                 <div className="flex-1 overflow-y-auto no-scrollbar space-y-1 pr-2">
                                                     {SERVICES.map(s => (
-                                                        <button 
-                                                            key={s} 
-                                                            onClick={() => setLocalService(s)} 
-                                                            className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${
-                                                                localService === s 
-                                                                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
-                                                                : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800'
-                                                            }`}
+                                                        <button
+                                                            key={s}
+                                                            onClick={() => setLocalService(s)}
+                                                            className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${localService === s
+                                                                    ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
+                                                                    : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800'
+                                                                }`}
                                                         >
                                                             {s}
                                                         </button>
@@ -225,21 +229,20 @@ const ApprovalInbox = ({
                                                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 block">Dentist</label>
                                                 <div className="flex-1 overflow-y-auto no-scrollbar space-y-1 mb-6 pr-2">
                                                     {DOCTORS.map(d => (
-                                                        <button 
-                                                            key={d} 
-                                                            onClick={() => setLocalDoctor(d)} 
-                                                            className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${
-                                                                localDoctor === d 
-                                                                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
-                                                                : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800'
-                                                            }`}
+                                                        <button
+                                                            key={d}
+                                                            onClick={() => setLocalDoctor(d)}
+                                                            className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${localDoctor === d
+                                                                    ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
+                                                                    : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800'
+                                                                }`}
                                                         >
                                                             {d}
                                                         </button>
                                                     ))}
                                                 </div>
 
-                                                <button 
+                                                <button
                                                     onClick={handleApplyFilters}
                                                     className="w-full bg-gray-900 dark:bg-brand-500 hover:bg-gray-800 dark:hover:bg-brand-600 text-white font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest shadow-xl transition-all active:scale-95 group flex items-center justify-center gap-2"
                                                 >
@@ -250,30 +253,44 @@ const ApprovalInbox = ({
                                         </div>
                                     </div>
 
-                                    {/* Mobile Filter View (Simplified) */}
-                                    <div className="fixed inset-x-4 top-20 md:hidden bg-white dark:bg-gray-900 rounded-[32px] shadow-2xl border border-gray-100 dark:border-gray-800 p-6 z-50 animate-in fade-in zoom-in duration-200">
-                                        <div className="space-y-6">
-                                            <div>
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block px-1 mb-2">Appointment Date</label>
-                                                <input type="date" value={localDate} onChange={(e) => setLocalDate(e.target.value)} className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none outline-none text-xs font-bold" />
-                                            </div>
-                                            
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block px-1">Service</label>
-                                                    <select value={localService} onChange={(e) => setLocalService(e.target.value)} className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none outline-none text-[10px] font-bold">
-                                                        {SERVICES.map(s => <option key={s} value={s}>{s}</option>)}
-                                                    </select>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block px-1">Dentist</label>
-                                                    <select value={localDoctor} onChange={(e) => setLocalDoctor(e.target.value)} className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none outline-none text-[10px] font-bold">
-                                                        {DOCTORS.map(d => <option key={d} value={d}>{d}</option>)}
-                                                    </select>
-                                                </div>
+                                    {/* Mobile Filter Bottom Sheet */}
+                                    <div className="fixed inset-x-0 bottom-0 md:hidden bg-white dark:bg-gray-900 rounded-t-[40px] shadow-2xl border-t border-gray-100 dark:border-gray-800 p-8 pt-10 z-[100002] animate-in slide-in-from-bottom-full duration-500 ease-in-out">
+                                        {/* Pull indicator */}
+                                        <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full" />
+                                        
+                                        <div className="space-y-8">
+                                            <div className="flex items-center justify-between">
+                                                <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">Filter Options</h3>
+                                                <button onClick={() => setShowFilters(false)} className="p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-full transition-colors">
+                                                    <ChevronDown className="text-gray-400" />
+                                                </button>
                                             </div>
 
-                                            <button onClick={handleApplyFilters} className="w-full bg-brand-500 text-white font-black py-4 rounded-2xl text-xs uppercase shadow-lg shadow-brand-500/25">Apply Filters</button>
+                                            <div className="space-y-6">
+                                                <div>
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block px-1 mb-3">Appointment Date</label>
+                                                    <input type="date" value={localDate} onChange={(e) => setLocalDate(e.target.value)} className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none outline-none text-sm font-bold shadow-inner" />
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div className="space-y-3">
+                                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block px-1">Service</label>
+                                                        <select value={localService} onChange={(e) => setLocalService(e.target.value)} className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none outline-none text-[10px] font-bold shadow-sm">
+                                                            {SERVICES.map(s => <option key={s} value={s}>{s}</option>)}
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block px-1">Dentist</label>
+                                                        <select value={localDoctor} onChange={(e) => setLocalDoctor(e.target.value)} className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none outline-none text-[10px] font-bold shadow-sm">
+                                                            {DOCTORS.map(d => <option key={d} value={d}>{d}</option>)}
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <button onClick={handleApplyFilters} className="w-full bg-brand-500 text-white font-black py-5 rounded-2xl text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-brand-500/25 active:scale-[0.98] transition-all mt-4">
+                                                    Apply Filters
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </>
@@ -290,11 +307,10 @@ const ApprovalInbox = ({
                             <button
                                 key={cat.id}
                                 onClick={() => onFilterChange(cat.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                                    isActive 
-                                    ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30' 
-                                    : 'bg-gray-50 dark:bg-white/[0.03] text-gray-500 hover:bg-gray-100 dark:hover:bg-white/[0.05]'
-                                }`}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${isActive
+                                        ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30'
+                                        : 'bg-gray-50 dark:bg-white/[0.03] text-gray-500 hover:bg-gray-100 dark:hover:bg-white/[0.05]'
+                                    }`}
                             >
                                 <Icon size={14} />
                                 <span>{cat.label}</span>
@@ -305,13 +321,13 @@ const ApprovalInbox = ({
             </div>
 
             {/* Requests List */}
-            <div className='flex-grow overflow-y-auto no-scrollbar min-h-[500px]'>
+            <div className='flex-grow overflow-y-auto no-scrollbar min-h-[500px] pb-24 sm:pb-0'>
                 {paginatedRequests.length > 0 ? (
                     <div className='divide-y divide-gray-50 dark:divide-gray-800/50'>
                         {paginatedRequests.map((request) => (
-                            <ApprovalRow 
-                                key={request.id} 
-                                request={request} 
+                            <ApprovalRow
+                                key={request.id}
+                                request={request}
                                 onClick={() => onRowClick(request.id)}
                             />
                         ))}
@@ -328,28 +344,68 @@ const ApprovalInbox = ({
                     </div>
                 )}
             </div>
-            
+
+            {/* Floating Action Button - Mobile Only */}
+            {!isMobileOpen && (
+                <button
+                    onClick={() => setShowFilters(true)}
+                    className='fixed bottom-16 right-5 md:hidden z-50 flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-full shadow-2xl shadow-brand-500/40 active:scale-95 transition-all outline-none'
+                >
+                    <Filter size={18} />
+                    <span className='text-xs font-bold'>Filters</span>
+                    {(selectedService !== 'All Services' || selectedDoctor !== 'All Doctors' || selectedDate) && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    )}
+                </button>
+            )}
+
             {/* Footer / Pagination Placeholder */}
-            {(totalPages > 1 || requests.length > 0) && (
-                <div className='fixed bottom-0 left-0 right-0 sm:relative z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-4 sm:px-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between shadow-[0_-8px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-8px_20px_rgba(0,0,0,0.2)] sm:shadow-none shrink-0 py-3 pb-6 sm:pb-3'>
-                    <div className='flex flex-row items-center justify-between w-full h-12'>
+            {(totalPages >= 1 || requests.length > 0) && (
+                <div className='fixed bottom-0 left-0 right-0 sm:relative z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-4 sm:px-6 py-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between shadow-[0_-8px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-8px_20px_rgba(0,0,0,0.2)] sm:shadow-none shrink-0'>
+                    <div className='flex flex-row items-center justify-between w-full gap-2 sm:gap-0'>
                         {/* Left: Results text */}
-                        <div className='w-1/3 text-left'>
-                            <span className='text-[10px] sm:text-[11px] text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap mt-4'>
-                                Showing {paginatedRequests.length} of {requests.length}
+                        <div className='w-auto sm:w-1/3 text-left'>
+                            <span className='text-[10px] sm:text-[11px] text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap'>
+                                Showing {requests.length} results
                             </span>
                         </div>
 
-                        {/* Right: Pagination */}
-                        <div className='flex items-center justify-end w-2/3 mt-[-20px]'>
-                            {totalPages > 1 && (
-                                <Pagination 
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    onPageChange={onPageChange}
-                                />
-                            )}
+                        {/* Center: Pagination */}
+                        <div className='flex items-center justify-end sm:justify-center w-auto sm:w-1/3'>
+                            <div className='flex items-center gap-1 justify-center shrink-0'>
+                                {totalPages > 1 && (
+                                    <button 
+                                        onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
+                                        className='w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-30'
+                                        disabled={currentPage === 1}
+                                    >
+                                        <ChevronLeft size={16} />
+                                    </button>
+                                )}
+                                <button className='w-8 h-8 flex items-center justify-center text-sm font-bold rounded-lg transition-colors bg-brand-500 text-white shadow-md shadow-brand-500/20'>
+                                    {currentPage}
+                                </button>
+                                {totalPages > currentPage && (
+                                    <button 
+                                        onClick={() => onPageChange(currentPage + 1)}
+                                        className='w-8 h-8 flex items-center justify-center text-sm font-bold rounded-lg transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05]'
+                                    >
+                                        {currentPage + 1}
+                                    </button>
+                                )}
+                                {totalPages > currentPage + 1 && (
+                                    <button 
+                                        onClick={() => onPageChange(currentPage + 1)}
+                                        className='w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05]'
+                                    >
+                                        <ChevronRight size={16} />
+                                    </button>
+                                )}
+                            </div>
                         </div>
+
+                        {/* Right: Empty spacer to ensure exact center alignment on desktop */}
+                        <div className='hidden sm:block sm:w-1/3'></div>
                     </div>
                 </div>
             )}

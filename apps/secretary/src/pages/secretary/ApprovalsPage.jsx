@@ -6,117 +6,97 @@ import ApprovalInbox from '../../components/secretary/approvals/ApprovalInbox';
 import ApprovalDetailView from '../../components/secretary/approvals_details/ApprovalDetailView';
 
 const mockRequests = [
+    // APRIL 14 (Tomorrow) -> URGENT
     {
         id: 1,
-        patient: {
-            name: "Juan Dela Cruz",
-            phone: "+63 917 123 4567",
-            email: "juan.dc@example.com",
-            noShowCount: 2,
-            cancellationCount: 1,
-            isBookingRestricted: false
-        },
+        patient: { name: "Juan Dela Cruz", phone: "+63 917 123 4567", email: "juan.dc@example.com", noShowCount: 2, cancellationCount: 1, isBookingRestricted: false },
         service: "Dental Implants",
         requestedDate: "2026-04-14",
         requestedTime: "10:00 AM",
         dentist: "Dr. Smith",
-        createdAt: new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(), // 30h ago (Stale)
+        createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     },
     {
         id: 2,
-        patient: {
-            name: "Maria Santos",
-            phone: "+63 918 234 5678",
-            email: "maria.s@example.com",
-            noShowCount: 0,
-            cancellationCount: 4,
-            isBookingRestricted: true
-        },
+        patient: { name: "Maria Santos", phone: "+63 918 234 5678", email: "maria.s@example.com", noShowCount: 0, cancellationCount: 4, isBookingRestricted: true },
         service: "Surgical Extraction",
         requestedDate: "2026-04-14",
-        requestedTime: "02:00 PM",
+        requestedTime: "11:00 AM",
         dentist: "Dr. Garcia",
-        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5h ago (New)
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     },
     {
         id: 3,
-        patient: {
-            name: "Rico Blanco",
-            phone: "+63 919 345 6789",
-            email: "rico.b@example.com",
-            noShowCount: 1,
-            cancellationCount: 0,
-            isBookingRestricted: false
-        },
+        patient: { name: "Rico Blanco", phone: "+63 919 345 6789", email: "rico.b@example.com", noShowCount: 1, cancellationCount: 0, isBookingRestricted: false },
         service: "Orthodontic Consultation",
-        requestedDate: "2026-04-15",
-        requestedTime: "09:30 AM",
+        requestedDate: "2026-04-14",
+        requestedTime: "01:00 PM",
         dentist: "Dr. Lopez",
-        createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(), // 48h ago (Stale)
+        createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
     },
     {
         id: 4,
-        patient: {
-            name: "Anna Rivera",
-            phone: "+63 920 456 7890",
-            email: "anna.r@example.com",
-            noShowCount: 0,
-            cancellationCount: 0,
-            isBookingRestricted: false
-        },
+        patient: { name: "Anna Rivera", phone: "+63 920 456 7890", email: "anna.r@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
         service: "Teeth Whitening",
         requestedDate: "2026-04-14",
         requestedTime: "03:00 PM",
         dentist: "Dr. Smith",
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2h ago (New)
+        createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
     },
     {
         id: 5,
-        patient: {
-            name: "Carlos Mendoza",
-            phone: "+63 921 567 8901",
-            email: "carlos.m@example.com",
-            noShowCount: 0,
-            cancellationCount: 0,
-            isBookingRestricted: false
-        },
+        patient: { name: "Carlos Mendoza", phone: "+63 921 567 8901", email: "carlos.m@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
         service: "Routine Checkup",
-        requestedDate: "2026-04-15",
-        requestedTime: "11:00 AM",
+        requestedDate: "2026-04-14",
+        requestedTime: "04:30 PM",
         dentist: "Dr. Garcia",
-        createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1h ago (New)
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     },
+    // APRIL 15 (Next Days) -> NEW or NEEDS ATTENTION
     {
         id: 6,
-        patient: {
-            name: "Lisa Manoban",
-            phone: "+63 922 678 1234",
-            email: "lisa.m@example.com",
-            noShowCount: 1,
-            cancellationCount: 0,
-            isBookingRestricted: false
-        },
+        patient: { name: "Lisa Manoban", phone: "+63 922 678 1234", email: "lisa.m@example.com", noShowCount: 1, cancellationCount: 0, isBookingRestricted: false },
         service: "Teeth Whitening",
-        requestedDate: "2026-04-20",
-        requestedTime: "10:30 AM",
+        requestedDate: "2026-04-15",
+        requestedTime: "09:00 AM",
         dentist: "Dr. Lopez",
-        createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+        createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     },
     {
         id: 7,
-        patient: {
-            name: "Jennie Kim",
-            phone: "+63 923 789 2345",
-            email: "jennie.k@example.com",
-            noShowCount: 0,
-            cancellationCount: 0,
-            isBookingRestricted: false
-        },
+        patient: { name: "Jennie Kim", phone: "+63 923 789 2345", email: "jennie.k@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
         service: "Routine Checkup",
-        requestedDate: "2026-04-22",
-        requestedTime: "01:00 PM",
+        requestedDate: "2026-04-15",
+        requestedTime: "11:30 AM",
         dentist: "Dr. Garcia",
-        createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+        createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        id: 8,
+        patient: { name: "Rose Park", phone: "+63 924 890 3456", email: "rose.p@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
+        service: "Dental Implants",
+        requestedDate: "2026-04-15",
+        requestedTime: "01:00 PM",
+        dentist: "Dr. Smith",
+        createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        id: 9,
+        patient: { name: "Jisoo Kim", phone: "+63 925 901 4567", email: "jisoo.k@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
+        service: "Surgical Extraction",
+        requestedDate: "2026-04-15",
+        requestedTime: "03:30 PM",
+        dentist: "Dr. Lopez",
+        createdAt: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        id: 10,
+        patient: { name: "Andi Eigenmann", phone: "+63 926 012 5678", email: "andi.e@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
+        service: "Orthodontic Consultation",
+        requestedDate: "2026-04-15",
+        requestedTime: "05:00 PM",
+        dentist: "Dr. Smith",
+        createdAt: new Date(Date.now() - 15 * 60 * 60 * 1000).toISOString(),
     }
 ];
 
@@ -172,7 +152,6 @@ const ApprovalsPage = () => {
         setSearchParams({});
     };
 
-    // Filters and Search
     const filteredRequests = requests.filter(r => {
         const matchesSearch = r.patient.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesService = selectedService === 'All Services' || r.service === selectedService;
@@ -184,20 +163,48 @@ const ApprovalsPage = () => {
         if (activeFilter === 'all') return true;
         
         const hours = (new Date() - new Date(r.createdAt)) / (1000 * 60 * 60);
-        if (activeFilter === 'stale') return hours > 24;
-        if (activeFilter === 'recent') return hours <= 24;
+        const todayStr = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        const isUrgent = r.requestedDate === tomorrowStr || r.requestedDate === todayStr;
+        const isNeedsAttention = hours > 5 && !isUrgent;
+        const isRecent = hours <= 5 && !isUrgent;
+
+        if (activeFilter === 'urgent') return isUrgent;
+        if (activeFilter === 'stale') return isNeedsAttention;
+        if (activeFilter === 'recent') return isRecent;
         
         return true;
     });
 
+    const urgentCount = requests.filter(r => {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        return r.requestedDate === tomorrowStr || r.requestedDate === todayStr;
+    }).length;
+
     const staleCount = requests.filter(r => {
         const hours = (new Date() - new Date(r.createdAt)) / (1000 * 60 * 60);
-        return hours > 24;
+        const todayStr = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        const isUrgent = r.requestedDate === tomorrowStr || r.requestedDate === todayStr;
+        return hours > 5 && !isUrgent;
     }).length;
 
     const newCount = requests.filter(r => {
         const hours = (new Date() - new Date(r.createdAt)) / (1000 * 60 * 60);
-        return hours <= 24;
+        const todayStr = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        const isUrgent = r.requestedDate === tomorrowStr || r.requestedDate === todayStr;
+        return hours <= 5 && !isUrgent;
     }).length;
 
     const selectedRequest = requests.find(r => r.id === selectedId);
@@ -220,6 +227,7 @@ const ApprovalsPage = () => {
             {!selectedId && (
                 <ApprovalHeader 
                     totalPending={requests.length}
+                    urgentCount={urgentCount}
                     newCount={newCount}
                     staleCount={staleCount}
                 />

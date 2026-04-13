@@ -4,11 +4,29 @@ import { Calendar, Clock, Eye } from 'lucide-react';
 const ApprovalRow = ({ request, onClick }) => {
     const { id, patient, service, requestedDate, requestedTime, createdAt } = request;
 
-    // Calculate if stale (> 24h)
+    // Calculate status: Urgent, Needs Attention, or New
     const createdDate = new Date(createdAt);
     const now = new Date();
     const hoursDiff = (now - createdDate) / (1000 * 60 * 60);
-    const isStale = hoursDiff > 24;
+    
+    // Normalize tomorrow date
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    const todayStr = now.toISOString().split('T')[0];
+    
+    const isTomorrow = requestedDate === tomorrowStr || requestedDate === todayStr;
+
+    let statusText = 'New';
+    let statusClass = 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400';
+
+    if (isTomorrow) {
+        statusText = 'Urgent';
+        statusClass = 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400';
+    } else if (hoursDiff > 5) {
+        statusText = 'Needs Attention';
+        statusClass = 'bg-warning-50 text-warning-600 dark:bg-warning-500/10 dark:text-warning-400';
+    }
 
     return (
         <div 
@@ -38,14 +56,12 @@ const ApprovalRow = ({ request, onClick }) => {
                 </div>
 
                 <div className='flex items-center gap-4 shrink-0 min-w-[150px] justify-end'>
-                    <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                        isStale ? 'bg-error-50 text-error-600' : 'bg-warning-50 text-warning-600'
-                    }`}>
-                        {isStale ? 'Stale' : 'New'}
+                    <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${statusClass}`}>
+                        {statusText}
                     </div>
 
-                    <span className='group-hover:hidden text-xs text-gray-400 dark:text-gray-500 font-medium ml-2 w-16 text-right'>
-                        {hoursDiff < 1 ? 'Just now' : `${Math.floor(hoursDiff)}h`}
+                    <span className='group-hover:hidden text-xs text-gray-400 dark:text-gray-500 font-medium ml-2 w-20 text-right'>
+                        {hoursDiff < 1 ? 'Just now' : `${Math.floor(hoursDiff)}h ago`}
                     </span>
                     
                     <div className='hidden group-hover:flex items-center gap-2 w-16 justify-end'>
@@ -68,7 +84,7 @@ const ApprovalRow = ({ request, onClick }) => {
                         <span className='text-sm tracking-tight truncate text-gray-900 dark:text-white font-bold'>
                             {patient.name}
                         </span>
-                        <span className='text-[10px] text-gray-400 font-medium'>{hoursDiff < 1 ? 'Just now' : `${Math.floor(hoursDiff)}h`}</span>
+                        <span className='text-[10px] text-gray-400 font-medium'>{hoursDiff < 1 ? 'Just now' : `${Math.floor(hoursDiff)}h ago`}</span>
                     </div>
                     <div className='text-sm truncate text-gray-700 dark:text-gray-300 font-medium'>
                         {service}
@@ -77,8 +93,8 @@ const ApprovalRow = ({ request, onClick }) => {
                         <div className='text-xs text-gray-400 truncate pr-4 grow'>
                             {new Date(requestedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {requestedTime}
                         </div>
-                        <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${isStale ? 'bg-error-50 text-error-600' : 'bg-warning-50 text-warning-600'}`}>
-                            {isStale ? 'Stale' : 'New'}
+                        <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${statusClass}`}>
+                            {statusText}
                         </div>
                     </div>
                 </div>
