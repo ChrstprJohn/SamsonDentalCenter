@@ -1,9 +1,19 @@
-import React from 'react';
-import { OctagonAlert, CalendarX, ShieldAlert } from 'lucide-react';
+import { OctagonAlert, CalendarX, ShieldAlert, ShieldCheck } from 'lucide-react';
 
-const PenaltyBadges = ({ noShowCount = 0, cancellationCount = 0, isBookingRestricted = false }) => {
+const PenaltyBadges = ({ 
+    noShowCount = 0, 
+    cancellationCount = 0, 
+    completedCount = 0, // NEW
+    isBookingRestricted = false 
+}) => {
     return (
         <div className="flex flex-wrap gap-3">
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-success-50 text-success-600 border border-success-100 ${
+                completedCount === 0 ? 'opacity-50 grayscale' : ''
+            }`}>
+                <ShieldCheck className="size-3.5" />
+                <span>{completedCount} Completed</span>
+            </div>
             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${
                 noShowCount > 0 ? 'bg-error-50 text-error-600 border border-error-100' : 'bg-gray-50 text-gray-500 border border-gray-100'
             }`}>

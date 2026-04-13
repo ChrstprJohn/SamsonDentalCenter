@@ -78,6 +78,19 @@ const useApprovals = () => {
         }
     }, [token]);
 
+    const fetchPatientStats = useCallback(async (patientId) => {
+        if (!token || !patientId) return { completed: 0, total: 0 };
+        try {
+            const data = await api.get(`/admin/patients/${patientId}/history`, token);
+            const history = data.appointments || [];
+            const completed = history.filter(a => a.status === 'COMPLETED').length;
+            return { completed, total: history.length };
+        } catch (err) {
+            console.error('Failed to fetch patient stats:', err);
+            return { completed: 0, total: 0 };
+        }
+    }, [token]);
+
     return {
         requests,
         loading,
@@ -86,7 +99,8 @@ const useApprovals = () => {
         refresh: fetchApprovals,
         approveRequest,
         rejectRequest,
-        fetchDentistSchedule
+        fetchDentistSchedule,
+        fetchPatientStats
     };
 };
 

@@ -12,7 +12,8 @@ const AppointmentDetailView = ({
     onBack,
     busySlots = [],
     slotPosition,
-    timeStr: initialTimeStr
+    timeStr: initialTimeStr,
+    completedCount = 0
 }) => {
     const [isRejecting, setIsRejecting] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
@@ -29,7 +30,7 @@ const AppointmentDetailView = ({
 
             <div className="flex-1 overflow-y-auto no-scrollbar relative z-10 p-6 md:p-8 sm:p-10 pb-28 lg:pb-10">
                 <div className="max-w-3xl mx-auto flex flex-col">
-                    <PatientOverview patient={patient} />
+                    <PatientOverview patient={patient} completedCount={completedCount} />
                     
                     <div className="bg-gray-50/50 dark:bg-gray-900/30 border border-gray-100 dark:border-gray-800 rounded-3xl p-5 sm:p-7 pt-7 sm:pt-9 relative overflow-hidden mb-6 sm:mb-8">
                         <ServiceOverview 

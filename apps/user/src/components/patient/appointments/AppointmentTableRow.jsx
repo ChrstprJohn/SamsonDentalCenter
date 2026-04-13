@@ -1,6 +1,6 @@
 import { Badge, Dropdown, DropdownItem } from '../../ui';
 import { ThreeDotsIcon } from './AppointmentIcons';
-import { STATUS_LABEL, STATUS_COLOR, formatDate, formatTime } from '../../../hooks/useAppointments';
+import { STATUS_LABEL, STATUS_COLOR, getDisplayStatus, formatDate, formatTime } from '../../../hooks/useAppointments';
 
 const truncateText = (text, maxLength) => {
     if (!text) return '';
@@ -10,8 +10,7 @@ const truncateText = (text, maxLength) => {
 const getInitial = (name = '') => name.replace(/^Dr\.\s*/i, '').charAt(0).toUpperCase();
 
 const AppointmentTableRow = ({ appointment, user, openDropdown, onToggleDropdown, onViewDetails }) => {
-    const displayStatus = STATUS_LABEL[appointment.status] || appointment.status;
-    const badgeColor = STATUS_COLOR[displayStatus] || 'primary';
+    const { label: displayStatus, color: badgeColor } = getDisplayStatus(appointment.status, appointment.approval_status);
     const dentistName = appointment.dentist || 'TBD';
     const patientName = appointment.booked_for_name || user?.full_name || '—';
 

@@ -16,10 +16,12 @@ const ApprovalsPage = () => {
         approveRequest, 
         rejectRequest, 
         fetchDentistSchedule,
+        fetchPatientStats,
         refresh 
     } = useApprovals();
 
     const [busySlots, setBusySlots] = useState([]);
+    const [completedCount, setCompletedCount] = useState(0);
 
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
@@ -42,8 +44,9 @@ const ApprovalsPage = () => {
                 phone: req.patient?.phone || req.guest_phone || "N/A", 
                 email: req.patient?.email || req.guest_email || "N/A", 
                 noShowCount: req.patient?.no_show_count || 0, 
-                cancellationCount: req.patient?.cancellation_count || 0, // Fallback if missing
-                isBookingRestricted: req.patient?.is_booking_restricted || false 
+                cancellationCount: req.patient?.cancellation_count || 0,
+                isBookingRestricted: req.patient?.is_booking_restricted || false,
+                source: req.source // NEW: passed through to overview
             },
             service: req.service?.name || "Unknown Service",
             serviceTier: req.service_tier,
@@ -168,30 +171,36 @@ const ApprovalsPage = () => {
 
     const selectedRequest = requests.find(r => r.id === selectedId);
 
-    // Fetch dentist busy slots when request is selected
+    // Fetch dentist busy slots and patient stats when request is selected
     useEffect(() => {
-        if (selectedRequest?.dentistId && selectedRequest?.requestedDate) {
-            const loadSchedule = async () => {
-                const appointments = await fetchDentistSchedule(
-                    selectedRequest.dentistId, 
-                    selectedRequest.requestedDate
-                );
-                // Map all appointments (except current one and cancelled/rejected) to positions
-                const positions = appointments
-                    .filter(a => 
-                        a.id !== selectedRequest.id && 
-                        a.status !== 'CANCELLED' && 
-                        a.status !== 'NOSHOW' &&
-                        a.approval_status !== 'rejected'
-                    )
-                    .map(a => calculatePosition(a.start_time));
-                setBusySlots(positions);
+        if (selectedRequest) {
+            const loadData = async () => {
+                // Fetch Dentist Schedule
+                if (selectedRequest.dentistId && selectedRequest.requestedDate) {
+                    const appointments = await fetchDentistSchedule(
+                        selectedRequest.dentistId, 
+                        selectedRequest.requestedDate
+                    );
+                    const positions = appointments
+                        .filter(a => a.id !== selectedRequest.id && a.status !== 'CANCELLED' && a.status !== 'NOSHOW')
+                        .map(a => calculatePosition(a.start_time));
+                    setBusySlots(positions);
+                }
+
+                // Fetch Patient Reputation Stats
+                if (selectedRequest.patient.id) {
+                    const stats = await fetchPatientStats(selectedRequest.patient.id);
+                    setCompletedCount(stats.completed);
+                } else {
+                    setCompletedCount(0); // Guest
+                }
             };
-            loadSchedule();
+            loadData();
         } else {
             setBusySlots([]);
+            setCompletedCount(0);
         }
-    }, [selectedRequest, fetchDentistSchedule]);
+    }, [selectedRequest, fetchDentistSchedule, fetchPatientStats]);
 
     // Dynamic breadcrumbs based on selection
     const breadcrumbTitle = selectedId ? 'Request Details' : 'Approvals';
@@ -246,6 +255,7 @@ const ApprovalsPage = () => {
                         busySlots={busySlots}
                         slotPosition={selectedRequest?.slotPosition}
                         timeStr={selectedRequest?.requestedTime}
+                        completedCount={completedCount}
                     />
                 ) : (
                     <ApprovalInbox 

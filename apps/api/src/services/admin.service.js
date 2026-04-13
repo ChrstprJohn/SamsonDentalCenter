@@ -20,7 +20,7 @@ export const getPendingRequests = async () => {
         .select(
             `
       *,
-      patient:profiles!appointments_patient_id_fkey(id, full_name, email, phone, no_show_count),
+      patient:profiles!appointments_patient_id_fkey(id, full_name, email, phone, no_show_count, cancellation_count, is_booking_restricted),
       service:services(name, duration_minutes, price, tier),
       dentist:dentists(id, profile:profiles(full_name))
     `,
@@ -536,14 +536,6 @@ export const getSystemHealth = async () => {
 /**
  * Approve a specialized appointment request.
  *
- * Flow:
- *   1. Verify appointment is PENDING with approval_status = 'pending'
- *   2. Assign a dentist from the specialized tier
- *      - Auto-assign: finds next available dentist
- *      - Manual: validates dentist exists, is qualified, AND has no time conflicts
- *   3. Update appointment: dentist_id, status → CONFIRMED, approval_status → 'approved'
- *   4. (Caller sends notification to patient)
- *
  * @param {string} appointmentId - The appointment UUID
  * @param {string} supervisorId - The supervisor's profile UUID (for audit)
  * @param {string|null} dentistId - Optional: manually pick a dentist. NULL = auto-assign.
@@ -569,7 +561,7 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
     }
 
     // ── 2. Assign dentist (auto or manual) ──
-    let assignedDentistId = dentistId;
+    let assignedDentistId = dentistId || appointment.dentist_id;
 
     if (!assignedDentistId) {
         // Auto-assign from the same tier as the service
@@ -584,11 +576,11 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
             throw new AppError('No specialized dentist available for this date/time. Please suggest a different schedule.', 409);
         }
     } else {
-        // Verify the manually selected dentist exists and is specialized tier
+        // Verify the manually selected (or pre-assigned) dentist exists
         const { data: dentist } = await supabaseAdmin
             .from('dentists')
             .select('id, tier')
-            .eq('id', dentistId)
+            .eq('id', assignedDentistId)
             .eq('is_active', true)
             .single();
 
@@ -605,13 +597,11 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
         const { data: conflict, error: conflictErr } = await supabaseAdmin
             .from('appointments')
             .select('id, status')
-            .eq('dentist_id', dentistId)
+            .eq('dentist_id', assignedDentistId)
             .eq('appointment_date', appointment.appointment_date)
-            .overlaps(
-                'start_time',
-                'end_time',
-                `["${appointment.start_time}", "${appointment.end_time}")`,
-            )
+            .lt('start_time', appointment.end_time)
+            .gt('end_time', appointment.start_time)
+            .neq('id', appointmentId) // EXCLUDE SELF
             .neq('status', APPOINTMENT_STATUS.CANCELLED)
             .maybeSingle();
 
@@ -636,14 +626,12 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
             updated_at: new Date().toISOString(),
         })
         .eq('id', appointmentId)
-        .select(
-            `
-        *,
-        patient: profiles!appointments_patient_id_fkey(full_name, email),
-            service: services(name, price),
-                dentist: dentists(profile: profiles(full_name))
-    `,
-        )
+        .select(`
+            *,
+            patient:profiles!appointments_patient_id_fkey(full_name, email),
+            service:services(name, price),
+            dentist:dentists(id, profile:profiles(full_name))
+        `)
         .single();
 
     if (updateErr) throw { status: 500, message: updateErr.message };

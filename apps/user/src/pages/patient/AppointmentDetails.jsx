@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import useAppointmentDetail from '../../hooks/useAppointmentDetail';
-import { STATUS_LABEL, STATUS_COLOR, formatDate, formatTime } from '../../hooks/useAppointments';
+import { STATUS_LABEL, STATUS_COLOR, getDisplayStatus, formatDate, formatTime } from '../../hooks/useAppointments';
 
 // Subcomponents
 import AppointmentDetailActionBar from '../../components/patient/appointment_details/AppointmentDetailActionBar';
@@ -107,8 +107,7 @@ const AppointmentDetails = () => {
     const dentistName = raw?.dentist?.profile?.full_name || raw?.dentist || 'TBD';
     const specialization = raw?.dentist?.specialization || null;
     const serviceName = raw?.service?.name || raw?.service || '—';
-    const displayStatus = raw ? STATUS_LABEL[raw.status] || raw.status : '';
-    const badgeColor = STATUS_COLOR[displayStatus] || 'primary';
+    const { label: displayStatus, color: badgeColor } = getDisplayStatus(raw.status, raw.approval_status);
     const duration = raw ? getDuration(raw.start_time, raw.end_time) : null;
     const patientLabel = raw?.booked_for_name
         ? raw.booked_for_name
@@ -176,6 +175,7 @@ const AppointmentDetails = () => {
                                     rawId={raw.id}
                                     cancellationReason={raw.cancellation_reason}
                                     rejectionReason={raw.rejection_reason}
+                                    approvalStatus={raw.approval_status}
                                 />
                             </div>
 

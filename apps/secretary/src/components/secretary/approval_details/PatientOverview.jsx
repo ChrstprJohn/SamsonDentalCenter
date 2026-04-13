@@ -2,7 +2,8 @@ import React from 'react';
 import PenaltyBadges from '../approvals/PenaltyBadges';
 import { Phone, Mail } from 'lucide-react';
 
-const PatientOverview = ({ patient }) => {
+const PatientOverview = ({ patient, completedCount = 0 }) => {
+    const isGuest = patient.source === 'GUEST_BOOKING';
     return (
         <div className='mb-10 sm:mb-14'>
             <div className='flex items-center gap-4 mb-6 sm:mb-8'>
@@ -21,12 +22,14 @@ const PatientOverview = ({ patient }) => {
                             {patient.name.charAt(0)}
                         </div>
                         <div>
+                            <p className={`text-[11px] font-bold px-2 py-0.5 rounded-md inline-block uppercase tracking-wider mb-2 ${
+                                isGuest ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-brand-50 text-brand-600 border border-brand-100'
+                            }`}>
+                                {isGuest ? 'Guest Booking' : 'Registered Patient'}
+                            </p>
                             <h3 className='text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight leading-tight mb-1'>
                                 {patient.name}
                             </h3>
-                            <p className='text-[13px] text-gray-400 dark:text-gray-500 font-medium'>
-                                Registered Patient
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -55,6 +58,7 @@ const PatientOverview = ({ patient }) => {
                         <PenaltyBadges 
                             noShowCount={patient.noShowCount}
                             cancellationCount={patient.cancellationCount}
+                            completedCount={completedCount}
                             isBookingRestricted={patient.isBookingRestricted}
                         />
                     </div>

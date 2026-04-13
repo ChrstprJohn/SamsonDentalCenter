@@ -34,10 +34,26 @@ export const STATUS_COLOR = {
     Approved: 'success',
     Pending: 'warning',
     Cancelled: 'error',
+    Rejected: 'error',
     Completed: 'info',
     Missed: 'error',
     'In Progress': 'primary',
     Waitlisted: 'warning',
+};
+
+/**
+ * Helper to resolve the correct display label and color 
+ * for an appointment based on its status and approval_status.
+ */
+export const getDisplayStatus = (status, approvalStatus) => {
+    // If it was rejected by a secretary, show 'Rejected' instead of generic 'Cancelled'
+    if (status === 'CANCELLED' && approvalStatus === 'rejected') {
+        return { label: 'Rejected', color: STATUS_COLOR.Rejected };
+    }
+    
+    const label = STATUS_LABEL[status] || status;
+    const color = STATUS_COLOR[label] || 'primary';
+    return { label, color };
 };
 
 /**

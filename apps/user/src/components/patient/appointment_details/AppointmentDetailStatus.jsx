@@ -8,6 +8,7 @@ const AppointmentDetailStatus = ({
     updatedAt,
     cancellationReason,
     rejectionReason,
+    approvalStatus,
     rawId,
 }) => {
     const isCancelled =
@@ -29,17 +30,21 @@ const AppointmentDetailStatus = ({
             },
             {
                 id: 'confirmed',
-                title: isCancelled ? 'Request Cancelled' : 'Confirmed by Clinic',
+                title: isCancelled 
+                    ? (approvalStatus === 'rejected' ? 'Request Rejected' : 'Request Cancelled') 
+                    : 'Confirmed by Clinic',
                 desc: isCancelled
-                    ? cancellationReason
-                        ? `Cancelled: ${cancellationReason}`
-                        : rejectionReason
-                          ? `Rejected: ${rejectionReason}`
+                    ? rejectionReason
+                        ? `Rejection Reason: ${rejectionReason}`
+                        : cancellationReason
+                          ? `Cancellation Reason: ${cancellationReason}`
                           : 'This appointment was cancelled.'
                     : isConfirmed
                       ? 'Your appointment has been officially scheduled.'
                       : 'Awaiting review and approval from our team.',
-                timeTitle: isCancelled ? 'Cancelled At' : isConfirmed ? 'Approved At' : 'Status',
+                timeTitle: isCancelled 
+                    ? (approvalStatus === 'rejected' ? 'Rejected At' : 'Cancelled At') 
+                    : isConfirmed ? 'Approved At' : 'Status',
                 timeDetail:
                     isCancelled || isConfirmed
                         ? formatFullDateTime(updatedAt || createdAt)

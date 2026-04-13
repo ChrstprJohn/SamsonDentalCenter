@@ -7,6 +7,7 @@ const CATEGORIES = [
     { id: 'upcoming', label: 'Upcoming', icon: Clock },
     { id: 'pending', label: 'Pending', icon: RotateCcw },
     { id: 'cancel', label: 'Cancelled', icon: XCircle },
+    { id: 'decline', label: 'Rejected', icon: XCircle },
     { id: 'completed', label: 'Completed', icon: CheckCircle2 },
 ];
 
