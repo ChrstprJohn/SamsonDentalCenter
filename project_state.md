@@ -1,6 +1,8 @@
 # Project State: PrimeraDental
 
 ## Current Architecture
+- **Infrastructure**: Turborepo + pnpm Workspaces Monorepo
+- **Apps**: API (Backend), User, Admin, Secretary, Doctor (Frontend)
 - **Backend**: Node.js with Express v5.2.1
 - **Database**: Supabase (PostgreSQL) with RLS
 - **Authentication**: Supabase Auth with httpOnly Cookies
