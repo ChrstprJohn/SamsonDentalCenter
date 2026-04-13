@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import ApprovalHeader from '../../components/secretary/approvals/ApprovalHeader';
 import ApprovalInbox from '../../components/secretary/approvals/ApprovalInbox';
-import ApprovalDetailView from '../../components/secretary/approvals_details/ApprovalDetailView';
+import ApprovalDetailView from '../../components/secretary/approval_details';
 
 const mockRequests = [
     // APRIL 14 (Tomorrow) -> URGENT

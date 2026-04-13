@@ -22,9 +22,9 @@ const SERVICES = [
 
 const DOCTORS = [
     'All Doctors',
-    'Dr. Smith',
-    'Dr. Garcia',
-    'Dr. Lopez'
+    'Dr. Alice Smith',
+    'Dr. Bob Johnson',
+    'Dr. Charlie Davis'
 ];
 
 const ITEMS_PER_PAGE = 8;
@@ -232,12 +232,23 @@ const ApprovalInbox = ({
                                                         <button
                                                             key={d}
                                                             onClick={() => setLocalDoctor(d)}
-                                                            className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${localDoctor === d
+                                                            className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition-all duration-200 group/doc ${localDoctor === d
                                                                     ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
                                                                     : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800'
                                                                 }`}
                                                         >
-                                                            {d}
+                                                            <div className="flex items-center justify-between">
+                                                                <span>{d}</span>
+                                                                {d !== 'All Doctors' && (
+                                                                    <span className={`text-[9px] uppercase tracking-tighter px-1.5 py-0.5 rounded-md font-black ${
+                                                                        localDoctor === d 
+                                                                        ? 'bg-white/20 text-white' 
+                                                                        : 'bg-brand-50 text-brand-500 dark:bg-brand-500/10'
+                                                                    }`}>
+                                                                        M, Thu, Fri
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </button>
                                                     ))}
                                                 </div>
