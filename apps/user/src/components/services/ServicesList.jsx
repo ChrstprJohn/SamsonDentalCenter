@@ -1,103 +1,400 @@
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useServices from '../../hooks/useServices';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const ServicesList = () => {
-    const navigate = useNavigate();
-    const { services, loading, error } = useServices();
+gsap.registerPlugin(ScrollTrigger);
 
-    // Mapping services to include images if they don't have them
-    const serviceImages = [
-        'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=1200',
-        'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=800',
-        'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?auto=format&fit=crop&q=80&w=800',
-        'https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?auto=format&fit=crop&q=80&w=800',
-        'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&q=80&w=800',
-        'https://images.unsplash.com/photo-1445527815219-ec9fc013d333?auto=format&fit=crop&q=80&w=800',
-        'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=800',
-        'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800',
-        'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=800',
-    ];
+export const SERVICES = [
+  {
+    title: 'Complex diagnostics',
+    category: 'General',
+    desc: 'Advanced imaging and diagnostic procedures for precise treatment planning.',
+    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=1200',
+    details: 'Our complex diagnostics involve state-of-the-art 3D CBCT scanning, digital impressions, and AI-assisted analysis to create a comprehensive map of your oral health. This ensures every treatment is planned with micron-level precision.'
+  },
+  {
+    title: 'Professional hygiene',
+    category: 'General',
+    desc: 'Deep cleaning and preventative care to maintain long-term oral health.',
+    image: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=800',
+    details: 'Experience a new standard of clean with our guided biofilm therapy. We use warm water and airflow technology to gently remove plaque and stains, followed by a remineralizing treatment to strengthen enamel.'
+  },
+  {
+    title: 'Veneers',
+    category: 'Specialized',
+    desc: 'Ultra-thin porcelain shells for a flawless, natural-looking smile.',
+    image: 'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?auto=format&fit=crop&q=80&w=800',
+    details: 'Custom-crafted by master ceramists, our veneers are designed to complement your facial features. The process involves a digital smile design preview, minimal preparation, and a final bonding session for a life-changing transformation.'
+  },
+  {
+    title: 'Dental implants',
+    category: 'Specialized',
+    desc: 'Permanent tooth replacement solutions that feel and look like natural teeth.',
+    image: 'https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?auto=format&fit=crop&q=80&w=800',
+    details: 'We use premium titanium or zirconia implants to replace missing teeth. The procedure is minimally invasive, often performed under sedation, and results in a stable, lifelong foundation for your smile.'
+  },
+  {
+    title: 'ALL-ON-X',
+    category: 'Specialized',
+    desc: 'Full-arch restoration for immediate, transformative results.',
+    image: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&q=80&w=800',
+    details: 'Regain full function in a single day. This revolutionary technique supports an entire arch of teeth on just 4 or 6 implants, providing immediate stability and aesthetics without the need for bone grafting in many cases.'
+  },
+  {
+    title: 'Sedation and anaesthesia',
+    category: 'General',
+    desc: 'Comfortable treatments with advanced sedation options.',
+    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800',
+    details: 'Anxiety-free dentistry is our promise. From nitrous oxide (laughing gas) to IV sedation administered by a board-certified anesthesiologist, we ensure your comfort and safety throughout any procedure.'
+  },
+  {
+    title: 'Simple Extraction',
+    category: 'General',
+    desc: 'Safe and painless removal of problematic teeth.',
+    image: 'https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?auto=format&fit=crop&q=80&w=800',
+    details: 'When a tooth cannot be saved, our expert surgeons perform simple extractions with maximum care, ensuring a clean process and rapid recovery.'
+  },
+  {
+    title: 'Teeth Whitening',
+    category: 'General',
+    desc: 'Professional brightening for a radiant smile.',
+    image: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=800',
+    details: 'Our advanced laser whitening treatments ensure significantly brighter teeth without sensitivity, utilizing premium whitening gels activated by specialized light.'
+  },
+  {
+    title: 'Therapy',
+    category: 'General',
+    desc: 'General restorative treatments to bring back your smile.',
+    image: 'https://images.unsplash.com/photo-1445527697968-0174f0f2b5a3?auto=format&fit=crop&q=80&w=800',
+    details: 'From composite bonding to fluoride treatments, our therapeutic services focus on arresting decay, repairing damage, and restoring the natural function of your teeth using biomimetic materials.'
+  },
+  {
+    title: 'Endodontics',
+    category: 'Specialized',
+    desc: 'Specialized root canal treatments to save natural teeth.',
+    image: 'https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&q=80&w=800',
+    details: 'Using microscopic magnification, we remove infection from within the tooth with extreme precision. This painless procedure saves your natural tooth, preventing the need for extraction and implants.'
+  },
+  {
+    title: 'Surgery',
+    category: 'Specialized',
+    desc: 'Expert surgical care for complex oral conditions.',
+    image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=800',
+    details: 'Our oral surgery capabilities range from wisdom tooth removal to corrective jaw surgery. We prioritize minimally invasive techniques and accelerated healing protocols to get you back to your life faster.'
+  },
+  {
+    title: 'Smile Design',
+    category: 'Specialized',
+    desc: 'Digital smile planning for predictable aesthetic results.',
+    image: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=800',
+    details: 'Using advanced digital imaging and facial analysis, we design your perfect smile before any treatment begins. See your future smile and participate in the design process.'
+  },
+  {
+    title: 'Orthodontics',
+    category: 'General',
+    desc: 'Clear aligners and traditional braces for a perfectly straight smile.',
+    image: 'https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?auto=format&fit=crop&q=80&w=800',
+    details: 'Achieve the straight smile you\'ve always wanted. We offer both comprehensive traditional braces and virtually invisible clear aligner therapy customised to your unique bite.'
+  },
+  {
+    title: 'Periodontal Care',
+    category: 'General',
+    desc: 'Specialized treatments for gum health and disease prevention.',
+    image: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=800',
+    details: 'Healthy gums are the foundation of healthy teeth. Our periodontal therapies manage gum disease through deep scaling, root planing, and advanced laser treatments.'
+  },
+  {
+    title: 'Pediatric Dentistry',
+    category: 'General',
+    desc: 'Gentle and comprehensive dental care for children of all ages.',
+    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=1200',
+    details: 'We provide a welcoming, fear-free environment for our youngest patients, focusing on preventative care, education, and interceptive treatments as they grow.'
+  },
+  {
+    title: 'Dental Crowns',
+    category: 'General',
+    desc: 'Custom-crafted restorations to protect and strengthen damaged teeth.',
+    image: 'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?auto=format&fit=crop&q=80&w=800',
+    details: 'Our single-visit ceramic crowns perfectly match your natural teeth, restoring both the function and aesthetic appearance of teeth weakened by decay or trauma.'
+  },
+  {
+    title: 'TMJ Therapy',
+    category: 'General',
+    desc: 'Relief from jaw pain, clicking, and related headaches.',
+    image: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&q=80&w=800',
+    details: 'Using targeted diagnostics, custom night guards, and guided physiotherapy, we alleviate temporomandibular joint dysfunction to give you lasting comfort.'
+  },
+  {
+    title: 'Bone Grafting',
+    category: 'Specialized',
+    desc: 'Advanced bone regeneration to build a solid foundation for implants.',
+    image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=800',
+    details: 'Using advanced biocompatible materials, we restore jawbone density lost to extractions or pathology, ensuring your dental implants have the robust support they need.'
+  },
+  {
+    title: 'Sinus Lifts',
+    category: 'Specialized',
+    desc: 'Surgical elevation of the sinus cavity to allow for upper jaw implants.',
+    image: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=800',
+    details: 'A highly specialized procedure that gently lifts the sinus membrane and adds bone graft material, safely opening the door for secure implants in the upper molar region.'
+  },
+  {
+    title: 'Full Mouth Reconstruction',
+    category: 'Specialized',
+    desc: 'Comprehensive rehabilitation of your entire oral structure and aesthetic.',
+    image: 'https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&q=80&w=800',
+    details: 'For cases requiring extensive intervention, our specialists collaborate to rebuild your entire smile from the ground up, utilizing implants, crowns, and precise bite alignment.'
+  },
+  {
+    title: 'Laser Gum Surgery',
+    category: 'Specialized',
+    desc: 'Minimally invasive laser therapy for periodontal disease and contouring.',
+    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800',
+    details: 'Experience scalpel-free gum surgery. Our targeted lasers vaporize infected tissue, stimulate cellular regeneration, and precisely reshape gummy smiles with minimal downtime.'
+  },
+  {
+    title: 'Maxillofacial Prosthetics',
+    category: 'Specialized',
+    desc: 'Complex prosthetic rehabilitation for congenital or acquired defects.',
+    image: 'https://images.unsplash.com/photo-1445527697968-0174f0f2b5a3?auto=format&fit=crop&q=80&w=800',
+    details: 'Our specialized prosthodontists design custom intraoral and extraoral prostheses to restore crucial oral function, swallowing, speech, and facial aesthetics.'
+  }
+];
 
-    return (
-        <div className='min-h-screen bg-white pb-20'>
-            {/* Services List */}
-            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-32'>
-                {loading && (
-                    <div className='flex flex-col items-center justify-center py-32 gap-4'>
-                        <div className='w-12 h-12 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin'></div>
-                        <p className='text-slate-400 font-medium animate-pulse'>
-                            Curating services...
-                        </p>
-                    </div>
-                )}
+const ServicesList = ({ variant = 'dark', onBookNow, onServiceSelect }) => {
+  const isDark = variant === 'dark';
+  const [activeCategory, setActiveCategory] = useState('General');
+  const sectionRef = useRef(null);
+  const headingRef = useRef(null);
+  const gridRef = useRef(null);
+  const navigate = useNavigate();
 
-                {!loading && services?.length === 0 && !error && (
-                    <div className='text-center py-32 bg-slate-50 rounded-2xl border border-dashed border-slate-200'>
-                        <p className='text-slate-600 font-medium'>
-                            Our service catalog is currently being updated.
-                        </p>
-                    </div>
-                )}
+  useEffect(() => {
+    let ctx;
+    const timer = setTimeout(() => {
+        ctx = gsap.context(() => {
+            // Animate Heading Elements staggered (Masked Reveal)
+            gsap.from('.services-reveal-text', {
+                x: '-100%',
+                opacity: 0,
+                duration: 1.5,
+                stagger: 0.2,
+                ease: 'expo.out',
+                scrollTrigger: {
+                    trigger: headingRef.current,
+                    start: 'top 85%',
+                    once: true,
+                },
+            });
 
-                {services?.length > 0 && (
-                    <div className='flex flex-col gap-32 md:gap-48'>
-                        {services.map((service, index) => {
-                            const imageStr = serviceImages[index % serviceImages.length];
-                            const numberStr = String(index + 1).padStart(2, '0');
-                            const totalStr = String(services.length).padStart(2, '0');
+            // Animate grid cards in batches
+            gsap.set('.gsap-card', { y: 40, opacity: 0, scale: 0.95 });
+            ScrollTrigger.batch('.gsap-card', {
+                start: 'top 95%',
+                once: true,
+                onEnter: (batch) => {
+                    gsap.to(batch, {
+                        y: 0,
+                        opacity: 1,
+                        scale: 1,
+                        duration: 0.7,
+                        ease: 'power3.out',
+                        stagger: 0.1,
+                    });
+                },
+            });
 
-                            return (
-                                <div
-                                    key={service.id}
-                                    className='relative flex flex-col md:flex-row items-center gap-8 md:gap-16 lg:gap-24 group'
-                                >
-                                    {/* Image Section with Number */}
-                                    <div
-                                        className={`relative z-10 w-full md:w-1/2 ${index % 2 === 1 ? 'md:order-2' : ''}`}
-                                    >
-                                        {/* Number Behind Image */}
-                                        <div className='absolute -top-16 left-0 text-[90px] font-bold text-[#c9cbce] z-0 select-none leading-none'>
-                                            00/{numberStr}
-                                        </div>
-                                        <div className='relative aspect-[4/3] w-full overflow-hidden bg-slate-100 shadow-sm transition-[transform] duration-500 group-hover:-translate-y-2 z-10 rounded-2xl'>
-                                            <img
-                                                src={imageStr}
-                                                alt={service.name}
-                                                className='h-full w-full object-cover transition-transform duration-700 group-hover:scale-105'
-                                            />
-                                        </div>
-                                    </div>
+            // Animate list items staggered robustly
+            gsap.fromTo('.gsap-list-item', 
+                { x: -20, opacity: 0 },
+                {
+                    x: 0,
+                    opacity: 1,
+                    duration: 0.6,
+                    ease: 'power3.out',
+                    stagger: 0.1,
+                    scrollTrigger: {
+                        trigger: '.gsap-list-container',
+                        start: 'top 95%',
+                        once: true,
+                    },
+                }
+            );
+        }, sectionRef);
 
-                                    {/* Content Section */}
-                                    <div
-                                        className={`relative z-10 w-full md:w-1/2 flex flex-col justify-center ${index % 2 === 1 ? 'md:order-1' : ''}`}
-                                    >
-                                        <h2 className='text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 mb-4 md:mb-6 tracking-tight'>
-                                            {service.name}
-                                        </h2>
-                                        <p className='text-base md:text-lg text-slate-500 leading-relaxed mb-8 md:mb-12 max-w-lg font-light'>
-                                            {service.description ||
-                                                (service.duration_minutes
-                                                    ? `Duration: ${service.duration_minutes} minutes`
-                                                    : 'Professional service excellence.')}
-                                        </p>
+        // Force ScrollTrigger to recalculate all trigger positions now that layout is stable
+        ScrollTrigger.refresh();
+    }, 100);
 
-                                        <button
-                                            onClick={() => navigate(`/services/${service.id}`)}
-                                            className='group/btn inline-flex items-center text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900 hover:text-blue-600 transition-[color] duration-200 w-fit'
-                                        >
-                                            CONTINUE READING
-                                            <span className='ml-4 w-12 h-[1px] bg-slate-900 group-hover/btn:bg-blue-600 group-hover/btn:w-16 transition-all duration-300'></span>
-                                        </button>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
+    return () => {
+        clearTimeout(timer);
+        if (ctx) ctx.revert();
+    };
+  }, [activeCategory]); // Re-run animation if activeCategory changes layout
+
+  const handleServiceSelect = (service) => {
+    if (onServiceSelect) {
+      onServiceSelect(service);
+    } else {
+      // Find the ID to navigate to by checking if we have dynamic services
+      // Since it's a static array now, we could use the title to create a slug
+    }
+  };
+
+  const getGridClasses = (index) => {
+    switch (index) {
+        case 0:
+            return 'col-span-2 md:col-span-4 h-[300px] md:h-[450px]';
+        default:
+            return 'col-span-1 h-[280px] md:h-[420px]';
+    }
+  };
+
+  const filteredServices = SERVICES.filter(service => service.category === activeCategory);
+  
+  // Design logic from HomeServices
+  const gridItems = filteredServices.slice(0, 5);
+  const listItems = filteredServices.slice(5);
+
+  return (
+    <div ref={sectionRef} className="bg-[#0B1120] py-16 sm:py-24 lg:py-32 relative overflow-hidden transition-colors duration-500">
+      {/* Background Decor */}
+      <div className="absolute top-0 right-0 w-[1200px] h-[1200px] bg-sky-500/5 rounded-full blur-[200px] -mr-96 -mt-96 pointer-events-none transition-all duration-700"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-20 gap-8">
+          <div ref={headingRef} className="max-w-3xl">
+            <div className="flex items-center space-x-3 mb-6 overflow-hidden">
+              <div className="services-reveal-text flex items-center gap-3">
+                <span className="h-px w-8 bg-sky-500"></span>
+                <span className="text-sky-400 font-bold uppercase tracking-[0.4em] text-[10px]">Medical Services</span>
+              </div>
             </div>
+            <h2 className="text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.1] tracking-tight">
+              <div className="overflow-hidden">
+                <span className="block services-reveal-text text-white">Clinical</span>
+              </div>
+              <div className="overflow-hidden mt-1 md:mt-0">
+                <span className="block services-reveal-text text-slate-400">Solutions.</span>
+              </div>
+            </h2>
+          </div>
+          
+          <div className="flex flex-col items-end gap-4">
+            {/* 2-choice selection navbar */}
+            <div className="flex bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-sm self-start md:self-end">
+              <button 
+                onClick={() => setActiveCategory('General')}
+                className={`px-6 py-3 rounded-full text-base font-bold transition-all ${activeCategory === 'General' ? 'bg-sky-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+              >
+                General
+              </button>
+              <button 
+                onClick={() => setActiveCategory('Specialized')}
+                className={`px-6 py-3 rounded-full text-base font-bold transition-all ${activeCategory === 'Specialized' ? 'bg-sky-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+              >
+                Specialized
+              </button>
+            </div>
+          </div>
         </div>
-    );
+
+        {/* HomeServices Design Grid */}
+        <div ref={gridRef} className='grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16'>
+            {gridItems.map((service, idx) => (
+                <div
+                    key={service.title}
+                    onClick={() => handleServiceSelect(service)}
+                    className={`gsap-card group relative overflow-hidden rounded-2xl border transition-all duration-700 ease-out cursor-pointer ${getGridClasses(idx)} border-white/5 hover:border-sky-500/30 shadow-sm`}
+                >
+                    <img
+                        src={service.image}
+                        className='absolute inset-0 w-full h-full object-cover grayscale-30 group-hover:grayscale-0 transition-all duration-1000 ease-out group-hover:scale-105'
+                        alt={service.title}
+                    />
+
+                    {/* Subtler Overlays for Dark Mode */}
+                    <div className='absolute inset-0 transition-colors duration-700 ease-out bg-slate-900/40 group-hover:bg-slate-900/20'></div>
+                    <div className='absolute inset-0 bg-gradient-to-t via-transparent to-transparent opacity-80 group-hover:opacity-90 transition-opacity from-black'></div>
+
+                    <div className='absolute top-6 left-6 font-bold text-[10px] tracking-widest transition-colors text-white/50 group-hover:text-sky-400'>
+                        {String(idx + 1).padStart(2, '0')}
+                    </div>
+
+                    <div className='absolute top-5 right-5 w-10 h-10 rounded-xl backdrop-blur-md border flex items-center justify-center text-white transform transition-all duration-500 ease-out group-hover:bg-sky-500 group-hover:border-sky-400 group-hover:rotate-45 bg-white/10 border-white/10'>
+                        <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2.5' d='M5 19L19 5m0 0H8m11 0v11'></path>
+                        </svg>
+                    </div>
+
+                    <div className='absolute bottom-6 left-6 pr-8'>
+                        <h3 className={`font-bold text-white tracking-tight leading-[1.2] drop-shadow-sm transition-all ease-out ${idx === 0 ? 'duration-500 text-2xl md:text-4xl max-w-lg mb-2' : 'duration-700 text-lg md:text-2xl max-w-40'}`}>
+                            {service.title}
+                        </h3>
+                        <div className={`grid transition-all ease-out grid-rows-[0fr] group-hover:grid-rows-[1fr] opacity-0 group-hover:opacity-100 ${idx === 0 ? 'duration-500' : 'duration-700'}`}>
+                            <div className="overflow-hidden">
+                                <p className={`text-slate-300 text-sm md:text-base leading-relaxed max-w-md pt-2 transform translate-y-4 group-hover:translate-y-0 transition-transform ease-out ${idx === 0 ? 'duration-500' : 'duration-700'}`}>
+                                    {service.desc}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+
+        {/* List View */}
+        {listItems.length > 0 && (
+            <div
+                className={`gsap-list-container border-t divide-y ${isDark ? 'border-white/5 divide-white/5' : 'border-slate-100 divide-slate-100'}`}
+            >
+                {listItems.map((service, idx) => {
+                    const displayIndex = idx + gridItems.length + 1;
+                    return (
+                        <div
+                            key={service.title}
+                            onClick={() => handleServiceSelect(service)}
+                            className={`gsap-list-item group flex items-center justify-between py-10 md:py-14 px-4 hover:px-8 transition-all duration-700 ease-out cursor-pointer ${isDark ? 'hover:bg-white/5' : 'hover:bg-slate-50/70'}`}
+                        >
+                            <div className='flex items-center gap-8 md:gap-20'>
+                                <span
+                                    className={`font-bold text-sm md:text-base transition-colors ${isDark ? 'text-white/30 group-hover:text-white/70' : 'text-slate-400 group-hover:text-blue-500'}`}
+                                >
+                                    {String(displayIndex).padStart(2, '0')}
+                                </span>
+                                <h3
+                                    className={`text-xl md:text-4xl font-bold transition-colors tracking-tight ${isDark ? 'text-white/80 group-hover:text-white group-hover:translate-x-1' : 'text-slate-800 group-hover:text-slate-900 group-hover:translate-x-1'}`}
+                                >
+                                    {service.title}
+                                </h3>
+                            </div>
+
+                            <div
+                                className={`w-12 h-12 md:w-16 md:h-16 rounded-xl border flex items-center justify-center transition-all duration-700 ease-out ${isDark ? 'bg-white/5 border-white/10 text-white/40 group-hover:bg-white/10 group-hover:text-white group-hover:border-white/20 group-hover:rotate-6' : 'bg-white border-slate-100 text-slate-400 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-500 shadow-sm group-hover:shadow-md group-hover:rotate-6'}`}
+                            >
+                                <svg
+                                    className='w-6 h-6 md:w-7 md:h-7'
+                                    fill='none'
+                                    stroke='currentColor'
+                                    viewBox='0 0 24 24'
+                                >
+                                    <path
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
+                                        strokeWidth='2.5'
+                                        d='M17 8l4 4m0 0l-4 4m4-4H3'
+                                    ></path>
+                                </svg>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default ServicesList;

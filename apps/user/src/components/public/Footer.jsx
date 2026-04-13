@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
     return (
-        <footer className='bg-[#050506] text-slate-50 py-16 sm:py-24 lg:py-32 relative overflow-hidden'>
+        <footer className='bg-[#0B1120] text-slate-50 py-16 sm:py-24 lg:py-32 relative overflow-hidden'>
             {/* Background Decor */}
             <div className='absolute bottom-0 right-0 w-150 h-150 bg-white/6 rounded-full blur-[100px] -mr-48 -mb-48 pointer-events-none'></div>
 
