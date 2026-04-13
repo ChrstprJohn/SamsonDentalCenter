@@ -14,7 +14,7 @@ const HomePage = () => {
     return (
         <>
             <Hero />
-            <Promotions ref={promotionsRef} variant='light' />
+            {/* <Promotions ref={promotionsRef} variant='light' /> */}
             <HomeServices variant='dark' />
             <Gallery variant='dark' />
             <Portfolio variant='light' />

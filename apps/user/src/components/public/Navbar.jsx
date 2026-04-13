@@ -140,25 +140,25 @@ const Navbar = () => {
                                     to='/'
                                     className='flex items-center space-x-3 group'
                                 >
-                                    <div className='w-11 h-11 bg-blue-600 rounded-xl shadow-lg flex items-center justify-center transition-all duration-500 group-hover:rotate-6 group-hover:scale-110'>
-                                        <span className='text-white font-black text-xl'>SD</span>
+                                    <div className='w-10 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
+                                        <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto drop-shadow-sm" />
                                     </div>
-                                    <div className='flex flex-col'>
+                                    <div className='flex flex-col items-start justify-center'>
                                         <span
-                                            className={`font-black text-xl tracking-tight leading-none ${isScrolled || isMobileMenuOpen
+                                            className={`font-black text-[22px] tracking-[-0.04em] leading-none ${isScrolled || isMobileMenuOpen
                                                 ? 'text-slate-800'
                                                 : 'text-white'
                                                 }`}
                                         >
-                                            ‎ SAMSON‎
+                                            SAMSON
                                         </span>
                                         <span
-                                            className={`text-[10px] uppercase tracking-[0.2em] font-bold ${isScrolled || isMobileMenuOpen
+                                            className={`text-[10px] uppercase tracking-[0.28em] font-bold mt-[2px] ${isScrolled || isMobileMenuOpen
                                                 ? 'text-blue-600'
                                                 : 'text-blue-400'
                                                 }`}
                                         >
-                                            Dental Clinic
+                                            Dental Center
                                         </span>
                                     </div>
                                 </Link>
@@ -376,15 +376,15 @@ const Navbar = () => {
                         className='flex items-center space-x-3 group'
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
-                        <div className='w-10 h-10 bg-blue-600 rounded-xl shadow-md flex items-center justify-center transition-transform duration-500 group-hover:rotate-6'>
-                            <span className='text-white font-black text-lg'>SD</span>
+                        <div className='w-9 flex items-center justify-center transition-transform duration-500 group-hover:scale-110'>
+                            <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto drop-shadow-sm" />
                         </div>
-                        <div className='flex flex-col'>
-                            <span className='font-black text-lg tracking-tight text-slate-800 uppercase leading-none'>
+                        <div className='flex flex-col items-start justify-center'>
+                            <span className='font-black text-[20px] tracking-[-0.04em] text-slate-800 uppercase leading-none'>
                                 SAMSON
                             </span>
-                            <span className='text-[9px] uppercase tracking-[0.2em] font-bold text-blue-600'>
-                                Dental Clinic
+                            <span className='text-[9px] uppercase tracking-[0.28em] mt-[2px] font-bold text-blue-600'>
+                                Dental Center
                             </span>
                         </div>
                     </Link>

@@ -1,5 +1,5 @@
 import { forwardRef, useRef, useState, useEffect } from 'react';
-import SectionHeading from '../common/SectionHeading';
+//import SectionHeading from '../common/SectionHeading';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
