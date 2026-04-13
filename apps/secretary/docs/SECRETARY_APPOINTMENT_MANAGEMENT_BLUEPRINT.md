@@ -1,148 +1,196 @@
-# Secretary/Receptionist Portal — Refined Frontend UX Blueprint
+# Secretary/Front Desk Portal — Complete UI/UX Blueprint
 
-## Global Layout & The Universal Drawer
+## Navigation Structure (6 Sidebar Items)
 
-### Layout Structure
+1. **Dashboard** `/` — Morning command center with KPIs
+2. **Front Desk** `/front-desk` — Today's real-time Kanban board
+3. **Calendar** `/calendar` — Weekly/daily visual scheduler
+4. **Approvals** `/approvals` — Specialized request queue (badge count)
+5. **Booking Desk** `/booking` — Walk-in / manual booking form
+6. **Patients** `/patients` — Patient directory & history lookup
 
-- **Left Sidebar:** Front Desk (Today), Calendar, Approvals (Badge), Booking Desk, Waitlist,
-  Patients.
-- **Top Header:** Global Search (Name/Phone), Date Picker, Notification Bell, + New Booking button.
+> **Waitlist** is NOT a sidebar page. It appears as a contextual modal during cancellation flows.
+
+---
+
+## Global Layout
+
+### Left Sidebar
+Collapsible sidebar with 6 nav items above + logo at top.
+
+### Top Header
+- Global Search (Name/Phone)
+- Date context display
+- Notification Bell
+- + New Booking button (shortcut to Booking Desk)
 
 ### Universal Right-Side Drawer
-
 Opens clicking any appointment or patient anywhere in the app.
 
-- **Contents:** Patient Header, Status Badges, Appointment Metadata, Past 3 visits, latest treatment
-  notes.
-- **Quick Actions:** Check-In, Complete, Cancel, Mark No-Show, Add Internal Comment.
+**Contents:**
+- Patient Header (avatar, name, phone, email)
+- Status Badges (`is_booking_restricted`, `no_show_count`, `cancellation_count`)
+- Current Appointment Metadata
+- Past 3 visits (mini-list)
+- Latest treatment notes (read-only)
 
-**Crucial UX Rule:** Do not put "Reschedule" in this drawer. Rescheduling requires visual context of
-conflicts and belongs on the Master Calendar.
+**Quick Actions:** Check-In, Complete, Cancel, Mark No-Show, Add Internal Comment.
 
----
-
-## Page 1: Front Desk (Today's Operations)
-
-This page is entirely driven by the computer's current time compared against the `start_time` and
-`end_time` of today's appointments.
-
-### Layout: 3-Column Board
-
-1. **Incoming:** PENDING and CONFIRMED appointments.
-2. **In Clinic:** IN_PROGRESS (checked-in).
-3. **Completed:** COMPLETED.
-
-### The "Incoming" Card Lifecycle (Strict Time Rules)
-
-The frontend must automatically transition these cards based on the clock:
-
-**State 1: Normal (Before start_time)**
-
-- **Visual:** Standard card design.
-- **Primary Button:** Check In (Moves to "In Clinic").
-
-**State 2: Late / Shortened (Between start_time and end_time)**
-
-- **Visual:** Card border turns Amber. A live timer badge appears (e.g., -12m late).
-- **Primary Button:** Check In (Shortened).
-- **Frontend Action:** Clicking this updates status to IN_PROGRESS and prompts the secretary to
-  confirm: "Patient is late. Treatment ends strictly at [end_time]." It automatically appends an
-  internal `appointment_comments` noting the late arrival and strict cutoff.
-- **Manual Toggle:** The secondary menu (⋯) holds a Mark No-Show button if the patient calls to
-  cancel during this window.
-
-**State 3: Time's Up (At exactly end_time)**
-
-- **Visual:** If the card was never checked in, it flashes Red and is pulled out of the Incoming
-  column into an "Action Required" sticky banner at the top of the board.
-- **Primary Button:** Process No-Show.
-- **Frontend Action:** Forces the secretary to confirm the No-Show, which writes to the database and
-  triggers the patient's penalty counters.
+> ⚠️ **No "Reschedule" in the drawer.** Rescheduling requires visual conflict context and belongs on the Calendar via drag-and-drop.
 
 ---
 
-## Page 2: Master Calendar
+## Page 1: Dashboard (`/`)
 
-The visual command center for scheduling and conflict resolution.
+The secretary's morning briefing. Read-only glanceable screen.
 
-- **View:** Weekly or Daily grid with toggles to filter by Dentist.
-- **Ghost Blocks:** Pending specialized requests render as striped, semi-transparent blocks to
-  visualize space before approval.
-- **Drag & Drop Reschedule:** Moving a block pops up a confirmation toast. The frontend must
-  validate against `dentist_schedule`, `clinic_holidays`, and `dentist_availability_blocks` before
-  allowing the drop.
-- **Time Blocking:** A toolbar button to "Block Time" (Leave/Emergency) that drops a solid grey/red
-  block on a dentist's schedule, preventing future bookings.
+### Row 1 — Today's Snapshot (4 stat cards)
+| Card | Source |
+|---|---|
+| Total Appointments | `appointments WHERE date = TODAY` |
+| Checked In | `status = 'IN_PROGRESS' AND date = TODAY` |
+| Pending Approvals | `approval_status = 'pending'` |
+| No-Shows Today | `status = 'NO_SHOW' AND date = TODAY` |
 
----
+### Row 2 — Upcoming Next
+Vertical mini-timeline of **next 5 appointments** by `start_time`. Each shows time, patient, service, dentist, status pill. Click → Patient Drawer.
 
-## Page 3: Approvals Center (Two-Tier Management)
+### Row 3 — Alerts & Action Items
+- Unconfirmed appointments (`patient_confirmed = false`)
+- Currently late patients (between `start_time` and `end_time`)
+- Stale pending approvals (> 24h old)
+- Waitlist entries expiring soon
 
-A split-pane view for rapidly clearing the specialized request queue.
-
-- **Left Pane:** Scrollable list of pending specialized requests.
-- **Right Pane (Context):**
-    - Patient's penalty history (`no_show_count`, `cancellation_count`).
-    - A mini-timeline of the requested Dentist's day to verify workload capacity.
-
-### Actions:
-
-- **Approve:** Giant green button. Updates status to CONFIRMED.
-- **Reject:** Red button that transforms into a dropdown requiring a `rejection_reason` before
-  finalizing the cancellation.
+### Row 4 — Dentist Availability
+Horizontal bar per dentist showing today's schedule: filled, open, blocked.
 
 ---
 
-## Page 4: Booking Desk (Walk-In & Manual Booking)
+## Page 2: Front Desk (`/front-desk`)
 
-Built for speed (under 30 seconds to book).
+Primary working screen. Open all day. Real-time Kanban for TODAY.
 
-- **Patient Search:** Autocomplete lookup or a "Guest/Walk-In" toggle.
-- **Slot Override:** If a time slot is locked by an online user (`slot_holds`), it shows a lock
-  icon. The secretary can click it to force-override the hold for the in-person patient.
+### Layout: 3-Column Kanban Board
 
-**The Auto-Approve Rule:** If the secretary selects a specialized service, the UI must flash a badge
-reading "Auto-Approved by Staff". Submitting this form bypasses the PENDING state entirely and
-inserts straight as CONFIRMED with the secretary logged as the approver.
+| Incoming | In Clinic | Done |
+|---|---|---|
+| PENDING + CONFIRMED | IN_PROGRESS | COMPLETED + NO_SHOW |
+
+### Card State Transitions (Clock-Driven)
+
+**State 1: Normal** (now < start_time)
+- Green left border. Primary button: `Check In`.
+
+**State 2: Late** (start_time ≤ now < end_time)
+- Amber border + `-Xm late` countdown. Primary: `Check In (Shortened)`.
+- Confirm modal: "Patient is late. Treatment ends strictly at [end_time]."
+- Auto-appends `appointment_comments` noting late arrival.
+- Overflow menu: Mark No-Show option.
+
+**State 3: Action Required** (now ≥ end_time, never checked in)
+- Red border. Promoted to sticky banner at top of Incoming column.
+- Primary: `Process No-Show` with 5-second undo.
+
+### Key UX
+- Sub-header: Dentist filter pills
+- Click card → Patient Drawer
+- Column headers with count badges
+- 5-Second Undo Toast for destructive actions
+- Auto-refresh every 30s
 
 ---
 
-## Page 5: Waitlist Manager (The 3-Hour Cutoff)
+## Page 3: Calendar (`/calendar`)
 
-This page is driven by early cancellations. Same-day, last-minute no-shows do not trigger this flow.
+Visual scheduling command center for rescheduling and conflict resolution.
 
-### Frontend Cancellation Intercept
+### Toolbar
+- View toggle: Day / Week (default: Week)
+- Dentist filter pills (show/hide dentist columns)
+- ⊕ Block Time button → creates `dentist_availability_block`
+- Date picker
 
-Whenever the secretary clicks Cancel on any appointment, the frontend calculates the difference
-between `current_time` and `appointment_date` + `start_time`.
+### Block Types
+| Type | Visual |
+|---|---|
+| Confirmed appointment | Solid color (dentist-coded) |
+| Pending specialized | Striped/hatched, 50% opacity |
+| Blocked time | Solid gray/red |
+| Open slot | Empty (click to pre-fill Booking Desk) |
 
-- **If Gap < 3 Hours:**
-    - The cancellation proceeds silently.
-    - Toast: "Appointment cancelled. Too close to start time to notify waitlist."
+### Drag & Drop Reschedule
+1. Validate against `dentist_schedule`, `clinic_holidays`, `dentist_availability_blocks`
+2. Valid → confirmation toast
+3. Invalid → red shake + reason tooltip
 
-- **If Gap >= 3 Hours:**
-    - The cancellation proceeds.
-    - Modal Pops Up: "Appointment cancelled. There are [X] patients on the waitlist for this
-      time/service. [Review Waitlist]"
+---
 
-### The Queue View
+## Page 4: Approvals (`/approvals`)
 
-Displays patients waiting for a specific date/service.
+Split-pane view for clearing specialized request queue.
 
-- **Action:** Notify. Triggers an email/SMS with a 25-minute claim token, changing the row status to
-  NOTIFIED and starting a visual countdown timer on the UI.
+### Left Pane (30%) — Request List
+- Sorted by `created_at` (oldest first)
+- Each: Patient name, service, requested date, age indicator
+- Color: amber (< 24h), red (> 24h stale)
+- Count mirrors sidebar badge
+
+### Right Pane (70%) — Context View
+1. Patient header + contact info
+2. Penalty history: `no_show_count`, `cancellation_count`, `is_booking_restricted`
+3. Mini-timeline: Requested dentist's day with ghost block for this request
+4. **Approve** (green) → sets CONFIRMED
+5. **Reject** (red → expands) → requires `rejection_reason`
+
+---
+
+## Page 5: Booking Desk (`/booking`)
+
+Speed-optimized form. Target: under 30 seconds. Centered layout (max-width: 720px).
+
+### Toggle: `Existing Patient` | `Walk-In / Guest`
+
+**Existing Patient:** Patient search → Service → Date/Time → Dentist → Notes
+**Walk-In:** Guest name/phone/email → same steps
+
+### Special Behaviors
+- **Slot Hold Override:** 🔒 locked slots can be force-overridden for in-person patients
+- **Auto-Approve Badge:** Specialized service → "Auto-Approved by Staff" badge → inserts as CONFIRMED directly
+- **Walk-In Flag:** `is_walk_in = true` auto-set
+
+---
+
+## Page 6: Patients (`/patients`)
+
+Searchable patient directory.
+
+### Table: Name, Phone, Email, No-Shows, Cancellations, Restricted?, Last Visit, [View]
+
+### Search & Filters
+- Global search: name or phone
+- Filters: Restricted only, Has pending follow-up, Date range
+
+### Click "View" → Patient Drawer
+Full detail: contact, penalties, restriction status, last 5 appointments, treatment notes, follow-ups.
 
 ---
 
 ## Shared UX Patterns
 
-- **The 5-Second Undo Hold:** Because the database makes true "Undos" highly complex (due to
-  cascading triggers and waitlists), handle mistakes on the frontend. When the secretary clicks
-  Cancel or Process No-Show, display a toast with an active loading bar for 5 seconds containing an
-  Undo button. Only fire the API request to the backend when the 5 seconds expire.
+### 5-Second Undo Toast
+Cancel/No-Show → toast with progress bar + Undo button. API fires only after 5s.
 
-- **Color Vocabulary:**
-    - 🟢 **Green:** Confirmed/Completed
-    - 🟠 **Amber:** Late / Needs Attention
-    - 🔴 **Red:** No-Show / Action Required / Blocked Time
-    - 🦓 **Striped:** Pending Specialized Request
+### Waitlist Contextual Modal
+Triggered on cancellation:
+- **Gap < 3 hours** → silent cancel
+- **Gap ≥ 3 hours** → modal shows waitlist entries for that slot, with "Notify" action (25-min claim token countdown)
+
+### Color Vocabulary
+| Color | Meaning |
+|---|---|
+| 🟢 Green | Confirmed / Completed / Approve |
+| 🟠 Amber | Late / Needs Attention |
+| 🔴 Red | No-Show / Action Required / Blocked |
+| 🔵 Blue | In Progress (checked in) |
+| 🦓 Striped | Pending Specialized Request |
+| ⬜ Gray | Done / Muted |

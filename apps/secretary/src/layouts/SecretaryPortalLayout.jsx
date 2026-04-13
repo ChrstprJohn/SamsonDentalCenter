@@ -1,8 +1,8 @@
 import { SidebarProvider, useSidebar } from '../context/SidebarContext';
 import { Outlet } from 'react-router-dom';
-import SecretaryHeader from '../components/patient/SecretaryHeader';
-import Backdrop from '../components/patient/Backdrop';
-import SecretarySidebar from '../components/patient/SecretarySidebar';
+import SecretaryHeader from '../components/secretary/SecretaryHeader';
+import Backdrop from '../components/secretary/Backdrop';
+import SecretarySidebar from '../components/secretary/SecretarySidebar';
 
 const LayoutContent = () => {
     const { isExpanded, isHovered, isMobileOpen } = useSidebar();

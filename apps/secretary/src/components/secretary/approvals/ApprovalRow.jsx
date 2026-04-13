@@ -1,0 +1,90 @@
+import React from 'react';
+import { Calendar, Clock, Eye } from 'lucide-react';
+
+const ApprovalRow = ({ request, onClick }) => {
+    const { id, patient, service, requestedDate, requestedTime, createdAt } = request;
+
+    // Calculate if stale (> 24h)
+    const createdDate = new Date(createdAt);
+    const now = new Date();
+    const hoursDiff = (now - createdDate) / (1000 * 60 * 60);
+    const isStale = hoursDiff > 24;
+
+    return (
+        <div 
+            onClick={() => onClick(id)}
+            className={`group relative flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 dark:border-gray-800 cursor-pointer transition-all hover:shadow-md hover:z-10 bg-white dark:bg-white/[0.02]`}
+        >
+            {/* Desktop View (sm and up) */}
+            <div className='hidden sm:flex items-center w-full gap-4'>
+                <div className='w-48 lg:w-56 shrink-0 truncate flex items-center gap-3'>
+                    <div className='w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs font-bold shadow-sm'>
+                        {patient.name.charAt(0)}
+                    </div>
+                    <span className='text-sm sm:text-base text-gray-900 dark:text-white font-bold truncate'>
+                        {patient.name}
+                    </span>
+                </div>
+
+                <div className='flex-grow min-w-0 pr-4'>
+                    <p className='text-sm sm:text-base truncate'>
+                        <span className='text-gray-900 dark:text-gray-100 font-medium'>
+                            {service}
+                        </span>
+                        <span className='text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-medium ml-2'>
+                            - Requested for {new Date(requestedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at {requestedTime}
+                        </span>
+                    </p>
+                </div>
+
+                <div className='flex items-center gap-4 shrink-0 min-w-[150px] justify-end'>
+                    <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                        isStale ? 'bg-error-50 text-error-600' : 'bg-warning-50 text-warning-600'
+                    }`}>
+                        {isStale ? 'Stale' : 'New'}
+                    </div>
+
+                    <span className='group-hover:hidden text-xs text-gray-400 dark:text-gray-500 font-medium ml-2 w-16 text-right'>
+                        {hoursDiff < 1 ? 'Just now' : `${Math.floor(hoursDiff)}h`}
+                    </span>
+                    
+                    <div className='hidden group-hover:flex items-center gap-2 w-16 justify-end'>
+                        <div className='p-1.5 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-500/10 text-brand-500/70 hover:text-brand-600'>
+                            <Eye size={18} strokeWidth={2.5} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Mobile View (xs only) */}
+            <div className='flex sm:hidden gap-3 w-full'>
+                <div className='shrink-0'>
+                    <div className='w-12 h-12 rounded-full bg-brand-500 flex items-center justify-center text-white font-bold text-lg shadow-sm'>
+                        {patient.name.charAt(0)}
+                    </div>
+                </div>
+                <div className='flex-grow min-w-0 flex flex-col gap-0.5'>
+                    <div className='flex justify-between items-center'>
+                        <span className='text-sm tracking-tight truncate text-gray-900 dark:text-white font-bold'>
+                            {patient.name}
+                        </span>
+                        <span className='text-[10px] text-gray-400 font-medium'>{hoursDiff < 1 ? 'Just now' : `${Math.floor(hoursDiff)}h`}</span>
+                    </div>
+                    <div className='text-sm truncate text-gray-700 dark:text-gray-300 font-medium'>
+                        {service}
+                    </div>
+                    <div className='flex justify-between items-end mt-1'>
+                        <div className='text-xs text-gray-400 truncate pr-4 grow'>
+                            {new Date(requestedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {requestedTime}
+                        </div>
+                        <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${isStale ? 'bg-error-50 text-error-600' : 'bg-warning-50 text-warning-600'}`}>
+                            {isStale ? 'Stale' : 'New'}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default ApprovalRow;
