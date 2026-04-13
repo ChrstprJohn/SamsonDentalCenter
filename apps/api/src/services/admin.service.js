@@ -21,12 +21,13 @@ export const getPendingRequests = async () => {
             `
       *,
       patient:profiles!appointments_patient_id_fkey(id, full_name, email, phone, no_show_count),
-      service:services(name, duration_minutes, price, tier)
+      service:services(name, duration_minutes, price, tier),
+      dentist:dentists(id, profile:profiles(full_name))
     `,
         )
-        // Scenario A: Specialized service awaiting approval
-        // Scenario B: Guest booking (General or Specialized) that is email-verified but still PENDING
-        .or(`and(service_tier.eq.${SERVICE_TIER.SPECIALIZED},approval_status.eq.${APPROVAL_STATUS.PENDING}),and(source.eq.GUEST_BOOKING,patient_confirmed.eq.true)`)
+        // Show everything that is PENDING approval and has been confirmed by the patient (either logged in or via email)
+        .eq('approval_status', APPROVAL_STATUS.PENDING)
+        .eq('patient_confirmed', true)
         .eq('status', APPOINTMENT_STATUS.PENDING)
         .order('created_at', { ascending: true });
 

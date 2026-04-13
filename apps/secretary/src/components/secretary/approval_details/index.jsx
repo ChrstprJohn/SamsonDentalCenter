@@ -5,26 +5,22 @@ import PatientOverview from './PatientOverview';
 import ServiceOverview from './ServiceOverview';
 import { X } from 'lucide-react';
 
-const AppointmentDetailView = ({ request, onApprove, onReject, onBack }) => {
+const AppointmentDetailView = ({ 
+    request, 
+    onApprove, 
+    onReject, 
+    onBack,
+    busySlots = [],
+    slotPosition,
+    timeStr: initialTimeStr
+}) => {
     const [isRejecting, setIsRejecting] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
 
     if (!request) return null;
 
     const { patient, service, requestedDate, requestedTime, dentist } = request;
-
-    // Simulate different timeline views based on the requested time
-    const [timeStr, ampm] = requestedTime.split(' ');
-    let requestedHour = parseInt(timeStr.split(':')[0]);
-    if (ampm === 'PM' && requestedHour !== 12) requestedHour += 12;
-    if (ampm === 'AM' && requestedHour === 12) requestedHour = 0;
-
-    // Generate relative positions
-    const getPositionPercent = (hour) => ((hour - 9) / 8) * 100; // 9am to 5pm
-    const slotPosition = getPositionPercent(requestedHour);
-    
-    // Fake busy slot for visual variety
-    const busySlotPosition = (requestedHour < 13) ? getPositionPercent(requestedHour + 2) : getPositionPercent(requestedHour - 2);
+    const timeStr = initialTimeStr || requestedTime.split(' ')[0];
 
     return (
         <div className="flex-grow flex flex-col bg-white dark:bg-gray-900 sm:rounded-3xl border-t sm:border border-gray-100 dark:border-gray-800 sm:shadow-theme-sm overflow-hidden h-full relative">
@@ -41,7 +37,7 @@ const AppointmentDetailView = ({ request, onApprove, onReject, onBack }) => {
                             requestedDate={requestedDate}
                             requestedTime={requestedTime}
                             dentist={dentist}
-                            busySlotPosition={busySlotPosition}
+                            busySlots={busySlots}
                             slotPosition={slotPosition}
                             timeStr={timeStr}
                         />

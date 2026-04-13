@@ -1,147 +1,106 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import ApprovalHeader from '../../components/secretary/approvals/ApprovalHeader';
 import ApprovalInbox from '../../components/secretary/approvals/ApprovalInbox';
 import ApprovalDetailView from '../../components/secretary/approval_details';
-
-const mockRequests = [
-    // APRIL 14 (Tomorrow) -> URGENT
-    {
-        id: 1,
-        patient: { name: "Juan Dela Cruz", phone: "+63 917 123 4567", email: "juan.dc@example.com", noShowCount: 2, cancellationCount: 1, isBookingRestricted: false },
-        service: "Dental Implants",
-        requestedDate: "2026-04-14",
-        requestedTime: "10:00 AM",
-        dentist: "Dr. Smith",
-        createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: 2,
-        patient: { name: "Maria Santos", phone: "+63 918 234 5678", email: "maria.s@example.com", noShowCount: 0, cancellationCount: 4, isBookingRestricted: true },
-        service: "Surgical Extraction",
-        requestedDate: "2026-04-14",
-        requestedTime: "11:00 AM",
-        dentist: "Dr. Garcia",
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: 3,
-        patient: { name: "Rico Blanco", phone: "+63 919 345 6789", email: "rico.b@example.com", noShowCount: 1, cancellationCount: 0, isBookingRestricted: false },
-        service: "Orthodontic Consultation",
-        requestedDate: "2026-04-14",
-        requestedTime: "01:00 PM",
-        dentist: "Dr. Lopez",
-        createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: 4,
-        patient: { name: "Anna Rivera", phone: "+63 920 456 7890", email: "anna.r@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
-        service: "Teeth Whitening",
-        requestedDate: "2026-04-14",
-        requestedTime: "03:00 PM",
-        dentist: "Dr. Smith",
-        createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: 5,
-        patient: { name: "Carlos Mendoza", phone: "+63 921 567 8901", email: "carlos.m@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
-        service: "Routine Checkup",
-        requestedDate: "2026-04-14",
-        requestedTime: "04:30 PM",
-        dentist: "Dr. Garcia",
-        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    },
-    // APRIL 15 (Next Days) -> NEW or NEEDS ATTENTION
-    {
-        id: 6,
-        patient: { name: "Lisa Manoban", phone: "+63 922 678 1234", email: "lisa.m@example.com", noShowCount: 1, cancellationCount: 0, isBookingRestricted: false },
-        service: "Teeth Whitening",
-        requestedDate: "2026-04-15",
-        requestedTime: "09:00 AM",
-        dentist: "Dr. Lopez",
-        createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: 7,
-        patient: { name: "Jennie Kim", phone: "+63 923 789 2345", email: "jennie.k@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
-        service: "Routine Checkup",
-        requestedDate: "2026-04-15",
-        requestedTime: "11:30 AM",
-        dentist: "Dr. Garcia",
-        createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: 8,
-        patient: { name: "Rose Park", phone: "+63 924 890 3456", email: "rose.p@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
-        service: "Dental Implants",
-        requestedDate: "2026-04-15",
-        requestedTime: "01:00 PM",
-        dentist: "Dr. Smith",
-        createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: 9,
-        patient: { name: "Jisoo Kim", phone: "+63 925 901 4567", email: "jisoo.k@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
-        service: "Surgical Extraction",
-        requestedDate: "2026-04-15",
-        requestedTime: "03:30 PM",
-        dentist: "Dr. Lopez",
-        createdAt: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: 10,
-        patient: { name: "Andi Eigenmann", phone: "+63 926 012 5678", email: "andi.e@example.com", noShowCount: 0, cancellationCount: 0, isBookingRestricted: false },
-        service: "Orthodontic Consultation",
-        requestedDate: "2026-04-15",
-        requestedTime: "05:00 PM",
-        dentist: "Dr. Smith",
-        createdAt: new Date(Date.now() - 15 * 60 * 60 * 1000).toISOString(),
-    }
-];
+import useApprovals from '../../hooks/useApprovals';
+import { formatTime } from '../../hooks/useAppointments'; // Reusing existing formatter
 
 const ApprovalsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [requests, setRequests] = useState(mockRequests);
+    const { 
+        requests: rawRequests, 
+        loading, 
+        error, 
+        approveRequest, 
+        rejectRequest, 
+        fetchDentistSchedule,
+        refresh 
+    } = useApprovals();
+
+    const [busySlots, setBusySlots] = useState([]);
+
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedService, setSelectedService] = useState('All Services');
     const [selectedDoctor, setSelectedDoctor] = useState('All Doctors');
     
-    // Set default date to tomorrow
-    const [selectedDate, setSelectedDate] = useState(() => {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        return tomorrow.toISOString().split('T')[0];
-    });
+    // Default to 'All Dates' to show all pending requests by default
+    const [selectedDate, setSelectedDate] = useState('');
 
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedId, setSelectedId] = useState(null);
+
+    // Transform raw backend data to match UI component expectations
+    const requests = useMemo(() => {
+        return rawRequests.map(req => ({
+            id: req.id,
+            patient: { 
+                id: req.patient_id,
+                name: req.patient?.full_name || req.guest_name || "Unknown Patient", 
+                phone: req.patient?.phone || req.guest_phone || "N/A", 
+                email: req.patient?.email || req.guest_email || "N/A", 
+                noShowCount: req.patient?.no_show_count || 0, 
+                cancellationCount: req.patient?.cancellation_count || 0, // Fallback if missing
+                isBookingRestricted: req.patient?.is_booking_restricted || false 
+            },
+            service: req.service?.name || "Unknown Service",
+            serviceTier: req.service_tier,
+            requestedDate: req.appointment_date,
+            requestedTime: formatTime(req.start_time),
+            dentist: req.dentist?.profile?.full_name || 'Unassigned',
+            dentistId: req.dentist?.id || req.dentist_id,
+            createdAt: req.created_at,
+            source: req.source,
+            slotPosition: calculatePosition(req.start_time)
+        }));
+    }, [rawRequests]);
+
+    function calculatePosition(timeStr) {
+        if (!timeStr) return -1;
+        // Handle HH:mm:ss context
+        const [h, m] = timeStr.split(':').map(Number);
+        
+        // Map 8AM - 5PM (8 to 17) to 0-100%
+        const totalMinutes = h * 60 + m;
+        const startMinutes = 8 * 60;
+        const endMinutes = 17 * 60;
+        return Math.max(0, Math.min(100, ((totalMinutes - startMinutes) / (endMinutes - startMinutes)) * 100));
+    }
 
     // Sync selectedId with URL 'id' param
     useEffect(() => {
         const id = searchParams.get('id');
         if (id) {
-            setSelectedId(parseInt(id));
+            setSelectedId(id); // Backend uses UUID strings
         } else {
             setSelectedId(null);
         }
     }, [searchParams]);
 
-    const handleApprove = (id) => {
+    const handleApprove = async (id) => {
         const reqToApprove = requests.find(r => r.id === id);
         if (!reqToApprove) return;
-        setRequests(requests.filter(r => r.id !== id));
-        if (selectedId === id) setSearchParams({});
-        alert(`Request from ${reqToApprove.patient.name} approved!`);
+        
+        const res = await approveRequest(id);
+        if (res.success) {
+            if (selectedId === id) setSearchParams({});
+        } else {
+            alert(`Approval failed: ${res.error}`);
+        }
     };
 
-    const handleReject = (id, reason = 'No reason provided') => {
+    const handleReject = async (id, reason = 'No reason provided') => {
         const reqToReject = requests.find(r => r.id === id);
         if (!reqToReject) return;
-        setRequests(requests.filter(r => r.id !== id));
-        if (selectedId === id) setSearchParams({});
-        alert(`Request from ${reqToReject.patient.name} rejected. Reason: ${reason}`);
+        
+        const res = await rejectRequest(id, reason);
+        if (res.success) {
+            if (selectedId === id) setSearchParams({});
+        } else {
+            alert(`Rejection failed: ${res.error}`);
+        }
     };
 
     const handleRowClick = (id) => {
@@ -209,10 +168,53 @@ const ApprovalsPage = () => {
 
     const selectedRequest = requests.find(r => r.id === selectedId);
 
+    // Fetch dentist busy slots when request is selected
+    useEffect(() => {
+        if (selectedRequest?.dentistId && selectedRequest?.requestedDate) {
+            const loadSchedule = async () => {
+                const appointments = await fetchDentistSchedule(
+                    selectedRequest.dentistId, 
+                    selectedRequest.requestedDate
+                );
+                // Map all appointments (except current one and cancelled/rejected) to positions
+                const positions = appointments
+                    .filter(a => 
+                        a.id !== selectedRequest.id && 
+                        a.status !== 'CANCELLED' && 
+                        a.status !== 'NOSHOW' &&
+                        a.approval_status !== 'rejected'
+                    )
+                    .map(a => calculatePosition(a.start_time));
+                setBusySlots(positions);
+            };
+            loadSchedule();
+        } else {
+            setBusySlots([]);
+        }
+    }, [selectedRequest, fetchDentistSchedule]);
+
     // Dynamic breadcrumbs based on selection
     const breadcrumbTitle = selectedId ? 'Request Details' : 'Approvals';
     const parentName = selectedId ? 'Approvals' : null;
     const parentPath = selectedId ? '/approvals' : null;
+
+    if (loading && requests.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+                <div className="text-error-500 font-bold mb-4">Error loading approvals</div>
+                <div className="text-gray-500 mb-6">{error}</div>
+                <button onClick={refresh} className="px-6 py-2 bg-brand-500 text-white rounded-xl font-bold">Try Again</button>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
@@ -241,6 +243,9 @@ const ApprovalsPage = () => {
                         onApprove={() => handleApprove(selectedId)}
                         onReject={(reason) => handleReject(selectedId, reason)}
                         onBack={handleBack}
+                        busySlots={busySlots}
+                        slotPosition={selectedRequest?.slotPosition}
+                        timeStr={selectedRequest?.requestedTime}
                     />
                 ) : (
                     <ApprovalInbox 
