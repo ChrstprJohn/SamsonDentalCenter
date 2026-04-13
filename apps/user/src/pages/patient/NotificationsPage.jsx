@@ -6,7 +6,7 @@ import NotificationDetailView from '../../components/patient/notification/Notifi
 import useNotifications from '../../hooks/useNotifications';
 import { formatFullDateTime } from '../../hooks/useAppointments';
 import { Clock } from 'lucide-react';
-import { renderNotification } from '../../utils/notificationRenderer.jsx';
+import { renderNotification } from '../../utils/notificationRenderer';
 
 const NotificationsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -57,7 +57,6 @@ const NotificationsPage = () => {
             title: rendered.title,
             message: rendered.message,
             fullMessage: rendered.message,
-            searchText: rendered.text,
             category: n.type,
             time: n.sent_at ? formatFullDateTime(n.sent_at) : '',
             isRead: n.is_read,
@@ -68,7 +67,7 @@ const NotificationsPage = () => {
     // Filter Logic
     const filtered = mappedNotifications.filter(n => {
         const matchesSearch = n.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                             n.searchText.toLowerCase().includes(searchQuery.toLowerCase());
+                             n.message.toLowerCase().includes(searchQuery.toLowerCase());
         
         if (!matchesSearch) return false;
         

@@ -3,7 +3,7 @@ import { Bell, CheckCircle2, Info, AlertCircle, Calendar, Trash2 } from 'lucide-
 import useNotifications from '../../../hooks/useNotifications';
 import { formatFullDateTime } from '../../../hooks/useAppointments';
 import { Link } from 'react-router-dom';
-import { renderNotification } from '../../../utils/notificationRenderer.jsx';
+import { renderNotification } from '../../../utils/notificationRenderer';
 
 const DashboardNotifications = () => {
     const { notifications, loading, markAllRead } = useNotifications();

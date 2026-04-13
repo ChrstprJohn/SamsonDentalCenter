@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import useClickOutside from '../../hooks/useClickOutside';
 import useNotifications from '../../hooks/useNotifications';
 import { formatFullDateTime } from '../../hooks/useAppointments';
-import { renderNotification } from '../../utils/notificationRenderer.jsx';
 
 const PatientNotification = () => {
     const { notifications, unreadCount, markRead } = useNotifications();
@@ -64,35 +63,32 @@ const PatientNotification = () => {
                                 No notifications yet.
                             </li>
                         ) : (
-                                    notifications.slice(0, 5).map((n) => {
-                                        const rendered = renderNotification(n);
-                                        return (
-                                            <li key={n.id}>
-                                                <Link 
-                                                    to={`/patient/notifications?id=${n.id}`}
-                                                    onClick={() => handleRead(n.id)}
-                                                    className={`flex gap-3 rounded-lg border-b border-gray-50 p-3 hover:bg-gray-50 transition-colors ${!n.is_read ? 'bg-brand-50/30' : ''}`}
-                                                >
-                                                    <div className={`flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0 ${!n.is_read ? 'bg-brand-100 text-brand-600' : 'bg-gray-100 text-gray-400'}`}>
-                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin='round' strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                                        </svg>
-                                                    </div>
-                                                    <div className='block text-left truncate'>
-                                                        <p className={`text-sm mb-1 leading-tight truncate ${!n.is_read ? 'text-gray-900 font-bold' : 'text-gray-600'}`}>
-                                                            {rendered.title}
-                                                        </p>
-                                                        <p className='text-xs text-gray-400 truncate'>
-                                                            {rendered.text || rendered.message}
-                                                        </p>
-                                                        <span className='text-[10px] text-gray-400 font-medium mt-1 block'>
-                                                            {n.sent_at ? formatFullDateTime(n.sent_at) : ''}
-                                                        </span>
-                                                    </div>
-                                                </Link>
-                                            </li>
-                                        );
-                                    })
+                            notifications.slice(0, 5).map((n) => (
+                                <li key={n.id}>
+                                    <Link 
+                                        to={`/patient/notifications?id=${n.id}`}
+                                        onClick={() => handleRead(n.id)}
+                                        className={`flex gap-3 rounded-lg border-b border-gray-50 p-3 hover:bg-gray-50 transition-colors ${!n.is_read ? 'bg-brand-50/30' : ''}`}
+                                    >
+                                        <div className={`flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0 ${!n.is_read ? 'bg-brand-100 text-brand-600' : 'bg-gray-100 text-gray-400'}`}>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin='round' strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                            </svg>
+                                        </div>
+                                        <div className='block text-left truncate'>
+                                            <p className={`text-sm mb-1 leading-tight truncate ${!n.is_read ? 'text-gray-900 font-bold' : 'text-gray-600'}`}>
+                                                {n.title}
+                                            </p>
+                                            <p className='text-xs text-gray-400 truncate'>
+                                                {n.message}
+                                            </p>
+                                            <span className='text-[10px] text-gray-400 font-medium mt-1 block'>
+                                                {n.sent_at ? formatFullDateTime(n.sent_at) : ''}
+                                            </span>
+                                        </div>
+                                    </Link>
+                                </li>
+                            ))
                         )}
                     </ul>
                     <Link
