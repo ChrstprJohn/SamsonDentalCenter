@@ -51,6 +51,10 @@ import {
     getAvailableDentistsForSlot,
     reassignAppointmentToDentist,
 } from '../services/admin.service.js';
+import {
+    sendApprovalNotice,
+    sendRejectionNotice,
+} from '../services/notification.service.js';
 
 // ═══════════════════════════════════════════════
 // APPOINTMENT MANAGEMENT
@@ -236,6 +240,16 @@ export const approve = async (req, res, next) => {
             console.error('Failed to send approval email:', e);
         }
 
+        // In-app notification
+        if (appointment.patient_id) {
+            await sendApprovalNotice(appointment.patient_id, {
+                date: appointment.appointment_date,
+                start_time: appointment.start_time,
+                end_time: appointment.end_time,
+                service: appointment.service?.name,
+            });
+        }
+
         res.json({ message: 'Appointment approved.', appointment });
     } catch (err) {
         next(err);
@@ -274,6 +288,16 @@ export const reject = async (req, res, next) => {
             });
         } catch (e) {
             console.error('Failed to send rejection email:', e);
+        }
+
+        // In-app notification
+        if (result.appointment.patient_id) {
+            await sendRejectionNotice(result.appointment.patient_id, {
+                date: result.appointment.appointment_date,
+                start_time: result.appointment.start_time,
+                end_time: result.appointment.end_time,
+                service: result.appointment.service?.name,
+            }, reason);
         }
 
         res.json({

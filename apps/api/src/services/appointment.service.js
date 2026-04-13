@@ -16,6 +16,10 @@ import {
     APPOINTMENT_SOURCE,
     CLINIC_CONFIG,
 } from '../utils/constants.js';
+import {
+    sendRequestReceived,
+    sendCancellationNotice,
+} from './notification.service.js';
 import { getTodayPH } from '../utils/timezone.js';
 import { addMinutesToTime } from '../utils/time.js';
 import { AppError } from '../utils/errors.js';
@@ -239,6 +243,7 @@ export const bookAppointment = async (
     }
 
     const endTime = addMinutesToTime(time, service.duration_minutes);
+
     const isSpecialized = service.tier === SERVICE_TIER.SPECIALIZED;
 
     // ═══════════════════════════════════════════════
@@ -315,6 +320,14 @@ export const bookAppointment = async (
                 service: appointment.service?.name,
             });
         }
+
+        // ── 6. In-app notification ──
+        await sendRequestReceived(patientId, {
+            date: appointment.appointment_date,
+            start_time: appointment.start_time,
+            end_time: appointment.end_time,
+            service: appointment.service?.name,
+        });
 
         // TODO: Notify supervisor about new specialized request
         // await createNotification(supervisorUserId, 'NEW_REQUEST', ...)
@@ -436,6 +449,14 @@ export const bookAppointment = async (
             service: appointment.service?.name,
         });
     }
+
+    // ── 6. In-app notification ──
+    await sendRequestReceived(patientId, {
+        date: appointment.appointment_date,
+        start_time: appointment.start_time,
+        end_time: appointment.end_time,
+        service: appointment.service?.name,
+    });
 
     return {
         booked: true,
@@ -679,6 +700,14 @@ export const cancelAppointment = async (
             isLastMinute,
         });
     }
+
+    // ── 5c. In-app notification ──
+    await sendCancellationNotice(patientId, {
+        date: appointment.appointment_date,
+        start_time: appointment.start_time,
+        end_time: appointment.end_time,
+        service: service?.name || 'Dental appointment',
+    });
 
     // ── 6. If late cancel, increment patient's late cancel tracking ──
     if (isLastMinute) {

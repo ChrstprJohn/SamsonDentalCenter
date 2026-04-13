@@ -1,10 +1,12 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import useClickOutside from '../../hooks/useClickOutside';
+import useNotifications from '../../hooks/useNotifications';
+import { formatFullDateTime } from '../../hooks/useAppointments';
 
 const PatientNotification = () => {
+    const { notifications, unreadCount, markRead } = useNotifications();
     const [isOpen, setIsOpen] = useState(false);
-    const [notifying, setNotifying] = useState(true);
     const notificationRef = useRef(null);
 
     useClickOutside(notificationRef, () => {
@@ -13,7 +15,11 @@ const PatientNotification = () => {
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
-        if (!isOpen) setNotifying(false);
+    };
+
+    const handleRead = async (id) => {
+        await markRead(id);
+        setIsOpen(false);
     };
 
     return (
@@ -23,9 +29,9 @@ const PatientNotification = () => {
                 onClick={toggleDropdown}
                 aria-label='Notifications'
             >
-                {notifying && (
-                    <span className='absolute right-0 top-0.5 z-10 h-2 w-2 rounded-full bg-orange-400'>
-                        <span className='absolute inline-flex w-full h-full bg-orange-400 rounded-full opacity-75 animate-ping'></span>
+                {unreadCount > 0 && (
+                    <span className='absolute -right-0.5 -top-0.5 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white'>
+                        {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                 )}
                 <svg
@@ -52,46 +58,38 @@ const PatientNotification = () => {
                         </h5>
                     </div>
                     <ul className='flex flex-col h-auto overflow-y-auto no-scrollbar gap-1'>
-                        <li>
-                            <Link 
-                                to='/patient/notifications?id=1'
-                                onClick={() => setIsOpen(false)}
-                                className='flex gap-3 rounded-lg border-b border-gray-50 p-3 hover:bg-gray-50 transition-colors'
-                            >
-                                <div className='flex items-center justify-center w-10 h-10 rounded-full bg-brand-50 text-brand-500 flex-shrink-0'>
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin='round' strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                <div className='block text-left'>
-                                    <p className='text-sm text-gray-800 mb-1 leading-tight'>
-                                        <span className='font-bold block'>Appointment Approved</span>
-                                        Dr. Smith approved your cleaning...
-                                    </p>
-                                    <span className='text-[10px] text-gray-400 font-medium'>10:00 AM</span>
-                                </div>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link 
-                                to='/patient/notifications?id=3'
-                                onClick={() => setIsOpen(false)}
-                                className='flex gap-3 rounded-lg border-b border-gray-50 p-3 hover:bg-gray-50 transition-colors text-left font-normal'
-                            >
-                                <div className='flex items-center justify-center w-10 h-10 rounded-full bg-brand-50 text-brand-500 flex-shrink-0'>
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div className='block'>
-                                    <p className='text-sm text-gray-800 mb-1 leading-tight'>
-                                        <span className='font-bold block'>Profile Security Alert</span>
-                                        Your password was updated recently...
-                                    </p>
-                                    <span className='text-[10px] text-gray-400 font-medium'>9:12 AM</span>
-                                </div>
-                            </Link>
-                        </li>
+                        {notifications.length === 0 ? (
+                            <li className='py-8 text-center text-gray-400 text-sm'>
+                                No notifications yet.
+                            </li>
+                        ) : (
+                            notifications.slice(0, 5).map((n) => (
+                                <li key={n.id}>
+                                    <Link 
+                                        to={`/patient/notifications?id=${n.id}`}
+                                        onClick={() => handleRead(n.id)}
+                                        className={`flex gap-3 rounded-lg border-b border-gray-50 p-3 hover:bg-gray-50 transition-colors ${!n.is_read ? 'bg-brand-50/30' : ''}`}
+                                    >
+                                        <div className={`flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0 ${!n.is_read ? 'bg-brand-100 text-brand-600' : 'bg-gray-100 text-gray-400'}`}>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin='round' strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                            </svg>
+                                        </div>
+                                        <div className='block text-left truncate'>
+                                            <p className={`text-sm mb-1 leading-tight truncate ${!n.is_read ? 'text-gray-900 font-bold' : 'text-gray-600'}`}>
+                                                {n.title}
+                                            </p>
+                                            <p className='text-xs text-gray-400 truncate'>
+                                                {n.message}
+                                            </p>
+                                            <span className='text-[10px] text-gray-400 font-medium mt-1 block'>
+                                                {n.sent_at ? formatFullDateTime(n.sent_at) : ''}
+                                            </span>
+                                        </div>
+                                    </Link>
+                                </li>
+                            ))
+                        )}
                     </ul>
                     <Link
                         to='/patient/notifications'

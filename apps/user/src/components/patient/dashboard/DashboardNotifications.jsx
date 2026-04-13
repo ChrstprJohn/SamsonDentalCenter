@@ -1,37 +1,19 @@
 import React from 'react';
-import { Bell, CheckCircle2, Info, AlertCircle } from 'lucide-react';
-
-const NOTIFICATIONS = [
-    {
-        id: 1,
-        title: 'Appointment Approved',
-        message: 'Your dental cleaning with Dr. Smith has been approved for Oct 24.',
-        type: 'success',
-        time: '2 hours ago',
-    },
-    {
-        id: 2,
-        title: 'New Policy Update',
-        message: 'Please review our new cancellation policy in your profile settings.',
-        type: 'info',
-        time: '1 day ago',
-    },
-    {
-        id: 3,
-        title: 'Reminder: 48h Check-in',
-        message: 'Dont forget to confirm your upcoming visit 48 hours in advance.',
-        type: 'warning',
-        time: '3 days ago',
-    },
-];
+import { Bell, CheckCircle2, Info, AlertCircle, Calendar, Trash2 } from 'lucide-react';
+import useNotifications from '../../../hooks/useNotifications';
+import { formatFullDateTime } from '../../../hooks/useAppointments';
+import { Link } from 'react-router-dom';
 
 const DashboardNotifications = () => {
+    const { notifications, loading, markAllRead } = useNotifications();
+
     const getIcon = (type) => {
         switch (type) {
-            case 'success': return <CheckCircle2 size={18} className='text-success-500' />;
-            case 'warning': return <AlertCircle size={18} className='text-warning-500' />;
-            case 'info': return <Info size={18} className='text-blue-500' />;
-            default: return <Bell size={18} className='text-gray-400' />;
+            case 'CONFIRMATION': return <CheckCircle2 size={18} className='text-success-500' />;
+            case 'CANCELLATION': return <AlertCircle size={18} className='text-error-500' />;
+            case 'REMINDER': return <Calendar size={18} className='text-warning-500' />;
+            case 'WAITLIST': return <Bell size={18} className='text-brand-500' />;
+            default: return <Info size={18} className='text-blue-500' />;
         }
     };
 
@@ -47,29 +29,60 @@ const DashboardNotifications = () => {
             </div>
 
             <div className='space-y-5 grow'>
-                {NOTIFICATIONS.map((n) => (
-                    <div key={n.id} className='flex items-start gap-4'>
-                        <div className='mt-0.5 shrink-0'>
-                            {getIcon(n.type)}
-                        </div>
-                        <div className='flex-grow'>
-                            <h4 className='text-sm font-medium text-gray-800 dark:text-white/90 leading-none mb-1.5'>
-                                {n.title}
-                            </h4>
-                            <p className='text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-1.5'>
-                                {n.message}
-                            </p>
-                            <span className='text-[10px] text-gray-400 dark:text-gray-500'>
-                                {n.time}
-                            </span>
-                        </div>
+                {loading && notifications.length === 0 ? (
+                    <div className='animate-pulse space-y-4'>
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className='flex gap-4'>
+                                <div className='h-8 w-8 bg-gray-100 rounded-full' />
+                                <div className='space-y-2 grow'>
+                                    <div className='h-3 w-24 bg-gray-100 rounded-full' />
+                                    <div className='h-2 w-full bg-gray-50 rounded-full' />
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
+                ) : notifications.length === 0 ? (
+                    <div className='flex flex-col items-center justify-center py-10 opacity-40 grayscale'>
+                        <Bell size={32} className='mb-2' />
+                        <p className='text-xs'>No notifications yet</p>
+                    </div>
+                ) : (
+                    notifications.slice(0, 4).map((n) => (
+                        <Link key={n.id} to={`/patient/notifications?id=${n.id}`} className='flex items-start gap-4 hover:bg-gray-50/50 p-1 -m-1 rounded-lg transition-colors'>
+                            <div className='mt-0.5 shrink-0'>
+                                {getIcon(n.type)}
+                            </div>
+                            <div className='flex-grow min-w-0'>
+                                <h4 className={`text-sm font-medium leading-none mb-1.5 truncate ${!n.is_read ? 'text-gray-900 font-bold' : 'text-gray-600'}`}>
+                                    {n.title}
+                                </h4>
+                                <p className='text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mb-1.5'>
+                                    {n.message}
+                                </p>
+                                <span className='text-[10px] text-gray-400 dark:text-gray-500'>
+                                    {n.sent_at ? formatFullDateTime(n.sent_at) : ''}
+                                </span>
+                            </div>
+                        </Link>
+                    ))
+                )}
             </div>
             
-            <button className='mt-6 w-full py-2.5 text-xs font-medium text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-800 rounded-xl hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors'>
-                Clear All
-            </button>
+            <div className='mt-6 grid grid-cols-2 gap-3'>
+                <button 
+                    onClick={markAllRead}
+                    disabled={notifications.length === 0}
+                    className='py-2.5 text-[11px] font-medium text-gray-600 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50'
+                >
+                    Mark all read
+                </button>
+                <Link 
+                    to='/patient/notifications'
+                    className='py-2.5 text-[11px] font-medium text-center text-brand-600 border border-brand-50 bg-brand-50/30 rounded-xl hover:bg-brand-50 transition-colors'
+                >
+                    View all
+                </Link>
+            </div>
         </div>
     );
 };

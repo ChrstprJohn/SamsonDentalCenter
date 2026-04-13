@@ -1,5 +1,6 @@
 import { AppError } from '../utils/errors.js';
 import { supabaseAdmin } from '../config/supabase.js';
+import { formatDateLong, formatTimePretty, formatDateTimeRange } from '../utils/time.js';
 
 /**
  * Send a notification to a user.
@@ -50,12 +51,55 @@ export const sendNotification = async (userId, type, title, message, channel = '
  * Appointment confirmed notification.
  */
 export const sendConfirmation = async (userId, appointmentDetails) => {
-    const { date, start_time, service } = appointmentDetails;
+    const { date, start_time, end_time, service } = appointmentDetails;
+    const formattedRange = formatDateTimeRange(date, start_time, end_time);
     return sendNotification(
         userId,
         'CONFIRMATION',
         'Appointment Confirmed!',
-        `Your ${service} appointment is confirmed for ${date} at ${start_time}.`,
+        `Your ${service} appointment is confirmed for ${formattedRange}.`,
+    );
+};
+
+/**
+ * Appointment request received.
+ */
+export const sendRequestReceived = async (userId, appointmentDetails) => {
+    const { date, start_time, end_time, service } = appointmentDetails;
+    const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    return sendNotification(
+        userId,
+        'GENERAL',
+        'Request Received & Under Review',
+        `Your request for ${service} on ${formattedRange} has been received. Our team is currently reviewing your schedule to ensure a dentist is available. We will notify you once it is officially confirmed.`,
+    );
+};
+
+/**
+ * Appointment approved.
+ */
+export const sendApprovalNotice = async (userId, appointmentDetails) => {
+    const { date, start_time, end_time, service } = appointmentDetails;
+    const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    return sendNotification(
+        userId,
+        'CONFIRMATION',
+        'Appointment Approved!',
+        `Good news! Your ${service} appointment on ${formattedRange} has been approved. See you at the clinic!`,
+    );
+};
+
+/**
+ * Appointment rejected.
+ */
+export const sendRejectionNotice = async (userId, appointmentDetails, reason) => {
+    const { date, start_time, end_time, service } = appointmentDetails;
+    const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    return sendNotification(
+        userId,
+        'CANCELLATION',
+        'Appointment Declined',
+        `Your request for ${service} on ${formattedRange} was declined. Reason: ${reason}`,
     );
 };
 
@@ -63,12 +107,13 @@ export const sendConfirmation = async (userId, appointmentDetails) => {
  * Appointment reminder (24h or 48h before).
  */
 export const sendReminder = async (userId, appointmentDetails, hoursUntil) => {
-    const { date, start_time, service } = appointmentDetails;
+    const { date, start_time, end_time, service } = appointmentDetails;
+    const formattedRange = formatDateTimeRange(date, start_time, end_time);
     return sendNotification(
         userId,
         'REMINDER',
         `Reminder: Appointment in ${hoursUntil} hours`,
-        `Don't forget! Your ${service} appointment is on ${date} at ${start_time}.`,
+        `Don't forget! Your ${service} appointment is on ${formattedRange}.`,
     );
 };
 
@@ -77,12 +122,13 @@ export const sendReminder = async (userId, appointmentDetails, hoursUntil) => {
  * If no response, supervisor can flag for follow-up.
  */
 export const send48hConfirmReminder = async (userId, appointmentDetails) => {
-    const { date, start_time, service } = appointmentDetails;
+    const { date, start_time, end_time, service } = appointmentDetails;
+    const formattedRange = formatDateTimeRange(date, start_time, end_time);
     return sendNotification(
         userId,
         'REMINDER_48H',
         'Please Confirm Your Appointment (48h)',
-        `Your ${service} appointment is in 2 days (${date} at ${start_time}). Please confirm you will attend. If you cannot make it, please cancel or reschedule.`,
+        `Your ${service} appointment is in 2 days (${formattedRange}). Please confirm you will attend.`,
     );
 };
 
@@ -90,12 +136,13 @@ export const send48hConfirmReminder = async (userId, appointmentDetails) => {
  * Cancellation notification.
  */
 export const sendCancellationNotice = async (userId, appointmentDetails) => {
-    const { date, start_time, service } = appointmentDetails;
+    const { date, start_time, end_time, service } = appointmentDetails;
+    const formattedRange = formatDateTimeRange(date, start_time, end_time);
     return sendNotification(
         userId,
         'CANCELLATION',
         'Appointment Cancelled',
-        `Your ${service} appointment on ${date} at ${start_time} has been cancelled.`,
+        `Your ${service} appointment on ${formattedRange} has been cancelled.`,
     );
 };
 

@@ -61,3 +61,39 @@ export function timesOverlap(start1, end1, start2, end2) {
     const e2 = timeToMinutes(end2);
     return s1 < e2 && s2 < e1;
 }
+
+/**
+ * Format date from 'YYYY-MM-DD' to 'Month Day, Year'
+ */
+export function formatDateLong(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+    });
+}
+
+/**
+ * Format time from 'HH:MM:SS' or 'HH:MM' to 'h:mm AM/PM'
+ */
+export function formatTimePretty(timeStr) {
+    if (!timeStr) return '';
+    const [hours, minutes] = timeStr.split(':');
+    const h = parseInt(hours, 10);
+    const ampm = h >= 12 ? 'pm' : 'am';
+    const displayH = h % 12 || 12;
+    return `${displayH}:${minutes}${ampm}`;
+}
+
+/**
+ * Format a date and time range nicely.
+ * Result: "April 16, 2026 at 10:00am - 11:00am"
+ */
+export function formatDateTimeRange(date, startTime, endTime) {
+    const d = formatDateLong(date);
+    const s = formatTimePretty(startTime);
+    const e = formatTimePretty(endTime);
+    return `${d} at ${s} - ${e}`;
+}
