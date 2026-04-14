@@ -18,6 +18,7 @@ const DateTimeStep = ({
     serviceTier, // ✅ NEW: Tier to decide whether to show specialist selection
     sessionId,
     slotHold,
+    userWaitlist = [], // ✅ NEW: Prop from parent
 }) => {
     const [specialists, setSpecialists] = useState([]);
     const [specialistsLoading, setSpecialistsLoading] = useState(false);
@@ -166,6 +167,12 @@ const DateTimeStep = ({
             } else {
                 // Full slot — toggle or show waitlist modal
                 const isSelectedForWaitlist = formData?.waitlist_time === slotData.rawTime;
+                const isAlreadyInDB = isSlotWaitlisted(slotData.rawTime);
+
+                if (isAlreadyInDB) {
+                    // DO NOTHING - User is already on the waitlist for this slot
+                    return;
+                }
 
                 if (isSelectedForWaitlist) {
                     // ✅ Toggle OFF: If already on waitlist for this slot, remove it
@@ -201,6 +208,18 @@ const DateTimeStep = ({
             waitlist_date: '',
             waitlist_time: '',
         });
+    };
+
+    // ✅ NEW: Check if user is already waitlisted for this specific slot
+    const isSlotWaitlisted = (time) => {
+        if (!time || !selectedDate || !serviceId) return false;
+        
+        return (userWaitlist || []).some(
+            (w) =>
+                w.preferred_date === selectedDate &&
+                String(w.service_id) === String(serviceId) &&
+                w.preferred_time?.substring(0, 5) === time.substring(0, 5)
+        );
     };
 
     // ✅ NEW: Clear booking selection (user can clear independently)
@@ -288,7 +307,10 @@ const DateTimeStep = ({
         if (!slots) return [];
         return slots
             .filter(slot => {
-                const isHeldByMe = activeHold?.time === slot.rawTime && selectedDate === activeHold.date;
+                // Hide slots that the user is already waitlisted for
+                const isWaitlisted = isSlotWaitlisted(slot.rawTime);
+                if (isWaitlisted) return false;
+                
                 // For user booking, we show ALL slots (including full ones) because they can join waitlist
                 return true; 
             })

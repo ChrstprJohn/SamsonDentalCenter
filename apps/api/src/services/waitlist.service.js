@@ -69,7 +69,7 @@ export const joinWaitlist = async (
     const { data: existing } = await query.maybeSingle();
 
     if (existing) {
-        throw new AppError('You are already on the waitlist for this date, service, and time.', 400);
+        throw new AppError("You've already requested a waitlist slot for this specific date and time. Please check your active entries in 'My Appointments'.", 400);
     }
 
     // ── 2. Add to waitlist ──

@@ -70,6 +70,10 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
     // ✅ Track submission timestamp to prevent rapid resubmissions
     const [lastSubmissionTime, setLastSubmissionTime] = useState(null);
 
+    // ✅ NEW: Active Waitlist State (to prevent duplicate UI entries)
+    const [userWaitlist, setUserWaitlist] = useState([]);
+    const [waitlistLoading, setWaitlistLoading] = useState(false);
+
     // ✅ Initialize slot hold hook at the wizard level to survive step changes
     const slotHold = useSlotHold(sessionId);
 
@@ -77,7 +81,34 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
     useEffect(() => {
         const id = getOrCreateSessionId();
         setSessionId(id);
-    }, []);
+        
+        // Fetch active waitlist entries to handle UI state
+        if (token) {
+            fetchUserWaitlist();
+        }
+    }, [token]);
+
+    const fetchUserWaitlist = async () => {
+        try {
+            setWaitlistLoading(true);
+            const response = await api.get('/waitlist/my', token);
+            
+            // ✅ FIX: The backend returns { waitlist: [...] }, not just the array
+            const entries = response?.waitlist || [];
+            
+            // Filter only active entries (WAITING or NOTIFIED)
+            const active = entries.filter(w => 
+                ['WAITING', 'NOTIFIED', 'OFFER_PENDING'].includes(w.status)
+            );
+            
+            console.log(`[useUserBooking] Found ${active.length} active waitlist entries out of ${entries.length} total.`);
+            setUserWaitlist(active);
+        } catch (err) {
+            console.error('[useUserBooking] Failed to fetch waitlist:', err);
+        } finally {
+            setWaitlistLoading(false);
+        }
+    };
 
     // ✅ Auto-release hold if user goes back and changes the service
     useEffect(() => {
@@ -287,6 +318,9 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         goToStep,
         submit,
         reset,
+        userWaitlist,
+        waitlistLoading,
+        fetchUserWaitlist, // Allow manual refresh if needed
     };
 };
 

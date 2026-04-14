@@ -28,6 +28,7 @@ const UserBookingWizard = ({ booking }) => {
         joinWaitlist,
         reset,
         slotHold,
+        userWaitlist,
     } = booking;
 
     // ✅ Auto-scroll to top when step changes
@@ -131,6 +132,7 @@ const UserBookingWizard = ({ booking }) => {
                             onNext={nextStep}
                             onBack={prevStep}
                             joinWaitlist={joinWaitlist}
+                            userWaitlist={userWaitlist}
                         />
                     )}
 

@@ -204,8 +204,8 @@ export const submitWizard = async (req, res, next) => {
                     }
                 }
 
-                return res.status(err.status || 500).json({
-                    error: `Waitlist failed: ${err.message}. Your backup booking was rolled back for atomicity.`,
+                return res.status(err.status || 400).json({
+                    error: `Waitlist registration failed: ${err.message}. We couldn't complete your request as a bundle. Please check your existing waitlist or try again with a different slot.`,
                     stage: 'waitlist',
                 });
             }
