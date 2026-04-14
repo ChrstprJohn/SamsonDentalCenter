@@ -2,6 +2,7 @@ import { BrowserRouter } from 'react-router-dom';
 import AppRoutes from './routes/AppRoutes';
 import useSmoothScroll from './hooks/useSmoothScroll';
 import { ServicesProvider } from './context/ServicesContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 const App = () => {
     useSmoothScroll();
@@ -9,7 +10,9 @@ const App = () => {
     return (
         <BrowserRouter>
             <ServicesProvider>
-                <AppRoutes />
+                <NotificationProvider>
+                    <AppRoutes />
+                </NotificationProvider>
             </ServicesProvider>
         </BrowserRouter>
     );

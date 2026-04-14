@@ -27,10 +27,15 @@ const NotificationsPage = () => {
         const id = searchParams.get('id');
         if (id) {
             setSelectedId(id);
+            // Mark as read if found and unread
+            const n = notifications.find(notif => notif.id === id);
+            if (n && !n.is_read) {
+                markRead(id);
+            }
         } else {
             setSelectedId(null);
         }
-    }, [searchParams]);
+    }, [searchParams, notifications, markRead]);
 
     const handleToggleRead = async (id) => {
         await markRead(id);
@@ -45,8 +50,7 @@ const NotificationsPage = () => {
     };
 
     const handleNotificationClick = async (id) => {
-        await markRead(id);
-        setSelectedId(id);
+        setSearchParams({ id });
     };
 
     // Map Backend structure to Frontend needs

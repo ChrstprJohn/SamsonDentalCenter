@@ -17,9 +17,10 @@ const PatientNotification = () => {
         setIsOpen(!isOpen);
     };
 
-    const handleRead = async (id) => {
+    const handleRead = async (id, e) => {
+        if (e) e.stopPropagation();
         await markRead(id);
-        setIsOpen(false);
+        // Removed setIsOpen(false) to prevent unexpected closure when clicking items
     };
 
     return (
@@ -67,7 +68,7 @@ const PatientNotification = () => {
                                 <li key={n.id}>
                                     <Link 
                                         to={`/patient/notifications?id=${n.id}`}
-                                        onClick={() => handleRead(n.id)}
+                                        onClick={(e) => handleRead(n.id, e)}
                                         className={`flex gap-3 rounded-lg border-b border-gray-50 p-3 hover:bg-gray-50 transition-colors ${!n.is_read ? 'bg-brand-50/30' : ''}`}
                                     >
                                         <div className={`flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0 ${!n.is_read ? 'bg-brand-100 text-brand-600' : 'bg-gray-100 text-gray-400'}`}>
