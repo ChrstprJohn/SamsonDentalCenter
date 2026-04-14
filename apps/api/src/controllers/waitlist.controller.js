@@ -5,6 +5,7 @@ import {
     confirmWaitlistOffer,
     getWaitlistByToken,
     confirmWaitlistByToken,
+    getWaitlistStats,
 } from '../services/waitlist.service.js';
 import { bookAppointment } from '../services/appointment.service.js';
 
@@ -36,8 +37,11 @@ export const join = async (req, res, next) => {
  */
 export const getMine = async (req, res, next) => {
     try {
-        const entries = await getMyWaitlist(req.user.id);
-        res.json({ waitlist: entries, total: entries.length });
+        const [entries, stats] = await Promise.all([
+            getMyWaitlist(req.user.id),
+            getWaitlistStats(req.user.id)
+        ]);
+        res.json({ waitlist: entries, total: entries.length, stats });
     } catch (err) {
         next(err);
     }

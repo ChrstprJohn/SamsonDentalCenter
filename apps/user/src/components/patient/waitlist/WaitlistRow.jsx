@@ -58,7 +58,7 @@ const WaitlistRow = ({ item, isActive, onClick }) => {
                 <div className="flex items-center justify-between gap-2">
                     <div className="flex flex-col">
                         <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                             Requested: {formatDate(item.preferred_date)} @ {formatTime(item.preferred_time)}
+                             Requested: {formatDate(item.preferred_date)} {formatTime(item.preferred_time)}
                         </span>
                     </div>
                     <Badge color={status.color} className="shrink-0 scale-90 origin-right">

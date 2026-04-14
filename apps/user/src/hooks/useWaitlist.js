@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 const useWaitlist = () => {
     const { token } = useAuth();
     const [entries, setEntries] = useState([]);
+    const [stats, setStats] = useState({ waiting: 0, offered: 0, claimed: 0 });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -18,6 +19,7 @@ const useWaitlist = () => {
         try {
             const response = await api.get('/waitlist/my', token);
             setEntries(response.waitlist || []);
+            if (response.stats) setStats(response.stats);
         } catch (err) {
             setError(err.message || 'Failed to fetch waitlist entries');
         } finally {
@@ -78,10 +80,15 @@ const useWaitlist = () => {
     const offers = entries.filter(e => e.status === 'OFFER_PENDING' || e.status === 'NOTIFIED');
     const waiting = entries.filter(e => e.status === 'WAITING');
 
+    // Hero Entry: Highest priority (Offered > Waiting)
+    const heroEntry = offers.length > 0 ? offers[0] : (waiting.length > 0 ? waiting[0] : null);
+
     return {
         entries,
         offers,
         waiting,
+        heroEntry,
+        stats,
         loading,
         error,
         refresh: fetchWaitlist,

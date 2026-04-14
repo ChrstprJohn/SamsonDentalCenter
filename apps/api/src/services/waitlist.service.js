@@ -135,21 +135,39 @@ export const getMyWaitlist = async (patientId) => {
 
     if (error) throw new AppError(error.message, 500);
 
-    // Calculate position for each entry (based on priority and created_at)
-    const positionMap = {};
-    let position = 1;
-    data.forEach((entry) => {
-        const key = `${entry.preferred_date}-${entry.service_id}-${entry.preferred_time || 'any'}`;
-        if (!positionMap[key]) {
-            positionMap[key] = position++;
-        }
-    });
-
-    return data.map((entry) => {
-        const key = `${entry.preferred_date}-${entry.service_id}-${entry.preferred_time || 'any'}`;
-        
+    // Calculate real-time position for each entry relative to EVERYONE in the queue
+    const entriesWithPosition = await Promise.all(data.map(async (entry) => {
         let displayStatus = entry.status;
         if (entry.status === WAITLIST_STATUS.NOTIFIED) displayStatus = 'OFFER_PENDING';
+
+        let position = null;
+        
+        // Only calculate position for WAITING entries
+        if (entry.status === WAITLIST_STATUS.WAITING) {
+            // Count entries ahead of this one:
+            // 1. Higher priority
+            // 2. Same priority but earlier created_at
+            
+            let query = supabaseAdmin
+                .from('waitlist')
+                .select('id', { count: 'exact', head: true })
+                .eq('preferred_date', entry.preferred_date)
+                .eq('service_id', entry.service_id)
+                .eq('status', WAITLIST_STATUS.WAITING);
+
+            if (entry.preferred_time) {
+                query = query.eq('preferred_time', entry.preferred_time);
+            } else {
+                query = query.is('preferred_time', null);
+            }
+
+            const { count: aheadCount } = await query
+                .or(`priority.gt.${entry.priority},and(priority.eq.${entry.priority},created_at.lt.${entry.created_at})`);
+
+            position = (aheadCount || 0) + 1;
+        } else if (entry.status === WAITLIST_STATUS.NOTIFIED) {
+            position = 1; // If you have an offer, you are effectively #1
+        }
 
         return {
             id: entry.id,
@@ -157,14 +175,16 @@ export const getMyWaitlist = async (patientId) => {
             service_name: entry.service?.name,
             preferred_date: entry.preferred_date,
             preferred_time: entry.preferred_time,
-            position: entry.status === WAITLIST_STATUS.WAITING ? positionMap[key] : null,
+            position,
             status: displayStatus,
             offer_expires_at: entry.expires_at,
             joined_at: entry.created_at,
             backup_appointment_id: entry.backup_appointment_id,
             backup_appointment: entry.backup_appointment,
         };
-    });
+    }));
+
+    return entriesWithPosition;
 };
 
 /**
@@ -615,4 +635,33 @@ export const confirmWaitlistByToken = async (token) => {
 
     // 2. Delegate to the main confirm service (reusing all swap/cleanup logic)
     return await confirmWaitlistOffer(entry.id, entry.patient_id);
+};
+
+/**
+ * Get summary stats for a patient's waitlist.
+ */
+export const getWaitlistStats = async (patientId) => {
+    const [waiting, offered, claimed] = await Promise.all([
+        supabaseAdmin
+            .from('waitlist')
+            .select('id', { count: 'exact', head: true })
+            .eq('patient_id', patientId)
+            .eq('status', WAITLIST_STATUS.WAITING),
+        supabaseAdmin
+            .from('waitlist')
+            .select('id', { count: 'exact', head: true })
+            .eq('patient_id', patientId)
+            .eq('status', WAITLIST_STATUS.NOTIFIED),
+        supabaseAdmin
+            .from('waitlist')
+            .select('id', { count: 'exact', head: true })
+            .eq('patient_id', patientId)
+            .eq('is_claimed', true)
+    ]);
+
+    return {
+        waiting: waiting.count || 0,
+        offered: offered.count || 0,
+        claimed: claimed.count || 0
+    };
 };

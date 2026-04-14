@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
+import WaitlistHeroCard from '../../components/patient/waitlist/WaitlistHeroCard';
 import WaitlistInbox from '../../components/patient/waitlist/WaitlistInbox';
 import WaitlistDetailView from '../../components/patient/waitlist_details/WaitlistDetailView';
 import ClaimSlotModal from '../../components/patient/waitlist/ClaimSlotModal';
@@ -12,6 +13,8 @@ const WaitlistPage = () => {
     const { 
         entries, 
         offers, 
+        heroEntry,
+        stats,
         loading, 
         error, 
         cancel, 
@@ -106,7 +109,7 @@ const WaitlistPage = () => {
                     {error}
                 </div>
             )}
-            
+
             {selectedId ? (
                 <div className='flex-grow min-h-0 relative sm:mx-0'>
                     <WaitlistDetailView 
@@ -117,16 +120,19 @@ const WaitlistPage = () => {
                     />
                 </div>
             ) : (
-                <WaitlistInbox 
-                    entries={filtered}
-                    activeFilter={activeFilter}
-                    onFilterChange={setActiveFilter}
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    onEntryClick={handleEntryClick}
-                    selectedId={selectedId}
-                    loading={loading}
-                />
+                <>
+                    <WaitlistHeroCard heroEntry={heroEntry} stats={stats} />
+                    <WaitlistInbox 
+                        entries={filtered}
+                        activeFilter={activeFilter}
+                        onFilterChange={setActiveFilter}
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        onEntryClick={handleEntryClick}
+                        selectedId={selectedId}
+                        loading={loading}
+                    />
+                </>
             )}
 
             <ClaimSlotModal 
