@@ -587,6 +587,53 @@ export const getPatientAppointments = async (
 };
 
 /**
+ * Get summary counts of appointments for a patient.
+ */
+export const getPatientAppointmentStats = async (patientId) => {
+    const today = getTodayPH();
+
+    // Run summary counts in parallel for performance
+    const [upcoming, pending, rejected, completed] = await Promise.all([
+        // Upcoming: Confirmed and future
+        supabaseAdmin
+            .from('appointments')
+            .select('id', { count: 'exact', head: true })
+            .eq('patient_id', patientId)
+            .eq('status', APPOINTMENT_STATUS.CONFIRMED)
+            .gte('appointment_date', today),
+        
+        // Pending: Pending and future
+        supabaseAdmin
+            .from('appointments')
+            .select('id', { count: 'exact', head: true })
+            .eq('patient_id', patientId)
+            .eq('status', APPOINTMENT_STATUS.PENDING)
+            .gte('appointment_date', today),
+            
+        // Rejected: approval_status is rejected
+        supabaseAdmin
+            .from('appointments')
+            .select('id', { count: 'exact', head: true })
+            .eq('patient_id', patientId)
+            .eq('approval_status', APPROVAL_STATUS.REJECTED),
+            
+        // Completed: status is completed
+        supabaseAdmin
+            .from('appointments')
+            .select('id', { count: 'exact', head: true })
+            .eq('patient_id', patientId)
+            .eq('status', APPOINTMENT_STATUS.COMPLETED)
+    ]);
+
+    return {
+        upcoming: upcoming.count || 0,
+        pending: pending.count || 0,
+        rejected: rejected.count || 0,
+        completed: completed.count || 0
+    };
+};
+
+/**
  * Get a single appointment by ID (with ownership check).
  */
 export const getAppointmentById = async (appointmentId, patientId) => {

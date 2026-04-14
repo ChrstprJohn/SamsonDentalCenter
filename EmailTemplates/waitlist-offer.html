@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            @media screen and (max-width: 600px) {
+                .container { width: 100% !important; padding: 0 15px !important; }
+                .data-table { padding: 15px !important; }
+            }
+        </style>
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #f4f7f6; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f7f6">
+            <tr>
+                <td align="center" style="padding: 40px 20px">
+                    <table border="0" cellpadding="0" cellspacing="0" width="600" class="container" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); overflow: hidden;">
+                        <!-- Header -->
+                        <tr>
+                            <td align="center" style="padding: 40px 30px 30px; border-bottom: 1px solid #f0f0f0">
+                                <h1 style="margin: 0; font-size: 28px; font-weight: 800;">
+                                    <span style="color: #64748b">Samson</span><span style="color: #0ea5e9">Dental</span>
+                                </h1>
+                            </td>
+                        </tr>
+
+                        <!-- Body Content -->
+                        <tr>
+                            <td style="padding: 40px 40px 20px">
+                                <div style="text-align: center; margin-bottom: 30px;">
+                                    <div style="display: inline-block; background-color: #f0f9ff; color: #0369a1; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">
+                                        ⚡ Priority Offer
+                                    </div>
+                                    <h2 style="color: #0f172a; margin: 0 0 15px 0; font-size: 26px; font-weight: 800;">An earlier slot is available!</h2>
+                                    <p style="color: #64748b; margin: 0; font-size: 16px; line-height: 1.6;">
+                                        Hi <strong>{{name}}</strong>, we found an earlier slot for your <strong>{{service}}</strong>.
+                                        You have <strong>{{timeout_minutes}} minutes</strong> to claim this before it passes to the next person.
+                                    </p>
+                                </div>
+
+                                <!-- Slot Details -->
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
+                                    <tr>
+                                        <td style="padding: 10px 0; font-size: 14px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">New Date</td>
+                                        <td style="padding: 10px 0; font-size: 18px; color: #0f172a; font-weight: 700; text-align: right;">{{date}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px 0; font-size: 14px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">New Time</td>
+                                        <td style="padding: 10px 0; font-size: 18px; color: #0ea5e9; font-weight: 800; text-align: right;">{{start_time}}</td>
+                                    </tr>
+                                </table>
+
+                                <!-- Action Button -->
+                                <div style="text-align: center; margin-bottom: 30px;">
+                                    <a href="{{claimUrl}}" style="display: inline-block; background-color: #0ea5e9; color: #ffffff; padding: 18px 40px; text-decoration: none; border-radius: 12px; font-weight: 800; font-size: 16px; box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3); text-transform: uppercase; letter-spacing: 1px;">
+                                        Claim This Slot Now
+                                    </a>
+                                </div>
+
+                                <p style="color: #94a3b8; font-size: 12px; line-height: 1.6; text-align: center; font-style: italic;">
+                                    By claiming this, your original appointment (if any) will be automatically cancelled.
+                                    This action is irreversible once confirmed.
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- Footer -->
+                        <tr>
+                            <td style="padding: 0 40px 40px">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px solid #f1f5f9; padding-top: 30px; text-align: center;">
+                                    <tr>
+                                        <td style="color: #94a3b8; font-size: 13px; line-height: 1.6;">
+                                            7 Himalayan Rd, Tandang Sora, Quezon City<br />
+                                            If you ignore this email, your current waitlist status will remain the same.
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

@@ -546,3 +546,37 @@ export const markGuestTokenUsed = async (tokenId) => {
         .update({ used_at: new Date().toISOString() })
         .eq('id', tokenId);
 };
+
+/**
+ * Send a waitlist offer email with a claim token.
+ *
+ * @param {string} email - Patient email
+ * @param {string} name - Patient name
+ * @param {object} details - { token, date, start_time, service, timeout_minutes }
+ */
+export const sendWaitlistOfferEmail = async (email, name, details) => {
+    const { token, date, start_time, service, timeout_minutes } = details;
+
+    const claimUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/email/waitlist-claim?token=${token}`;
+
+    try {
+        const html = getTemplate('waitlist-offer.html', {
+            name,
+            service: service || 'Dental Service',
+            date,
+            start_time,
+            timeout_minutes,
+            claimUrl,
+        });
+
+        await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            to: email,
+            subject: '⚡ Slot Available! (Priority Offer) — Samson Dental',
+            html,
+        });
+        console.log(`📧 Waitlist offer email sent to ${email}`);
+    } catch (err) {
+        console.error('Failed to send waitlist offer email:', err.message);
+    }
+};

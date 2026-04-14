@@ -8,6 +8,7 @@ import {
 } from '../utils/constants.js';
 import { AppError } from '../utils/errors.js';
 import { sendWaitlistOffer, sendApprovalNotice, sendNotification } from './notification.service.js';
+import { sendWaitlistOfferEmail } from './email-confirmation.service.js';
 
 /**
  * Add a patient to the waitlist.
@@ -117,7 +118,8 @@ export const getMyWaitlist = async (patientId) => {
         .select(
             `
       *,
-      service:services(name)
+      service:services(name),
+      backup_appointment:appointments!waitlist_backup_appointment_id_fkey(appointment_date, start_time, end_time)
     `,
         )
         .eq('patient_id', patientId)
@@ -160,6 +162,7 @@ export const getMyWaitlist = async (patientId) => {
             offer_expires_at: entry.expires_at,
             joined_at: entry.created_at,
             backup_appointment_id: entry.backup_appointment_id,
+            backup_appointment: entry.backup_appointment,
         };
     });
 };
@@ -385,12 +388,29 @@ export const notifyWaitlist = async (freedSlot) => {
         .eq('id', service_id)
         .single();
 
+    const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('full_name, email')
+        .eq('id', firstInLine.patient_id)
+        .single();
+
+    // ── 3. Send Notifications (In-App + Email) ──
     await sendWaitlistOffer(firstInLine.patient_id, {
         date,
         start_time,
         service: service?.name,
         timeout_minutes: CLINIC_CONFIG.WAITLIST_TIMEOUT_MINUTES
     });
+
+    if (profile?.email) {
+        await sendWaitlistOfferEmail(profile.email, profile.full_name, {
+            token: token,
+            date,
+            start_time,
+            service: service?.name,
+            timeout_minutes: CLINIC_CONFIG.WAITLIST_TIMEOUT_MINUTES
+        });
+    }
 
     return {
         notified: true,
@@ -549,7 +569,8 @@ export const getWaitlistByToken = async (token) => {
         .select(
             `
             *,
-            service:services(name)
+            service:services(name),
+            backup_appointment:appointments!waitlist_backup_appointment_id_fkey(appointment_date, start_time, end_time)
         `,
         )
         .eq('claim_token', token)
@@ -571,6 +592,7 @@ export const getWaitlistByToken = async (token) => {
             service: data.service?.name,
             date: data.preferred_date,
             displayTime: data.preferred_time,
+            backup_appointment: data.backup_appointment,
         },
     };
 };

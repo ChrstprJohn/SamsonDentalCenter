@@ -13,6 +13,7 @@ import { PlusIcon } from '../../components/patient/appointments/AppointmentIcons
 import AppointmentFilters from '../../components/patient/appointments/AppointmentFilters';
 import AppointmentTable from '../../components/patient/appointments/AppointmentTable';
 import AppointmentPagination from '../../components/patient/appointments/AppointmentPagination';
+import AppointmentStatusSummary from '../../components/patient/appointments/AppointmentStatusSummary';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -25,7 +26,7 @@ const MyAppointments = () => {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
 
-    const { appointments, page, totalPages, loading, error, goToPage, prevPage, nextPage } =
+    const { appointments, total, stats, page, totalPages, loading, error, goToPage, prevPage, nextPage } =
         useAppointments({ status: statusFilter, sort: 'desc', limit: 10 });
 
     // Client-side search against service / dentist / date
@@ -50,6 +51,9 @@ const MyAppointments = () => {
     return (
         <>
             <PageBreadcrumb pageTitle='My Appointments' />
+            
+            <AppointmentStatusSummary stats={stats} />
+
             <div className='flex-grow flex flex-col bg-white dark:bg-gray-900 sm:rounded-3xl border-t sm:border border-gray-100 dark:border-gray-800 sm:shadow-theme-sm overflow-hidden'>
                 <AppointmentFilters 
                     search={search}

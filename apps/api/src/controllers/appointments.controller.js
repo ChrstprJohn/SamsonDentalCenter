@@ -3,6 +3,7 @@ import {
     getPatientAppointments,
     getAppointmentById,
     bookAppointmentGuest,
+    getPatientAppointmentStats,
     cancelAppointment,
     rescheduleAppointment,
     cancelGuestAppointmentAction,
@@ -227,17 +228,16 @@ export const submitWizard = async (req, res, next) => {
 export const getMyAppointments = async (req, res, next) => {
     try {
         const { status, sort, page = 1, limit = 10 } = req.query;
-        const result = await getPatientAppointments(
-            req.user.id,
-            status,
-            sort,
-            page,
-            limit,
-        );
+        
+        const [result, stats] = await Promise.all([
+            getPatientAppointments(req.user.id, status, sort, page, limit),
+            getPatientAppointmentStats(req.user.id)
+        ]);
 
         res.json({
             appointments: result.appointments,
             total: result.total,
+            stats,
             page: Number(page),
             limit: Number(limit),
         });

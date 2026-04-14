@@ -1,123 +1,137 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
-import WaitlistOfferCard from '../../components/patient/waitlist/WaitlistOfferCard';
-import WaitlistEmptyState from '../../components/patient/waitlist/WaitlistEmptyState';
-import WaitlistTable from '../../components/patient/waitlist/WaitlistTable';
+import WaitlistInbox from '../../components/patient/waitlist/WaitlistInbox';
+import WaitlistDetailView from '../../components/patient/waitlist_details/WaitlistDetailView';
 import ClaimSlotModal from '../../components/patient/waitlist/ClaimSlotModal';
 import useWaitlist from '../../hooks/useWaitlist';
-import { Loader2 } from 'lucide-react';
-
-const FILTERS = ['All', 'Waiting', 'Offered', 'Confirmed', 'Expired', 'Cancelled'];
+import { Clock } from 'lucide-react';
 
 const WaitlistPage = () => {
-    const { entries, offers, loading, error, cancel, confirmOffer } = useWaitlist();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const { 
+        entries, 
+        offers, 
+        loading, 
+        error, 
+        cancel, 
+        confirmOffer 
+    } = useWaitlist();
+
     const [activeFilter, setActiveFilter] = useState('All');
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedId, setSelectedId] = useState(null);
+    const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState(null);
+
+    // Sync selectedId with URL 'id' param
+    useEffect(() => {
+        const id = searchParams.get('id');
+        if (id) {
+            setSelectedId(id);
+        } else {
+            setSelectedId(null);
+        }
+    }, [searchParams]);
+
+    const handleEntryClick = (id) => {
+        setSearchParams({ id });
+    };
 
     const handleClaimClick = (slot) => {
         setSelectedSlot(slot);
-        setIsModalOpen(true);
+        setIsClaimModalOpen(true);
     };
 
     const handleConfirmClaim = async (id) => {
         try {
             await confirmOffer(id);
-            setIsModalOpen(false);
+            setIsClaimModalOpen(false);
             setSelectedSlot(null);
         } catch (err) {
             console.error('Failed to confirm offer:', err);
         }
     };
 
-    // options: { removeBackup: boolean } — forwarded from WaitlistCancelModal
     const handleCancelEntry = async (id, options = {}) => {
         try {
             await cancel(id, options);
+            // If the cancelled entry was selected, deselect it
+            if (selectedId === id) {
+                setSearchParams({});
+            }
         } catch (err) {
             console.error('Failed to cancel entry:', err);
         }
     };
 
+    // Filter Logic
+    const filtered = entries.filter(item => {
+        const matchesSearch = item.service_name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesFilter = activeFilter === 'All' || item.status === activeFilter;
+        return matchesSearch && matchesFilter;
+    });
+
+    const selectedEntry = entries.find(e => e.id === selectedId);
+
+    // Dynamic breadcrumbs
+    const breadcrumbTitle = selectedId ? 'Request Detail' : 'Waitlist';
+    const parentName = selectedId ? 'Waitlist' : null;
+    const parentPath = selectedId ? '/patient/waitlist' : null;
+
     if (loading && entries.length === 0) {
         return (
-            <div className='flex items-center justify-center grow py-20'>
-                <Loader2 className='w-8 h-8 text-brand-500 animate-spin' />
-            </div>
+            <>
+                <PageBreadcrumb pageTitle={breadcrumbTitle} />
+                <div className='flex items-center justify-center grow py-20'>
+                    <div className='animate-pulse flex flex-col items-center gap-4'>
+                        <Clock size={40} className='text-gray-200 dark:text-gray-800' />
+                        <div className='h-4 w-32 bg-gray-100 dark:bg-gray-800 rounded-full' />
+                    </div>
+                </div>
+            </>
         );
     }
 
     return (
         <>
-            <PageBreadcrumb pageTitle='Waitlist' />
+            <PageBreadcrumb 
+                pageTitle={breadcrumbTitle} 
+                parentName={parentName} 
+                parentPath={parentPath}
+            />
+
+            {error && (
+                <div className='mb-6 p-4 bg-red-50 text-red-600 rounded-2xl text-sm font-medium border border-red-100'>
+                    {error}
+                </div>
+            )}
             
-            <div className='space-y-8'>
-                {error && (
-                    <div className='p-4 bg-red-50 text-red-600 rounded-2xl text-sm font-medium border border-red-100'>
-                        {error}
-                    </div>
-                )}
-
-                {/* Empty State Card - Always on top when no active entries */}
-                {entries.length === 0 && !loading && (
-                    <WaitlistEmptyState />
-                )}
-
-                {/* Active Offers Section */}
-                {offers.length > 0 && (
-                    <div className='grid gap-6'>
-                        {offers.map(offer => (
-                            <WaitlistOfferCard 
-                                key={offer.id} 
-                                offer={offer} 
-                                onClaim={() => handleClaimClick(offer)} 
-                            />
-                        ))}
-                    </div>
-                )}
-
-                {/* List section - Always visible */}
-                <div className='space-y-6'>
-                    <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-                        <div>
-                            <h3 className='text-lg font-bold text-gray-800 dark:text-white font-outfit uppercase tracking-tight'>
-                                Waitlist Requests
-                            </h3>
-                            <p className='text-sm text-gray-500 dark:text-gray-400 font-medium'>
-                                View and manage your requests for earlier slots.
-                            </p>
-                        </div>
-
-                        {/* Filter Tabs */}
-                        <div className='flex bg-gray-100 dark:bg-white/[0.05] p-1.5 rounded-[1rem] w-max border border-gray-200/50 dark:border-white/5'>
-                            {FILTERS.map((f) => (
-                                <button
-                                    key={f}
-                                    onClick={() => setActiveFilter(f)}
-                                    className={`px-4 py-2 text-[10px] font-black rounded-[0.75rem] transition-all uppercase tracking-widest ${
-                                        activeFilter === f 
-                                        ? 'bg-white dark:bg-gray-800 text-brand-500 shadow-sm' 
-                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white'
-                                    }`}
-                                >
-                                    {f}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <WaitlistTable 
-                        data={entries}
-                        activeFilter={activeFilter} 
+            {selectedId ? (
+                <div className='flex-grow min-h-0 relative sm:mx-0'>
+                    <WaitlistDetailView 
+                        item={selectedEntry}
+                        onBack={() => setSearchParams({})}
                         onClaim={handleClaimClick}
                         onCancel={handleCancelEntry}
                     />
                 </div>
-            </div>
+            ) : (
+                <WaitlistInbox 
+                    entries={filtered}
+                    activeFilter={activeFilter}
+                    onFilterChange={setActiveFilter}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    onEntryClick={handleEntryClick}
+                    selectedId={selectedId}
+                    loading={loading}
+                />
+            )}
 
             <ClaimSlotModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
+                isOpen={isClaimModalOpen} 
+                onClose={() => setIsClaimModalOpen(false)} 
                 slot={selectedSlot}
                 onConfirm={handleConfirmClaim}
                 loading={loading}

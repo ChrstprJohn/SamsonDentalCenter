@@ -106,6 +106,7 @@ const useAppointments = ({ status = '', sort = 'desc', limit = DEFAULT_LIMIT } =
     const { token } = useAuth();
     const [appointments, setAppointments] = useState([]);
     const [total, setTotal] = useState(0);
+    const [stats, setStats] = useState({ upcoming: 0, pending: 0, rejected: 0, completed: 0 });
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -127,6 +128,7 @@ const useAppointments = ({ status = '', sort = 'desc', limit = DEFAULT_LIMIT } =
 
             setAppointments(data.appointments || []);
             setTotal(data.total || 0);
+            if (data.stats) setStats(data.stats);
         } catch (err) {
             setError(err.message || 'Failed to load appointments.');
         } finally {
@@ -146,6 +148,7 @@ const useAppointments = ({ status = '', sort = 'desc', limit = DEFAULT_LIMIT } =
     return {
         appointments,
         total,
+        stats,
         page,
         totalPages,
         loading,

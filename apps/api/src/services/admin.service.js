@@ -2,7 +2,7 @@ import { AppError } from '../utils/errors.js';
 import { supabaseAdmin } from '../config/supabase.js';
 import { assignDentist } from './dentist-assignment.service.js';
 import { APPOINTMENT_STATUS, APPROVAL_STATUS, SERVICE_TIER } from '../utils/constants.js';
-import { voidWaitlistForApprovedAppointment } from './waitlist.service.js';
+import { voidWaitlistForApprovedAppointment, notifyWaitlist } from './waitlist.service.js';
 
 // ═══════════════════════════════════════════════
 // APPROVAL WORKFLOW (Two-Tier System)
@@ -706,6 +706,18 @@ export const rejectRequest = async (appointmentId, supervisorId, reason, suggest
         .single();
 
     if (error) throw new AppError(error.message, 500);
+
+    // ── Trigger waitlist notification ──
+    try {
+        await notifyWaitlist({
+            date: updated.appointment_date,
+            start_time: updated.start_time,
+            end_time: updated.end_time,
+            service_id: updated.service_id,
+        });
+    } catch (e) {
+        console.warn('⚠️ [ADMIN] Failed to trigger waitlist on rejection:', e.message);
+    }
 
     return { appointment: updated, suggested_date: suggestedDate };
 };
