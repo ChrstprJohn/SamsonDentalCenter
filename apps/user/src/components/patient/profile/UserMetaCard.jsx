@@ -18,22 +18,22 @@ export default function UserMetaCard() {
 
     return (
         <>
-            <div className='p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 bg-white dark:bg-white/[0.03]'>
+            <div className='p-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-7 bg-white dark:bg-white/[0.03]'>
                 <div className='flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between'>
                     <div className='flex flex-col items-center w-full gap-6 xl:flex-row'>
-                        <div className='w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-brand-50 text-brand-600 font-bold text-2xl'>
+                        <div className='w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-brand-50 text-brand-600 font-bold text-2xl shadow-inner'>
                             {user?.full_name?.charAt(0).toUpperCase() || 'U'}
                         </div>
                         <div className='order-3 xl:order-2'>
-                            <h4 className='mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left'>
+                            <h4 className='mb-2 text-[clamp(18px,2vw,20px)] font-bold text-center text-gray-900 dark:text-white xl:text-left'>
                                 {user?.full_name || 'Patient Name'}
                             </h4>
                             <div className='flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left'>
-                                <p className='text-sm text-gray-500 dark:text-gray-400'>
+                                <p className='text-[clamp(13px,1.2vw,14px)] text-gray-500 dark:text-gray-400 font-medium'>
                                     Patient
                                 </p>
                                 <div className='hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block'></div>
-                                <p className='text-sm text-gray-500 dark:text-gray-400'>
+                                <p className='text-[clamp(13px,1.2vw,14px)] text-gray-500 dark:text-gray-400 font-medium'>
                                     Member since 2024
                                 </p>
                             </div>
@@ -42,7 +42,7 @@ export default function UserMetaCard() {
                     <Button
                         variant='outline'
                         onClick={openModal}
-                        className='flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-medium shadow-theme-xs lg:inline-flex lg:w-auto'
+                        className='flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-bold shadow-theme-xs lg:inline-flex lg:w-auto transition-all duration-300 hover:shadow-lg hover:border-brand-500 hover:text-brand-500'
                     >
                         <svg
                             className='fill-current'

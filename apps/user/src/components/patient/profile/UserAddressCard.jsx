@@ -14,37 +14,37 @@ export default function UserAddressCard() {
     };
 
     return (
-        <div className='p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 bg-white dark:bg-white/[0.03]'>
+        <div className='p-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-7 bg-white dark:bg-white/[0.03]'>
             <div className='flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between'>
                 <div>
-                    <h4 className='text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6'>
+                    <h4 className='text-[clamp(16px,2vw,18px)] font-bold text-gray-900 dark:text-white lg:mb-6 mb-4'>
                         Address
                     </h4>
 
-                    <div className='grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32'>
+                    <div className='grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32'>
                         <div>
-                            <p className='mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400'>
+                            <p className='mb-1.5 text-[clamp(11px,0.8vw,12px)] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500'>
                                 Country
                             </p>
-                            <p className='text-sm font-medium text-gray-800 dark:text-white/90'>
+                            <p className='text-[clamp(14px,1vw,15px)] font-semibold text-gray-800 dark:text-white/90'>
                                 Philippines
                             </p>
                         </div>
 
                         <div>
-                            <p className='mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400'>
+                            <p className='mb-1.5 text-[clamp(11px,0.8vw,12px)] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500'>
                                 City/State
                             </p>
-                            <p className='text-sm font-medium text-gray-800 dark:text-white/90'>
+                            <p className='text-[clamp(14px,1vw,15px)] font-semibold text-gray-800 dark:text-white/90'>
                                 Manila, Metro Manila
                             </p>
                         </div>
 
                         <div>
-                            <p className='mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400'>
+                            <p className='mb-1.5 text-[clamp(11px,0.8vw,12px)] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500'>
                                 Postal Code
                             </p>
-                            <p className='text-sm font-medium text-gray-800 dark:text-white/90'>
+                            <p className='text-[clamp(14px,1vw,15px)] font-semibold text-gray-800 dark:text-white/90'>
                                 1000
                             </p>
                         </div>
@@ -54,7 +54,7 @@ export default function UserAddressCard() {
                 <Button
                     variant='outline'
                     onClick={openModal}
-                    className='flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-medium shadow-theme-xs lg:inline-flex lg:w-auto'
+                    className='flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-bold shadow-theme-xs lg:inline-flex lg:w-auto transition-all duration-300 hover:shadow-lg hover:border-brand-500 hover:text-brand-500'
                 >
                     <svg
                         className='fill-current'

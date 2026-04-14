@@ -7,14 +7,16 @@ export default function PatientProfile() {
     return (
         <>
             <PageBreadcrumb pageTitle='Profile' />
-            <div className='rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6 shadow-theme-sm'>
-                <h3 className='mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7 font-outfit'>
-                    Profile
-                </h3>
-                <div className='space-y-6'>
+            <div className='flex flex-col grow'>
+                <div className="sm:hidden px-4 mt-2">
+                    <h1 className="text-sm font-black text-gray-700 dark:text-white uppercase tracking-tight mb-4">
+                        Profile
+                    </h1>
+                </div>
+                
+                <div className='sm:mx-0 mx-4 mb-10 space-y-6'>
                     <UserMetaCard />
                     <UserInfoCard />
-                    <UserAddressCard />
                 </div>
             </div>
         </>
