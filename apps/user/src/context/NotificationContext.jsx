@@ -8,6 +8,7 @@ export const NotificationProvider = ({ children }) => {
     const { token } = useAuth();
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [stats, setStats] = useState({ starred: 0, unread: 0, general: 0, waitlist: 0, cancellation: 0 });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -29,7 +30,7 @@ export const NotificationProvider = ({ children }) => {
         setError(null);
         
         try {
-            const data = await api.get('/notifications/my', token);
+            const data = await api.get('/notifications/my?archived=true', token);
             const parsed = (data.notifications || []).map(n => {
                 if (n.message && n.message.startsWith('{')) {
                     try {
@@ -50,6 +51,7 @@ export const NotificationProvider = ({ children }) => {
             });
             
             setNotifications(sortNotifications(parsed));
+            if (data.stats) setStats(data.stats);
         } catch (err) {
             setError(err.message || 'Failed to load notifications.');
         } finally {
@@ -67,27 +69,30 @@ export const NotificationProvider = ({ children }) => {
         }
     }, [token]);
 
-    const markRead = async (id) => {
+    const markRead = async (id, isRead = true) => {
         if (!token) return;
         try {
-            // Check if it's already read to avoid redundant API calls and count decrement
-            const target = notifications.find(n => n.id === id);
-            if (target && target.is_read) return { success: true };
-
-            await api.patch(`/notifications/${id}/read`, {}, token);
-            
             // Optimistic Update
             setNotifications(prev => {
                 const updated = prev.map(n => 
-                    n.id === id ? { ...n, is_read: true } : n
+                    n.id === id ? { ...n, is_read: isRead } : n
                 );
                 return sortNotifications(updated);
             });
             
-            setUnreadCount(prev => Math.max(0, prev - 1));
+            setUnreadCount(prev => isRead ? Math.max(0, prev - 1) : prev + 1);
+            setStats(prev => ({ 
+                ...prev, 
+                unread: isRead ? Math.max(0, prev.unread - 1) : prev.unread + 1 
+            }));
+            
+            await api.patch(`/notifications/${id}/read`, { read: isRead }, token);
             return { success: true };
         } catch (err) {
-            console.error('Failed to mark notification as read:', err);
+            console.error('Failed to toggle read status:', err);
+            // Refresh counts on error to ensure sync
+            fetchNotifications();
+            fetchUnreadCount();
             return { success: false, error: err.message };
         }
     };
@@ -98,9 +103,46 @@ export const NotificationProvider = ({ children }) => {
             await api.patch('/notifications/read-all', {}, token);
             setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
             setUnreadCount(0);
+            setStats(prev => ({ ...prev, unread: 0 }));
             return { success: true };
         } catch (err) {
             console.error('Failed to mark all as read:', err);
+            return { success: false, error: err.message };
+        }
+    };
+
+    const toggleStar = async (id, isStarred) => {
+        if (!token) return;
+        try {
+            // Optimistic Update
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_starred: isStarred } : n));
+            setStats(prev => ({ ...prev, starred: prev.starred + (isStarred ? 1 : -1) }));
+
+            await api.patch(`/notifications/${id}/star`, { starred: isStarred }, token);
+            return { success: true };
+        } catch (err) {
+            console.error('Failed to toggle star:', err);
+            refresh(); // Rollback on error
+            return { success: false, error: err.message };
+        }
+    };
+
+    const toggleArchive = async (id, isArchived) => {
+        if (!token) return;
+        try {
+            // Optimistic Update
+            setNotifications(prev => prev.map(n => 
+                n.id === id 
+                ? { ...n, is_archived: isArchived, is_starred: isArchived ? false : n.is_starred } 
+                : n
+            ));
+            
+            await api.patch(`/notifications/${id}/archive`, { archived: isArchived }, token);
+            fetchNotifications(); // Refresh stats
+            return { success: true };
+        } catch (err) {
+            console.error('Failed to toggle archive:', err);
+            refresh(); // Rollback on error
             return { success: false, error: err.message };
         }
     };
@@ -132,10 +174,13 @@ export const NotificationProvider = ({ children }) => {
             unreadCount,
             loading,
             error,
+            stats,
             refresh: fetchNotifications,
             refreshCount: fetchUnreadCount,
             markRead,
-            markAllRead
+            markAllRead,
+            toggleStar,
+            toggleArchive
         }}>
             {children}
         </NotificationContext.Provider>

@@ -1,11 +1,11 @@
 import React from 'react';
-import { ChevronLeft, Star, Mail, Trash2, Reply, Archive } from 'lucide-react';
-import { Badge } from '../../ui';
+import { ChevronLeft, Star, Mail, MailOpen, Reply } from 'lucide-react';
 
-const NotificationDetailView = ({ notification, onBack, onToggleStar, onToggleRead, onDelete }) => {
+const NotificationDetailView = ({ notification, onBack, onToggleStar, onToggleRead }) => {
     if (!notification) return null;
 
-    const { id, title, message, category, time, isStarred, fullMessage } = notification;
+    const { id, title, message, category, time, isStarred, isRead } = notification;
+    const displayCategory = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase().replace('_', ' ');
 
     return (
         <div className='flex-grow flex flex-col h-full bg-white dark:bg-gray-900 sm:rounded-3xl border-t sm:border border-gray-100 dark:border-gray-800 sm:shadow-theme-sm overflow-hidden animate-[fadeIn_0.2s_ease-out]'>
@@ -17,27 +17,6 @@ const NotificationDetailView = ({ notification, onBack, onToggleStar, onToggleRe
                 >
                     <ChevronLeft size={20} />
                 </button>
-                
-                <div className='flex items-center gap-2'>
-                    <button 
-                        onClick={() => onToggleStar(id)}
-                        className={`p-2 rounded-xl transition-colors ${isStarred ? 'text-amber-400 bg-amber-50 dark:bg-amber-400/10' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05]'}`}
-                    >
-                        <Star size={18} fill={isStarred ? 'currentColor' : 'none'} />
-                    </button>
-                    <button 
-                        className='p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-colors'
-                        onClick={() => onDelete(id)}
-                    >
-                        <Trash2 size={18} />
-                    </button>
-                    <button 
-                        className='p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-colors'
-                        onClick={() => onToggleRead(id)}
-                    >
-                        <Mail size={18} />
-                    </button>
-                </div>
             </div>
 
             {/* Content Area */}
@@ -52,7 +31,7 @@ const NotificationDetailView = ({ notification, onBack, onToggleStar, onToggleRe
                                 {category.charAt(0)}
                             </div>
                             <div>
-                                <p className='text-[13px] sm:text-sm font-bold text-gray-900 dark:text-white'>{category} Team</p>
+                                <p className='text-[13px] sm:text-sm font-bold text-gray-900 dark:text-white'>{displayCategory} Team</p>
                                 <p className='text-[10px] sm:text-[11px] text-gray-400 font-medium'>To: Patient Account</p>
                             </div>
                         </div>
@@ -74,18 +53,34 @@ const NotificationDetailView = ({ notification, onBack, onToggleStar, onToggleRe
 
             </div>
 
-            {/* Floating Quick Actions Footer */}
+            {/* Quick Actions Footer */}
             <div className='fixed bottom-0 left-0 right-0 sm:relative z-20 px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none'>
                 <div className='flex items-center gap-3 w-full'>
-                    <div className='hidden sm:block sm:w-1/2'></div>
+                    <div className='hidden sm:block sm:w-1/2 text-gray-400 text-xs font-medium'>
+                        Last updated {time}
+                    </div>
                     <div className='flex flex-1 sm:w-1/2 gap-3 sm:justify-end'>
-                        <button className='flex-1 sm:flex-none sm:min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-500 text-white text-[12px] sm:text-sm font-bold rounded-xl hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/10'>
-                            <Reply size={16} />
-                            Reply
+                        <button 
+                            onClick={() => onToggleStar(id, !isStarred)}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all font-bold text-xs ${
+                                isStarred 
+                                ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' 
+                                : 'bg-gray-100 dark:bg-white/[0.05] text-gray-600 dark:text-gray-400 hover:bg-gray-200'
+                            }`}
+                        >
+                            <Star size={18} fill={isStarred ? 'currentColor' : 'none'} />
+                            {isStarred ? 'Starred' : 'Star'}
                         </button>
-                        <button className='flex-1 sm:flex-none sm:min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-white/[0.05] text-gray-600 dark:text-gray-300 text-[12px] sm:text-sm font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-white/[0.1] transition-all'>
-                            <Archive size={16} />
-                            Archive
+                        <button 
+                            onClick={() => onToggleRead(id, !isRead)}
+                            className={`flex-1 sm:flex-none sm:min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2.5 text-[12px] sm:text-sm font-bold rounded-xl transition-all shadow-lg ${
+                                isRead 
+                                ? 'bg-gray-100 dark:bg-white/[0.05] text-gray-600 dark:text-gray-300 hover:bg-gray-200 shadow-none' 
+                                : 'bg-brand-500 text-white hover:bg-brand-600 shadow-brand-500/10'
+                            }`}
+                        >
+                            {isRead ? <MailOpen size={18} /> : <Mail size={18} />}
+                            {isRead ? 'Mark Unread' : 'Mark Read'}
                         </button>
                     </div>
                 </div>

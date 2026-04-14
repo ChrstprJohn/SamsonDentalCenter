@@ -251,7 +251,7 @@ export const sendFollowUpReminder = async (userId, followUpDetails) => {
  * @param {string} userId
  * @param {boolean} unreadOnly - If true, return only unread notifications
  */
-export const getUserNotifications = async (userId, unreadOnly = false) => {
+export const getUserNotifications = async (userId, unreadOnly = false, includeArchived = false) => {
     let query = supabaseAdmin
         .from('notifications')
         .select('*')
@@ -263,6 +263,10 @@ export const getUserNotifications = async (userId, unreadOnly = false) => {
         query = query.eq('is_read', false);
     }
 
+    if (!includeArchived) {
+        query = query.eq('is_archived', false);
+    }
+
     const { data, error } = await query;
     if (error) throw new AppError(error.message, 500);
 
@@ -270,17 +274,17 @@ export const getUserNotifications = async (userId, unreadOnly = false) => {
 };
 
 /**
- * Mark a single notification as read.
+ * Toggle read status of a single notification.
  */
-export const markAsRead = async (notificationId, userId) => {
+export const toggleRead = async (notificationId, userId, isRead) => {
     const { data, error } = await supabaseAdmin
         .from('notifications')
         .update({
-            is_read: true,
-            read_at: new Date().toISOString(),
+            is_read: isRead,
+            read_at: isRead ? new Date().toISOString() : null,
         })
         .eq('id', notificationId)
-        .eq('user_id', userId) // Security: only your own notifications
+        .eq('user_id', userId)
         .select()
         .single();
 
@@ -322,4 +326,63 @@ export const getUnreadCount = async (userId) => {
     if (error) throw new AppError(error.message, 500);
 
     return { unread_count: count };
+};
+/**
+ * Toggle starred status.
+ */
+export const toggleStar = async (notificationId, userId, isStarred) => {
+    const { data, error } = await supabaseAdmin
+        .from('notifications')
+        .update({ is_starred: isStarred })
+        .eq('id', notificationId)
+        .eq('user_id', userId)
+        .select()
+        .single();
+    if (error) throw new AppError(error.message, 500);
+    return data;
+};
+
+/**
+ * Toggle archived status.
+ */
+export const toggleArchive = async (notificationId, userId, isArchived) => {
+    const updateData = { is_archived: isArchived };
+    
+    // If archiving, automatically unstar
+    if (isArchived) {
+        updateData.is_starred = false;
+    }
+
+    const { data, error } = await supabaseAdmin
+        .from('notifications')
+        .update(updateData)
+        .eq('id', notificationId)
+        .eq('user_id', userId)
+        .select()
+        .single();
+    if (error) throw new AppError(error.message, 500);
+    return data;
+};
+
+/**
+ * Get notification stats for a user.
+ */
+export const getNotificationStats = async (userId) => {
+    const [starred, unread, general, waitlist, cancellation, archived] = await Promise.all([
+        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_starred', true).eq('is_archived', false),
+        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_read', false).eq('is_archived', false),
+        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_archived', false).in('type', ['GENERAL', 'CONFIRMATION', 'REMINDER', 'REMINDER_48H', 'APPROVAL', 'DELAY', 'FOLLOW_UP', 'RESCHEDULE', 'RESTRICTION']),
+        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_archived', false).eq('type', 'WAITLIST'),
+        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_archived', false).in('type', ['CANCELLATION', 'REJECTION', 'NO_SHOW']),
+        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_archived', true)
+    ]);
+
+    return {
+        starred: starred.count || 0,
+        unread: unread.count || 0,
+        general: general.count || 0,
+        waitlist: waitlist.count || 0,
+        cancellation: cancellation.count || 0,
+        archived: archived.count || 0
+    };
 };

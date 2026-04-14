@@ -1,12 +1,13 @@
 import React from 'react';
-import { Search, Filter, Mail, Archive, Star, Clock } from 'lucide-react';
+import { Search, Filter, Mail, Archive, Star, Clock, XCircle, Inbox } from 'lucide-react';
 import NotificationRow from './NotificationRow';
 
 const CATEGORIES = [
     { id: 'all', label: 'All', icon: Mail },
     { id: 'starred', label: 'Starred', icon: Star },
+    { id: 'general', label: 'General', icon: Inbox },
     { id: 'waitlist', label: 'Waitlist', icon: Clock },
-    { id: 'appointments', label: 'Appointments', icon: Archive },
+    { id: 'cancellation', label: 'Cancellation', icon: XCircle }
 ];
 
 const NotificationInbox = ({ 
@@ -17,7 +18,7 @@ const NotificationInbox = ({
     onSearchChange,
     onToggleStar,
     onToggleRead,
-    onDelete,
+    onToggleArchive,
     onNotificationClick
 }) => {
     return (
@@ -69,7 +70,7 @@ const NotificationInbox = ({
                             notification={n} 
                             onToggleStar={onToggleStar}
                             onToggleRead={onToggleRead}
-                            onDelete={onDelete}
+                            onToggleArchive={onToggleArchive}
                             onClick={onNotificationClick}
                         />
                     ))

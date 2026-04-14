@@ -5,8 +5,9 @@ import NotificationInbox from '../../components/patient/notification/Notificatio
 import NotificationDetailView from '../../components/patient/notification/NotificationDetailView';
 import useNotifications from '../../hooks/useNotifications';
 import { formatFullDateTime } from '../../hooks/useAppointments';
-import { Clock } from 'lucide-react';
+import { Clock, Inbox, Star, XCircle } from 'lucide-react';
 import { renderNotification } from '../../utils/notificationRenderer';
+import NotificationStatusSummary from '../../components/patient/notification/NotificationStatusSummary';
 
 const NotificationsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -15,38 +16,42 @@ const NotificationsPage = () => {
         loading, 
         error, 
         markRead, 
-        markAllRead 
+        markAllRead,
+        toggleStar,
+        stats
     } = useNotifications();
 
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedId, setSelectedId] = useState(null);
 
-    // Sync selectedId with URL 'id' param
+    // Sync selectedId with URL 'id' param - Auto mark-as-read ONLY on initial open
     useEffect(() => {
         const id = searchParams.get('id');
         if (id) {
             setSelectedId(id);
-            // Mark as read if found and unread
-            const n = notifications.find(notif => notif.id === id);
-            if (n && !n.is_read) {
-                markRead(id);
-            }
         } else {
             setSelectedId(null);
         }
-    }, [searchParams, notifications, markRead]);
+    }, [searchParams]);
 
-    const handleToggleRead = async (id) => {
-        await markRead(id);
+    // Separate effect for auto-mark-as-read to avoid loops
+    useEffect(() => {
+        if (selectedId) {
+            const n = notifications.find(notif => notif.id === selectedId);
+            if (n && !n.is_read) {
+                // We ONLY auto-mark as read if it hasn't been handled yet for this specific open session
+                markRead(selectedId);
+            }
+        }
+    }, [selectedId]); // ONLY depend on selectedId changing
+
+    const handleToggleRead = async (id, isRead) => {
+        await markRead(id, isRead);
     };
 
-    const handleToggleStar = (id) => {
-        // Star not yet implemented in backend
-    };
-
-    const handleDelete = (id) => {
-        // Delete not yet implemented in backend
+    const handleToggleStar = (id, isStarred) => {
+        toggleStar(id, isStarred);
     };
 
     const handleNotificationClick = async (id) => {
@@ -65,7 +70,7 @@ const NotificationsPage = () => {
             category: n.type,
             time: n.sent_at ? formatFullDateTime(n.sent_at) : '',
             isRead: n.is_read,
-            isStarred: false
+            isStarred: n.is_starred
         };
     });
 
@@ -78,6 +83,17 @@ const NotificationsPage = () => {
         
         if (activeFilter === 'all') return true;
         if (activeFilter === 'starred') return n.isStarred;
+        
+        if (activeFilter === 'general') {
+            return ['GENERAL', 'CONFIRMATION', 'REMINDER', 'REMINDER_48H', 'APPROVAL', 'DELAY', 'FOLLOW_UP', 'RESCHEDULE', 'RESTRICTION'].includes(n.category);
+        }
+        if (activeFilter === 'waitlist') {
+            return n.category === 'WAITLIST';
+        }
+        if (activeFilter === 'cancellation') {
+            return ['CANCELLATION', 'REJECTION', 'NO_SHOW'].includes(n.category);
+        }
+        
         return n.category.toLowerCase().includes(activeFilter.toLowerCase());
     });
 
@@ -114,7 +130,7 @@ const NotificationsPage = () => {
     }
 
     return (
-        <>
+        <div className="flex flex-col h-full">
             <PageBreadcrumb 
                 pageTitle={breadcrumbTitle} 
                 parentName={parentName} 
@@ -128,24 +144,26 @@ const NotificationsPage = () => {
                         onBack={() => setSelectedId(null)}
                         onToggleRead={handleToggleRead}
                         onToggleStar={handleToggleStar}
-                        onDelete={handleDelete}
                     />
                 </div>
             ) : (
-                <NotificationInbox 
-                    notifications={filtered}
-                    activeFilter={activeFilter}
-                    onFilterChange={setActiveFilter}
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    onToggleRead={handleToggleRead}
-                    onToggleStar={handleToggleStar}
-                    onDelete={handleDelete}
-                    onNotificationClick={handleNotificationClick}
-                    onMarkAllRead={markAllRead}
-                />
+                <div className="flex flex-col grow">
+                    <NotificationStatusSummary stats={stats} />
+
+                    <NotificationInbox 
+                        notifications={filtered}
+                        activeFilter={activeFilter}
+                        onFilterChange={setActiveFilter}
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        onToggleRead={handleToggleRead}
+                        onToggleStar={handleToggleStar}
+                        onNotificationClick={handleNotificationClick}
+                        onMarkAllRead={markAllRead}
+                    />
+                </div>
             )}
-        </>
+        </div>
     );
 };
 
