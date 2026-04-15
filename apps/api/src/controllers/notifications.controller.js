@@ -10,19 +10,28 @@ import {
 
 /**
  * GET /api/notifications/my
- * Optional query: ?unread=true&archived=false
+ * Optional query: ?unread=true&archived=false&page=1&limit=10
  */
 export const getMyNotifications = async (req, res, next) => {
     try {
         const unreadOnly = req.query.unread === 'true';
         const includeArchived = req.query.archived === 'true';
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
 
-        const [notifications, stats] = await Promise.all([
-            getUserNotifications(req.user.id, unreadOnly, includeArchived),
-            getNotificationStats(req.user.id)
+        const [{ notifications, total }, stats] = await Promise.all([
+            getUserNotifications(req.user.id, unreadOnly, includeArchived, page, limit),
+            getNotificationStats(req.user.id),
         ]);
 
-        res.json({ notifications, total: notifications.length, stats });
+        res.json({
+            notifications,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+            stats,
+        });
     } catch (err) {
         if (err.status) return res.status(err.status).json({ error: err.message });
         next(err);

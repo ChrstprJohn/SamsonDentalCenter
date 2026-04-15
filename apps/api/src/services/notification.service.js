@@ -15,7 +15,14 @@ import { sendSMS } from './sms.service.js';
  * @param {string} channel - 'in_app' | 'email' | 'sms' (default: 'in_app')
  * @param {object} metadata - Optional structured data for frontend rendering
  */
-export const sendNotification = async (userId, type, title, message, channel = 'in_app', metadata = null) => {
+export const sendNotification = async (
+    userId,
+    type,
+    title,
+    message,
+    channel = 'in_app',
+    metadata = null,
+) => {
     // ── 0. Safety Check for In-App ──
     // Guests don't have user IDs and thus can't receive in-app notifications.
     if (channel === 'in_app' && !userId) {
@@ -25,7 +32,9 @@ export const sendNotification = async (userId, type, title, message, channel = '
     // ── 1. Save to Database (if userId exists) ──
     let data = null;
     if (userId) {
-        const messageContent = metadata ? JSON.stringify({ ...metadata, _isJSON: true, _title: title, _fallback: message }) : message;
+        const messageContent = metadata
+            ? JSON.stringify({ ...metadata, _isJSON: true, _title: title, _fallback: message })
+            : message;
 
         const { data: insertData, error } = await supabaseAdmin
             .from('notifications')
@@ -59,7 +68,6 @@ export const sendNotification = async (userId, type, title, message, channel = '
     return { ...data, smsResult };
 };
 
-
 // ─────────────────────────────────────────────
 // Typed helpers — call these from other modules
 // ─────────────────────────────────────────────
@@ -76,7 +84,7 @@ export const sendConfirmation = async (userId, appointmentDetails) => {
         'Appointment Confirmed!',
         `Your ${service} appointment is confirmed for ${formattedRange}.`,
         'in_app',
-        { service, date, start_time, end_time }
+        { service, date, start_time, end_time },
     );
 };
 
@@ -92,7 +100,7 @@ export const sendRequestReceived = async (userId, appointmentDetails) => {
         'Request Received & Under Review',
         `Your request for ${service} on ${formattedRange} has been received. Our team is currently reviewing your schedule to ensure a dentist is available. We will notify you once it is officially confirmed.`,
         'in_app',
-        { service, date, start_time, end_time, status: 'review' }
+        { service, date, start_time, end_time, status: 'review' },
     );
 };
 
@@ -112,7 +120,7 @@ export const sendApprovalNotice = async (userId, appointmentDetails, phone = nul
         'Appointment Approved!',
         message,
         'in_app',
-        { service, date, start_time, end_time, action: 'approved' }
+        { service, date, start_time, end_time, action: 'approved' },
     );
 
     /* 
@@ -129,7 +137,7 @@ export const sendApprovalNotice = async (userId, appointmentDetails, phone = nul
         );
     }
     */
-    
+
     return { inAppResult, smsResult };
 };
 
@@ -145,7 +153,7 @@ export const sendRejectionNotice = async (userId, appointmentDetails, reason) =>
         'Appointment Declined',
         `Your request for ${service} on ${formattedRange} was declined. Reason: ${reason}`,
         'in_app',
-        { service, date, start_time, end_time, reason, action: 'rejected' }
+        { service, date, start_time, end_time, reason, action: 'rejected' },
     );
 };
 
@@ -161,7 +169,7 @@ export const sendReminder = async (userId, appointmentDetails, hoursUntil) => {
         `Reminder: Appointment in ${hoursUntil} hours`,
         `Don't forget! Your ${service} appointment is on ${formattedRange}.`,
         'in_app',
-        { service, date, start_time, end_time, hoursUntil, action: 'reminder' }
+        { service, date, start_time, end_time, hoursUntil, action: 'reminder' },
     );
 };
 
@@ -178,7 +186,7 @@ export const send48hConfirmReminder = async (userId, appointmentDetails) => {
         'Please Confirm Your Appointment (48h)',
         `Your ${service} appointment is in 2 days (${formattedRange}). Please confirm you will attend.`,
         'in_app',
-        { service, date, start_time, end_time, action: 'reminder_48h' }
+        { service, date, start_time, end_time, action: 'reminder_48h' },
     );
 };
 
@@ -193,7 +201,7 @@ export const sendWaitlistOffer = async (userId, waitlistDetails) => {
         'A slot is available!',
         `A slot opened up on ${date} at ${start_time}${service ? ' for ' + service : ''}. You have ${timeout_minutes} minutes to confirm.`,
         'in_app',
-        { date, start_time, service, timeout_minutes, action: 'waitlist_offer' }
+        { date, start_time, service, timeout_minutes, action: 'waitlist_offer' },
     );
 };
 
@@ -209,7 +217,7 @@ export const sendCancellationNotice = async (userId, appointmentDetails) => {
         'Appointment Cancelled',
         `Your ${service} appointment on ${formattedRange} has been cancelled.`,
         'in_app',
-        { service, date, start_time, end_time, action: 'cancelled' }
+        { service, date, start_time, end_time, action: 'cancelled' },
     );
 };
 
@@ -224,7 +232,7 @@ export const sendNoShowNotice = async (userId, appointmentDetails) => {
         'Missed Appointment',
         `You missed your appointment on ${date} at ${start_time}${service ? ' for ' + service : ''}. Would you like to reschedule?`,
         'in_app',
-        { date, start_time, service, action: 'no_show' }
+        { date, start_time, service, action: 'no_show' },
     );
 };
 
@@ -239,7 +247,7 @@ export const sendRestrictionNotice = async (userId, restrictionDetails) => {
         'Booking Restrictions Applied',
         `Due to ${noShowCount} missed appointments, your booking has been restricted. You can only book up to ${maxAdvanceDays} days in advance and a deposit may be required. Please contact the clinic for more information.`,
         'in_app',
-        { noShowCount, maxAdvanceDays, action: 'restricted' }
+        { noShowCount, maxAdvanceDays, action: 'restricted' },
     );
 };
 
@@ -254,7 +262,7 @@ export const sendDelayNotification = async (userId, delayDetails) => {
         `Appointment Delayed — ${estimated_delay_minutes} min`,
         `Dr. ${dentist_name} is running approximately ${estimated_delay_minutes} minutes behind schedule. Your appointment at ${original_time} may start late. We apologize for the inconvenience.`,
         'in_app',
-        { dentist_name, estimated_delay_minutes, original_time, action: 'delay' }
+        { dentist_name, estimated_delay_minutes, original_time, action: 'delay' },
     );
 };
 
@@ -269,7 +277,7 @@ export const sendFollowUpReminder = async (userId, followUpDetails) => {
         'Follow-Up Visit Recommended',
         `Dr. ${dentist_name} has recommended a follow-up ${service_name ? service_name + ' ' : ''}appointment${recommended_date ? ' around ' + recommended_date : ''}. Reason: ${reason}. Please book your follow-up at your convenience.`,
         'in_app',
-        { dentist_name, reason, recommended_date, service_name, action: 'follow_up' }
+        { dentist_name, reason, recommended_date, service_name, action: 'follow_up' },
     );
 };
 
@@ -278,18 +286,29 @@ export const sendFollowUpReminder = async (userId, followUpDetails) => {
 // ─────────────────────────────────────────────
 
 /**
- * Get all notifications for a user (latest first, max 50).
+ * Get all notifications for a user (paged).
  *
  * @param {string} userId
  * @param {boolean} unreadOnly - If true, return only unread notifications
+ * @param {boolean} includeArchived - If true, include archived notifications
+ * @param {number} page - Page number (1-based)
+ * @param {number} limit - Items per page
  */
-export const getUserNotifications = async (userId, unreadOnly = false, includeArchived = false) => {
+export const getUserNotifications = async (
+    userId,
+    unreadOnly = false,
+    includeArchived = false,
+    page = 1,
+    limit = 10,
+) => {
+    const offset = (page - 1) * limit;
+
     let query = supabaseAdmin
         .from('notifications')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('user_id', userId)
         .order('sent_at', { ascending: false })
-        .limit(50);
+        .range(offset, offset + limit - 1);
 
     if (unreadOnly) {
         query = query.eq('is_read', false);
@@ -299,14 +318,91 @@ export const getUserNotifications = async (userId, unreadOnly = false, includeAr
         query = query.eq('is_archived', false);
     }
 
-    const { data, error } = await query;
+    const { data, count, error } = await query;
     if (error) throw new AppError(error.message, 500);
 
-    return data;
+    return { notifications: data, total: count };
 };
 
 /**
  * Toggle read status of a single notification.
+ */
+export const toggleNotificationRead = async (userId, notificationId) => {
+    // 1. Fetch the notification to check current status
+    const { data: notification, error: fetchError } = await supabaseAdmin
+        .from('notifications')
+        .select('is_read')
+        .eq('id', notificationId)
+        .eq('user_id', userId)
+        .single();
+
+    if (fetchError || !notification) {
+        throw new AppError('Notification not found', 404);
+    }
+
+    // 2. Toggle the read status
+    const newReadStatus = !notification.is_read;
+    const { error: updateError } = await supabaseAdmin
+        .from('notifications')
+        .update({ is_read: newReadStatus })
+        .eq('id', notificationId)
+        .eq('user_id', userId);
+
+    if (updateError) {
+        throw new AppError('Failed to update notification status', 500);
+    }
+
+    return { id: notificationId, is_read: newReadStatus };
+};
+
+/**
+ * Archive or unarchive a notification.
+ */
+export const toggleNotificationArchive = async (userId, notificationId) => {
+    // 1. Fetch the notification to check current status
+    const { data: notification, error: fetchError } = await supabaseAdmin
+        .from('notifications')
+        .select('is_archived')
+        .eq('id', notificationId)
+        .eq('user_id', userId)
+        .single();
+
+    if (fetchError || !notification) {
+        throw new AppError('Notification not found', 404);
+    }
+
+    // 2. Toggle the archive status
+    const newArchiveStatus = !notification.is_archived;
+    const { error: updateError } = await supabaseAdmin
+        .from('notifications')
+        .update({ is_archived: newArchiveStatus })
+        .eq('id', notificationId)
+        .eq('user_id', userId);
+
+    if (updateError) {
+        throw new AppError('Failed to update notification status', 500);
+    }
+
+    return { id: notificationId, is_archived: newArchiveStatus };
+};
+
+/**
+ * Get unread notification count — used for the bell badge in the UI.
+ */
+export const getUnreadCount = async (userId) => {
+    const { count, error } = await supabaseAdmin
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('is_read', false);
+
+    if (error) throw new AppError(error.message, 500);
+
+    return { unread_count: count };
+};
+
+/**
+ * Toggle read status of a single notification (manual version).
  */
 export const toggleRead = async (notificationId, userId, isRead) => {
     const { data, error } = await supabaseAdmin
@@ -346,20 +442,6 @@ export const markAllAsRead = async (userId) => {
 };
 
 /**
- * Get unread notification count — used for the bell badge in the UI.
- */
-export const getUnreadCount = async (userId) => {
-    const { count, error } = await supabaseAdmin
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('is_read', false);
-
-    if (error) throw new AppError(error.message, 500);
-
-    return { unread_count: count };
-};
-/**
  * Toggle starred status.
  */
 export const toggleStar = async (notificationId, userId, isStarred) => {
@@ -375,11 +457,11 @@ export const toggleStar = async (notificationId, userId, isStarred) => {
 };
 
 /**
- * Toggle archived status.
+ * Toggle archived status (manual version).
  */
 export const toggleArchive = async (notificationId, userId, isArchived) => {
     const updateData = { is_archived: isArchived };
-    
+
     // If archiving, automatically unstar
     if (isArchived) {
         updateData.is_starred = false;
@@ -400,13 +482,42 @@ export const toggleArchive = async (notificationId, userId, isArchived) => {
  * Get notification stats for a user.
  */
 export const getNotificationStats = async (userId) => {
-    const [starred, unread, general, waitlist, cancellation, archived] = await Promise.all([
-        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_starred', true).eq('is_archived', false),
-        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_read', false).eq('is_archived', false),
-        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_archived', false).in('type', ['GENERAL', 'CONFIRMATION', 'REMINDER', 'REMINDER_48H', 'APPROVAL', 'DELAY', 'FOLLOW_UP', 'RESCHEDULE', 'RESTRICTION']),
-        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_archived', false).eq('type', 'WAITLIST'),
-        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_archived', false).in('type', ['CANCELLATION', 'REJECTION', 'NO_SHOW']),
-        supabaseAdmin.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_archived', true)
+    const [starred, unread, general, waitlist, cancellation] = await Promise.all([
+        supabaseAdmin
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('is_starred', true),
+        supabaseAdmin
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('is_read', false),
+        supabaseAdmin
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .in('type', [
+                'GENERAL',
+                'CONFIRMATION',
+                'REMINDER',
+                'REMINDER_48H',
+                'APPROVAL',
+                'DELAY',
+                'FOLLOW_UP',
+                'RESCHEDULE',
+                'RESTRICTION',
+            ]),
+        supabaseAdmin
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('type', 'WAITLIST'),
+        supabaseAdmin
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .in('type', ['CANCELLATION', 'REJECTION', 'NO_SHOW']),
     ]);
 
     return {
@@ -415,6 +526,5 @@ export const getNotificationStats = async (userId) => {
         general: general.count || 0,
         waitlist: waitlist.count || 0,
         cancellation: cancellation.count || 0,
-        archived: archived.count || 0
     };
 };

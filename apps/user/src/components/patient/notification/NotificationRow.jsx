@@ -4,7 +4,8 @@ import { Star, Mail, MailOpen } from 'lucide-react';
 const NotificationRow = ({ notification, onToggleStar, onToggleRead, onClick }) => {
     const { id, title, message, category, time, isRead, isStarred } = notification;
 
-    const displayCategory = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase().replace('_', ' ');
+    const displayCategory =
+        category.charAt(0).toUpperCase() + category.slice(1).toLowerCase().replace('_', ' ');
 
     // Robust toggle handlers that prevent row click
     const handleStarClick = (e) => {
@@ -18,7 +19,7 @@ const NotificationRow = ({ notification, onToggleStar, onToggleRead, onClick }) 
     };
 
     return (
-        <div 
+        <div
             onClick={() => onClick(id)}
             className={`group relative flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-4 py-4 sm:py-5 border-b border-gray-100 dark:border-gray-800 cursor-pointer transition-all hover:shadow-md hover:z-10 ${
                 isRead ? 'bg-white dark:bg-white/[0.02]' : 'bg-brand-50/30 dark:bg-brand-500/5'
@@ -27,31 +28,41 @@ const NotificationRow = ({ notification, onToggleStar, onToggleRead, onClick }) 
             {/* Desktop View (sm and up) */}
             <div className='hidden sm:flex items-center gap-4 w-full'>
                 <div className='flex items-center gap-3 shrink-0'>
-                    <button 
+                    <button
                         onClick={handleStarClick}
                         className={`transition-colors p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 ${isStarred ? 'text-amber-400' : 'text-gray-300 dark:text-gray-600 hover:text-amber-400'}`}
-                        title={isStarred ? "Unstar" : "Star"}
+                        title={isStarred ? 'Unstar' : 'Star'}
                     >
-                        <Star size={18} fill={isStarred ? 'currentColor' : 'none'} />
+                        <Star
+                            size={18}
+                            fill={isStarred ? 'currentColor' : 'none'}
+                        />
                     </button>
                 </div>
 
                 <div className='w-32 lg:w-40 shrink-0 truncate'>
-                    <span className={`text-sm sm:text-base ${isRead ? 'text-gray-500 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}>
+                    <span
+                        className={`text-sm sm:text-base ${isRead ? 'text-gray-500 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}
+                    >
                         {displayCategory}
                     </span>
                 </div>
 
                 <div className='flex-grow min-w-0'>
                     <p className='text-sm sm:text-base truncate pr-4'>
-                        <span className={`${isRead ? 'text-gray-600 dark:text-gray-400 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}>
-                            {title.length > 85 ? `${title.substring(0, 82)}...` : title}
+                        <span
+                            className={`${isRead ? 'text-gray-600 dark:text-gray-400 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}
+                        >
+                            {title.length > 80 ? `${title.substring(0, 77)}...` : title}
                         </span>
-                        {title.length <= 82 && (
+                        {title.length <= 77 && (
                             <span className='text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-medium ml-1'>
-                                - {(() => {
-                                    const remaining = 85 - title.length - 3;
-                                    return message.length > remaining ? `${message.substring(0, Math.max(0, remaining))}...` : message;
+                                -{' '}
+                                {(() => {
+                                    const remaining = 80 - title.length - 3;
+                                    return message.length > remaining
+                                        ? `${message.substring(0, Math.max(0, remaining))}...`
+                                        : message;
                                 })()}
                             </span>
                         )}
@@ -63,10 +74,10 @@ const NotificationRow = ({ notification, onToggleStar, onToggleRead, onClick }) 
                         {time}
                     </span>
                     <div className='hidden group-hover:flex items-center gap-2'>
-                        <button 
-                            onClick={handleReadClick} 
-                            className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600' 
-                            title={isRead ? "Mark as unread" : "Mark as read"}
+                        <button
+                            onClick={handleReadClick}
+                            className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600'
+                            title={isRead ? 'Mark as unread' : 'Mark as read'}
                         >
                             {isRead ? <MailOpen size={16} /> : <Mail size={16} />}
                         </button>
@@ -83,34 +94,29 @@ const NotificationRow = ({ notification, onToggleStar, onToggleRead, onClick }) 
                 </div>
                 <div className='flex-grow min-w-0 flex flex-col gap-0.5'>
                     <div className='flex justify-between items-center'>
-                        <span className={`text-sm tracking-tight truncate ${isRead ? 'text-gray-500' : 'text-gray-900 dark:text-white font-bold'}`}>
+                        <span
+                            className={`text-sm tracking-tight truncate ${isRead ? 'text-gray-500' : 'text-gray-900 dark:text-white font-bold'}`}
+                        >
                             {displayCategory}
                         </span>
                         <span className='text-[10px] text-gray-400 font-medium'>{time}</span>
                     </div>
-                    <div className={`text-sm truncate ${isRead ? 'text-gray-600' : 'text-gray-900 dark:text-white font-semibold'}`}>
+                    <div
+                        className={`text-sm truncate ${isRead ? 'text-gray-600' : 'text-gray-900 dark:text-white font-semibold'}`}
+                    >
                         {title}
                     </div>
-                    <div className='flex justify-between items-end mt-1'>
-                        <div className='text-xs text-gray-400 truncate pr-4 grow'>
-                            {message}
-                        </div>
-                        <div className="flex gap-4 items-center">
-                            <button 
-                                onClick={handleReadClick}
-                                className='p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400'
-                                title={isRead ? "Mark as unread" : "Mark as read"}
-                            >
-                                {isRead ? <MailOpen size={18} /> : <Mail size={18} />}
-                            </button>
-                            <button 
-                                onClick={handleStarClick}
-                                className={`shrink-0 transition-colors p-1 rounded-lg ${isStarred ? 'text-amber-400' : 'text-gray-300'}`}
-                                title={isStarred ? "Unstar" : "Star"}
-                            >
-                                <Star size={20} fill={isStarred ? 'currentColor' : 'none'} />
-                            </button>
-                        </div>
+                    <div className='flex justify-between items-end'>
+                        <div className='text-xs text-gray-400 truncate pr-4 grow'>{message}</div>
+                        <button
+                            onClick={handleStarClick}
+                            className={`shrink-0 transition-colors ${isStarred ? 'text-amber-400' : 'text-gray-300 dark:text-gray-600'}`}
+                        >
+                            <Star
+                                size={20}
+                                fill={isStarred ? 'currentColor' : 'none'}
+                            />
+                        </button>
                     </div>
                 </div>
             </div>

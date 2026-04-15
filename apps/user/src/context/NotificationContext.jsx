@@ -7,8 +7,15 @@ const NotificationContext = createContext();
 export const NotificationProvider = ({ children }) => {
     const { token } = useAuth();
     const [notifications, setNotifications] = useState([]);
+    const [totalNotifications, setTotalNotifications] = useState(0);
     const [unreadCount, setUnreadCount] = useState(0);
-    const [stats, setStats] = useState({ starred: 0, unread: 0, general: 0, waitlist: 0, cancellation: 0 });
+    const [stats, setStats] = useState({
+        starred: 0,
+        unread: 0,
+        general: 0,
+        waitlist: 0,
+        cancellation: 0,
+    });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -19,45 +26,52 @@ export const NotificationProvider = ({ children }) => {
         });
     };
 
-    const fetchNotifications = useCallback(async () => {
-        if (!token) {
-            setLoading(false);
-            return;
-        }
-        
-        // Only set loading if we don't have any notifications yet
-        if (notifications.length === 0) setLoading(true);
-        setError(null);
-        
-        try {
-            const data = await api.get('/notifications/my?archived=true', token);
-            const parsed = (data.notifications || []).map(n => {
-                if (n.message && n.message.startsWith('{')) {
-                    try {
-                        const meta = JSON.parse(n.message);
-                        if (meta._isJSON) {
-                            return {
-                                ...n,
-                                title: meta._title || n.title,
-                                message: meta._fallback || n.message,
-                                metadata: meta
-                            };
+    const fetchNotifications = useCallback(
+        async (page = 1, limit = 10, archived = true) => {
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
+            // Only set loading if we don't have any notifications yet
+            setLoading(true);
+            setError(null);
+
+            try {
+                const data = await api.get(
+                    `/notifications/my?archived=${archived}&page=${page}&limit=${limit}`,
+                    token,
+                );
+                const parsed = (data.notifications || []).map((n) => {
+                    if (n.message && n.message.startsWith('{')) {
+                        try {
+                            const meta = JSON.parse(n.message);
+                            if (meta._isJSON) {
+                                return {
+                                    ...n,
+                                    title: meta._title || n.title,
+                                    message: meta._fallback || n.message,
+                                    metadata: meta,
+                                };
+                            }
+                        } catch (e) {
+                            return n;
                         }
-                    } catch (e) {
-                        return n;
                     }
-                }
-                return n;
-            });
-            
-            setNotifications(sortNotifications(parsed));
-            if (data.stats) setStats(data.stats);
-        } catch (err) {
-            setError(err.message || 'Failed to load notifications.');
-        } finally {
-            setLoading(false);
-        }
-    }, [token, notifications.length]);
+                    return n;
+                });
+
+                setNotifications(sortNotifications(parsed));
+                setTotalNotifications(data.total || 0);
+                if (data.stats) setStats(data.stats);
+            } catch (err) {
+                setError(err.message || 'Failed to load notifications.');
+            } finally {
+                setLoading(false);
+            }
+        },
+        [token, notifications.length],
+    );
 
     const fetchUnreadCount = useCallback(async () => {
         if (!token) return;
@@ -73,19 +87,17 @@ export const NotificationProvider = ({ children }) => {
         if (!token) return;
         try {
             // Optimistic Update
-            setNotifications(prev => {
-                const updated = prev.map(n => 
-                    n.id === id ? { ...n, is_read: isRead } : n
-                );
+            setNotifications((prev) => {
+                const updated = prev.map((n) => (n.id === id ? { ...n, is_read: isRead } : n));
                 return sortNotifications(updated);
             });
-            
-            setUnreadCount(prev => isRead ? Math.max(0, prev - 1) : prev + 1);
-            setStats(prev => ({ 
-                ...prev, 
-                unread: isRead ? Math.max(0, prev.unread - 1) : prev.unread + 1 
+
+            setUnreadCount((prev) => (isRead ? Math.max(0, prev - 1) : prev + 1));
+            setStats((prev) => ({
+                ...prev,
+                unread: isRead ? Math.max(0, prev.unread - 1) : prev.unread + 1,
             }));
-            
+
             await api.patch(`/notifications/${id}/read`, { read: isRead }, token);
             return { success: true };
         } catch (err) {
@@ -101,9 +113,9 @@ export const NotificationProvider = ({ children }) => {
         if (!token) return;
         try {
             await api.patch('/notifications/read-all', {}, token);
-            setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+            setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
             setUnreadCount(0);
-            setStats(prev => ({ ...prev, unread: 0 }));
+            setStats((prev) => ({ ...prev, unread: 0 }));
             return { success: true };
         } catch (err) {
             console.error('Failed to mark all as read:', err);
@@ -115,8 +127,10 @@ export const NotificationProvider = ({ children }) => {
         if (!token) return;
         try {
             // Optimistic Update
-            setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_starred: isStarred } : n));
-            setStats(prev => ({ ...prev, starred: prev.starred + (isStarred ? 1 : -1) }));
+            setNotifications((prev) =>
+                prev.map((n) => (n.id === id ? { ...n, is_starred: isStarred } : n)),
+            );
+            setStats((prev) => ({ ...prev, starred: prev.starred + (isStarred ? 1 : -1) }));
 
             await api.patch(`/notifications/${id}/star`, { starred: isStarred }, token);
             return { success: true };
@@ -131,12 +145,18 @@ export const NotificationProvider = ({ children }) => {
         if (!token) return;
         try {
             // Optimistic Update
-            setNotifications(prev => prev.map(n => 
-                n.id === id 
-                ? { ...n, is_archived: isArchived, is_starred: isArchived ? false : n.is_starred } 
-                : n
-            ));
-            
+            setNotifications((prev) =>
+                prev.map((n) =>
+                    n.id === id
+                        ? {
+                              ...n,
+                              is_archived: isArchived,
+                              is_starred: isArchived ? false : n.is_starred,
+                          }
+                        : n,
+                ),
+            );
+
             await api.patch(`/notifications/${id}/archive`, { archived: isArchived }, token);
             fetchNotifications(); // Refresh stats
             return { success: true };
@@ -150,7 +170,8 @@ export const NotificationProvider = ({ children }) => {
     // Initial load and polling
     useEffect(() => {
         if (token) {
-            fetchNotifications();
+            // Initial load — defaults to page 1
+            fetchNotifications(1);
             fetchUnreadCount();
         } else {
             setNotifications([]);
@@ -160,28 +181,32 @@ export const NotificationProvider = ({ children }) => {
 
         const interval = setInterval(() => {
             if (token) {
-                fetchNotifications();
+                // Background polling — don't change the page
                 fetchUnreadCount();
+                // Optionally we could poll the current page, but for now just unread count is safer to avoid jumps
             }
         }, 30000);
 
         return () => clearInterval(interval);
-    }, [token, fetchNotifications, fetchUnreadCount]);
+    }, [token, fetchUnreadCount]); // Removed fetchNotifications from deps to prevent infinite loops
 
     return (
-        <NotificationContext.Provider value={{
-            notifications,
-            unreadCount,
-            loading,
-            error,
-            stats,
-            refresh: fetchNotifications,
-            refreshCount: fetchUnreadCount,
-            markRead,
-            markAllRead,
-            toggleStar,
-            toggleArchive
-        }}>
+        <NotificationContext.Provider
+            value={{
+                notifications,
+                totalNotifications,
+                unreadCount,
+                stats,
+                loading,
+                error,
+                fetchNotifications,
+                markRead,
+                markAllRead,
+                toggleStar,
+                toggleArchive,
+                refresh: fetchNotifications,
+            }}
+        >
             {children}
         </NotificationContext.Provider>
     );
