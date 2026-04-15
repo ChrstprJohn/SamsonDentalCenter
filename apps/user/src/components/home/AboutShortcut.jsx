@@ -99,7 +99,7 @@ const AboutShortcut = () => {
                       At Samson Dental Center, we are committed to helping you achieve the perfect smile with the latest in dental technology and personalized care. Our clinic <span className="font-bold text-slate-900">combines years of experience with innovative techniques</span> to ensure that every visit is as comfortable and efficient as possible.
                   </p>
 
-                  <div className="grid grid-cols-3 gap-4 pt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
                       <div className="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100 gsap-animate">
                           <p className="text-3xl md:text-4xl font-black text-slate-900 mb-1">98%</p>
                           <p className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Satisfaction Rate</p>

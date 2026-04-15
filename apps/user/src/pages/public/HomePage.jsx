@@ -10,7 +10,7 @@ import LocationHours from "../../components/home/LocationHours";
 import ContactMap from "../../components/contact/ContactMap";
 import ServicesList from "../../components/services/ServicesList";
 import AboutShortcut from "../../components/home/AboutShortcut";
-
+import GalleryV2 from "../../components/services/GalleryV2";
 const HomePage = () => {
   const promotionsRef = useRef(null);
 
@@ -20,10 +20,11 @@ const HomePage = () => {
       {/* <Promotions ref={promotionsRef} variant='light' /> */}
       {/*<HomeServices variant='dark' />*/}
       <AboutShortcut />
-      <ServicesList />
-      <Gallery variant="light" />
+      <GalleryV2 showExploreButton={true} />
+      {/*<ServicesList />*/}
+      {/*<Gallery variant="light" />*/}
       {/*<Portfolio variant='light' />*/}
-      <Testimonials variant="light" />
+      {/*<Testimonials variant="light" />*/}
       <AIChatbotPromo variant="dark" />
       {/* <LocationHours variant='light' /> */}
       <ContactMap />
