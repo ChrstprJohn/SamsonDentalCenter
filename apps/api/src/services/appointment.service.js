@@ -1168,7 +1168,7 @@ export const rescheduleGuestAppointment = async (oldAppt, date, time, userSessio
     }
 
     if (!finalDentistId) {
-        finalDentistId = await assignDentist(date, time, endTime, SERVICE_TIER.GENERAL, userSessionId);
+        finalDentistId = await assignDentist(date, time, endTime, SERVICE_TIER.GENERAL, userSessionId, oldAppt.service?.id);
     }
 
     if (!finalDentistId) {

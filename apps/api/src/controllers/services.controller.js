@@ -325,7 +325,7 @@ export const getServiceSpecialists = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        // 1. Get service tier
+        // 1. Get service details 
         const { data: service } = await supabaseAdmin
             .from('services')
             .select('tier')
@@ -336,28 +336,31 @@ export const getServiceSpecialists = async (req, res, next) => {
             return res.status(404).json({ error: 'Service not found.' });
         }
 
-        const tierFilter =
-            service.tier === 'specialized' ? ['specialized', 'both'] : ['general', 'both'];
-
-        // 2. Get active dentists matching the tier
-        const { data: dentists, error } = await supabaseAdmin
+        // 2. Get all active dentists
+        const { data: allDentists, error: dError } = await supabaseAdmin
             .from('dentists')
-            .select(
-                `
-            id,
-            tier,
-            photo_url,
-            profile:profiles(id, full_name)
-        `,
-            )
-            .in('tier', tierFilter)
+            .select(`
+                id,
+                tier,
+                photo_url,
+                profile:profiles(id, full_name, first_name, last_name, middle_name, suffix)
+            `)
             .eq('is_active', true);
 
-        if (error) {
-            return res.status(500).json({ error: error.message });
-        }
+        if (dError) return res.status(500).json({ error: dError.message });
 
-        res.json({ specialists: dentists });
+        // 3. Get dentists explicitly enrolled in this service via dentist_services
+
+        const { data: serviceSkills } = await supabaseAdmin
+            .from('dentist_services')
+            .select('dentist_id')
+            .eq('service_id', id);
+        const matchIds = new Set((serviceSkills || []).map(ds => ds.dentist_id));
+
+        // 4. Filter dentists strictly based on explicit enrollment in dentist_services
+        const qualifiedDentists = allDentists.filter(d => matchIds.has(d.id));
+
+        res.json({ specialists: qualifiedDentists });
     } catch (err) {
         next(err);
     }

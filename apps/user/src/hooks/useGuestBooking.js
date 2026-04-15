@@ -53,6 +53,8 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
         suffix_name: '',
         email: '',
         phone: '',
+        dentist_id: '',
+        service_tier: '',
     });
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -108,7 +110,9 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                     middle_name: '',
                     suffix_name: '',
                     email: '',
-                    phone: ''
+                    phone: '',
+                    dentist_id: '',
+                    service_tier: prev.service_tier, // Keep tier for DateTimeStep usage
                 }));
             }
             setStep(nextIdx);
@@ -130,7 +134,9 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                     middle_name: '',
                     suffix_name: '',
                     email: '',
-                    phone: ''
+                    phone: '',
+                    dentist_id: '',
+                    service_tier: prev.service_tier, // Keep tier
                 }));
             }
             setStep(index);
@@ -229,6 +235,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
             suffix_name: '',
             email: '',
             phone: '',
+            service_tier: '', // Total reset
         });
         setError(null);
         setSubmitting(false); // ✅ Safety reset

@@ -34,7 +34,7 @@ export const getEmergencyBuffer = async (date) => {
         .select('id, patient_id, status, patient:profiles(full_name, first_name, last_name, middle_name, suffix, phone)')
         .eq('appointment_date', date)
         .eq('start_time', bufferStart)
-        .neq('status', 'CANCELLED');
+        .notIn('status', ['CANCELLED', 'RESCHEDULED']);
 
     const isReserved = !emergencyAppt || emergencyAppt.length === 0;
 
@@ -68,7 +68,7 @@ export const analyzeNoShowRisk = async (patientId, date, time) => {
         .from('appointments')
         .select('status')
         .eq('patient_id', patientId)
-        .neq('status', 'CANCELLED');
+        .notIn('status', ['CANCELLED', 'RESCHEDULED']);
 
     if (patientHistory && patientHistory.length > 0) {
         const noShows = patientHistory.filter((a) => a.status === 'NO_SHOW').length;
@@ -159,7 +159,7 @@ export const suggestOptimalSlots = async (date, serviceId) => {
         .from('appointments')
         .select('dentist_id, start_time')
         .eq('appointment_date', date)
-        .notIn('status', ['CANCELLED', 'LATE_CANCEL']);
+        .notIn('status', ['CANCELLED', 'LATE_CANCEL', 'RESCHEDULED']);
 
     // Count bookings per dentist per hour
     const loadMap = {}; // { dentist_id: { '09': 2, '10': 1, ... } }

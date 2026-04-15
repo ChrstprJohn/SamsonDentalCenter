@@ -38,10 +38,14 @@
 - [x] 3.7 Graceful Shutdown & Request Timeouts
 
 ## Completed Features
-- Unified Booking Wizard
+- Unified Booking Wizard (Premium 2-Column Layout)
+- Unified Premium Booking UI (General & Specialized Parity)
+- Strict Enrollment-Based Specialist Filtering (dentist_services)
+- Orphaned Service Safeguard (No Dentist Fallback UI)
+- Initial Full-Page Pulse Skeleton (Flicker Prevention)
 - Guest Booking Workflow
 - Waitlist System
-- Slot Holding Mechanism
+- Slot Holding Mechanism (with Immediate Feedback)
 - httpOnly Cookie Auth Transition
 
 ## Deployment & Environments

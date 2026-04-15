@@ -571,6 +571,8 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
             appointment.start_time,
             appointment.end_time,
             appointment.service?.tier || SERVICE_TIER.GENERAL,
+            null, // filterSessionId
+            appointment.service_id
         );
 
         if (!assignedDentistId) {

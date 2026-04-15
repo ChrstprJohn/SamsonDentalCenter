@@ -113,7 +113,7 @@ const GuestBookingWizard = ({ booking }) => {
                     {currentStep === 'service' && (
                         <ServiceStep
                             selectedServiceId={formData.service_id}
-                            onSelect={(id, name, tier, duration) => updateFields({ service_id: id, service_name: name, service_duration: duration })}
+                            onSelect={(id, name, tier, duration) => updateFields({ service_id: id, service_name: name, service_tier: tier, service_duration: duration })}
                             onUpdateFields={updateFields}
                             onNext={nextStep}
                         />
@@ -121,15 +121,18 @@ const GuestBookingWizard = ({ booking }) => {
 
                     {currentStep === 'datetime' && (
                         <DateTimeStep
+                            formData={formData}
                             serviceId={formData.service_id}
                             selectedDate={formData.date}
                             selectedTime={formData.time}
                             serviceName={formData.service_name}
+                            serviceTier={formData.service_tier}
                             sessionId={sessionId}
                             slotHold={slotHold}
                             onUpdate={(fields) => updateFields(fields)}
                             onNext={nextStep}
                             onBack={prevStep}
+                            error={error}
                         />
                     )}
 

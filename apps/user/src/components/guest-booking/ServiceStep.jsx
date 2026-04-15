@@ -17,7 +17,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, onUpdateFields }) =>
         }
         onSelect(service.id, service.name, service.tier, service.duration_minutes);
         if (onUpdateFields) {
-            onUpdateFields({ date: '', time: '' });
+            onUpdateFields({ date: '', time: '', service_tier: service.tier });
         }
     };
 

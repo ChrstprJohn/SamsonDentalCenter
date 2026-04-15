@@ -15,36 +15,63 @@ import { supabaseAdmin } from '../config/supabase.js';
  * @param {string} serviceTier - 'general' or 'specialized' (default: 'general')
  * @returns {string|null} dentist ID or null if nobody is free
  */
-export const assignDentist = async (date, startTime, endTime, serviceTier = 'general', filterSessionId = null) => {
-    const dayOfWeek = new Date(date).getDay();
-
-    // ── 1. Get dentists matching the service tier ──
-    const tierFilter =
-        serviceTier === 'specialized' ? ['specialized', 'both'] : ['general', 'both'];
-
-    const { data: tierDentists } = await supabaseAdmin
+export const assignDentist = async (date, startTime, endTime, serviceTier = 'general', filterSessionId = null, serviceId = null) => {
+    // ── 1. Get all active dentists ──
+    const { data: allDentists, error: dError } = await supabaseAdmin
         .from('dentists')
         .select('id, tier')
-        .in('tier', tierFilter)
         .eq('is_active', true);
 
-    if (!tierDentists || tierDentists.length === 0) {
-        return null; // No dentists for this tier
+    if (dError || !allDentists || allDentists.length === 0) return null;
+    
+    // Create a map for quick tier lookups
+    const dentistTierMap = allDentists.reduce((acc, d) => {
+        acc[d.id] = d.tier;
+        return acc;
+    }, {});
+
+    const dayOfWeek = new Date(date).getDay();
+
+    // ── 2. Get Skillset Data ──
+    // Get dentists who have ANY explicit skills listed
+    const { data: dentistsWithSkills } = await supabaseAdmin
+        .from('dentist_services')
+        .select('dentist_id');
+    const skilledDentistIds = new Set((dentistsWithSkills || []).map(ds => ds.dentist_id));
+
+    // Get dentists who explicitly have THIS service skill (if serviceId is provided)
+    let serviceMatchIds = new Set();
+    if (serviceId) {
+        const { data: dentistsWithThisService } = await supabaseAdmin
+            .from('dentist_services')
+            .select('dentist_id')
+            .eq('service_id', serviceId);
+        serviceMatchIds = new Set((dentistsWithThisService || []).map(ds => ds.dentist_id));
     }
 
-    // Map for quick tier lookup
-    const dentistTierMap = {};
-    tierDentists.forEach((d) => {
-        dentistTierMap[d.id] = d.tier;
-    });
+    // ── 3. Filter dentists qualified for this service ──
+    const qualifiedDentistIds = allDentists
+        .filter(d => {
+            if (serviceId && skilledDentistIds.has(d.id)) {
+                // ENROLLED in granular system: must have explicit match
+                return serviceMatchIds.has(d.id);
+            } else {
+                // LEGACY/FALLBACK: Match by tier
+                const tierMatches = serviceTier === 'specialized' 
+                    ? ['specialized', 'both'].includes(d.tier)
+                    : ['general', 'both'].includes(d.tier);
+                return tierMatches;
+            }
+        })
+        .map(d => d.id);
 
-    const tierDentistIds = tierDentists.map((d) => d.id);
+    if (qualifiedDentistIds.length === 0) return null;
 
-    // ── 2. Get which of those dentists work on this day ──
+    // ── 4. Get which of those dentists work on this day ──
     const { data: workingDentists } = await supabaseAdmin
         .from('dentist_schedule')
         .select('dentist_id, start_time, end_time')
-        .in('dentist_id', tierDentistIds)
+        .in('dentist_id', qualifiedDentistIds)
         .eq('day_of_week', dayOfWeek)
         .eq('is_working', true);
 
@@ -52,7 +79,7 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         return null; // No matching dentists working
     }
 
-    // ── 3. Filter: dentist's shift must cover the requested time ──
+    // ── 5. Filter: dentist's shift must cover the requested time ──
     const eligibleDentists = workingDentists.filter((ds) => {
         // Normalize DB 'HH:MM:SS' to 'HH:MM' for reliable string comparison
         const dsStart = ds.start_time.slice(0, 5);
@@ -85,7 +112,7 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         .from('appointments')
         .select('dentist_id')
         .eq('appointment_date', date)
-        .not('status', 'in', '("CANCELLED","LATE_CANCEL")')
+        .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED")')
         .in('dentist_id', unblockedDentistIds)
         .lt('start_time', endTime)
         .gt('end_time', startTime);
@@ -100,7 +127,8 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         .eq('status', 'active')
         .gt('expires_at', new Date().toISOString())
         .in('dentist_id', unblockedDentistIds)
-        .lt('start_time', endTime);
+        .lt('start_time', endTime)
+        .gt('end_time', startTime);
     
     if (filterSessionId) {
         holdQuery = holdQuery.neq('user_session_id', filterSessionId);
@@ -133,7 +161,7 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         .from('appointments')
         .select('dentist_id')
         .eq('appointment_date', date)
-        .not('status', 'in', '("CANCELLED","LATE_CANCEL")')
+        .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED")')
         .in('dentist_id', freeDentists);
 
     // Count appointments per dentist

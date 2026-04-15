@@ -92,27 +92,54 @@ export const getAvailableSlots = async (
         );
     }
 
-    // ── 3. Get all active dentists qualified for this service tier ──
-    let dentistQuery = supabaseAdmin
+    // ── 3. Get all active dentists who can perform this service ──
+    // Strategy: 
+    // - If dentist has entry in dentist_services, they MUST match the serviceId.
+    // - If dentist has NO entry in dentist_services, fall back to tier-based check.
+    
+    // First, get all active dentists
+    const { data: allDentists } = await supabaseAdmin
         .from('dentists')
-        .select('id, profile_id, tier')
+        .select('id, tier')
         .eq('is_active', true);
 
-    // TWO-TIER: Only show dentists who handle this type of service
-    if (service.tier === 'general') {
-        dentistQuery = dentistQuery.in('tier', ['general', 'both']);
-    } else if (service.tier === 'specialized') {
-        dentistQuery = dentistQuery.in('tier', ['specialized', 'both']);
+    if (!allDentists || allDentists.length === 0) {
+        return handleNoSlots(date, service.name, durationMinutes, 'No active dentists.', serviceId, filterSessionId, skipNextSearch);
     }
 
-    // 🎯 NEW: Optional dentist filter
-    if (dentistId) {
-        dentistQuery = dentistQuery.eq('id', dentistId);
-    }
+    // Get dentists who have ANY explicit skills listed
+    const { data: dentistsWithSkills } = await supabaseAdmin
+        .from('dentist_services')
+        .select('dentist_id');
+    const skilledDentistIds = new Set((dentistsWithSkills || []).map(ds => ds.dentist_id));
 
-    const { data: dentists } = await dentistQuery;
+    // Get dentists who explicitly have THIS service skill
+    const { data: dentistsWithThisService } = await supabaseAdmin
+        .from('dentist_services')
+        .select('dentist_id')
+        .eq('service_id', serviceId);
+    const serviceMatchIds = new Set((dentistsWithThisService || []).map(ds => ds.dentist_id));
 
-    if (!dentists || dentists.length === 0) {
+    // Filter dentists based on Skillset Hierarchy
+    const eligibleDentists = allDentists.filter(d => {
+        // Tie to a specific dentist if dentistId is provided
+        if (dentistId && d.id !== dentistId) return false;
+
+        if (skilledDentistIds.has(d.id)) {
+            // ENROLLED in granular system: must have explicit match
+            return serviceMatchIds.has(d.id);
+        } else {
+            // LEGACY/FALLBACK: Match by tier
+            if (service.tier === 'general') {
+                return ['general', 'both'].includes(d.tier);
+            } else if (service.tier === 'specialized') {
+                return ['specialized', 'both'].includes(d.tier);
+            }
+            return false;
+        }
+    });
+
+    if (!eligibleDentists || eligibleDentists.length === 0) {
         return handleNoSlots(
             date,
             service.name,
@@ -124,7 +151,7 @@ export const getAvailableSlots = async (
         );
     }
 
-    const dentistIds = dentists.map((d) => d.id);
+    const dentistIds = eligibleDentists.map((d) => d.id);
 
     // Get each dentist's schedule for that day
     const { data: dentistSchedules } = await supabaseAdmin
@@ -181,7 +208,7 @@ export const getAvailableSlots = async (
         .from('appointments')
         .select('id, dentist_id, start_time, end_time')
         .eq('appointment_date', date)
-        .not('status', 'in', '("CANCELLED","LATE_CANCEL")');
+        .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED")');
 
     if (excludeAppointmentId) {
         apptQuery = apptQuery.neq('id', excludeAppointmentId);
@@ -355,15 +382,15 @@ export const findNextAvailableDate = async (
     excludeAppointmentId = null,
 ) => {
     try {
-        // 1. Get service tier to filter dentists efficiently
+        // 1. Get service details
         const { data: service } = await supabaseAdmin
             .from('services')
-            .select('tier')
+            .select('tier, name')
             .eq('id', serviceId)
             .single();
         if (!service) return null;
 
-        // 2. Get clinic open days from schedule
+        // 2. Get clinic open days
         const { data: clinicSchedule } = await supabaseAdmin
             .from('clinic_schedule')
             .select('day_of_week')
@@ -371,28 +398,46 @@ export const findNextAvailableDate = async (
         const openClinicDays = new Set((clinicSchedule || []).map((d) => d.day_of_week));
         if (openClinicDays.size === 0) return null;
 
-        // 3. Get IDs of active dentists who handle this tier
-        let dentistQuery = supabaseAdmin.from('dentists').select('id').eq('is_active', true);
-        if (service.tier === 'general') {
-            dentistQuery = dentistQuery.in('tier', ['general', 'both']);
-        } else if (service.tier === 'specialized') {
-            dentistQuery = dentistQuery.in('tier', ['specialized', 'both']);
-        }
+        // 3. Get QUALIFIED active dentists for this specific service
+        const { data: allDentists } = await supabaseAdmin
+            .from('dentists')
+            .select('id, tier')
+            .eq('is_active', true);
 
-        // 🎯 NEW: Optional dentist filter
-        if (dentistId) {
-            dentistQuery = dentistQuery.eq('id', dentistId);
-        }
-        const { data: dentists } = await dentistQuery;
-        if (!dentists || dentists.length === 0) return null;
-        const dentistIds = dentists.map((d) => d.id);
+        if (!allDentists || allDentists.length === 0) return null;
 
-        // 4. Get days of week where these dentists are scheduled to work
+        // Skillset check (matches getAvailableSlots logic)
+        const { data: dentistsWithSkills } = await supabaseAdmin
+            .from('dentist_services')
+            .select('dentist_id');
+        const skilledIds = new Set((dentistsWithSkills || []).map(ds => ds.dentist_id));
+
+        const { data: dentistsWithThisService } = await supabaseAdmin
+            .from('dentist_services')
+            .select('dentist_id')
+            .eq('service_id', serviceId);
+        const matchIds = new Set((dentistsWithThisService || []).map(ds => ds.dentist_id));
+
+        const qualifiedDentists = allDentists.filter(d => {
+            if (dentistId && d.id !== dentistId) return false;
+            if (skilledIds.has(d.id)) {
+                return matchIds.has(d.id);
+            } else {
+                return service.tier === 'general' 
+                    ? ['general', 'both'].includes(d.tier)
+                    : ['specialized', 'both'].includes(d.tier);
+            }
+        });
+
+        if (qualifiedDentists.length === 0) return null;
+        const qIds = qualifiedDentists.map(d => d.id);
+
+        // 4. Get days of week where these QUALIFIED dentists work
         const { data: workingDays } = await supabaseAdmin
             .from('dentist_schedule')
             .select('day_of_week')
             .eq('is_working', true)
-            .in('dentist_id', dentistIds);
+            .in('dentist_id', qIds);
         const openDentistDays = new Set((workingDays || []).map((d) => d.day_of_week));
 
         // Combined intersection: skip any day where either the clinic is closed OR no dentists work
@@ -400,8 +445,8 @@ export const findNextAvailableDate = async (
 
         const start = new Date(startDate);
 
-        // 5. Search forward for up to 90 days (optimized loop)
-        for (let i = 1; i <= 90; i++) {
+        // 5. Search forward for up to 30 days (prevent timeouts)
+        for (let i = 1; i <= 30; i++) {
             const nextDate = new Date(start);
             nextDate.setDate(nextDate.getDate() + i);
 

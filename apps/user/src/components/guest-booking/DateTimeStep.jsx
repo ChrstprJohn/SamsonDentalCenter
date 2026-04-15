@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, RefreshCw, Lock, Calendar as CalendarIcon, Clock as ClockIcon, Info, ArrowRight, MousePointer2, Loader2, Hourglass, Plus } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Lock, Calendar as CalendarIcon, Clock as ClockIcon, Info, ArrowRight, MousePointer2, Loader2, Hourglass, Plus, Check, Users, CalendarX, AlertCircle, X } from 'lucide-react';
 import useSlots from '../../hooks/useSlots';
+import { api } from '../../utils/api';
 
 const DateTimeStep = ({
     serviceId,
@@ -11,10 +12,17 @@ const DateTimeStep = ({
     onBack,
     sessionId,
     slotHold,
+    formData,
     excludeAppointmentId,
+    serviceTier,
+    error,
 }) => {
     const { activeHold, holdSlot, releaseHold, formattedTime, holdLoading, holdError, timeRemaining } = slotHold;
     const [pendingSlot, setPendingSlot] = useState(null);
+    const [specialists, setSpecialists] = useState([]);
+    const [specialistsLoading, setSpecialistsLoading] = useState(true);
+    const dentistId = formData?.dentist_id || null;
+    const [isDoctorDropdownOpen, setIsDoctorDropdownOpen] = useState(false);
     
     // VISIBILITY LIMIT: 3 columns * 6 rows = 18 slots
     const INITIAL_VISIBLE_COUNT = 18;
@@ -54,14 +62,54 @@ const DateTimeStep = ({
         return `${year}-${month}-${day}`;
     };
 
+    // ✅ Fetch qualified specialists for this service
+    useEffect(() => {
+        if (serviceId) {
+            const fetchSpecialists = async () => {
+                setSpecialists([]); // 🎯 Clear old data to trigger skeleton
+                setSpecialistsLoading(true);
+                try {
+                    const data = await api.get(`/services/${serviceId}/specialists`);
+                    setSpecialists(data.specialists || []);
+                } catch (err) {
+                    console.error('Failed to fetch specialists:', err);
+                } finally {
+                    setSpecialistsLoading(false);
+                }
+            };
+            fetchSpecialists();
+        }
+    }, [serviceId]);
+
     const {
         slots,
         nextAvailableDate,
         loading: slotsLoading,
+        isPending,
         refetch: refetchSlots,
-    } = useSlots(selectedDate || null, serviceId || null, true, sessionId, null, excludeAppointmentId);
+    } = useSlots(
+        selectedDate || null, 
+        serviceId || null, 
+        true, 
+        sessionId, 
+        dentistId, 
+        excludeAppointmentId
+    );
+
+    const isLoading = slotsLoading || isPending;
+
+    const handleSpecialistChange = async (id) => {
+        if (isLoading) return; // ✅ Block while loading
+        const val = id || null;
+        onUpdate({ dentist_id: val });
+        if (selectedTime) {
+            await releaseHold();
+            onUpdate({ dentist_id: val, time: '' });
+        }
+    };
 
     const handleDateClick = (date) => {
+        if (isLoading) return; // ✅ Block while loading
         const key = formatDateKey(date);
         // Toggle Logic: If clicking the SAME date that's already selected, clear it
         if (selectedDate === key) {
@@ -82,9 +130,12 @@ const DateTimeStep = ({
                 await releaseHold();
                 onUpdate({ time: '' });
             } else {
-                const holdResult = await holdSlot(serviceId, selectedDate, slotData.rawTime);
+                const holdResult = await holdSlot(serviceId, selectedDate, slotData.rawTime, dentistId);
                 if (holdResult?.success) {
                     onUpdate({ time: slotData.rawTime });
+                } else if (holdResult?.error === 'SLOT_TAKEN') {
+                    refetchSlots();
+                    return;
                 }
             }
         } finally {
@@ -146,62 +197,298 @@ const DateTimeStep = ({
         return slot.available > 0 || isHeldByMe;
     }).length > visibleCount;
 
-    return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-            {/* Header Section */}
-            <div className='mb-8 sm:mb-10'>
-                <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
-                    Pick Date & Time
-                </h2>
-                <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed'>
-                    Choose your preferred appointment date and available time slot from the calendar.
-                </p>
-            </div>
+    // Custom Premium Doctor Dropdown Component
+    const DoctorDropdown = () => {
+        const getDoctorName = (s) => {
+            if (!s?.profile) return 'Any available dentist';
+            const { first_name, last_name, suffix, full_name } = s.profile;
+            if (first_name || last_name) {
+                return `Dr. ${first_name} ${last_name}`.trim();
+            }
+            return full_name;
+        };
 
-            {/* ERROR Messages */}
-            {holdError && (
-                <div className='mb-5 p-3.5 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-2xl flex gap-3'>
-                    <Info size={16} className='text-red-500 shrink-0' />
-                    <p className='text-xs text-red-700 dark:text-red-400 font-bold'>{holdError}</p>
+        const selectedDoctor = specialists.find(s => s.id === dentistId);
+        const initials = selectedDoctor 
+            ? ((selectedDoctor.profile?.first_name?.[0] || '') + (selectedDoctor.profile?.last_name?.[0] || '')).toUpperCase() || 'D'
+            : '✨';
+
+        return (
+            <div className='relative w-full mb-10'>
+                <h3 className='text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2'>
+                    <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
+                    Select Dentist
+                </h3>
+                
+                {/* Main Trigger Button */}
+                <button
+                    type="button"
+                    onClick={() => !isLoading && setIsDoctorDropdownOpen(!isDoctorDropdownOpen)}
+                    disabled={isLoading}
+                    className={`w-full flex items-center justify-between p-4 bg-white dark:bg-white/[0.02] border-2 rounded-2xl transition-all shadow-theme-sm group ${
+                        isDoctorDropdownOpen ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-gray-100 dark:border-gray-800 hover:border-brand-200'
+                    } ${isLoading ? 'opacity-50 cursor-wait' : ''}`}
+                >
+                    <div className='flex items-center gap-4'>
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 transition-all ${
+                            !dentistId ? 'bg-brand-50 text-brand-500' : 'bg-gray-50 dark:bg-white/5'
+                        }`}>
+                            {selectedDoctor?.photo_url ? (
+                                <img src={selectedDoctor.photo_url} alt="" className="w-full h-full object-cover rounded-xl" />
+                            ) : !dentistId ? <Users size={24} /> : initials}
+                        </div>
+                        <div className="flex flex-col text-left">
+                            <span className="text-[15px] font-black text-gray-900 dark:text-white leading-tight">
+                                {selectedDoctor ? getDoctorName(selectedDoctor) : 'Any available dentist'}
+                            </span>
+                            <span className="text-[11px] font-bold text-gray-400">
+                                {selectedDoctor 
+                                    ? (serviceTier === 'specialized' ? 'Specialist' : 'Dentist') 
+                                    : "We'll match you with available dentist"}
+                            </span>
+                        </div>
+                    </div>
+                    <ChevronDown size={20} className={`text-gray-400 transition-transform duration-300 ${isDoctorDropdownOpen ? 'rotate-180 text-brand-500' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu Overlay */}
+                {isDoctorDropdownOpen && (
+                    <>
+                        <div className='fixed inset-0 z-40' onClick={() => setIsDoctorDropdownOpen(false)} />
+                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200'>
+                            <div className='max-h-[300px] overflow-y-auto p-2 scrollbar-hide'>
+                                {/* Any Dentist Option */}
+                                <button
+                                    onClick={() => { handleSpecialistChange(''); setIsDoctorDropdownOpen(false); }}
+                                    className={`w-full flex items-center gap-4 p-3 rounded-xl transition-all text-left mb-1 ${
+                                        !dentistId ? 'bg-brand-50 text-brand-600' : 'hover:bg-gray-50 dark:hover:bg-white/5'
+                                    }`}
+                                >
+                                    <div className='w-10 h-10 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center text-lg'>
+                                        <Users size={20} />
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <span className='text-sm font-black'>Any available dentist</span>
+                                        <span className='text-[10px] font-bold opacity-70'>We'll match you with available dentist</span>
+                                    </div>
+                                    {!dentistId && <Check size={18} className='ml-auto text-brand-500' />}
+                                </button>
+
+                                {/* Doctor Options */}
+                                {specialists.map(s => {
+                                    const isSelected = dentistId === s.id;
+                                    const doctorInitials = ((s.profile?.first_name?.[0] || '') + (s.profile?.last_name?.[0] || '')).toUpperCase() || 'D';
+                                    return (
+                                        <button
+                                            key={s.id}
+                                            onClick={() => { handleSpecialistChange(s.id); setIsDoctorDropdownOpen(false); }}
+                                            className={`w-full flex items-center gap-4 p-3 rounded-xl transition-all text-left mb-1 ${
+                                                isSelected ? 'bg-brand-50 text-brand-600' : 'hover:bg-gray-50 dark:hover:bg-white/5'
+                                            }`}
+                                        >
+                                            <div className='w-10 h-10 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center overflow-hidden'>
+                                                {s.photo_url ? <img src={s.photo_url} alt="" className="w-full h-full object-cover" /> : <span className='text-xs font-black text-gray-400'>{doctorInitials}</span>}
+                                            </div>
+                                            <div className='flex flex-col'>
+                                                <span className='text-sm font-black'>{getDoctorName(s)}</span>
+                                                <span className='text-[10px] font-bold opacity-70'>
+                                                    {serviceTier === 'specialized' ? 'Specialist' : 'Dentist'}
+                                                </span>
+                                            </div>
+                                            {isSelected && <Check size={18} className='ml-auto text-brand-500' />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
+        );
+    };
+
+    const hasNoSpecialists = !specialistsLoading && specialists.length === 0;
+
+    // ✅ Initial Loading State: Prevent flicker by showing a high-fidelity pulse skeleton
+    if (specialistsLoading && specialists.length === 0) {
+        return (
+            <div className="flex flex-col gap-10 animate-pulse py-2">
+                {/* Header Skeleton */}
+                <div className='mb-8 sm:mb-10'>
+                    <div className='h-7 sm:h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl w-full max-w-sm mb-4' />
+                    <div className='h-4 bg-slate-50 dark:bg-gray-800/50 rounded-xl w-full max-w-2xl' />
+                </div>
+                
+                {/* Doctor Select Skeleton */}
+                <div className="h-20 bg-slate-50 dark:bg-white/[0.02] border-2 border-slate-100 dark:border-slate-800 rounded-3xl w-full flex items-center px-4 gap-4">
+                    <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+                    <div className="flex flex-col gap-2 flex-grow">
+                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-lg w-1/3" />
+                        <div className="h-3 bg-slate-50 dark:bg-gray-800/50 rounded-lg w-1/4" />
+                    </div>
+                    <div className="w-5 h-5 bg-slate-100 dark:bg-slate-800 rounded-md" />
+                </div>
+                
+                <div className='grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-x-8 gap-y-10 mb-10'>
+                    {/* Column 1: Calendar Skeleton */}
+                    <div className="flex flex-col gap-5">
+                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-lg w-32 ml-1" />
+                        <div className="bg-slate-50 dark:bg-white/[0.02] border-2 border-slate-100 dark:border-slate-800 rounded-[32px] sm:rounded-[40px] p-6 h-[440px]">
+                            <div className="flex justify-between items-center mb-8">
+                                <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-xl w-32" />
+                                <div className="flex gap-2">
+                                    <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+                                    <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-7 gap-4">
+                                {[...Array(35)].map((_, i) => (
+                                    <div key={i} className="aspect-square bg-slate-100 dark:bg-slate-800/50 rounded-xl" />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Column 2: Slots Skeleton */}
+                    <div className="flex flex-col gap-5">
+                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-lg w-40 ml-1" />
+                        <div className="bg-slate-50 dark:bg-white/[0.02] border-2 border-slate-100 dark:border-slate-800 rounded-[32px] sm:rounded-[40px] p-6 h-[440px]">
+                            <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded-xl w-32 mb-10" />
+                            <div className="grid grid-cols-2 xsm:grid-cols-3 gap-3">
+                                {[...Array(12)].map((_, i) => (
+                                    <div key={i} className="h-12 bg-slate-100 dark:bg-slate-800/50 rounded-xl" />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Footer Skeleton */}
+                <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-4 pt-6 border-t border-slate-100 dark:border-slate-800 mt-4">
+                    <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-lg w-24" />
+                    <div className="h-14 bg-slate-200 dark:bg-slate-800 rounded-2xl w-52" />
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 relative">
+            {/* FLOATING TOAST LOGIC (SweetAlert style) */}
+            {(holdError || error) && (
+                <div className="fixed top-6 right-6 z-[9999] animate-in slide-in-from-right-10 fade-in duration-500 max-w-[calc(100vw-3rem)] sm:max-w-sm pointer-events-none">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-4 sm:p-5 flex gap-4 items-center ring-1 ring-black/5 pointer-events-auto">
+                        <div className={`w-12 h-12 rounded-2xl ${holdError ? 'bg-red-500 shadow-red-500/20' : 'bg-amber-500 shadow-amber-500/20'} text-white flex items-center justify-center shrink-0 shadow-lg`}>
+                            <AlertCircle size={24} />
+                        </div>
+                        <div className="flex-grow min-w-0">
+                            <h4 className="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Attention Required</h4>
+                            <p className="text-[13px] sm:text-[14px] font-bold text-gray-900 dark:text-white leading-tight break-words">
+                                {holdError || error}
+                            </p>
+                        </div>
+                        <button 
+                            onClick={() => {
+                                if (holdError) slotHold.setHoldError?.(null);
+                                // Note: 'error' in guest booking is managed by the wizard hook, 
+                                // it will auto-clear when fields change, or we can just leave it to time out.
+                            }} 
+                            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        >
+                            <X size={18} />
+                        </button>
+                    </div>
+                </div>
+            )}
+            {/* Header Section */}
+            {!hasNoSpecialists && (
+                <div className='mb-8 sm:mb-10'>
+                    <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
+                        Pick Date & Time
+                    </h2>
+                    <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed'>
+                        Choose your preferred appointment date and available time slot. {serviceTier === 'specialized' ? 'Select a specific dentist or "Any Specialist" to see availability.' : 'Select a specific dentist or stay with "Any Dentist" for more options.'}
+                    </p>
                 </div>
             )}
 
-            {/* SIDE-BY-SIDE Layout */}
-            <div className='grid grid-cols-1 lg:grid-cols-[1fr_0.8fr] gap-8 mb-10'>
+            {/* FALLBACK: No Specialists Available for this Service */}
+            {hasNoSpecialists && (
+                <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in slide-in-from-bottom-4 duration-700 bg-white dark:bg-white/[0.02] border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[40px] shadow-theme-sm my-10">
+                    <div className="w-24 h-24 bg-brand-50 dark:bg-brand-500/10 rounded-full flex items-center justify-center mb-8">
+                        <CalendarX size={44} className="text-brand-500" />
+                    </div>
+                    
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 uppercase tracking-tight font-display">
+                        No Available Appointments
+                    </h3>
+                    
+                    <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed mb-10 text-sm md:text-base font-medium">
+                        There are no available appointments for this service right now. Please try selecting another service or contact us for assistance.
+                    </p>
+                    
+                    <button 
+                        onClick={onBack}
+                        className="flex items-center justify-center gap-3 px-10 py-5 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-2xl transition-all shadow-xl shadow-brand-500/25 active:scale-95 text-xs uppercase tracking-widest"
+                    >
+                        <ChevronLeft size={18} />
+                        Choose Another Service
+                    </button>
+                </div>
+            )}
+
+            {!hasNoSpecialists && (
+                <>
+
+            {/* FULL WIDTH DENTIST SELECTION */}
+            <DoctorDropdown />
+
+            {/* 2-COLUMN LAYOUT */}
+            <div className='grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-x-8 gap-y-10 mb-10'>
                 
-                {/* Left Column: Calendar Grid */}
-                <div className='bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-theme-sm h-fit'>
-                    <div className='flex items-center justify-between mb-5'>
-                        <h3 className='text-[15px] sm:text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'><CalendarIcon size={16} className='text-brand-500' />{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
-                        <div className='flex gap-1.5'>
-                            <button onClick={() => navigateMonth('prev')} disabled={!canGoPrev} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronLeft size={18} className='text-gray-600 dark:text-gray-400' /></button>
-                            <button onClick={() => navigateMonth('next')} disabled={!canGoNext} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronRight size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                {/* Column 1: Select Date (Calendar) */}
+                <div className={`flex flex-col transition-all duration-300 ${isLoading ? 'opacity-40 pointer-events-none cursor-wait' : ''}`}>
+                    <h3 className='text-xs font-black text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-2'>
+                        <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
+                        Select Date
+                    </h3>
+                    <div className='bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-theme-sm h-full'>
+                        <div className='flex items-center justify-between mb-5'>
+                            <h3 className='text-[15px] sm:text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'><CalendarIcon size={16} className='text-brand-500' />{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
+                            <div className='flex gap-1.5'>
+                                <button onClick={() => navigateMonth('prev')} disabled={!canGoPrev} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronLeft size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                                <button onClick={() => navigateMonth('next')} disabled={!canGoNext} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronRight size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                            </div>
                         </div>
-                    </div>
-                    <div className='grid grid-cols-7 gap-1 mb-2'>
-                        {dayNames.map(day => (<div key={day} className='text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center py-2'>{day}</div>))}
-                    </div>
-                    <div className='grid grid-cols-7 gap-1.5'>
-                        {calendarDays.map((date, idx) => {
-                            const key = formatDateKey(date);
-                            const isCurrentMonth = date.getMonth() === viewDate.getMonth();
-                            const isPast = date < today;
-                            const isToday = date.getTime() === today.getTime();
-                            const isSelected = key === selectedDate;
-                            const isDisabled = isPast || isToday || date.getDay() === 0 || date > maxDate;
-                            if (!isCurrentMonth) return <div key={idx} className="aspect-square" />;
-                            return (
-                                <button key={idx} onClick={() => !isDisabled && handleDateClick(date)} disabled={isDisabled} className={`relative flex flex-col items-center justify-center aspect-square rounded-xl transition-all duration-300 ${isSelected ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 scale-105 z-10' : isDisabled ? 'text-gray-300 dark:text-gray-700 cursor-not-allowed opacity-30 shadow-none bg-transparent' : 'bg-gray-50/50 dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-800 border-2 border-transparent hover:border-brand-200 dark:hover:border-brand-500/50 text-gray-700 dark:text-gray-300 shadow-theme-xs'}`}>
-                                    <span className={`text-[13px] sm:text-sm font-bold ${isSelected ? 'text-white' : ''}`}>{date.getDate()}</span>
-                                    {isToday && !isSelected && <div className="absolute bottom-1 sm:bottom-1.5 w-1 h-1 rounded-full bg-brand-500" />}
-                                </button>
-                            );
-                        })}
+                        <div className='grid grid-cols-7 gap-1 mb-2'>
+                            {dayNames.map(day => (<div key={day} className='text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center py-2'>{day}</div>))}
+                        </div>
+                        <div className='grid grid-cols-7 gap-1.5'>
+                            {calendarDays.map((date, idx) => {
+                                const key = formatDateKey(date);
+                                const isCurrentMonth = date.getMonth() === viewDate.getMonth();
+                                const isPast = date < today;
+                                const isToday = date.getTime() === today.getTime();
+                                const isSelected = key === selectedDate;
+                                const isDisabled = isPast || isToday || date.getDay() === 0 || date > maxDate;
+                                if (!isCurrentMonth) return <div key={idx} className="aspect-square" />;
+                                return (
+                                    <button key={idx} onClick={() => !isDisabled && handleDateClick(date)} disabled={isDisabled} className={`relative flex flex-col items-center justify-center aspect-square rounded-xl transition-all duration-300 ${isSelected ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 scale-105 z-10' : isDisabled ? 'text-gray-300 dark:text-gray-700 cursor-not-allowed opacity-30 shadow-none bg-transparent' : 'bg-gray-50/50 dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-800 border-2 border-transparent hover:border-brand-200 dark:hover:border-brand-500/50 text-gray-700 dark:text-gray-300 shadow-theme-xs'}`}>
+                                        <span className={`text-[13px] sm:text-sm font-bold ${isSelected ? 'text-white' : ''}`}>{date.getDate()}</span>
+                                        {isToday && !isSelected && <div className="absolute bottom-1 sm:bottom-1.5 w-1 h-1 rounded-full bg-brand-500" />}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
 
-                {/* Right Column: Time Selection / Empty State */}
-                <div className='flex flex-col min-h-[380px]'>
+                {/* Column 2: Select Time (Slots) */}
+                <div className='flex flex-col h-full'>
+                    <h3 className='text-xs font-black text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-2'>
+                        <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
+                        Select Time
+                    </h3>
                     {!selectedDate ? (
                         <div className='flex-grow bg-gray-50 dark:bg-white/[0.02] border border-dashed border-gray-200 dark:border-gray-800 rounded-3xl flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-500'>
                             <div className='bg-white dark:bg-gray-800 w-14 h-14 rounded-2xl flex items-center justify-center shadow-theme-sm mb-5'><MousePointer2 size={28} className='text-brand-500' /></div>
@@ -213,11 +500,13 @@ const DateTimeStep = ({
                             
                             <div className='flex items-center justify-between mb-5'>
                                 <h3 className='text-[15px] font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'><ClockIcon size={18} className='text-brand-500' />Available Times</h3>
-                                <button onClick={refetchSlots} disabled={slotsLoading} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={slotsLoading ? 'animate-spin' : ''} />Refresh</button>
+                                <button onClick={refetchSlots} disabled={isLoading} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />Refresh</button>
                             </div>
 
-                            {slotsLoading ? (
-                                <div className='grid grid-cols-2 xsm:grid-cols-3 gap-3'>{[1, 2, 3, 4, 5, 6].map(i => <div key={i} className='h-12 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-xl' />)}</div>
+                            {isLoading ? (
+                                <div className='grid grid-cols-2 xsm:grid-cols-3 gap-3 cursor-wait'>
+                                    {[...Array(12)].map((_, i) => <div key={i} className='h-12 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-xl' />)}
+                                </div>
                             ) : visibleSlots && visibleSlots.length > 0 ? (
                                 <>
                                     <div className='grid grid-cols-2 xsm:grid-cols-3 gap-3 mb-6'>
@@ -275,12 +564,13 @@ const DateTimeStep = ({
                 </div>
             </div>
 
-            {/* Navigation Footer */}
             <div className='flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-4 sm:gap-0 pt-6 sm:pt-8 border-t border-gray-100 dark:border-gray-700'>
                 <button onClick={onBack} className='w-full sm:w-auto text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[13px] sm:text-sm px-6 py-3 sm:px-8 transition-colors uppercase tracking-widest'>Back</button>
                 <button onClick={onNext} disabled={!selectedDate || !selectedTime} className='w-full sm:w-auto bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-2.5 text-[14px] sm:text-base uppercase tracking-widest'>Continue to Your Info<ArrowRight size={20} className="w-4 h-4 sm:w-5 sm:h-5" /></button>
             </div>
-        </div>
+        </>
+    )}
+</div>
     );
 };
 

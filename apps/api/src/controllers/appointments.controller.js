@@ -500,7 +500,7 @@ export const guestRescheduleConfirm = async (req, res, next) => {
  * If user already has a hold on a different time for the same date,
  * the old hold is automatically released (auto-switch behavior).
  */
-export const holdSlotHandler = async (req, res) => {
+export const holdSlotHandler = async (req, res, next) => {
     try {
         const { service_id, date, time, user_session_id, dentist_id } = req.body;
 

@@ -63,6 +63,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         // ✅ NEW: Deferred Waitlist Fields
         waitlist_date: '', // Selected full slot date
         waitlist_time: '', // Selected full slot time
+        service_tier: '', // ✅ NEW: Track tier
     });
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -151,12 +152,43 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
     };
 
     const prevStep = () => {
-        if (step > 0) setStep((s) => s - 1);
+        if (step > 0) {
+            const nextIdx = step - 1;
+            // ✅ Reset states when going back to Service step
+            if (nextIdx === 0) {
+                slotHold.releaseHold();
+                setFormData(prev => ({
+                    ...prev,
+                    date: '',
+                    time: '',
+                    dentist_id: '',
+                    waitlist_date: '',
+                    waitlist_time: '',
+                    service_tier: prev.service_tier, // Keep tier
+                }));
+            }
+            setStep(nextIdx);
+        }
     };
 
     // Only allow going back to completed steps
     const goToStep = (index) => {
-        if (index < step) setStep(index);
+        if (index < step) {
+            // ✅ Reset states when navigating back to Service step via breadcrumbs
+            if (index === 0) {
+                slotHold.releaseHold();
+                setFormData(prev => ({
+                    ...prev,
+                    date: '',
+                    time: '',
+                    dentist_id: '',
+                    waitlist_date: '',
+                    waitlist_time: '',
+                    service_tier: prev.service_tier, // Keep tier
+                }));
+            }
+            setStep(index);
+        }
     };
 
     // Submit booking to API with unified atomic endpoint
@@ -283,6 +315,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
             // ✅ Clear waitlist fields on reset
             waitlist_date: '',
             waitlist_time: '',
+            service_tier: '', // Reset
         });
         setError(null);
         setSubmitting(false); // ✅ Safety reset

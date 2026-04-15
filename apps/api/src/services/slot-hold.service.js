@@ -76,24 +76,23 @@ export const holdSlot = async (serviceId, date, startTime, userSessionId, dentis
     }
 
     // ── 3. Create new hold (with retry on dentist collision) ──
+    const { data: service } = await supabaseAdmin
+        .from('services')
+        .select('tier, duration_minutes')
+        .eq('id', serviceId)
+        .single();
+    if (!service) throw new AppError('Service not found.', 404);
+
+    const endTime = addMinutesToTime(startTime, service.duration_minutes);
     const expiresAt = new Date(now.getTime() + HOLD_DURATION_MINUTES * 60 * 1000);
     const MAX_RETRIES = 3;
     let hold = null;
-    let finalDentistId = dentistId;
+    let finalDentistId = dentistId || null;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         // Pick a dentist if none provided (or if previous attempt collided)
         if (!finalDentistId) {
-            const { data: service } = await supabaseAdmin
-                .from('services')
-                .select('tier, duration_minutes')
-                .eq('id', serviceId)
-                .single();
-
-            if (service) {
-                const hEndTime = addMinutesToTime(startTime, service.duration_minutes);
-                finalDentistId = await assignDentist(date, startTime, hEndTime, service.tier, userSessionId);
-            }
+            finalDentistId = await assignDentist(date, startTime, endTime, service.tier, userSessionId, serviceId);
         }
 
         if (!finalDentistId) {
@@ -107,6 +106,7 @@ export const holdSlot = async (serviceId, date, startTime, userSessionId, dentis
                 service_id: serviceId,
                 appointment_date: date,
                 start_time: startTime,
+                end_time: endTime,
                 user_session_id: userSessionId,
                 dentist_id: finalDentistId,
                 held_at: now.toISOString(),

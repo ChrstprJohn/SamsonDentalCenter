@@ -70,6 +70,17 @@ const useSlotHold = (sessionId) => {
     // ✅ Removed localStorage persistence effect — holds now live in memory only
     // This allows a fresh start when the user reloads the page
 
+    // ✅ Auto-clear error after 5 seconds (for Toast UI)
+    useEffect(() => {
+        if (!holdError) return;
+        
+        const timeoutId = setTimeout(() => {
+            setHoldError(null);
+        }, 5000);
+
+        return () => clearTimeout(timeoutId);
+    }, [holdError]);
+
     // Update countdown timer every second
     useEffect(() => {
         if (!activeHold?.expires_at) {
@@ -132,7 +143,7 @@ const useSlotHold = (sessionId) => {
                     date: date,
                     time: startTime,
                     user_session_id: sessionId,
-                    dentist_id: dentistId,
+                    dentist_id: dentistId || null,
                 });
 
                 // Response includes: hold_id, previous_hold_id, expires_at, expires_in_minutes, already_held
