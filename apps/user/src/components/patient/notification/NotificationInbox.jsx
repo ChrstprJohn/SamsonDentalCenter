@@ -3,16 +3,17 @@ import NotificationRow from './NotificationRow';
 import Pagination from '../../common/Pagination';
 
 const CATEGORIES = [
-    { id: 'all', label: 'All', icon: Mail },
-    { id: 'unread', label: 'Unread', icon: Bell },
-    { id: 'starred', label: 'Starred', icon: Star },
-    { id: 'appointments', label: 'Appointments', icon: Calendar },
-    { id: 'waitlist', label: 'Waitlist', icon: Clock },
+    { id: 'all', label: 'All', icon: Mail, key: 'all' },
+    { id: 'unread', label: 'Unread', icon: Bell, key: 'unread' },
+    { id: 'starred', label: 'Starred', icon: Star, key: 'starred' },
+    { id: 'appointments', label: 'Appointments', icon: Calendar, key: 'appointments' },
+    { id: 'waitlist', label: 'Waitlist', icon: Clock, key: 'waitlist' },
 ];
 
 const NotificationInbox = ({
     notifications,
     totalCount,
+    stats = {},
     currentPage,
     totalPages,
     onPageChange,
@@ -23,42 +24,86 @@ const NotificationInbox = ({
     onToggleStar,
     onToggleRead,
     onToggleArchive,
+    onMarkAllRead,
     onNotificationClick,
 }) => {
+    // Helper to get count for category
+    const getCount = (key) => {
+        if (key === 'all') return totalCount || 0;
+        if (key === 'unread') return stats.unread || 0;
+        if (key === 'starred') return stats.starred || 0;
+        if (key === 'waitlist') return stats.waitlist || 0;
+        if (key === 'appointments') {
+            // Sum all appointment-related types
+            return (
+                (stats.general || 0) + 
+                (stats.confirmation || 0) + 
+                (stats.reminder || 0) + 
+                (stats.cancellation || 0) + 
+                (stats.reschedule || 0) + 
+                (stats.no_show || 0) + 
+                (stats.delay || 0) + 
+                (stats.follow_up || 0) + 
+                (stats.approval || 0) + 
+                (stats.rejection || 0)
+            );
+        }
+        return 0;
+    };
+
     return (
         <div className='grow flex flex-col bg-white dark:bg-gray-900 sm:rounded-3xl border-t sm:border border-gray-100 dark:border-gray-800 sm:shadow-theme-sm overflow-hidden'>
             {/* Header / Search Area */}
             <div className='px-4 sm:px-6 py-5 border-b border-gray-100 dark:border-gray-800 space-y-4'>
-                <div className='relative'>
-                    <span className='absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400'>
-                        <Search size={18} />
-                    </span>
-                    <input
-                        type='text'
-                        placeholder='Search notifications...'
-                        className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/3 border-none rounded-2xl text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-gray-800 transition-all outline-none'
-                        value={searchQuery}
-                        onChange={(e) => onSearchChange(e.target.value)}
-                    />
+                <div className='flex items-center justify-between gap-4'>
+                    <div className='relative flex-grow'>
+                        <span className='absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400'>
+                            <Search size={18} />
+                        </span>
+                        <input
+                            type='text'
+                            placeholder='Search notifications...'
+                            className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/3 border-none rounded-2xl text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-gray-800 transition-all outline-none'
+                            value={searchQuery}
+                            onChange={(e) => onSearchChange(e.target.value)}
+                        />
+                    </div>
+                    {stats.unread > 0 && (
+                        <button 
+                            onClick={onMarkAllRead}
+                            className='hidden sm:block text-xs font-bold text-brand-500 hover:text-brand-600 transition-colors'
+                        >
+                            Mark all read
+                        </button>
+                    )}
                 </div>
 
                 {/* Categories */}
-                <div className='flex items-center gap-2 overflow-x-auto no-scrollbar'>
+                <div className='flex items-center gap-2 overflow-x-auto no-scrollbar pb-1'>
                     {CATEGORIES.map((cat) => {
                         const Icon = cat.icon;
                         const isActive = activeFilter === cat.id;
+                        const count = getCount(cat.key);
+                        
                         return (
                             <button
                                 key={cat.id}
                                 onClick={() => onFilterChange(cat.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all group ${
                                     isActive
                                         ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
                                         : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
                                 }`}
                             >
                                 <Icon size={14} />
-                                {cat.label}
+                                <span>{cat.label}</span>
+                                <span className={`ml-1 px-1.5 py-0.5 rounded-md text-[10px] leading-none transition-all ${
+                                    isActive 
+                                    ? 'bg-white/20 text-white' 
+                                    : 'bg-gray-200 dark:bg-white/10 text-gray-500 dark:text-gray-400 group-hover:bg-gray-300 dark:group-hover:bg-white/20'
+                                }`}>
+                                    {count}
+                                </span>
                             </button>
                         );
                     })}

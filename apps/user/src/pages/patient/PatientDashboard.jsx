@@ -6,11 +6,11 @@ import DashboardAppointments from '../../components/patient/dashboard/DashboardA
 import WaitlistOfferCard from '../../components/patient/waitlist/WaitlistOfferCard';
 import ClaimSlotModal from '../../components/patient/waitlist/ClaimSlotModal';
 import useWaitlist from '../../hooks/useWaitlist';
-import useAppointments from '../../hooks/useAppointments';
+import { useAppointmentState } from '../../context/AppointmentContext';
 
 const PatientDashboard = () => {
     const { entries, offers, loading: waitlistLoading, confirmOffer } = useWaitlist();
-    const { appointments, total: totalAppointments, loading: apptsLoading } = useAppointments({ limit: 100 });
+    const { appointments, total: totalAppointments, loading: apptsLoading } = useAppointmentState();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState(null);
 

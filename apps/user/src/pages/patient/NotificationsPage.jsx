@@ -7,7 +7,6 @@ import useNotifications from '../../hooks/useNotifications';
 import { formatFullDateTime } from '../../hooks/useAppointments';
 import { Clock, Inbox, Star, XCircle, Search } from 'lucide-react';
 import { renderNotification } from '../../utils/notificationRenderer';
-import NotificationStatusSummary from '../../components/patient/notification/NotificationStatusSummary';
 import NotificationSkeleton from '../../components/patient/notification/NotificationSkeleton';
 
 const NotificationsPage = () => {
@@ -140,13 +139,6 @@ const NotificationsPage = () => {
                 <PageBreadcrumb pageTitle={breadcrumbTitle} />
                 
                 <div className='flex flex-col grow'>
-                    {/* Skeleton Stats Summary */}
-                    <div className='grid grid-cols-2 md:grid-cols-5 gap-3 p-4 sm:p-6'>
-                        {[...Array(5)].map((_, i) => (
-                            <div key={i} className='h-24 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl animate-pulse' />
-                        ))}
-                    </div>
-
                     {/* Inbox Skeleton */}
                     <div className='mx-4 sm:mx-6 flex flex-col grow bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden'>
                         <div className='p-6 border-b border-gray-100 dark:border-gray-800'>
@@ -176,6 +168,7 @@ const NotificationsPage = () => {
                 pageTitle={breadcrumbTitle}
                 parentName={parentName}
                 parentPath={parentPath}
+                className='mb-4'
             />
 
             {selectedId ? (
@@ -189,11 +182,10 @@ const NotificationsPage = () => {
                 </div>
             ) : (
                 <div className='flex flex-col grow'>
-                    <NotificationStatusSummary stats={stats} />
-
                     <NotificationInbox
                         notifications={filtered}
                         totalCount={totalNotifications}
+                        stats={stats}
                         currentPage={currentPage}
                         totalPages={totalPages}
                         onPageChange={setCurrentPage}

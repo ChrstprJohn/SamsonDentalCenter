@@ -1,162 +1,195 @@
-import { useState, useEffect, useCallback } from 'react';
-import { api } from '../utils/api';
-import { useAuth } from '../context/AuthContext';
-
-/**
- * Fetches the current patient's appointments from the backend.
- *
- * Backend endpoint: GET /api/v1/appointments/my
- * Query params: status, page, limit, sort
- *
- * Status map (backend → display):
- *   CONFIRMED     → Approved
- *   PENDING       → Pending
- *   CANCELLED     → Cancelled
- *   LATE_CANCEL   → Cancelled
- *   COMPLETED     → Completed
- *   NO_SHOW       → Missed
- */
-
-// --- Utility helpers ---
+import { useMemo, useState, useCallback, useEffect } from 'react';
+import { useAppointmentState } from '../context/AppointmentContext';
 
 export const STATUS_LABEL = {
     CONFIRMED: 'Approved',
     PENDING: 'Pending',
-    CANCELLED: 'Cancelled',
-    LATE_CANCEL: 'Cancelled',
+    IN_PROGRESS: 'Seated',
     COMPLETED: 'Completed',
+    CANCELLED: 'Cancelled',
+    LATE_CANCEL: 'Late Cancel',
     NO_SHOW: 'Missed',
-    IN_PROGRESS: 'In Progress',
-    WAITLISTED: 'Waitlisted',
+    WAITLISTED: 'Waitlisted'
 };
 
+// Semantic keys for Badge component and general consistency
 export const STATUS_COLOR = {
     Approved: 'success',
     Pending: 'warning',
+    Seated: 'info',
+    Completed: 'light',
     Cancelled: 'error',
-    Rejected: 'error',
-    Completed: 'info',
+    'Late Cancel': 'error',
     Missed: 'error',
-    'In Progress': 'primary',
-    Waitlisted: 'warning',
+    Waitlisted: 'primary',
+    Rejected: 'light'
 };
 
-/**
- * Helper to resolve the correct display label and color 
- * for an appointment based on its status and approval_status.
- */
 export const getDisplayStatus = (status, approvalStatus) => {
-    // If it was rejected by a secretary, show 'Rejected' instead of generic 'Cancelled'
-    if (status === 'CANCELLED' && approvalStatus === 'rejected') {
+    // Priority: approval_status for Specialized services
+    const appStatus = (approvalStatus || '').toLowerCase();
+    
+    if (appStatus === 'approved') {
+        return { label: 'Approved', color: STATUS_COLOR.Approved };
+    }
+    if (appStatus === 'rejected') {
         return { label: 'Rejected', color: STATUS_COLOR.Rejected };
     }
     
+    // Fallback to primary status
     const label = STATUS_LABEL[status] || status;
-    const color = STATUS_COLOR[label] || 'primary';
-    return { label, color };
+    return {
+        label,
+        color: STATUS_COLOR[label] || 'light'
+    };
 };
 
-/**
- * Format a date string 'YYYY-MM-DD' → 'Oct 24, 2024'
- */
 export const formatDate = (dateStr) => {
     if (!dateStr) return '';
-    // Parse as local date to avoid UTC offset shifting the day
     const [year, month, day] = dateStr.split('-').map(Number);
     return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+        weekday: 'short',
         month: 'short',
         day: 'numeric',
-        year: 'numeric',
+        year: 'numeric'
     });
 };
 
-/**
- * Format a time string 'HH:MM:SS' or 'HH:MM' → '10:00 AM'
- */
 export const formatTime = (timeStr) => {
     if (!timeStr) return '';
-    const [hourStr, minuteStr] = timeStr.split(':');
-    const hour = parseInt(hourStr, 10);
-    const minute = minuteStr;
-    const period = hour >= 12 ? 'PM' : 'AM';
-    const display = hour % 12 || 12;
-    return `${display}:${minute} ${period}`;
+    const [hours, minutes] = timeStr.split(':');
+    const h = parseInt(hours);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const displayH = h % 12 || 12;
+    return `${displayH}:${minutes} ${ampm}`;
 };
 
-/**
- * Format an ISO timestamp string → 'Oct 24, 2024, 10:00 AM'
- */
-export const formatFullDateTime = (isoStr) => {
-    if (!isoStr) return '';
-    return new Date(isoStr).toLocaleString('en-US', {
+export const formatFullDateTime = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
         hour: 'numeric',
         minute: 'numeric',
-        hour12: true,
+        hour12: true
     });
 };
 
-// --- Hook ---
+// Alias for convenience
+export const formatDateTime = formatFullDateTime;
 
-const DEFAULT_LIMIT = 5;
+export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10 } = {}) => {
+    const { 
+        appointments: allAppointments = [], 
+        loading, 
+        error, 
+        stats, 
+        refresh 
+    } = useAppointmentState();
 
-const useAppointments = ({ status = '', sort = 'desc', limit = DEFAULT_LIMIT } = {}) => {
-    const { token } = useAuth();
-    const [appointments, setAppointments] = useState([]);
-    const [total, setTotal] = useState(0);
-    const [stats, setStats] = useState({ upcoming: 0, pending: 0, rejected: 0, completed: 0 });
     const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
-    const totalPages = Math.max(1, Math.ceil(total / limit));
-
-    const fetch = useCallback(async () => {
-        if (!token) {
-            setLoading(false);
-            return;
-        }
-        setLoading(true);
-        setError(null);
-        try {
-            const params = new URLSearchParams({ page, limit, sort });
-            if (status) params.set('status', status);
-
-            const data = await api.get(`/appointments/my?${params}`, token);
-
-            setAppointments(data.appointments || []);
-            setTotal(data.total || 0);
-            if (data.stats) setStats(data.stats);
-        } catch (err) {
-            setError(err.message || 'Failed to load appointments.');
-        } finally {
-            setLoading(false);
-        }
-    }, [token, status, sort, page, limit]);
-
+    // Reset page when status changes
     useEffect(() => {
-        fetch();
-    }, [fetch]);
+        setPage(1);
+    }, [status]);
+
+    const filtered = useMemo(() => {
+        let result = allAppointments;
+
+        if (status && status !== 'all') {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+
+            if (status === 'upcoming' || status === 'confirmed') {
+                result = result.filter(a => {
+                    const statusStr = (a.status || '').toUpperCase();
+                    const appStatusStr = (a.approval_status || '').toLowerCase();
+                    const isApproved = appStatusStr === 'approved' || statusStr === 'CONFIRMED';
+                    
+                    return isApproved && 
+                           statusStr !== 'CANCELLED' && 
+                           statusStr !== 'LATE_CANCEL' && 
+                           statusStr !== 'NO_SHOW';
+                });
+            } else if (status === 'pending') {
+                result = result.filter(a => {
+                    const statusStr = (a.status || '').toUpperCase();
+                    const appStatusStr = (a.approval_status || '').toLowerCase();
+                    return statusStr === 'PENDING' && 
+                           appStatusStr !== 'approved' && 
+                           appStatusStr !== 'rejected';
+                });
+            } else if (status === 'missed') {
+                result = result.filter(a => (a.status || '').toUpperCase() === 'NO_SHOW');
+            } else if (status === 'cancel') {
+                result = result.filter(a => ['CANCELLED', 'LATE_CANCEL'].includes((a.status || '').toUpperCase()) && (a.approval_status || '').toLowerCase() !== 'rejected');
+            } else if (status === 'decline') {
+                result = result.filter(a => (a.approval_status || '').toLowerCase() === 'rejected');
+            } else if (status === 'completed') {
+                result = result.filter(a => (a.status || '').toUpperCase() === 'COMPLETED');
+            }
+        }
+
+        // Client-side sort
+        return [...result].sort((a, b) => {
+            const dateA = new Date(`${a.appointment_date}T${a.start_time}`);
+            const dateB = new Date(`${b.appointment_date}T${b.start_time}`);
+            return sort === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+    }, [allAppointments, status, sort]);
+
+    // Client-side pagination
+    const totalPages = Math.max(1, Math.ceil(filtered.length / limit));
+    const paginated = useMemo(() => {
+        const start = (page - 1) * limit;
+        return filtered.slice(start, start + limit);
+    }, [filtered, page, limit]);
+
+    // Live counts for all categories
+    const counts = useMemo(() => {
+        const today = new Date().toISOString().split('T')[0];
+        return {
+            all: allAppointments.length,
+            upcoming: allAppointments.filter(a => {
+                const statusStr = (a.status || '').toUpperCase();
+                const appStatusStr = (a.approval_status || '').toLowerCase();
+                return (appStatusStr === 'approved' || statusStr === 'CONFIRMED') && 
+                       !['CANCELLED', 'LATE_CANCEL', 'NO_SHOW'].includes(statusStr);
+            }).length,
+            pending: allAppointments.filter(a => {
+                const statusStr = (a.status || '').toUpperCase();
+                const appStatusStr = (a.approval_status || '').toLowerCase();
+                return statusStr === 'PENDING' && 
+                       appStatusStr !== 'approved' && 
+                       appStatusStr !== 'rejected';
+            }).length,
+            missed: allAppointments.filter(a => (a.status || '').toUpperCase() === 'NO_SHOW').length,
+            cancel: allAppointments.filter(a => ['CANCELLED', 'LATE_CANCEL'].includes((a.status || '').toUpperCase()) && (a.approval_status || '').toLowerCase() !== 'rejected').length,
+            decline: allAppointments.filter(a => (a.approval_status || '').toLowerCase() === 'rejected').length,
+            completed: allAppointments.filter(a => (a.status || '').toUpperCase() === 'COMPLETED').length,
+        };
+    }, [allAppointments]);
 
     const goToPage = useCallback((p) => setPage(p), []);
     const prevPage = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
-    const nextPage = useCallback(() => setPage((p) => Math.min(totalPages, p + 1)), [totalPages]);
-    const refresh = useCallback(() => fetch(), [fetch]);
+    const nextPage = useCallback((p) => setPage((p) => Math.min(totalPages, p + 1)), [totalPages]);
 
     return {
-        appointments,
-        total,
+        appointments: paginated,
+        total: filtered.length,
         stats,
-        page,
-        totalPages,
+        counts,
         loading,
         error,
+        page,
+        totalPages,
         goToPage,
         prevPage,
         nextPage,
-        refresh,
+        refresh
     };
 };
 

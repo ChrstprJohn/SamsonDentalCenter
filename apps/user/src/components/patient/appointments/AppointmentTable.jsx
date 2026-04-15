@@ -5,11 +5,11 @@ import { Calendar } from 'lucide-react';
 const AppointmentTable = ({ appointments, loading, error, user, openDropdown, onToggleDropdown, onViewDetails }) => {
     return (
         <div className='flex flex-col grow min-h-[400px] md:min-h-[285px]'>
-            {/* Loading skeleton */}
-            {loading && <AppointmentSkeleton />}
+            {/* Loading skeleton - only show on initial load with no data */}
+            {loading && appointments.length === 0 && <AppointmentSkeleton />}
 
             {/* Error */}
-            {!loading && error && (
+            {!loading && error && appointments.length === 0 && (
                 <div className='flex items-center justify-center py-20 px-4 text-center text-sm text-error-500'>
                     {error}
                 </div>
@@ -26,9 +26,9 @@ const AppointmentTable = ({ appointments, loading, error, user, openDropdown, on
                 </div>
             )}
 
-            {/* Data rows */}
+            {/* Data rows - show even if loading in background */}
             <div className='overflow-y-auto grow pb-14 sm:pb-0'>
-                {!loading && !error && appointments.map((app) => (
+                {appointments.map((app) => (
                     <AppointmentTableRow 
                         key={app.id} 
                         appointment={app} 

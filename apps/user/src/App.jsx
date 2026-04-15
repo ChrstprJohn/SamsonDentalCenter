@@ -3,6 +3,7 @@ import AppRoutes from './routes/AppRoutes';
 import useSmoothScroll from './hooks/useSmoothScroll';
 import { ServicesProvider } from './context/ServicesContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { AppointmentProvider } from './context/AppointmentContext';
 
 const App = () => {
     useSmoothScroll();
@@ -11,7 +12,9 @@ const App = () => {
         <BrowserRouter>
             <ServicesProvider>
                 <NotificationProvider>
-                    <AppRoutes />
+                    <AppointmentProvider>
+                        <AppRoutes />
+                    </AppointmentProvider>
                 </NotificationProvider>
             </ServicesProvider>
         </BrowserRouter>

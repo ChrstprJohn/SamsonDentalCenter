@@ -572,11 +572,13 @@ export const getPatientAppointments = async (
 
     // 🎯 FILTER LOGIC
     if (status === 'upcoming') {
-        query = query.eq('status', APPOINTMENT_STATUS.CONFIRMED).gte('appointment_date', today);
+        // Upcoming = strictly approved/confirmed appointments in the future
+        query = query.or(`status.eq.${APPOINTMENT_STATUS.CONFIRMED},approval_status.eq.approved`).gte('appointment_date', today);
     } else if (status === 'confirmed') {
-        query = query.eq('status', APPOINTMENT_STATUS.CONFIRMED).gte('appointment_date', today);
+        query = query.or(`status.eq.${APPOINTMENT_STATUS.CONFIRMED},approval_status.eq.approved`).gte('appointment_date', today);
     } else if (status === 'pending') {
-        query = query.eq('status', APPOINTMENT_STATUS.PENDING).gte('appointment_date', today);
+        // Pending = status is PENDING AND it hasn't been approved yet
+        query = query.eq('status', APPOINTMENT_STATUS.PENDING).not('approval_status', 'eq', 'approved').gte('appointment_date', today);
     } else if (status === 'missed') {
         query = query.eq('status', APPOINTMENT_STATUS.NO_SHOW);
     } else if (status === 'cancel') {
@@ -636,12 +638,12 @@ export const getPatientAppointmentStats = async (patientId) => {
 
     // Run summary counts in parallel for performance
     const [upcoming, pending, rejected, completed] = await Promise.all([
-        // Upcoming: Confirmed and future
+        // Upcoming: Confirmed or explicitly approved and future
         supabaseAdmin
             .from('appointments')
             .select('id', { count: 'exact', head: true })
             .eq('patient_id', patientId)
-            .eq('status', APPOINTMENT_STATUS.CONFIRMED)
+            .or(`status.eq.${APPOINTMENT_STATUS.CONFIRMED},approval_status.eq.approved`)
             .gte('appointment_date', today),
         
         // Pending: Pending and future

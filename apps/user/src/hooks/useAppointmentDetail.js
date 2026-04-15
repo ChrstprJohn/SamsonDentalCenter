@@ -1,55 +1,93 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../utils/supabase';
 
 /**
- * Fetches a single appointment by ID.
- * Backend endpoint: GET /api/v1/appointments/:id
- *
- * Also exposes cancelAppointment() action.
+ * useAppointmentDetail — robust real-time synchronization for a single appointment.
  */
 const useAppointmentDetail = (id) => {
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     const [appointment, setAppointment] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cancelling, setCancelling] = useState(false);
     const [cancelError, setCancelError] = useState(null);
 
-    const fetchDetail = useCallback(async () => {
-        if (!token || !id) {
+    // Ref to avoid stale closures
+    const tokenRef = useRef(token);
+    useEffect(() => { tokenRef.current = token; }, [token]);
+
+    const fetchDetail = useCallback(async (isBackground = false) => {
+        const currentToken = tokenRef.current;
+        if (!currentToken || !id) {
             setLoading(false);
             return;
         }
-        setLoading(true);
+
+        if (!isBackground) setLoading(true);
         setError(null);
+
         try {
-            // Backend returns the raw appointment row + joined service + dentist
-            const data = await api.get(`/appointments/${id}`, token);
-            // Controller returns { appointment: {...} }
+            const data = await api.get(`/appointments/${id}?_t=${Date.now()}`, currentToken);
             setAppointment(data.appointment || data);
         } catch (err) {
-            setError(err.message || 'Could not load appointment details.');
+            if (!isBackground) setError(err.message || 'Could not load appointment details.');
         } finally {
-            setLoading(false);
+            if (!isBackground) setLoading(false);
         }
-    }, [token, id]);
+    }, [id]);
 
     useEffect(() => {
         fetchDetail();
     }, [fetchDetail]);
 
-    /**
-     * Cancel the appointment. Calls PATCH /appointments/:id/cancel
-     * @param {string} reason - Optional reason text
-     */
+    // --- Dual-Sync Subscription ---
+    useEffect(() => {
+        if (!user?.id || !id) return;
+
+        const channel = supabase
+            .channel(`apt-det-${id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'appointments',
+                    filter: `id=eq.${id}`,
+                },
+                (payload) => {
+                    console.log(`[useAppointmentDetail] ⚡ direct update: ${payload.new?.status}`);
+                    setTimeout(() => fetchDetail(true), 300);
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${user.id}`,
+                },
+                (payload) => {
+                    console.log('[useAppointmentDetail] 🔔 notification trigger → refreshing');
+                    setTimeout(() => fetchDetail(true), 500);
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [user?.id, id, fetchDetail]);
+
     const cancelAppointment = useCallback(
         async (reason = '') => {
+            const currentToken = tokenRef.current;
             setCancelling(true);
             setCancelError(null);
             try {
-                await api.patch(`/appointments/${id}/cancel`, { reason }, token);
-                // Re-fetch to get updated status
+                await api.patch(`/appointments/${id}/cancel`, { reason }, currentToken);
                 await fetchDetail();
                 return { success: true };
             } catch (err) {
@@ -60,7 +98,7 @@ const useAppointmentDetail = (id) => {
                 setCancelling(false);
             }
         },
-        [id, token, fetchDetail],
+        [id, fetchDetail],
     );
 
     return {
@@ -70,7 +108,7 @@ const useAppointmentDetail = (id) => {
         cancelling,
         cancelError,
         cancelAppointment,
-        refresh: fetchDetail,
+        refresh: () => fetchDetail(true),
     };
 };
 

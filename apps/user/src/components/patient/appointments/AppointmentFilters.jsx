@@ -3,15 +3,15 @@ import { PlusIcon } from './AppointmentIcons';
 import { Link } from 'react-router-dom';
 
 const CATEGORIES = [
-    { id: '', label: 'All', icon: Calendar },
-    { id: 'upcoming', label: 'Upcoming', icon: Clock },
-    { id: 'pending', label: 'Pending', icon: RotateCcw },
-    { id: 'cancel', label: 'Cancelled', icon: XCircle },
-    { id: 'decline', label: 'Rejected', icon: XCircle },
-    { id: 'completed', label: 'Completed', icon: CheckCircle2 },
+    { id: '', label: 'All', icon: Calendar, key: 'all' },
+    { id: 'upcoming', label: 'Upcoming', icon: Clock, key: 'upcoming' },
+    { id: 'pending', label: 'Pending', icon: RotateCcw, key: 'pending' },
+    { id: 'cancel', label: 'Cancelled', icon: XCircle, key: 'cancel' },
+    { id: 'decline', label: 'Rejected', icon: XCircle, key: 'decline' },
+    { id: 'completed', label: 'Completed', icon: CheckCircle2, key: 'completed' },
 ];
 
-const AppointmentFilters = ({ search, onSearchChange, statusFilter, onStatusChange }) => {
+const AppointmentFilters = ({ search, onSearchChange, statusFilter, onStatusChange, counts = {} }) => {
     return (
         <div className='px-4 sm:px-6 py-5 border-b border-gray-100 dark:border-gray-800 space-y-4'>
             {/* Search and Action */}
@@ -38,22 +38,31 @@ const AppointmentFilters = ({ search, onSearchChange, statusFilter, onStatusChan
             </div>
 
             {/* Categories */}
-            <div className='flex items-center gap-2 overflow-x-auto no-scrollbar'>
+            <div className='flex items-center gap-2 overflow-x-auto no-scrollbar pb-1'>
                 {CATEGORIES.map((cat) => {
                     const Icon = cat.icon;
                     const isActive = statusFilter === cat.id;
+                    const count = counts[cat.key] || 0;
+                    
                     return (
                         <button
                             key={cat.id}
                             onClick={() => onStatusChange(cat.id)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all group ${
                                 isActive 
                                 ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
                                 : 'bg-gray-100 dark:bg-white/[0.05] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.1]'
                             }`}
                         >
                             <Icon size={14} />
-                            {cat.label}
+                            <span>{cat.label}</span>
+                            <span className={`ml-1 px-1.5 py-0.5 rounded-md text-[10px] leading-none transition-all ${
+                                isActive 
+                                ? 'bg-white/20 text-white' 
+                                : 'bg-gray-200 dark:bg-white/10 text-gray-500 dark:text-gray-400 group-hover:bg-gray-300 dark:group-hover:bg-white/20'
+                            }`}>
+                                {count}
+                            </span>
                         </button>
                     );
                 })}
