@@ -276,7 +276,7 @@ const ServicesList = ({ variant = 'dark', onBookNow, onServiceSelect }) => {
                 <span className="block services-reveal-text text-white">Clinical</span>
               </div>
               <div className="overflow-hidden mt-1 md:mt-0">
-                <span className="block services-reveal-text text-slate-400">Solutions.</span>
+                <span className="block services-reveal-text text-sky-400">Solutions.</span>
               </div>
             </h2>
           </div>

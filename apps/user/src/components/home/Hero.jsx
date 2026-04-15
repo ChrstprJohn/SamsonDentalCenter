@@ -128,7 +128,7 @@ const Hero = () => {
                             {splitText(
                                 'First Priority.',
                                 'hero-letter-2',
-                                'text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-sky-300',
+                                'text-transparent bg-clip-text bg-sky-400',
                             )}
                         </span>
                     </h1>
