@@ -134,7 +134,7 @@ const Testimonials = ({ variant = 'light' }) => {
     return (
         <section
             ref={sectionRef}
-            className={`py-12 sm:py-16 overflow-hidden transition-colors duration-500 ${isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}`}
+            className={`py-12 sm:py-16 overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#0B1120] text-white' : 'bg-white text-slate-900'}`}
         >
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                 <div className='flex flex-col lg:flex-row items-center gap-8 lg:gap-16'>
@@ -145,8 +145,8 @@ const Testimonials = ({ variant = 'light' }) => {
                     >
                         <div className='overflow-hidden mb-4'>
                             <div className='testimonial-reveal-text flex items-center justify-center lg:justify-start gap-3'>
-                                <span className='h-px w-8 bg-blue-600'></span>
-                                <span className='text-blue-500 font-bold uppercase tracking-widest text-[10px]'>
+                                <span className='h-px w-8 bg-sky-400'></span>
+                                <span className='text-sky-400 font-bold uppercase tracking-widest text-[10px]'>
                                     Testimonials
                                 </span>
                             </div>
@@ -158,7 +158,7 @@ const Testimonials = ({ variant = 'light' }) => {
                                 <span className='block testimonial-reveal-text'>What makes</span>
                             </div>
                             <div className='overflow-hidden'>
-                                <span className='block text-slate-500 testimonial-reveal-text'>
+                                <span className='block text-sky-400 testimonial-reveal-text'>
                                     us smile.
                                 </span>
                             </div>
