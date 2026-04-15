@@ -33,7 +33,7 @@ const ContactInfo = () => {
           <div className="relative flex justify-center">
             {/* Decorative Blue Diagonal Background */}
 <div
-    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-gradient-to-br from-blue-500 to-blue-600"
+    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[450px] md:h-[450px] bg-gradient-to-br from-blue-500 to-blue-600"
     style={{
         clipPath: "polygon(50% 0%, 100% 34.5%, 79.4% 100%, 20.6% 100%, 0% 34.5%)",
     }}
@@ -44,7 +44,7 @@ const ContactInfo = () => {
               <img
                 src="/images/characters/doctor-headshot.png"
                 alt="Dr. Samson Dental Center"
-                className="w-120 h-auto object-cover"
+                className="w-[280px] sm:w-[320px] md:w-[400px] lg:w-[480px] h-auto object-cover"
               />
             </div>
           </div>
@@ -85,11 +85,11 @@ const ContactInfo = () => {
                         size={24}
                       />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm text-gray-600 font-medium">
                         {item.label}
                       </p>
-                      <p className="text-base text-gray-900 font-semibold hover:text-blue-600 transition-colors">
+                      <p className="text-sm sm:text-base text-gray-900 font-semibold hover:text-blue-600 transition-colors truncate">
                         {item.display}
                       </p>
                     </div>

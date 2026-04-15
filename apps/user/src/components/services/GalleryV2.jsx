@@ -152,8 +152,8 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
           className={`absolute top-1/2 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] opacity-20 -translate-y-1/2 pointer-events-none ${isDark ? "bg-sky-600" : "bg-sky-400"}`}
         ></div>
 
-        {/* Text overlaid on the left */}
-        <div className="absolute left-8 lg:left-16 z-20 top-1/2 -translate-y-1/2 pointer-events-none">
+        {/* Text overlaid / stacked */}
+        <div className="w-full relative lg:absolute px-6 sm:px-8 lg:px-0 lg:left-16 z-20 lg:top-1/2 lg:-translate-y-1/2 pointer-events-none">
           <div className="flex items-center gap-3 mb-4">
             <span
               className={`h-px w-8 ${isDark ? "bg-sky-400" : "bg-sky-400"}`}
@@ -164,13 +164,13 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
               Dental Gallery
             </span>
           </div>
-          <h2 className="text-[clamp(2rem,4vw,4.5rem)] font-extrabold leading-[1.1] tracking-tight text-white m-0 max-w-[40vw]">
-            <div className="overflow-hidden py-2 -my-2">
+          <h2 className="text-[clamp(1.5rem,7vw,4.5rem)] font-extrabold leading-[1.1] tracking-tight text-white m-0 max-w-[90vw] lg:max-w-[40vw]">
+            <div className="overflow-hidden py-2 -my-2 whitespace-nowrap">
               <span className="block text-white title-reveal-line">
                 Intelligent Care.
               </span>
             </div>
-            <div className="overflow-hidden py-2 -my-2">
+            <div className="overflow-hidden py-2 -my-2 whitespace-nowrap">
               <span className="block text-sky-400 title-reveal-line">
                 Beautiful Smiles.
               </span>
@@ -189,25 +189,23 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
           )}
         </div>
 
-        {/* Track mask wrapper to fade out images before they hit the text */}
+        {/* Track mask wrapper to fade out images before they hit the text (or screen edge) */}
         <div
-          className="absolute inset-0 flex items-center overflow-hidden pointer-events-none"
-          style={{
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, transparent 40%, black 55%)",
-            maskImage:
-              "linear-gradient(to right, transparent 0%, transparent 40%, black 55%)",
-          }}
+          className="relative lg:absolute lg:inset-0 flex items-center overflow-hidden pointer-events-none w-full mt-6 lg:mt-0
+                     [-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_15%)] 
+                     [mask-image:linear-gradient(to_right,transparent_0%,black_15%)] 
+                     lg:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,transparent_40%,black_55%)] 
+                     lg:[mask-image:linear-gradient(to_right,transparent_0%,transparent_40%,black_55%)]"
         >
           {/* The scrolling track of images */}
           <div
             ref={trackRef}
-            className="flex items-center gap-6 lg:gap-12 pl-[50vw] pr-[20vw] relative z-10 will-change-transform pointer-events-auto h-full"
+            className="flex items-center gap-6 lg:gap-12 pl-6 lg:pl-[50vw] pr-[20vw] relative z-10 will-change-transform pointer-events-auto h-full mt-8 lg:mt-0"
           >
             {galleryItems.map((item, index) => (
               <div
                 key={item.id}
-                className="gallery-v2-card flex-shrink-0 relative rounded-2xl overflow-hidden shadow-2xl group transition-transform w-[300px] h-[450px] lg:w-[400px] lg:h-[600px]"
+                className="gallery-v2-card flex-shrink-0 relative rounded-2xl overflow-hidden shadow-2xl group transition-transform w-[260px] h-[380px] md:w-[320px] md:h-[480px] lg:w-[400px] lg:h-[600px]"
               >
                 <img
                   src={item.image}
