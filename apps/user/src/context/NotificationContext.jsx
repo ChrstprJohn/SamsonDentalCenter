@@ -1,11 +1,12 @@
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
 import { api } from '../utils/api';
 import { useAuth } from './AuthContext';
+import { supabase } from '../utils/supabase';
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     const [notifications, setNotifications] = useState([]);
     const [totalNotifications, setTotalNotifications] = useState(0);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -27,14 +28,14 @@ export const NotificationProvider = ({ children }) => {
     };
 
     const fetchNotifications = useCallback(
-        async (page = 1, limit = 10, archived = true) => {
+        async (page = 1, limit = 10, archived = true, isBackground = false) => {
             if (!token) {
                 setLoading(false);
                 return;
             }
 
-            // Only set loading if we don't have any notifications yet
-            setLoading(true);
+            // Only set loading if not a background refresh
+            if (!isBackground) setLoading(true);
             setError(null);
 
             try {
@@ -70,10 +71,10 @@ export const NotificationProvider = ({ children }) => {
                 setLoading(false);
             }
         },
-        [token, notifications.length],
+        [token],
     );
 
-    const fetchUnreadCount = useCallback(async () => {
+    const fetchUnreadCount = useCallback(async (isBackground = false) => {
         if (!token) return;
         try {
             const data = await api.get('/notifications/unread-count', token);
@@ -167,10 +168,9 @@ export const NotificationProvider = ({ children }) => {
         }
     };
 
-    // Initial load and polling
+    // ── Initial Data Load ──
     useEffect(() => {
         if (token) {
-            // Initial load — defaults to page 1
             fetchNotifications(1);
             fetchUnreadCount();
         } else {
@@ -178,17 +178,88 @@ export const NotificationProvider = ({ children }) => {
             setUnreadCount(0);
             setLoading(false);
         }
+    }, [token, fetchNotifications, fetchUnreadCount]);
 
-        const interval = setInterval(() => {
-            if (token) {
-                // Background polling — don't change the page
-                fetchUnreadCount();
-                // Optionally we could poll the current page, but for now just unread count is safer to avoid jumps
-            }
-        }, 30000);
+    // ── Supabase Realtime Subscription & Sync Logic ──
+    useEffect(() => {
+        if (!token || !user?.id) return;
 
-        return () => clearInterval(interval);
-    }, [token, fetchUnreadCount]); // Removed fetchNotifications from deps to prevent infinite loops
+        // 1. Initial listener for Realtime events
+        const channel = supabase
+            .channel(`notifs:${user.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${user.id}`,
+                },
+                (payload) => {
+                    console.log('Realtime notification received:', payload);
+                    
+                    if (payload.eventType === 'INSERT') {
+                        // Optimistically update the list if it's the first page
+                        setNotifications(prev => {
+                            // Avoid duplicates
+                            if (prev.find(n => n.id === payload.new.id)) return prev;
+                            const updated = [payload.new, ...prev];
+                            return sortNotifications(updated).slice(0, 10); // Keep it paged
+                        });
+                        setUnreadCount(prev => prev + 1);
+                        setStats(prev => ({ ...prev, unread: prev.unread + 1 }));
+                    }
+                    
+                    // Always refresh to stay in sync with server metadata/sorting
+                    // Use background=true to prevent UI flickering/skeletons
+                    fetchNotifications(1, 10, true, true);
+                    fetchUnreadCount(true);
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${user.id}`,
+                },
+                (payload) => {
+                   // Refresh everything on update in background
+                   fetchNotifications(1, 10, true, true);
+                   fetchUnreadCount(true);
+                }
+            )
+            .subscribe((status) => {
+               if (status === 'SUBSCRIBED') {
+                   console.log('Realtime notification subscription active');
+               }
+            });
+
+        // 2. Sync on Focus (Alternative to polling)
+        // When user returns to tab, refresh counts/list in background
+        const handleFocus = () => {
+            fetchUnreadCount(true);
+            fetchNotifications(1, 10, true, true);
+        };
+
+        // 3. Sync on Reconnect
+        // Supabase Realtime handles reconnection internally, 
+        // but we can listen for visibility/online changes to be sure.
+        const handleOnline = () => {
+            fetchNotifications(1, 10, true, true);
+            fetchUnreadCount(true);
+        };
+
+        window.addEventListener('focus', handleFocus);
+        window.addEventListener('online', handleOnline);
+
+        return () => {
+            channel.unsubscribe();
+            window.removeEventListener('focus', handleFocus);
+            window.removeEventListener('online', handleOnline);
+        };
+    }, [token, user?.id, fetchNotifications, fetchUnreadCount]);
 
     return (
         <NotificationContext.Provider
