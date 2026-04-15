@@ -1,15 +1,15 @@
 import React from 'react';
 import { Calendar, Clock, XCircle, CheckCircle } from 'lucide-react';
 
-const StatCard = ({ title, count, icon: Icon, colorClass, borderClass }) => (
-    <div className={`flex-shrink-0 w-[140px] sm:w-auto sm:flex-1 p-4 rounded-2xl border ${borderClass} bg-white dark:bg-gray-800 shadow-sm transition-all hover:shadow-md`}>
+const StatCard = ({ title, count, icon: Icon, iconColor }) => (
+    <div className="flex-shrink-0 w-[155px] sm:w-auto sm:flex-1 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm transition-all hover:shadow-md">
         <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-xl ${colorClass}`}>
-                <Icon size={18} />
+            <div className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700/50 flex items-center justify-center shrink-0">
+                <Icon size={20} className={iconColor} />
             </div>
-            <div className="flex flex-col">
-                <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">{title}</span>
-                <span className="text-xl font-black text-gray-900 dark:text-white leading-none">{count}</span>
+            <div className="flex flex-col min-w-0">
+                <span className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-tight truncate">{count}</span>
+                <span className="text-[10px] sm:text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider leading-none mt-1 truncate">{title}</span>
             </div>
         </div>
     </div>
@@ -21,29 +21,25 @@ const AppointmentStatusSummary = ({ stats }) => {
             title: 'Upcoming', 
             count: stats?.upcoming || 0, 
             icon: Calendar, 
-            colorClass: 'bg-green-50 dark:bg-green-500/10 text-green-600',
-            borderClass: 'border-green-100 dark:border-green-500/10'
+            iconColor: 'text-green-600 dark:text-green-400'
         },
         { 
             title: 'Pending', 
             count: stats?.pending || 0, 
             icon: Clock, 
-            colorClass: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600',
-            borderClass: 'border-amber-100 dark:border-amber-500/10'
+            iconColor: 'text-amber-600 dark:text-amber-400'
         },
         { 
             title: 'Rejected', 
             count: stats?.rejected || 0, 
             icon: XCircle, 
-            colorClass: 'bg-red-50 dark:bg-red-500/10 text-red-600',
-            borderClass: 'border-red-100 dark:border-red-500/10'
+            iconColor: 'text-red-600 dark:text-red-400'
         },
         { 
             title: 'Completed', 
             count: stats?.completed || 0, 
             icon: CheckCircle, 
-            colorClass: 'bg-blue-50 dark:bg-blue-500/10 text-blue-600',
-            borderClass: 'border-blue-100 dark:border-blue-500/10'
+            iconColor: 'text-blue-600 dark:text-blue-400'
         }
     ];
 
