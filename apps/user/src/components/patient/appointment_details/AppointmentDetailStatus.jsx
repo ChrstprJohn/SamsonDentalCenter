@@ -30,43 +30,102 @@ const AppointmentDetailStatus = ({
             status: 'completed',
         };
 
-        // Step 2: The Status (Dynamic)
+        // Step 2: Response/Action
         let step2 = { id: 'status' };
-        if (isPending) {
+        
+        // REJECTED BRANCH: Clean 2-step flow
+        if (isRejected) {
             step2 = {
                 ...step2,
-                title: 'Reviewing Request',
-                desc: 'Awaiting review and approval from our team.',
-                status: 'active',
-                color: 'amber',
+                title: 'Request Declined',
+                desc: rejectionReason 
+                    ? `Rejection Reason: ${rejectionReason}`
+                    : "Unfortunately, the Doctor cannot accommodate this time.",
+                time: formatFullDateTime(updatedAt),
+                status: 'error',
+                color: 'red',
             };
-        } else if (isApproved) {
+            return [step1, step2];
+        }
+
+        // CANCELLED BEFORE APPROVAL: Clean 2-step flow
+        if (isCancelled && !isApproved) {
+            step2 = {
+                ...step2,
+                title: 'Request Cancelled',
+                desc: cancellationReason 
+                    ? `Cancellation Reason: ${cancellationReason}`
+                    : 'User cancelled the appointment.',
+                time: formatFullDateTime(updatedAt),
+                status: 'error',
+                color: 'red',
+            };
+            return [step1, step2];
+        }
+
+        // APPROVED STATE
+        if (isApproved) {
             step2 = {
                 ...step2,
                 title: 'Appointment Confirmed',
-                desc: 'The clinic has approved your requested schedule.',
+                desc: 'Our Doctor has approved your requested schedule.',
+                time: formatFullDateTime(updatedAt),
                 status: 'completed',
                 color: 'brand',
             };
-        } else if (isRejected || isCancelled) {
+        } 
+        // STILL PENDING
+        else {
             step2 = {
                 ...step2,
-                title: isRejected ? 'Request Declined' : 'Request Cancelled',
-                desc: rejectionReason || cancellationReason || 'Unfortunately, the clinic cannot accommodate this time.',
+                title: 'Reviewing Request',
+                desc: 'Awaiting review and approval from our Doctor.',
+                status: 'active',
+                color: 'amber',
+            };
+        }
+
+        // Step 3: Visit/Outcome (Only if Approved or Pending)
+        // Note: For pending, it stays "Awaiting Visit" until approved.
+        let step3 = { id: 'visit' };
+        
+        if (isCompleted) {
+            step3 = {
+                ...step3,
+                title: 'Visit Completed',
+                desc: 'Thank you for visiting us! Your treatment is complete.',
+                status: 'completed',
+            };
+        } 
+        else if (isCancelled && isApproved) {
+            // Cancelled after it was already approved
+            step3 = {
+                ...step3,
+                title: 'Appointment Cancelled',
+                desc: cancellationReason 
+                    ? `Cancellation Reason: ${cancellationReason}`
+                    : 'User cancelled the appointment.',
+                time: formatFullDateTime(updatedAt),
                 status: 'error',
                 color: 'red',
             };
         }
-
-        // Step 3: Visit (Awaiting/Complete)
-        const step3 = {
-            id: 'visit',
-            title: isCompleted ? 'Visit Completed' : 'Awaiting Visit',
-            desc: isCompleted 
-                ? 'Thank you for visiting us! Your treatment is complete.'
-                : 'Your appointment will be marked complete after your visit.',
-            status: isCompleted ? 'completed' : isApproved ? 'pending-active' : 'pending',
-        };
+        else if (isApproved) {
+            step3 = {
+                ...step3,
+                title: 'Awaiting Visit',
+                desc: "We'll notify you for your upcoming visit. marked completed after visit.",
+                status: 'pending-active',
+            };
+        }
+        else {
+            step3 = {
+                ...step3,
+                title: 'Awaiting Visit',
+                desc: 'Your appointment will be marked complete after your visit.',
+                status: 'pending',
+            };
+        }
 
         return [step1, step2, step3];
     };

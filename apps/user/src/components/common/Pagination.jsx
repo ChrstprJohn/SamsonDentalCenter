@@ -2,7 +2,9 @@ import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-    if (totalPages <= 1) {
+    // We show the pagination if there is at least something to show, 
+    // or if we want to maintain the footer height consistency.
+    if (totalPages < 1) {
         return null;
     }
 
@@ -76,8 +78,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
                             onClick={() => onPageChange(n)}
                             className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl text-sm font-bold transition-all active:scale-90 ${
                                 currentPage === n
-                                    ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/20 -translate-y-px'
-                                    : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-400 hover:border-sky-200 dark:hover:border-sky-500/50 hover:text-sky-500 shadow-sm'
+                                    ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20 -translate-y-px'
+                                    : 'bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-400 hover:border-brand-200 dark:hover:border-brand-500/50 hover:text-brand-500 shadow-sm'
                             }`}
                         >
                             {n}

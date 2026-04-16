@@ -10,6 +10,7 @@ import AppointmentDetailStatus from '../../components/patient/appointment_detail
 import AppointmentDetailTabs from '../../components/patient/appointment_details/AppointmentDetailTabs';
 import AppointmentDetailFooter from '../../components/patient/appointment_details/AppointmentDetailFooter';
 import AppointmentCancelModal from '../../components/patient/appointment_details/AppointmentCancelModal';
+import ReschedulePolicyModal from '../../components/patient/appointment_details/ReschedulePolicyModal';
 import CombinedOverview from '../../components/patient/appointment_details/CombinedOverview';
 
 // ---------------------------------------------------------------------------
@@ -55,6 +56,10 @@ const AppointmentDetails = () => {
     const [activeTab, setActiveTab] = useState('description');
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [cancelReason, setCancelReason] = useState('');
+
+    // Reschedule Modals
+    const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+    const [rescheduleMode, setRescheduleMode] = useState('warning'); // 'warning' | 'contact'
 
     // --- Loading ---
     if (loading) {
@@ -124,7 +129,11 @@ const AppointmentDetails = () => {
     const isCancellable = !['CANCELLED', 'LATE_CANCEL', 'COMPLETED', 'NO_SHOW'].includes(
         raw.status,
     );
-    const isReschedulable = isCancellable && (raw.reschedule_count || 0) < 1;
+    // User can always TRY to reschedule if the appointment is active
+    // The modal will handle the blockage if they already reached the limit
+    const isReschedulable = isCancellable;
+    const rescheduleCount = raw?.reschedule_count || 0;
+    const hasRescheduled = rescheduleCount >= 1;
 
     const handleCancel = async () => {
         const result = await cancelAppointment(
@@ -134,6 +143,21 @@ const AppointmentDetails = () => {
             setShowCancelModal(false);
             setCancelReason('');
         }
+    };
+
+    const handleRescheduleClick = () => {
+        if (hasRescheduled) {
+            setRescheduleMode('contact');
+            setShowRescheduleModal(true);
+        } else {
+            setRescheduleMode('warning');
+            setShowRescheduleModal(true);
+        }
+    };
+
+    const confirmReschedule = () => {
+        setShowRescheduleModal(false);
+        navigate(`/patient/appointments/${id}/reschedule`);
     };
 
     return (
@@ -177,7 +201,7 @@ const AppointmentDetails = () => {
                                                         ? 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400 shadow-error-500/5'
                                                         : badgeColor === 'info'
                                                           ? 'bg-info-50 text-info-600 dark:bg-info-500/10 dark:text-info-400 shadow-info-500/5'
-                                                          : 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 shadow-brand-500/5'
+                                                          : 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400 shadow-error-500/5'
                                             }`}
                                         >
                                             {displayStatus}
@@ -228,8 +252,9 @@ const AppointmentDetails = () => {
                     <AppointmentDetailFooter
                         isCancellable={isCancellable}
                         isReschedulable={isReschedulable}
+                        hasRescheduled={hasRescheduled}
                         onCancelClick={() => setShowCancelModal(true)}
-                        onRescheduleClick={() => navigate(`/patient/appointments/${id}/reschedule`)}
+                        onRescheduleClick={handleRescheduleClick}
                     />
                 </div>
             </div>
@@ -242,9 +267,16 @@ const AppointmentDetails = () => {
                 }}
                 cancelReason={cancelReason}
                 setCancelReason={setCancelReason}
-                rawId={raw.id}
+                rawId={raw?.id || ''}
                 cancelling={cancelling}
                 handleCancel={handleCancel}
+            />
+
+            <ReschedulePolicyModal
+                show={showRescheduleModal}
+                mode={rescheduleMode}
+                onClose={() => setShowRescheduleModal(false)}
+                onConfirm={confirmReschedule}
             />
         </>
     );

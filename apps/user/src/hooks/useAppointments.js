@@ -23,7 +23,7 @@ export const STATUS_COLOR = {
     'Late Cancel': 'error',
     Missed: 'error',
     Waitlisted: 'primary',
-    Rejected: 'light',
+    Rejected: 'error',
     Rescheduled: 'light',  // neutral — it's a clean handoff, not a problem
 };
 

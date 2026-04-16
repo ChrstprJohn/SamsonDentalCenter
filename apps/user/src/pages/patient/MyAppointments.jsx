@@ -76,10 +76,7 @@ const MyAppointments = () => {
                 <AppointmentPagination 
                     page={page}
                     totalPages={totalPages}
-                    prevPage={prevPage}
-                    nextPage={nextPage}
                     goToPage={goToPage}
-                    totalItems={filtered.length}
                 />
             </div>
 

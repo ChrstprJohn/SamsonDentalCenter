@@ -56,7 +56,7 @@ const AppointmentDetailTabs = ({ activeTab, setActiveTab, notes }) => {
                                 Call Us
                             </strong>
                             <br className='sm:hidden' />
-                            <span className='sm:inline-block sm:mt-0 mt-1'>(555) 123-4567</span>
+                            <span className='sm:inline-block sm:mt-0 mt-1'>09123456789</span>
                         </p>
                         <p className='mt-4'>
                             <strong className='text-gray-900 dark:text-white tracking-widest text-[10px] sm:text-xs uppercase mr-3 opacity-60'>
@@ -64,7 +64,7 @@ const AppointmentDetailTabs = ({ activeTab, setActiveTab, notes }) => {
                             </strong>
                             <br className='sm:hidden' />
                             <span className='sm:inline-block sm:mt-0 mt-1'>
-                                support@primeradental.com
+                                samsondentalcenter@gmail.com
                             </span>
                         </p>
                     </div>
@@ -94,7 +94,7 @@ const AppointmentDetailTabs = ({ activeTab, setActiveTab, notes }) => {
             </div>
 
             <p className='mt-10 sm:mt-14 text-xs sm:text-sm text-brand-600/60 dark:text-brand-400/50 italic font-medium pt-8 border-t border-gray-100/50 dark:border-gray-800'>
-                Thank you for trusting PrimeraDental,
+                Thank you for trusting Samson Dental Center,
                 <br />
                 We look forward to seeing you.
             </p>

@@ -27,7 +27,7 @@ const AppointmentTable = ({ appointments, loading, error, user, openDropdown, on
             )}
 
             {/* Data rows - show even if loading in background */}
-            <div className='overflow-y-auto grow pb-14 sm:pb-0'>
+            <div className='overflow-y-auto grow pb-20 sm:pb-0'>
                 {appointments.map((app) => (
                     <AppointmentTableRow 
                         key={app.id} 
