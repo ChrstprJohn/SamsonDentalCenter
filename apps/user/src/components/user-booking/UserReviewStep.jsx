@@ -79,9 +79,9 @@ const UserReviewStep = ({ formData, book_for_others, onSubmit, onBack, onEdit, s
                 </h4>
                 <button
                     onClick={onEditClick}
-                    className="flex items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-[13px] sm:text-sm font-semibold text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 transition-colors shrink-0"
+                    className="flex items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-[13px] sm:text-sm font-semibold text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 dark:hover:bg-white/[0.03] dark:hover:text-white transition-colors shrink-0"
                 >
-                    <Edit2 size={14} className="text-gray-500" />
+                    <Edit2 size={14} className="text-gray-500 dark:text-gray-400" />
                     Edit
                 </button>
             </div>

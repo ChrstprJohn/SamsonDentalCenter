@@ -32,7 +32,7 @@ const StepIndicator = ({ currentStep, onStepClick, labels }) => {
                                         ? 'bg-brand-500 text-white shadow-theme-xs'
                                         : isActive
                                           ? 'bg-brand-500 text-white ring-4 ring-brand-500/10 shadow-theme-xs scale-110'
-                                          : 'bg-gray-100 text-gray-400 group-hover:bg-gray-200 shadow-theme-xs'
+                                          : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 group-hover:bg-gray-200 dark:group-hover:bg-gray-700 shadow-theme-xs'
                                 }`}
                             >
                                 {isCompleted ? <Check size={14} strokeWidth={3} /> : index + 1}
@@ -42,10 +42,10 @@ const StepIndicator = ({ currentStep, onStepClick, labels }) => {
                             <span
                                 className={`text-[9px] sm:text-sm font-bold tracking-tight whitespace-nowrap transition-colors text-center sm:text-left ${
                                     isActive
-                                        ? 'text-gray-900'
+                                        ? 'text-gray-900 dark:text-white'
                                         : isCompleted
-                                          ? 'text-gray-600'
-                                          : 'text-gray-400'
+                                          ? 'text-gray-600 dark:text-gray-300'
+                                          : 'text-gray-400 dark:text-gray-500'
                                 }`}
                             >
                                 {label}
@@ -54,8 +54,8 @@ const StepIndicator = ({ currentStep, onStepClick, labels }) => {
 
                         {/* Connector line - Visible on all devices, adjusted for mobile positioning */}
                         {index < stepLabels.length - 1 && (
-                            <div className={`w-3 sm:w-8 h-[1.5px] bg-gray-200 dark:bg-gray-800 ml-2 sm:ml-4 sm:mr-1 ${
-                                index + 1 < currentStep ? 'bg-brand-500' : 'bg-gray-200'
+                            <div className={`w-3 sm:w-8 h-[1.5px] ml-2 sm:ml-4 sm:mr-1 ${
+                                index + 1 < currentStep ? 'bg-brand-500' : 'bg-gray-200 dark:bg-gray-800'
                             } ${
                                 // On mobile, we need to shift the line up a bit to align with the circle center (not the whole flex-col block)
                                 '-mt-4 sm:mt-0'

@@ -60,11 +60,6 @@ const ReschedulePolicyModal = ({ show, onClose, onConfirm, mode = 'warning' }) =
                     {/* Contact List (Only for Blocked mode) */}
                     {!isWarning && (
                         <div className='space-y-3'>
-                            <div className='bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 border border-gray-100 dark:border-gray-800/80 mb-6'>
-                                <p className='text-xs sm:text-[13px] text-gray-600 dark:text-gray-300 font-bold leading-relaxed text-center italic'>
-                                    "As you have already rescheduled this appointment once, please contact our clinical team directly for further adjustments."
-                                </p>
-                            </div>
 
                             <div className='space-y-4 font-medium text-[13px] sm:text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900 p-4 border border-gray-100 dark:border-gray-800 rounded-2xl'>
                                 <p className='flex items-center gap-3'>

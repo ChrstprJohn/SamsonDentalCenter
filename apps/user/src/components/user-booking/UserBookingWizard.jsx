@@ -71,13 +71,13 @@ const UserBookingWizard = ({ booking }) => {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
             {/* Sticky Navigation Header */}
-            <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-theme-xs">
+            <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-theme-xs">
                 <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-center relative">
                     {/* Exit Button - Absolute positioned on the left */}
                     <div className="absolute left-4 top-1/2 -translate-y-1/2">
                         <button
                             onClick={handleExit}
-                            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-base transition-colors px-4 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700"
+                            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white font-bold text-base transition-all px-4 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800/50"
                         >
                             <X size={20} />
                             <span className="hidden sm:inline">Exit</span>

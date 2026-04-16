@@ -611,7 +611,7 @@ const DateTimeStep = ({
                         </div>
                     </div>
                     <div className='grid grid-cols-7 gap-1 mb-2'>
-                        {dayNames.map(day => (<div key={day} className='text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center py-2'>{day}</div>))}
+                        {dayNames.map(day => (<div key={day} className='text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-400 uppercase tracking-widest text-center py-2'>{day}</div>))}
                     </div>
                     <div className='grid grid-cols-7 gap-1.5'>
                         {calendarDays.map((date, idx) => {
@@ -798,8 +798,8 @@ const DateTimeStep = ({
             )}
 
             {/* Navigation Footer */}
-            <div className='flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-4 sm:gap-0 pt-6 sm:pt-8 border-t border-gray-100 dark:border-gray-700'>
-                <button onClick={onBack} className='w-full sm:w-auto text-gray-400 hover:text-slate-900 dark:text-gray-500 dark:hover:text-white font-black text-[11px] px-8 py-4 transition-colors uppercase tracking-[0.2em]'>Back</button>
+            <div className='flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-4 sm:gap-0 pt-6 sm:pt-8 border-t border-gray-100 dark:border-gray-800'>
+                <button onClick={onBack} className='w-full sm:w-auto text-gray-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] px-8 py-4 transition-colors uppercase tracking-[0.2em]'>Back</button>
                 <button 
                     onClick={handleNext} 
                     disabled={!isValidSelection()} 

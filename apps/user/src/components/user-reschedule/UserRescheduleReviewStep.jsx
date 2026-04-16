@@ -33,7 +33,7 @@ const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, sub
 
             <div className="bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 md:p-8 shadow-theme-sm mb-8 space-y-6">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-400 mb-2 uppercase tracking-wide">Service</h3>
+                    <h3 className="text-xs font-black text-slate-400 dark:text-gray-500 mb-2 uppercase tracking-widest">Service</h3>
                     <p className="text-lg font-bold text-slate-900 dark:text-white">{serviceName}</p>
                 </div>
                 
@@ -95,7 +95,7 @@ const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, sub
                 <button
                     onClick={onBack}
                     disabled={submitting}
-                    className="w-full sm:w-auto text-gray-400 hover:text-slate-900 dark:text-gray-500 dark:hover:text-white font-black text-[11px] px-8 py-4 transition-colors uppercase tracking-[0.2em] disabled:opacity-50"
+                    className="w-full sm:w-auto text-gray-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] px-8 py-4 transition-colors uppercase tracking-[0.2em] disabled:opacity-50"
                 >
                     Back
                 </button>
