@@ -219,17 +219,23 @@ const Navbar = () => {
                                     title={user ? (user.first_name ? `${user.last_name}, ${user.first_name}` : user.email) : 'Guest Menu'}
                                 >
                                     <span
-                                        className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm ${user
-                                            ? isScrolled
-                                                ? 'bg-blue-600'
-                                                : 'bg-sky-500'
+                                        className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm transition-all duration-300 ${user
+                                            ? 'bg-gradient-to-br from-brand-400 to-brand-600'
                                             : isScrolled
                                                 ? 'bg-slate-400'
                                                 : 'bg-white/20'
                                             }`}
                                     >
                                         {user ? (
-                                            user.first_name ? `${user.first_name[0]}${user.last_name?.[0] || ''}`.toUpperCase() : (user.email?.charAt(0).toUpperCase() || 'U')
+                                            user.avatar_url ? (
+                                                <img 
+                                                    src={user.avatar_url} 
+                                                    alt={user.first_name} 
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                user.first_name ? `${user.first_name[0]}${user.last_name?.[0] || ''}`.toUpperCase() : (user.email?.charAt(0).toUpperCase() || 'U')
+                                            )
                                         ) : (
                                             <svg
                                                 className='w-5 h-5'
@@ -445,8 +451,12 @@ const Navbar = () => {
                         ) : (
                             <div className='space-y-4'>
                                 <div className='flex items-center gap-3 px-2'>
-                                    <div className='flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-base font-bold text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 ring-2 ring-white dark:ring-gray-900'>
-                                        {user?.first_name ? `${user.first_name[0]}${user.last_name?.[0] || ''}`.toUpperCase() : (user?.email?.charAt(0).toUpperCase() || 'U')}
+                                    <div className='flex h-10 w-10 items-center justify-center rounded-full overflow-hidden bg-gradient-to-br from-brand-400 to-brand-600 text-base font-bold text-white ring-2 ring-white dark:ring-gray-900 shrink-0'>
+                                        {user?.avatar_url ? (
+                                            <img src={user.avatar_url} alt={user.first_name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            user?.first_name ? `${user.first_name[0]}${user.last_name?.[0] || ''}`.toUpperCase() : (user?.email?.charAt(0).toUpperCase() || 'U')
+                                        )}
                                     </div>
                                     <div className='flex flex-col min-w-0'>
                                         <span className='font-bold text-sm text-slate-800 truncate'>

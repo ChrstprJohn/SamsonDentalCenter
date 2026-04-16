@@ -89,6 +89,13 @@ const BellIcon = () => (
     </svg>
 );
 
+const HomeIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 9.5L12 4L21 9.5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V9.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M9 21V12H15V21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+);
+
 const WaitlistIcon = () => (
     <svg
         width='24'
@@ -304,6 +311,31 @@ const PatientSidebar = () => {
                         </div>
                     </div>
                 </nav>
+            </div>
+
+            {/* Sidebar Footer */}
+            <div className='mt-auto pt-6 border-t border-gray-100 dark:border-gray-800'>
+                <ul className='flex flex-col gap-1'>
+                    <li>
+                        <Link
+                            to='/'
+                            className={`menu-item group menu-item-inactive ${
+                                !isExpanded && !isHovered
+                                    ? 'lg:justify-center'
+                                    : 'lg:justify-start'
+                            }`}
+                        >
+                            <span className='menu-item-icon-size menu-item-icon-inactive'>
+                                <HomeIcon />
+                            </span>
+                            {(isExpanded || isHovered || isMobileOpen) && (
+                                <span className='menu-item-text'>
+                                    Back to Home
+                                </span>
+                            )}
+                        </Link>
+                    </li>
+                </ul>
             </div>
         </aside>
     );
