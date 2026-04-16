@@ -83,7 +83,7 @@ export const AppointmentProvider = ({ children }) => {
                 },
                 (payload) => {
                     console.log('[AppointmentContext] ⚡ appointments table event:', payload.eventType);
-                    setTimeout(() => fetchAppointments(true), 300);
+                    fetchAppointments(true);
                 }
             )
             // 2. Fallback: Listen to notifications table inserts
@@ -98,7 +98,7 @@ export const AppointmentProvider = ({ children }) => {
                 },
                 (payload) => {
                     console.log('[AppointmentContext] 🔔 notification INSERT → refreshing appointments');
-                    setTimeout(() => fetchAppointments(true), 500);
+                    fetchAppointments(true);
                 }
             )
             .subscribe((status) => {

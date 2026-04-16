@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import { useNotificationState } from '../context/NotificationContext';
 
 /**
  * Hook to manage patient waitlist entries and offers.
  */
 const useWaitlist = () => {
     const { token } = useAuth();
+    const { refresh: refreshNotifications } = useNotificationState();
     const [entries, setEntries] = useState([]);
     const [stats, setStats] = useState({ waiting: 0, offered: 0, claimed: 0 });
     const [loading, setLoading] = useState(false);
@@ -37,6 +39,8 @@ const useWaitlist = () => {
         try {
             const response = await api.post('/waitlist/join', waitlistData, token);
             await fetchWaitlist();
+            // Proactively refresh the notification header badge
+            refreshNotifications();
             return response;
         } catch (err) {
             setError(err.message || 'Failed to join waitlist');
@@ -53,6 +57,8 @@ const useWaitlist = () => {
         try {
             await api.delete(`/waitlist/${id}`, token, { remove_backup: options.removeBackup === true });
             await fetchWaitlist();
+            // Proactively refresh the notification header badge
+            refreshNotifications();
         } catch (err) {
             setError(err.message || 'Failed to cancel waitlist entry');
             throw err;
@@ -67,6 +73,8 @@ const useWaitlist = () => {
         try {
             const result = await api.post(`/waitlist/${id}/confirm`, {}, token);
             await fetchWaitlist();
+            // Proactively refresh the notification header badge
+            refreshNotifications();
             return result;
         } catch (err) {
             setError(err.message || 'Failed to confirm waitlist offer');

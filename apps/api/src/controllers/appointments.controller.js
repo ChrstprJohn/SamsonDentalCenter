@@ -447,26 +447,26 @@ export const guestRescheduleConfirm = async (req, res, next) => {
 
         const { newAppointment } = outcome;
 
-        // 5. Trigger waitlist for the freed old slot
-        await notifyWaitlist({
+        // 5. Trigger waitlist for the freed old slot (Backgrounded)
+        notifyWaitlist({
             date: oldAppt.appointment_date,
             start_time: oldAppt.start_time,
             end_time: oldAppt.end_time,
             service_id: oldAppt.service?.id,
-        });
+        }).catch(err => console.error('[Waitlist] Failed to notify:', err.message));
 
         // 6. Mark token as used
         await markGuestTokenUsed(result.token_id);
 
-        // 7. Send reschedule email
-        await sendRescheduleEmail(oldAppt.guest_email, oldAppt.guest_name, {
+        // 7. Send reschedule email (Backgrounded)
+        sendRescheduleEmail(oldAppt.guest_email, oldAppt.guest_name, {
             oldDate: oldAppt.appointment_date,
             oldTime: oldAppt.start_time,
             newDate: newAppointment.appointment_date,
             newTime: newAppointment.start_time,
             service: newAppointment.service?.name || 'Dental appointment',
             dentist: newAppointment.dentist?.profile?.full_name || 'Assigned',
-        });
+        }).catch(err => console.error('[Email] Failed to send guest reschedule email:', err.message));
 
         res.json({
             message: 'Appointment rescheduled successfully!',

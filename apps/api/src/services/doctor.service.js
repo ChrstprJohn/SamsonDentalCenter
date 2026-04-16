@@ -311,52 +311,34 @@ export const completeAppointment = async (dentistId, appointmentId) => {
 /**
  * Mark appointment as NO_SHOW (patient didn't arrive).
  * 👻 OPERATIONAL: Doctor can mark no-show instead of waiting for supervisor.
- * Reuses the same logic as admin markNoShow.
+ * Reuses the unified logic from noshow.service.js to ensure notifications and logging.
  */
 export const markAppointmentNoShow = async (dentistId, appointmentId, notes = '') => {
+    // 1. Verify appointment belongs to this dentist
     const { data: appt } = await supabaseAdmin
         .from('appointments')
-        .select('id, patient_id, dentist_id, appointment_date')
+        .select('id, dentist_id')
         .eq('id', appointmentId)
         .eq('dentist_id', dentistId)
-        .eq('status', APPOINTMENT_STATUS.CONFIRMED)
         .single();
 
     if (!appt) {
-        throw new AppError('Appointment not found or already completed.', 404);
+        throw new AppError('Appointment not found or not assigned to you.', 404);
     }
 
-    // Update appointment status
-    const { data, error } = await supabaseAdmin
-        .from('appointments')
-        .update({
-            status: APPOINTMENT_STATUS.NO_SHOW,
-            notes: `NO_SHOW reported by doctor. ${notes}`,
-            updated_at: new Date().toISOString(),
-        })
-        .eq('id', appointmentId)
-        .select()
-        .single();
+    // 2. Delegate to the unified service (includes notifications, log, and profile updates)
+    const { markNoShow } = await import('./noshow.service.js');
+    const result = await markNoShow(appointmentId);
 
-    if (error) throw new AppError(error.message, 500);
-
-    // Increment patient's no-show counter
-    if (appt.patient_id) {
-        const { data: patient } = await supabaseAdmin
-            .from('profiles')
-            .select('no_show_count')
-            .eq('id', appt.patient_id)
-            .single();
-
+    // 3. Append doctor's specific notes if provided
+    if (notes) {
         await supabaseAdmin
-            .from('profiles')
-            .update({
-                no_show_count: (patient?.no_show_count || 0) + 1,
-            })
-            .eq('id', appt.patient_id);
+            .from('appointments')
+            .update({ notes: `NO_SHOW reported by doctor. ${notes}` })
+            .eq('id', appointmentId);
     }
 
-    return data;
+    return result;
 };
 
 /**

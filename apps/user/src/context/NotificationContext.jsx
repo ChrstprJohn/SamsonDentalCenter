@@ -48,8 +48,14 @@ export const NotificationProvider = ({ children }) => {
             setError(null);
 
             try {
+                const queryParams = new URLSearchParams({
+                    archived,
+                    page,
+                    limit,
+                    _t: Date.now(),
+                });
                 const data = await api.get(
-                    `/notifications/my?archived=${archived}&page=${page}&limit=${limit}`,
+                    `/notifications/my?${queryParams}`,
                     token,
                 );
                 const parsed = (data.notifications || []).map((n) => {
@@ -73,7 +79,10 @@ export const NotificationProvider = ({ children }) => {
 
                 setNotifications(sortNotifications(parsed));
                 setTotalNotifications(data.total || 0);
-                if (data.stats) setStats(data.stats);
+                if (data.stats) {
+                    setStats(data.stats);
+                    setUnreadCount(data.stats.unread || 0);
+                }
             } catch (err) {
                 setError(err.message || 'Failed to load notifications.');
             } finally {
@@ -86,7 +95,7 @@ export const NotificationProvider = ({ children }) => {
     const fetchUnreadCount = useCallback(async (isBackground = false) => {
         if (!token) return;
         try {
-            const data = await api.get('/notifications/unread-count', token);
+            const data = await api.get(`/notifications/unread-count?_t=${Date.now()}`, token);
             setUnreadCount(data.unread_count || 0);
         } catch (err) {
             console.error('Failed to fetch unread count:', err);
@@ -289,11 +298,15 @@ export const NotificationProvider = ({ children }) => {
                 loading,
                 error,
                 fetchNotifications,
+                fetchUnreadCount,
                 markRead,
                 markAllRead,
                 toggleStar,
                 toggleArchive,
-                refresh: fetchNotifications,
+                refresh: () => {
+                    fetchNotifications(1, 10, true, true);
+                    fetchUnreadCount(true);
+                },
             }}
         >
             {children}

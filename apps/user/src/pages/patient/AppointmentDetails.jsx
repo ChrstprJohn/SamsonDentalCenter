@@ -124,6 +124,7 @@ const AppointmentDetails = () => {
     const isCancellable = !['CANCELLED', 'LATE_CANCEL', 'COMPLETED', 'NO_SHOW'].includes(
         raw.status,
     );
+    const isReschedulable = isCancellable && (raw.reschedule_count || 0) < 1;
 
     const handleCancel = async () => {
         const result = await cancelAppointment(
@@ -206,6 +207,7 @@ const AppointmentDetails = () => {
 
                     <AppointmentDetailFooter
                         isCancellable={isCancellable}
+                        isReschedulable={isReschedulable}
                         onCancelClick={() => setShowCancelModal(true)}
                         onRescheduleClick={() => navigate(`/patient/appointments/${id}/reschedule`)}
                     />

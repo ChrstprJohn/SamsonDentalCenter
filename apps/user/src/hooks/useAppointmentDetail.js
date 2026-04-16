@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../utils/supabase';
+import { useNotificationState } from '../context/NotificationContext';
 
 /**
  * useAppointmentDetail — robust real-time synchronization for a single appointment.
  */
 const useAppointmentDetail = (id) => {
     const { token, user } = useAuth();
+    const { refresh: refreshNotifications } = useNotificationState();
     const [appointment, setAppointment] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -89,6 +91,8 @@ const useAppointmentDetail = (id) => {
             try {
                 await api.patch(`/appointments/${id}/cancel`, { reason }, currentToken);
                 await fetchDetail();
+                // Proactively refresh the notification header badge
+                refreshNotifications();
                 return { success: true };
             } catch (err) {
                 const msg = err.message || 'Cancellation failed.';

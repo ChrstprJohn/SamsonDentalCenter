@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import { useAppointmentState } from '../context/AppointmentContext';
+import { useNotificationState } from '../context/NotificationContext';
 import useSlotHold from './useSlotHold';
 
 const STEPS = ['service', 'datetime', 'other_info', 'review', 'confirm'];
@@ -47,6 +49,8 @@ const getOrCreateSessionId = () => {
  */
 const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
     const { token, user } = useAuth();
+    const { refresh: refreshAppts } = useAppointmentState();
+    const { refresh: refreshNotifs } = useNotificationState();
     const [sessionId, setSessionId] = useState(null);
     const [book_for_others, setBookForOthers] = useState(false);
     const [step, setStep] = useState(0);
@@ -268,6 +272,10 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
             const hasRequestedWaitlist = !!formData.waitlist_time;
 
             if (bookingSuccess || waitlistSuccess) {
+                // ✅ Proactively refresh application state to eliminate realtime latency
+                if (typeof refreshAppts === 'function') refreshAppts();
+                if (typeof refreshNotifs === 'function') refreshNotifs();
+
                 setResult({
                     success: true,
                     booked: bookingSuccess,

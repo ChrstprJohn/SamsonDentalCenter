@@ -281,6 +281,24 @@ export const sendFollowUpReminder = async (userId, followUpDetails) => {
     );
 };
 
+/**
+ * Appointment rescheduled notification.
+ */
+export const sendRescheduleNotice = async (userId, oldDetails, newDetails) => {
+    const { service } = oldDetails;
+    const oldRange = formatDateTimeRange(oldDetails.date, oldDetails.start_time, oldDetails.end_time);
+    const newRange = formatDateTimeRange(newDetails.date, newDetails.start_time, newDetails.end_time);
+
+    return sendNotification(
+        userId,
+        'RESCHEDULE',
+        'Appointment Rescheduled',
+        `Your ${service} appointment has been moved from ${oldRange} to ${newRange}.`,
+        'in_app',
+        { service, oldDetails, newDetails, action: 'rescheduled' },
+    );
+};
+
 // ─────────────────────────────────────────────
 // Read / manage notifications
 // ─────────────────────────────────────────────

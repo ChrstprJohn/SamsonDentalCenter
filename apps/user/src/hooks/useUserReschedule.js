@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import useSlotHold from './useSlotHold';
 import { useAuth } from '../context/AuthContext';
+import { useAppointmentState } from '../context/AppointmentContext';
+import { useNotificationState } from '../context/NotificationContext';
 
 const useUserReschedule = (appointmentId, originalAppointment) => {
     const { token } = useAuth();
+    const { refresh: refreshAppts } = useAppointmentState();
+    const { refresh: refreshNotifs } = useNotificationState();
     // Generate a unique session ID for slot holding
     const [sessionId] = useState(() => Math.random().toString(36).substring(2, 10));
     const [step, setStep] = useState(1);
@@ -65,6 +69,11 @@ const useUserReschedule = (appointmentId, originalAppointment) => {
             }
 
             setResult({ success: true, data: response });
+
+            // ✅ Proactively refresh application state to eliminate realtime latency
+            if (typeof refreshAppts === 'function') refreshAppts();
+            if (typeof refreshNotifs === 'function') refreshNotifs();
+
             nextStep(); // go to success
             
             // Release hold after successful reschedule

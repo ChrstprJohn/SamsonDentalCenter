@@ -491,23 +491,24 @@ export const bookAppointment = async (
         throw new AppError(error.message, 500);
     }
 
-    // ── 5. Send booking request receipt email to authenticated patient ──
     if (patient?.email && sendEmail) {
         const patientDisplayName = patient.first_name ? `${patient.first_name} ${patient.last_name}`.trim() : patient.full_name;
-        await sendBookingRequestReceivedEmail(patient.email, patientDisplayName, {
+        // 🚀 Non-critical: Don't block the response for email sending
+        sendBookingRequestReceivedEmail(patient.email, patientDisplayName, {
             date: appointment.appointment_date,
             start_time: appointment.start_time,
             service: appointment.service?.name,
-        });
+        }).catch(err => console.error('[Email] Failed to send booking receipt:', err.message));
     }
 
     // ── 6. In-app notification ──
+    // 🚀 Non-critical: Don't block the response
     await sendRequestReceived(patientId, {
         date: appointment.appointment_date,
         start_time: appointment.start_time,
         end_time: appointment.end_time,
         service: appointment.service?.name,
-    });
+    }).catch(err => console.error('[Notification] Failed to send request receipt:', err.message));
 
     return {
         booked: true,
@@ -885,7 +886,7 @@ export const rescheduleAppointment = async (appointmentId, patientId, newDate, n
     // ── 1. Get the original appointment ──
     const { data: original, error } = await supabaseAdmin
         .from('appointments')
-        .select('*')
+        .select('*, service:services(name)')
         .eq('id', appointmentId)
         .eq('patient_id', patientId)
         .single();
@@ -951,6 +952,26 @@ export const rescheduleAppointment = async (appointmentId, patientId, newDate, n
             .eq('id', appointmentId);
 
         if (updateError) throw updateError;
+
+        // ── 4. Trigger Real-time Notification ──
+        // This record in the 'notifications' table triggers the frontend realtime listener
+        try {
+            const { sendRescheduleNotice } = await import('./notification.service.js');
+            const oldDetails = {
+                date: original.appointment_date,
+                start_time: original.start_time,
+                end_time: original.end_time,
+                service: original.service?.name || 'Dental'
+            };
+            const newDetails = {
+                date: newBooking.appointment.appointment_date,
+                start_time: newBooking.appointment.start_time,
+                end_time: newBooking.appointment.end_time
+            };
+            await sendRescheduleNotice(patientId, oldDetails, newDetails);
+        } catch (notifError) {
+            console.warn('[Realtime] Warning: Failed to send reschedule notification:', notifError.message);
+        }
     } catch (err) {
         // ROLLBACK: If marking the old one as rescheduled fails, we must cancel the new booking!
         console.error('❌ Reschedule failed at update stage, rolling back new booking:', err);
