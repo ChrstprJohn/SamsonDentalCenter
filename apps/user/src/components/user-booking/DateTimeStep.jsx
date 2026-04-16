@@ -32,6 +32,7 @@ const DateTimeStep = ({
     const [pendingSlot, setPendingSlot] = useState(null);
     const [showWaitlistOnlyWarning, setShowWaitlistOnlyWarning] = useState(false);
     const [isDoctorDropdownOpen, setIsDoctorDropdownOpen] = useState(false);
+    const [pendingDate, setPendingDate] = useState(null);
 
     // ✅ Slot holding for user booking (passed from parent)
     const { activeHold, holdSlot, releaseHold, formattedTime, holdLoading, holdError, timeRemaining } = slotHold;
@@ -136,14 +137,30 @@ const DateTimeStep = ({
     );
 
     const isLoading = slotsLoading || isPending;
+    const isProcessing = isLoading || !!pendingSlot || !!pendingDate || holdLoading;
 
-    const handleDateClick = (date) => {
+    // ✅ Clear pendingDate when slots finish loading
+    useEffect(() => {
+        if (!isLoading) {
+            setPendingDate(null);
+        }
+    }, [isLoading]);
+
+    const handleDateClick = async (date) => {
         if (isLoading) return; // ✅ Block while loading
         const key = formatDateKey(date);
+        
+        // If clicking a NEW date while a slot is already held (primary booking), release that hold first
+        if (selectedTime && selectedDate !== key) {
+            await releaseHold();
+        }
+
+        setPendingDate(key);
         // Toggle Logic: If clicking the SAME date that's already selected, clear it
         if (selectedDate === key) {
-            releaseHold();
+            await releaseHold();
             handleTimeUpdate({ date: '', time: '' });
+            setPendingDate(null);
         } else {
             handleTimeUpdate({ date: key, time: '' });
         }
@@ -375,11 +392,11 @@ const DateTimeStep = ({
                 {/* Main Trigger Button */}
                 <button
                     type="button"
-                    onClick={() => !isLoading && setIsDoctorDropdownOpen(!isDoctorDropdownOpen)}
-                    disabled={isLoading}
+                    onClick={() => !isProcessing && setIsDoctorDropdownOpen(!isDoctorDropdownOpen)}
+                    disabled={isProcessing}
                     className={`w-full flex items-center justify-between p-4 bg-white dark:bg-white/[0.02] border-2 rounded-2xl transition-all shadow-theme-sm group ${
                         isDoctorDropdownOpen ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-gray-100 dark:border-gray-800 hover:border-brand-200'
-                    } ${isLoading ? 'opacity-50 cursor-wait' : ''}`}
+                    } ${isProcessing ? 'opacity-50 cursor-wait' : ''}`}
                 >
                     <div className='flex items-center gap-4'>
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 transition-all ${
@@ -608,7 +625,7 @@ const DateTimeStep = ({
             <div className='grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-x-8 gap-y-10 mb-10'>
                 
                 {/* Column 1: Select Date (Calendar) */}
-                <div className={`flex flex-col transition-all duration-300 ${isLoading ? 'opacity-40 pointer-events-none cursor-wait' : ''}`}>
+                <div className={`flex flex-col transition-all duration-300 ${isProcessing ? 'opacity-40 pointer-events-none cursor-wait' : ''}`}>
                     <h3 className='text-xs font-black text-slate-400 uppercase tracking-widest mb-5 flex items-center gap-2'>
                         <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
                         Select Date
@@ -620,8 +637,8 @@ const DateTimeStep = ({
                             {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                         </h3>
                         <div className='flex gap-1.5'>
-                            <button onClick={() => navigateMonth('prev')} disabled={!canGoPrev} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronLeft size={18} className='text-gray-600 dark:text-gray-400' /></button>
-                            <button onClick={() => navigateMonth('next')} disabled={!canGoNext} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronRight size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                            <button onClick={() => navigateMonth('prev')} disabled={!canGoPrev || isProcessing} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronLeft size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                            <button onClick={() => navigateMonth('next')} disabled={!canGoNext || isProcessing} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronRight size={18} className='text-gray-600 dark:text-gray-400' /></button>
                         </div>
                     </div>
                     <div className='grid grid-cols-7 gap-1 mb-2'>
@@ -634,21 +651,27 @@ const DateTimeStep = ({
                             const isPast = date < today;
                             const isToday = date.getTime() === today.getTime();
                             const isSelected = key === selectedDate;
-                            const isDisabled = isPast || isToday || date.getDay() === 0 || date > maxDate;
+                            const isDisabled = isPast || isToday || date.getDay() === 0 || date > maxDate || isProcessing;
                             if (!isCurrentMonth) return <div key={idx} className="aspect-square" />;
                             return (
                                 <button key={idx} onClick={() => !isDisabled && handleDateClick(date)} disabled={isDisabled} className={`relative flex flex-col items-center justify-center aspect-square rounded-xl transition-all duration-300 ${isSelected ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 scale-105 z-10' : isDisabled ? 'text-gray-300 dark:text-gray-700 cursor-not-allowed opacity-30 shadow-none bg-transparent border-2 border-slate-100/50 dark:border-gray-800/50' : 'bg-gray-50/50 dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-800 border-2 border-transparent hover:border-brand-200 dark:hover:border-brand-500/50 text-gray-700 dark:text-gray-300 shadow-theme-xs'}`}>
-                                    <span className={`text-[13px] sm:text-sm font-bold ${isSelected ? 'text-white' : ''}`}>{date.getDate()}</span>
+                                    <span className={`text-[13px] sm:text-sm font-bold ${isSelected ? 'text-white' : ''}`}>
+                                        {pendingDate === key ? (
+                                            <Loader2 size={16} className={`animate-spin ${isSelected ? 'text-white' : 'text-brand-500'}`} />
+                                        ) : (
+                                            date.getDate()
+                                        )}
+                                    </span>
                                     {isToday && !isSelected && <div className="absolute bottom-1 sm:bottom-1.5 w-1 h-1 rounded-full bg-brand-500" />}
                                 </button>
                             );
                         })}
                     </div>
-                    </div>
                 </div>
+            </div>
 
-                {/* Column 2: Select Time (Slots) */}
-                <div className='flex flex-col h-full'>
+            {/* Column 2: Select Time (Slots) */}
+            <div className='flex flex-col h-full'>
                     <h3 className='text-xs font-black text-slate-400 uppercase tracking-widest mb-5 flex items-center gap-2'>
                         <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
                         Select Time
@@ -661,73 +684,74 @@ const DateTimeStep = ({
                         </div>
                     ) : (
                         <div className='animate-in fade-in slide-in-from-right-4 duration-500 h-full flex flex-col bg-gray-50/30 dark:bg-white/[0.01] border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl p-6'>
-                            <div className='flex items-center justify-between mb-5'>
-                                <h3 className='text-[15px] font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'>
-                                    <div className='p-1.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'><Clock size={16} className='text-brand-500' /></div>
-                                    Available Times
-                                </h3>
-                                <button onClick={refetchSlots} disabled={isLoading} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />Refresh</button>
-                            </div>
-
-                            {isLoading ? (
-                                <div className='grid grid-cols-2 xsm:grid-cols-3 gap-3 cursor-wait'>
-                                    {[...Array(12)].map((_, i) => <div key={i} className='h-12 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-xl' />)}
+                            <div className={`flex flex-col h-full ${isProcessing ? 'opacity-40 pointer-events-none cursor-wait' : ''}`}>
+                                <div className='flex items-center justify-between mb-5'>
+                                    <h3 className='text-[15px] font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'>
+                                        <div className='p-1.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'><Clock size={16} className='text-brand-500' /></div>
+                                        Available Times
+                                    </h3>
+                                    <button onClick={refetchSlots} disabled={isProcessing} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={isProcessing ? 'animate-spin' : ''} />Refresh</button>
                                 </div>
-                            ) : visibleSlots && visibleSlots.length > 0 ? (
-                                <>
-                                    <div className='grid grid-cols-2 xsm:grid-cols-3 gap-3 mb-6'>
-                                        {visibleSlots.map((slot) => {
-                                            const isHeldByMe = activeHold?.time === slot.rawTime && selectedDate === activeHold.date;
-                                            const isSelectedForBooking = selectedTime === slot.rawTime && !pendingSlot;
-                                            const isSelectedForWaitlist = formData?.waitlist_time === slot.rawTime;
-                                            const isAvailable = slot.available > 0 || isHeldByMe;
 
-                                            return (
-                                                <button 
-                                                    key={slot.rawTime} 
-                                                    onClick={() => handleTimeClick(slot)} 
-                                                    disabled={holdLoading && !isSelectedForBooking}
-                                                    title={slot.available > 0 ? `${slot.available} slots available` : 'Fully booked - Join waitlist'}
-                                                    className={`py-3 rounded-xl text-[12px] font-bold transition-all relative flex items-center justify-center ${
-                                                        isSelectedForBooking && isAvailable
-                                                        ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20 ring-4 ring-brand-500/10' 
-                                                        : isSelectedForWaitlist && !isAvailable
-                                                        ? 'bg-amber-100 dark:bg-amber-900/40 border-2 border-amber-400 text-amber-900 dark:text-amber-100 shadow-lg shadow-amber-400/10 ring-4 ring-amber-400/10 opacity-100 scale-105 z-10'
-                                                        : isHeldByMe 
-                                                        ? 'bg-brand-50 dark:bg-brand-500/10 border-2 border-brand-200 text-brand-700 dark:text-brand-400' 
-                                                        : isAvailable
-                                                        ? 'bg-white dark:bg-white/[0.03] border-2 border-transparent hover:border-brand-200 dark:hover:border-brand-500/50 hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-theme-sm'
-                                                        : 'bg-transparent dark:bg-transparent border-2 border-slate-100 dark:border-gray-800 text-slate-400 dark:text-slate-600 opacity-60'
-                                                    }`}
-                                                >
-                                                    {pendingSlot === slot.rawTime && (isAvailable || isSelectedForBooking) ? (
-                                                        <Loader2 size={16} className={`animate-spin ${isSelectedForBooking ? 'text-white' : 'text-brand-500'}`} />
-                                                    ) : (
-                                                        <>
-                                                            {slot.displayTime}
-                                                            {!isAvailable && <Lock size={10} className={`absolute top-2 right-2 ${isSelectedForWaitlist ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}`} />}
-                                                            {isHeldByMe && !isSelectedForBooking && <Lock size={10} className='absolute top-2 right-2 text-brand-500' />}
-                                                        </>
-                                                    )}
-                                                </button>
-                                            );
-                                        })}
+                                {isLoading ? (
+                                    <div className='grid grid-cols-2 xsm:grid-cols-3 gap-3 cursor-wait'>
+                                        {[...Array(12)].map((_, i) => <div key={i} className='h-12 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-xl' />)}
                                     </div>
-                                    
-                                    {hasMoreSlots && (
-                                        <button 
-                                            onClick={() => setVisibleCount(prev => prev + 18)}
-                                            className='mb-8 w-full py-3 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl text-[11px] font-black text-gray-500 hover:text-brand-500 hover:border-brand-200 dark:hover:border-brand-500/50 transition-all flex items-center justify-center gap-2 uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/30'
-                                        >
-                                            <Plus size={14} />
-                                            Show More Times
-                                        </button>
-                                    )}
-                                </>
-                            ) : (
-                                <div className='p-8 bg-gray-50 dark:bg-white/[0.02] rounded-2xl text-center border-2 border-dashed border-gray-200 dark:border-gray-800 flex-grow flex flex-col items-center justify-center leading-relaxed'><p className='text-gray-500 text-[14px] font-bold mb-2'>No available slots.</p>{nextAvailableDate && <button onClick={() => {const d = new Date(nextAvailableDate);setViewDate(new Date(d.getFullYear(), d.getMonth(), 1));handleDateClick(d);}} className='text-brand-500 text-[13px] font-black hover:underline underline-offset-4'>Try {new Date(nextAvailableDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</button>}</div>
-                            )}
+                                ) : visibleSlots && visibleSlots.length > 0 ? (
+                                    <>
+                                        <div className='grid grid-cols-2 xsm:grid-cols-3 gap-3 mb-6'>
+                                            {visibleSlots.map((slot) => {
+                                                const isHeldByMe = activeHold?.time === slot.rawTime && selectedDate === activeHold.date;
+                                                const isSelectedForBooking = selectedTime === slot.rawTime && !pendingSlot;
+                                                const isSelectedForWaitlist = formData?.waitlist_time === slot.rawTime;
+                                                const isAvailable = slot.available > 0 || isHeldByMe;
 
+                                                return (
+                                                    <button 
+                                                        key={slot.rawTime} 
+                                                        onClick={() => handleTimeClick(slot)} 
+                                                        disabled={holdLoading && !isSelectedForBooking}
+                                                        title={slot.available > 0 ? `${slot.available} slots available` : 'Fully booked - Join waitlist'}
+                                                        className={`py-3 rounded-xl text-[12px] font-bold transition-all relative flex items-center justify-center ${
+                                                            isSelectedForBooking && isAvailable
+                                                            ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20 ring-4 ring-brand-500/10' 
+                                                            : isSelectedForWaitlist && !isAvailable
+                                                            ? 'bg-amber-100 dark:bg-amber-900/40 border-2 border-amber-400 text-amber-900 dark:text-amber-100 shadow-lg shadow-amber-400/10 ring-4 ring-amber-400/10 opacity-100 scale-105 z-10'
+                                                            : isHeldByMe 
+                                                            ? 'bg-brand-50 dark:bg-brand-500/10 border-2 border-brand-200 text-brand-700 dark:text-brand-400' 
+                                                            : isAvailable
+                                                            ? 'bg-white dark:bg-white/[0.03] border-2 border-transparent hover:border-brand-200 dark:hover:border-brand-500/50 hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-theme-sm'
+                                                            : 'bg-transparent dark:bg-transparent border-2 border-slate-100 dark:border-gray-800 text-slate-400 dark:text-slate-600 opacity-60'
+                                                        }`}
+                                                    >
+                                                        {pendingSlot === slot.rawTime && (isAvailable || isSelectedForBooking) ? (
+                                                            <Loader2 size={16} className={`animate-spin ${isSelectedForBooking ? 'text-white' : 'text-brand-500'}`} />
+                                                        ) : (
+                                                            <>
+                                                                {slot.displayTime}
+                                                                {!isAvailable && <Lock size={10} className={`absolute top-2 right-2 ${isSelectedForWaitlist ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}`} />}
+                                                                {isHeldByMe && !isSelectedForBooking && <Lock size={10} className='absolute top-2 right-2 text-brand-500' />}
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        
+                                        {hasMoreSlots && (
+                                            <button 
+                                                onClick={() => setVisibleCount(prev => prev + 18)}
+                                                className='mb-8 w-full py-3 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl text-[11px] font-black text-gray-500 hover:text-brand-500 hover:border-brand-200 dark:hover:border-brand-500/50 transition-all flex items-center justify-center gap-2 uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/30'
+                                            >
+                                                <Plus size={14} />
+                                                Show More Times
+                                            </button>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className='p-8 bg-gray-50 dark:bg-white/[0.02] rounded-2xl text-center border-2 border-dashed border-gray-200 dark:border-gray-800 flex-grow flex flex-col items-center justify-center leading-relaxed'><p className='text-gray-500 text-[14px] font-bold mb-2'>No available slots.</p>{nextAvailableDate && <button onClick={() => {const d = new Date(nextAvailableDate);setViewDate(new Date(d.getFullYear(), d.getMonth(), 1));handleDateClick(d);}} className='text-brand-500 text-[13px] font-black hover:underline underline-offset-4'>Try {new Date(nextAvailableDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</button>}</div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -814,8 +838,8 @@ const DateTimeStep = ({
             {/* Navigation Footer */}
             <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-6 sm:pt-2 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
                 <div className='flex items-center gap-3 w-full sm:justify-between'>
-                    <button onClick={onBack} className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-6 py-3.5 sm:px-8 transition-colors uppercase tracking-widest bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl sm:rounded-2xl border border-transparent shadow-theme-xs'>Back</button>
-                    <button onClick={handleNext} disabled={!isValidSelection()} className='flex-[2] sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-2.5 text-[12px] sm:text-base uppercase tracking-widest'>Continue to Info<ArrowRight size={20} className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                    <button onClick={onBack} disabled={isProcessing} className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-6 py-3.5 sm:px-8 transition-colors uppercase tracking-widest bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl sm:rounded-2xl border border-transparent shadow-theme-xs disabled:opacity-30'>Back</button>
+                    <button onClick={handleNext} disabled={!isValidSelection() || isProcessing} className='flex-[2] sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-2.5 text-[12px] sm:text-base uppercase tracking-widest'>Continue to Info<ArrowRight size={20} className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                 </div>
             </div>
 
