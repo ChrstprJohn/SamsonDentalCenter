@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import useSlotHold from './useSlotHold';
 import { useAuth } from '../context/AuthContext';
@@ -11,8 +11,21 @@ const useUserReschedule = (appointmentId, originalAppointment) => {
     const [formData, setFormData] = useState({
         date: '',
         time: '',
-        dentist_id: originalAppointment?.dentist_id || '',
+        dentist_id: originalAppointment?.is_dentist_preferred ? (originalAppointment.dentist_id || '') : '',
     });
+
+    // ✅ Sync formData when originalAppointment is loaded asynchronously
+    useEffect(() => {
+        if (originalAppointment && !formData.dentist_id) {
+            if (originalAppointment.is_dentist_preferred) {
+                setFormData(prev => ({
+                    ...prev,
+                    dentist_id: originalAppointment.dentist_id || ''
+                }));
+            }
+        }
+    }, [originalAppointment]);
+
     const [error, setError] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [result, setResult] = useState(null);
@@ -70,7 +83,7 @@ const useUserReschedule = (appointmentId, originalAppointment) => {
         setFormData({
             date: '',
             time: '',
-            dentist_id: originalAppointment?.dentist_id || '',
+            dentist_id: originalAppointment?.is_dentist_preferred ? (originalAppointment.dentist_id || '') : '',
         });
         setError(null);
         setResult(null);

@@ -81,7 +81,7 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
                     <StepIndicator
                         currentStep={step}
                         labels={breadcrumbLabels}
-                        onStepClick={goToStep}
+                        onStepClick={(index) => goToStep(index + 1)}
                     />
                 </div>
             </header>

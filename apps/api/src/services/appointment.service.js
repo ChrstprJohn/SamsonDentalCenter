@@ -44,6 +44,7 @@ export const bookAppointmentGuest = async (
     guestPhone,
     guestNameParts, // { first, last, middle, suffix }
     userSessionId = null,
+    rescheduleCount = 0,
 ) => {
     const { first, last, middle, suffix } = guestNameParts;
     const guestName = `${last}, ${first} ${middle || ''} ${suffix || ''}`.replace(/\s+/g, ' ').trim();
@@ -141,6 +142,7 @@ export const bookAppointmentGuest = async (
             status: APPOINTMENT_STATUS.PENDING,
             approval_status: APPROVAL_STATUS.PENDING,
             source: APPOINTMENT_SOURCE.GUEST_BOOKING,
+            reschedule_count: rescheduleCount,
         })
         .select(`
             *,
@@ -204,7 +206,10 @@ export const bookAppointment = async (
     source = APPOINTMENT_SOURCE.USER_BOOKING,
     userSessionId = null,
     preferredDentistId = null,
+    rescheduleCount = 0,
+    isPreferred = null, // ✅ Can be explicitly passed or calculated
 ) => {
+    const finalIsPreferred = isPreferred !== null ? isPreferred : !!preferredDentistId;
     let bookedForName = null;
     let firstName = null;
     let lastName = null;
@@ -325,6 +330,8 @@ export const bookAppointment = async (
                 approval_status: APPROVAL_STATUS.PENDING,
                 source: source, // ✅ NEW: Track source
                 booked_for_name: bookedForName || null,
+                reschedule_count: rescheduleCount,
+                is_dentist_preferred: finalIsPreferred,
                 first_name: firstName,
                 last_name: lastName,
                 middle_name: middleName,
@@ -454,6 +461,8 @@ export const bookAppointment = async (
             source: source, // ✅ NEW: Track source
             // NULL = booked for self, a name = booked for someone else
             booked_for_name: bookedForName || null,
+            reschedule_count: rescheduleCount,
+            is_dentist_preferred: finalIsPreferred,
             first_name: firstName,
             last_name: lastName,
             middle_name: middleName,
@@ -889,6 +898,17 @@ export const rescheduleAppointment = async (appointmentId, patientId, newDate, n
         throw new AppError(`Cannot reschedule appointment with status: ${original.status}`, 400);
     }
 
+    // ── 1b. Prevent "Zombie" Reschedule (Past appointments) ──
+    const today = getTodayPH();
+    if (original.appointment_date < today) {
+        throw new AppError('Cannot reschedule an appointment that has already passed.', 400);
+    }
+
+    // ── 1c. Enforcement: Limit to 1 reschedule per booking ──
+    if (original.reschedule_count >= 1) {
+        throw new AppError('This appointment has already been rescheduled once. For further changes, please contact the clinic directly.', 403);
+    }
+
     // ── 2. Try to book the new slot first (sendEmail = false — reschedule email sent instead) ──
     const newBooking = await bookAppointment(
         patientId,
@@ -899,7 +919,9 @@ export const rescheduleAppointment = async (appointmentId, patientId, newDate, n
         null,
         undefined,
         userSessionId,
-        preferredDentistId
+        preferredDentistId,
+        original.reschedule_count + 1,
+        !!preferredDentistId // ✅ If they chose a doctor during reschedule, it's preferred
     );
 
     if (!newBooking.booked) {
@@ -917,15 +939,26 @@ export const rescheduleAppointment = async (appointmentId, patientId, newDate, n
     }
 
     // ── 3. New slot booked! Mark the original as RESCHEDULED (distinct from CANCELLED) ──
-    await supabaseAdmin
-        .from('appointments')
-        .update({
-            status: APPOINTMENT_STATUS.RESCHEDULED,
-            cancellation_reason: 'Rescheduled to new time',
-            cancelled_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-        })
-        .eq('id', appointmentId);
+    try {
+        const { error: updateError } = await supabaseAdmin
+            .from('appointments')
+            .update({
+                status: APPOINTMENT_STATUS.RESCHEDULED,
+                cancellation_reason: 'Rescheduled to new time',
+                cancelled_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            })
+            .eq('id', appointmentId);
+
+        if (updateError) throw updateError;
+    } catch (err) {
+        // ROLLBACK: If marking the old one as rescheduled fails, we must cancel the new booking!
+        console.error('❌ Reschedule failed at update stage, rolling back new booking:', err);
+        if (newBooking.appointment?.id) {
+            await cancelAppointment(newBooking.appointment.id, patientId, 'Rollback: Reschedule internal update failure.', false);
+        }
+        throw new AppError('Failed to complete rescheduling. Please try again.', 500);
+    }
 
     const freedSlot = {
         date: original.appointment_date,
@@ -1081,7 +1114,7 @@ export const cancelGuestAppointmentAction = async (appointmentId, reason) => {
     return updated;
 };
 
-export const insertConfirmedGuestAppointment = async (oldAppt, dentistId, date, time, endTime, userSessionId = null) => {
+export const insertConfirmedGuestAppointment = async (oldAppt, dentistId, date, time, endTime, userSessionId = null, rescheduleCount = 0) => {
     const { data: newAppointment, error: insertError } = await supabaseAdmin
         .from('appointments')
         .insert({
@@ -1101,6 +1134,7 @@ export const insertConfirmedGuestAppointment = async (oldAppt, dentistId, date, 
             status: APPOINTMENT_STATUS.PENDING,
             approval_status: APPROVAL_STATUS.PENDING,
             source: APPOINTMENT_SOURCE.GUEST_BOOKING,
+            reschedule_count: rescheduleCount,
             // ✅ Now confirmed via email link
             patient_confirmed: true,
             confirmed_at: new Date().toISOString(),
@@ -1133,6 +1167,21 @@ export const insertConfirmedGuestAppointment = async (oldAppt, dentistId, date, 
  * Atomically: Book new -> Cancel old.
  */
 export const rescheduleGuestAppointment = async (oldAppt, date, time, userSessionId = null) => {
+    // 0. Prevent "Zombie" Reschedule (Past appointments)
+    const today = getTodayPH();
+    if (oldAppt.appointment_date < today) {
+        throw new AppError('Cannot reschedule an appointment that has already passed.', 400);
+    }
+
+    if (oldAppt.status !== APPOINTMENT_STATUS.CONFIRMED && oldAppt.status !== APPOINTMENT_STATUS.PENDING) {
+        throw new AppError('Only active or pending appointments can be rescheduled.', 400);
+    }
+
+    // 0b. Enforcement: Limit to 1 reschedule
+    if (oldAppt.reschedule_count >= 1) {
+        throw new AppError('This appointment has already been rescheduled once. Further changes must be handled by clinic staff.', 403);
+    }
+
     // 1. Check availability for new slot (recognizing the guest's hold)
     const availability = await getAvailableSlots(date, oldAppt.service?.id, userSessionId);
     const slotData = availability.all_slots.find((s) => s.time === time);
@@ -1176,18 +1225,37 @@ export const rescheduleGuestAppointment = async (oldAppt, date, time, userSessio
     }
 
     // 3. Create NEW appointment
-    const newAppointment = await insertConfirmedGuestAppointment(oldAppt, finalDentistId, date, time, endTime, userSessionId);
+    const newAppointment = await insertConfirmedGuestAppointment(
+        oldAppt, 
+        finalDentistId, 
+        date, 
+        time, 
+        endTime, 
+        userSessionId,
+        (oldAppt.reschedule_count || 0) + 1
+    );
 
     // 4. Mark OLD appointment as RESCHEDULED
-    await supabaseAdmin
-        .from('appointments')
-        .update({
-            status: APPOINTMENT_STATUS.RESCHEDULED,
-            cancellation_reason: 'Rescheduled by guest via link.',
-            cancelled_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-        })
-        .eq('id', oldAppt.id);
+    try {
+        const { error: updateError } = await supabaseAdmin
+            .from('appointments')
+            .update({
+                status: APPOINTMENT_STATUS.RESCHEDULED,
+                cancellation_reason: 'Rescheduled by guest via link.',
+                cancelled_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            })
+            .eq('id', oldAppt.id);
+
+        if (updateError) throw updateError;
+    } catch (err) {
+        // ROLLBACK: If marking old one as rescheduled fails, cancel the new one
+        console.error('❌ Guest Reschedule update failed, rolling back:', err);
+        if (newAppointment?.id) {
+            await cancelGuestAppointmentAction(newAppointment.id, 'Rollback: Parent update failure.');
+        }
+        throw new AppError('Failed to complete rescheduling.', 500);
+    }
 
     return {
         rescheduled: true,

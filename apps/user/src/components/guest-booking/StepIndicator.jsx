@@ -13,16 +13,16 @@ const StepIndicator = ({ currentStep, onStepClick, labels }) => {
     return (
         <nav className='flex items-center justify-center gap-2 sm:gap-6'>
             {stepLabels.map((label, index) => {
-                const isCompleted = index < currentStep;
-                const isActive = index === currentStep;
+                const isCompleted = index + 1 < currentStep;
+                const isActive = index + 1 === currentStep;
 
                 return (
                     <div key={label} className='flex items-center'>
                         <button
                             onClick={() => onStepClick(index)}
-                            disabled={index > currentStep}
+                            disabled={index + 1 > currentStep}
                             className={`flex flex-col sm:flex-row items-center gap-1.5 sm:gap-3 group transition-all ${
-                                index <= currentStep ? 'cursor-pointer' : 'cursor-default opacity-50'
+                                index + 1 <= currentStep ? 'cursor-pointer' : 'cursor-default opacity-50'
                             }`}
                         >
                             {/* Circle */}
@@ -55,7 +55,7 @@ const StepIndicator = ({ currentStep, onStepClick, labels }) => {
                         {/* Connector line - Visible on all devices, adjusted for mobile positioning */}
                         {index < stepLabels.length - 1 && (
                             <div className={`w-3 sm:w-8 h-[1.5px] bg-gray-200 dark:bg-gray-800 ml-2 sm:ml-4 sm:mr-1 ${
-                                index < currentStep ? 'bg-brand-500' : 'bg-gray-200'
+                                index + 1 < currentStep ? 'bg-brand-500' : 'bg-gray-200'
                             } ${
                                 // On mobile, we need to shift the line up a bit to align with the circle center (not the whole flex-col block)
                                 '-mt-4 sm:mt-0'
