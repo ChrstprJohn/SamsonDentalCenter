@@ -99,12 +99,12 @@ export const confirmAppointmentByToken = async (token) => {
         .single();
 
     if (tokenError || !tokenRecord) {
-        throw new AppError('Invalid confirmation link. It may have already been used.', 404);
+        throw new AppError('This link is invalid or has already been used to verify your request.', 404);
     }
 
     // ── 2. Check if token is expired ──
     if (new Date(tokenRecord.expires_at) < new Date()) {
-        throw new AppError('This confirmation link has expired. Please book a new appointment.', 410);
+        throw new AppError('This verification link has expired for your security. Please request a new one or try booking again.', 410);
     }
 
     // ── 3. Check appointment status ──

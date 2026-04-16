@@ -66,7 +66,7 @@ export const bookGuest = async (req, res, next) => {
  * Option A: Return JSON (if frontend handles the redirect)
  * Option B: Redirect to frontend success/error page
  */
-export const confirmEmail = async (req, res) => {
+export const confirmEmail = async (req, res, next) => {
     try {
         const { token } = req.query;
 
