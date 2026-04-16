@@ -9,6 +9,7 @@ const CATEGORIES = [
     { id: 'cancel', label: 'Cancelled', icon: XCircle, key: 'cancel' },
     { id: 'decline', label: 'Rejected', icon: XCircle, key: 'decline' },
     { id: 'completed', label: 'Completed', icon: CheckCircle2, key: 'completed' },
+    { id: 'rescheduled', label: 'Rescheduled', icon: RotateCcw, key: 'rescheduled' },
 ];
 
 const AppointmentFilters = ({ search, onSearchChange, statusFilter, onStatusChange, counts = {} }) => {

@@ -140,6 +140,8 @@ export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10 } = 
                 result = result.filter(a => (a.approval_status || '').toLowerCase() === 'rejected');
             } else if (status === 'completed') {
                 result = result.filter(a => (a.status || '').toUpperCase() === 'COMPLETED');
+            } else if (status === 'rescheduled') {
+                result = result.filter(a => (a.status || '').toUpperCase() === 'RESCHEDULED');
             }
         }
 
@@ -162,7 +164,7 @@ export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10 } = 
     const counts = useMemo(() => {
         const today = new Date().toISOString().split('T')[0];
         return {
-            all: allAppointments.length,
+            all: allAppointments.filter(a => !['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'RESCHEDULED'].includes((a.status || '').toUpperCase())).length,
             upcoming: allAppointments.filter(a => {
                 const statusStr = (a.status || '').toUpperCase();
                 const appStatusStr = (a.approval_status || '').toLowerCase();
@@ -180,6 +182,7 @@ export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10 } = 
             cancel: allAppointments.filter(a => ['CANCELLED', 'LATE_CANCEL'].includes((a.status || '').toUpperCase()) && (a.approval_status || '').toLowerCase() !== 'rejected').length,
             decline: allAppointments.filter(a => (a.approval_status || '').toLowerCase() === 'rejected').length,
             completed: allAppointments.filter(a => (a.status || '').toUpperCase() === 'COMPLETED').length,
+            rescheduled: allAppointments.filter(a => (a.status || '').toUpperCase() === 'RESCHEDULED').length,
         };
     }, [allAppointments]);
 

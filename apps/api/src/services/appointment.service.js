@@ -660,6 +660,7 @@ export const getPatientAppointmentStats = async (patientId) => {
             .select('id', { count: 'exact', head: true })
             .eq('patient_id', patientId)
             .or(`status.eq.${APPOINTMENT_STATUS.CONFIRMED},approval_status.eq.approved`)
+            .not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.NO_SHOW},${APPOINTMENT_STATUS.RESCHEDULED})`)
             .gte('appointment_date', today),
         
         // Pending: Pending and future

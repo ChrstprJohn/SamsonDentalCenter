@@ -1228,7 +1228,15 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
 
     // Apply filters
     if (filters.date) query = query.eq('appointment_date', filters.date);
-    if (filters.status) query = query.eq('status', filters.status);
+    
+    // If a specific status is requested, use it; otherwise, exclude 'zombie' statuses by default
+    // to prevent rescheduled/cancelled/missed appointments from cluttering active lists.
+    if (filters.status) {
+        query = query.eq('status', filters.status);
+    } else {
+        query = query.not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.NO_SHOW},${APPOINTMENT_STATUS.RESCHEDULED})`);
+    }
+
     if (filters.dentist_id) query = query.eq('dentist_id', filters.dentist_id);
     if (filters.patient_id) query = query.eq('patient_id', filters.patient_id);
     if (filters.tier) query = query.eq('service_tier', filters.tier);
@@ -1270,7 +1278,7 @@ export const getTodayAppointmentsFiltered = async () => {
     `,
         )
         .eq('appointment_date', today)
-        .not('status', 'eq', 'CANCELLED')
+        .not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.NO_SHOW},${APPOINTMENT_STATUS.RESCHEDULED})`)
         .order('start_time');
 
     if (error) throw new AppError(error.message, 500);

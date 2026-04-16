@@ -193,7 +193,13 @@ const ApprovalsPage = () => {
                         selectedRequest.requestedDate
                     );
                     const positions = appointments
-                        .filter(a => a.id !== selectedRequest.id && a.status !== 'CANCELLED' && a.status !== 'NOSHOW')
+                        .filter(a => 
+                            a.id !== selectedRequest.id && 
+                            a.status !== 'CANCELLED' && 
+                            a.status !== 'LATE_CANCEL' && 
+                            a.status !== 'RESCHEDULED' && 
+                            a.status !== 'NOSHOW'
+                        )
                         .map(a => calculatePosition(a.start_time));
                     setBusySlots(positions);
                 }
