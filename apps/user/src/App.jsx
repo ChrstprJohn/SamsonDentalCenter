@@ -5,6 +5,7 @@ import { ServicesProvider } from './context/ServicesContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { AppointmentProvider } from './context/AppointmentContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './context/ToastContext';
 
 const App = () => {
     useSmoothScroll();
@@ -15,7 +16,9 @@ const App = () => {
                 <ServicesProvider>
                     <NotificationProvider>
                         <AppointmentProvider>
-                            <AppRoutes />
+                            <ToastProvider>
+                                <AppRoutes />
+                            </ToastProvider>
                         </AppointmentProvider>
                     </NotificationProvider>
                 </ServicesProvider>

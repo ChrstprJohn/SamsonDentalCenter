@@ -5,9 +5,11 @@ import Button from '../../ui/Button';
 import Input from '../../ui/Input';
 import Label from '../../ui/Label';
 import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 
 export default function UserMetaCard() {
     const { user, updateProfile } = useAuth();
+    const { showToast } = useToast();
     const { isOpen, openModal, closeModal } = useModal();
     const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar_url);
     const [isSaving, setIsSaving] = useState(false);
@@ -26,9 +28,11 @@ export default function UserMetaCard() {
         setIsSaving(true);
         try {
             await updateProfile({ avatar_url: selectedAvatar });
+            showToast('Profile avatar updated successfully!');
             closeModal();
         } catch (error) {
             console.error('Failed to update profile:', error);
+            showToast(error.message || 'Failed to update avatar. Please try again.', 'error', 'Update Failed');
         } finally {
             setIsSaving(false);
         }
@@ -56,7 +60,7 @@ export default function UserMetaCard() {
                                 </p>
                                 <div className='hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block'></div>
                                 <p className='text-[clamp(13px,1.2vw,14px)] text-gray-500 dark:text-gray-400 font-medium'>
-                                    Member since 2024
+                                    Member since {user?.created_at ? new Date(user.created_at).getFullYear() : '2024'}
                                 </p>
                             </div>
                         </div>

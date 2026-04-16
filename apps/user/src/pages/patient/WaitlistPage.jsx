@@ -7,6 +7,7 @@ import WaitlistDetailView from '../../components/patient/waitlist_details/Waitli
 import ClaimSlotModal from '../../components/patient/waitlist/ClaimSlotModal';
 import useWaitlist from '../../hooks/useWaitlist';
 import { Clock } from 'lucide-react';
+import ErrorState from '../../components/common/ErrorState';
 
 const WaitlistPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -104,36 +105,44 @@ const WaitlistPage = () => {
                 parentPath={parentPath}
             />
 
-            {error && (
-                <div className='mb-6 p-4 bg-red-50 text-red-600 rounded-2xl text-sm font-medium border border-red-100'>
-                    {error}
-                </div>
-            )}
-
-            {selectedId ? (
-                <div className='flex-grow min-h-0 relative sm:mx-0'>
-                    <WaitlistDetailView 
-                        item={selectedEntry}
-                        onBack={() => setSearchParams({})}
-                        onClaim={handleClaimClick}
-                        onCancel={handleCancelEntry}
+            <div className='grow flex flex-col'>
+                {error ? (
+                    <ErrorState 
+                        error={error} 
+                        onRetry={() => window.location.reload()} 
+                        title="Unable to load Waitlist"
+                        parentPath="/patient"
+                        parentName="Dashboard"
                     />
-                </div>
-            ) : (
-                <>
-                    <WaitlistHeroCard heroEntry={heroEntry} stats={stats} />
-                    <WaitlistInbox 
-                        entries={filtered}
-                        activeFilter={activeFilter}
-                        onFilterChange={setActiveFilter}
-                        searchQuery={searchQuery}
-                        onSearchChange={setSearchQuery}
-                        onEntryClick={handleEntryClick}
-                        selectedId={selectedId}
-                        loading={loading}
-                    />
-                </>
-            )}
+                ) : (
+                    <>
+                        {selectedId ? (
+                            <div className='grow min-h-0 relative sm:mx-0'>
+                                <WaitlistDetailView 
+                                    item={selectedEntry}
+                                    onBack={() => setSearchParams({})}
+                                    onClaim={handleClaimClick}
+                                    onCancel={handleCancelEntry}
+                                />
+                            </div>
+                        ) : (
+                            <>
+                                <WaitlistHeroCard heroEntry={heroEntry} stats={stats} />
+                                <WaitlistInbox 
+                                    entries={filtered}
+                                    activeFilter={activeFilter}
+                                    onFilterChange={setActiveFilter}
+                                    searchQuery={searchQuery}
+                                    onSearchChange={setSearchQuery}
+                                    onEntryClick={handleEntryClick}
+                                    selectedId={selectedId}
+                                    loading={loading}
+                                />
+                            </>
+                        )}
+                    </>
+                )}
+            </div>
 
             <ClaimSlotModal 
                 isOpen={isClaimModalOpen} 

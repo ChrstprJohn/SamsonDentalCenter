@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronDown, ChevronRight, Lock, X, AlertCircle, RefreshCw, Clock, Plus, ArrowRight, Hourglass, Calendar, MousePointer2, Loader2, CheckCircle2, CalendarDays, Check, Users, CalendarX } from 'lucide-react';
 import { api } from '../../utils/api';
 import useSlots from '../../hooks/useSlots';
+import ErrorState from '../common/ErrorState';
 import JoinWaitlistModal from './JoinWaitlistModal';
 import WaitlistOnlyWarningModal from './WaitlistOnlyWarningModal';
 
@@ -23,6 +24,7 @@ const DateTimeStep = ({
 }) => {
     const [specialists, setSpecialists] = useState([]);
     const [specialistsLoading, setSpecialistsLoading] = useState(true);
+    const [specialistsError, setSpecialistsError] = useState(null);
     const [showWaitlistModal, setShowWaitlistModal] = useState(false);
     const [waitlistSlot, setWaitlistSlot] = useState(null);
     // ✅ NEW: Add validation error state
@@ -91,11 +93,13 @@ const DateTimeStep = ({
             const fetchSpecialists = async () => {
                 setSpecialists([]); // 🎯 Clear old data to trigger skeleton
                 setSpecialistsLoading(true);
+                setSpecialistsError(null);
                 try {
                     const response = await api.get(`/services/${serviceId}/specialists`);
                     setSpecialists(response.specialists || []);
                 } catch (err) {
                     console.error('Failed to fetch specialists:', err);
+                    setSpecialistsError(err.message);
                 } finally {
                     setSpecialistsLoading(false);
                 }
@@ -512,7 +516,7 @@ const DateTimeStep = ({
                 </div>
                 
                 {/* Footer Skeleton */}
-                <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-4 pt-8 border-t border-slate-100 dark:border-slate-800 mt-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-4 pt-4 mt-6">
                     <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-lg w-20" />
                     <div className="h-14 bg-slate-200 dark:bg-slate-800 rounded-2xl w-48" />
                 </div>
@@ -522,16 +526,16 @@ const DateTimeStep = ({
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 relative">
-            {/* FLOATING TOAST LOGIC (SweetAlert style) */}
-            {(holdError || validationError) && (
-                <div className="fixed top-6 right-6 z-[9999] animate-in slide-in-from-right-10 fade-in duration-500 max-w-[calc(100vw-3rem)] sm:max-w-sm pointer-events-none">
-                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-4 sm:p-5 flex gap-4 items-center ring-1 ring-black/5 pointer-events-auto">
-                        <div className={`w-12 h-12 rounded-2xl ${holdError ? 'bg-red-500 shadow-red-500/20' : 'bg-amber-500 shadow-amber-500/20'} text-white flex items-center justify-center shrink-0 shadow-lg`}>
-                            <AlertCircle size={24} />
+            {/* FLOATING TOAST LOGIC (SweetAlert style) - Positioned under header */}
+            {(holdError || (validationError && !validationError.includes('fetch'))) && (
+                <div className="fixed top-[4.5rem] sm:top-24 right-4 sm:right-6 z-[9999] flex flex-col gap-3 max-w-[calc(100vw-2rem)] sm:max-w-sm pointer-events-none animate-in slide-in-from-right-10 fade-in duration-500">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-3 sm:p-5 flex gap-3 sm:gap-4 items-center ring-1 ring-black/5 pointer-events-auto">
+                        <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${holdError ? 'bg-red-500 shadow-red-500/20' : 'bg-amber-500 shadow-amber-500/20'} text-white flex items-center justify-center shrink-0 shadow-lg`}>
+                            <AlertCircle size={18} className="sm:w-6 sm:h-6" />
                         </div>
                         <div className="flex-grow min-w-0">
-                            <h4 className="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Attention Required</h4>
-                            <p className="text-[13px] sm:text-[14px] font-bold text-gray-900 dark:text-white leading-tight break-words">
+                            <h4 className="text-[9px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 sm:mb-1">Attention Required</h4>
+                            <p className="text-[12px] sm:text-[14px] font-bold text-gray-900 dark:text-white leading-tight break-words">
                                 {holdError || validationError}
                             </p>
                         </div>
@@ -540,25 +544,35 @@ const DateTimeStep = ({
                                 if (holdError) slotHold.setHoldError?.(null);
                                 setValidationError(null);
                             }} 
-                            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                            className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                         >
-                            <X size={18} />
+                            <X size={16} className="sm:w-[18px] sm:h-[18px]" />
                         </button>
                     </div>
                 </div>
             )}
 
-            {/* Header Section */}
-            {!hasNoSpecialists && (
-                <div className='mb-8 sm:mb-10'>
-                    <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3 font-display tracking-tight uppercase'>
-                        Pick Date & Time
-                    </h2>
-                    <p className='text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-2xl leading-relaxed'>
-                        Choose your preferred appointment date and available time slot. {serviceTier === 'specialized' ? 'Select a specific dentist or "Any Specialist" to see availability.' : 'Select a specific dentist or stay with "Any Dentist" for more options.'}
-                    </p>
+            {specialistsError?.toLowerCase().includes('fetch') ? (
+                <div className='grow flex flex-col py-10'>
+                     <ErrorState 
+                        error={specialistsError} 
+                        onRetry={() => window.location.reload()} 
+                        title="Connection Issues"
+                    />
                 </div>
-            )}
+            ) : (
+                <>
+                    {/* Header Section */}
+                    {!hasNoSpecialists && (
+                        <div className='mb-8 sm:mb-10'>
+                            <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3 font-display tracking-tight uppercase'>
+                                Pick Date & Time
+                            </h2>
+                            <p className='text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-2xl leading-relaxed'>
+                                Choose your preferred appointment date and available time slot. {serviceTier === 'specialized' ? 'Select a specific dentist or "Any Specialist" to see availability.' : 'Select a specific dentist or stay with "Any Dentist" for more options.'}
+                            </p>
+                        </div>
+                    )}
 
             {/* FALLBACK: No Specialists Available for this Service */}
             {hasNoSpecialists && (
@@ -798,16 +812,9 @@ const DateTimeStep = ({
             )}
 
             {/* Navigation Footer */}
-            <div className='flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-4 sm:gap-0 pt-6 sm:pt-8 border-t border-gray-100 dark:border-gray-800'>
-                <button onClick={onBack} className='w-full sm:w-auto text-gray-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] px-8 py-4 transition-colors uppercase tracking-[0.2em]'>Back</button>
-                <button 
-                    onClick={handleNext} 
-                    disabled={!isValidSelection()} 
-                    className='w-full sm:w-auto bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-10 py-4.5 rounded-2xl transition-all shadow-xl shadow-brand-500/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-sm uppercase tracking-[0.1em]'
-                >
-                    Continue to Info
-                    <ArrowRight size={18} />
-                </button>
+            <div className='flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-4 sm:gap-0 pt-4 sm:pt-6'>
+                <button onClick={onBack} className='w-full sm:w-auto text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[13px] sm:text-sm px-6 py-3 sm:px-8 transition-colors uppercase tracking-widest'>Back</button>
+                <button onClick={handleNext} disabled={!isValidSelection()} className='w-full sm:w-auto bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-2.5 text-[14px] sm:text-base uppercase tracking-widest'>Continue to Info<ArrowRight size={20} className="w-4 h-4 sm:w-5 sm:h-5" /></button>
             </div>
 
             {/* Waitlist Modal */}
@@ -835,9 +842,11 @@ const DateTimeStep = ({
                     onCancel={() => setShowWaitlistOnlyWarning(false)}
                 />
             )}
-                </>
-            )}
-</div>
+                    </>
+                )}
+            </>
+        )}
+    </div>
     );
 };
 

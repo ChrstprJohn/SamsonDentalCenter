@@ -13,6 +13,7 @@ import AppointmentCancelModal from '../../components/patient/appointment_details
 import ReschedulePolicyModal from '../../components/patient/appointment_details/ReschedulePolicyModal';
 import CombinedOverview from '../../components/patient/appointment_details/CombinedOverview';
 import AppointmentDetailSkeleton from '../../components/patient/appointment_details/AppointmentDetailSkeleton';
+import ErrorState from '../../components/common/ErrorState';
 
 // ---------------------------------------------------------------------------
 // Compute a human-readable duration
@@ -79,17 +80,13 @@ const AppointmentDetails = () => {
                     parentName='My Appointments'
                     parentPath='/patient/appointments'
                 />
-                <div className='flex-grow flex flex-col bg-white dark:bg-gray-900 sm:rounded-3xl border-t sm:border border-gray-100 dark:border-gray-800 sm:shadow-theme-sm p-8 text-center items-center justify-center'>
-                    <p className='text-error-500 text-sm font-medium'>
-                        {error || 'Appointment not found.'}
-                    </p>
-                    <button
-                        onClick={() => navigate('/patient/appointments')}
-                        className='mt-4 px-4 py-2 bg-gray-50 dark:bg-white/[0.05] rounded-xl text-brand-500 hover:text-brand-600 text-sm font-bold transition-colors'
-                    >
-                        ← Back to My Appointments
-                    </button>
-                </div>
+                <ErrorState 
+                    error={error} 
+                    onRetry={() => window.location.reload()} 
+                    title="Appointment Not Found"
+                    parentName="Appointments"
+                    parentPath="/patient/appointments"
+                />
             </>
         );
     }

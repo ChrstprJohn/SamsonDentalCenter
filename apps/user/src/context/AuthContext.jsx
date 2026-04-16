@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [isSessionExpired, setIsSessionExpired] = useState(false);
 
     // ✅ Listen for global session-expired events from api.js
@@ -34,12 +35,17 @@ export const AuthProvider = ({ children }) => {
             try {
                 const data = await api.get('/auth/me', token);
                 setUser(data.user);
+                setError(null);
             } catch (error) {
                 // Token expired or invalid
                 console.error('Auth check failed:', error.message);
-                localStorage.removeItem('token');
-                setToken(null);
-                setUser(null);
+                if (error.message.toLowerCase().includes('fetch') || error.message.toLowerCase().includes('network')) {
+                    setError(error.message);
+                } else {
+                    localStorage.removeItem('token');
+                    setToken(null);
+                    setUser(null);
+                }
             }
             setLoading(false);
         };
@@ -84,7 +90,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateProfile }}>
+        <AuthContext.Provider value={{ user, token, loading, error, login, register, logout, updateProfile }}>
             {children}
             {isSessionExpired && <SessionExpiredModal onLogout={() => {
                 logout();

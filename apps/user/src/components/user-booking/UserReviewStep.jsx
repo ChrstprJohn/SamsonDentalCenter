@@ -343,7 +343,7 @@ const UserReviewStep = ({ formData, book_for_others, onSubmit, onBack, onEdit, s
             </div>
 
             {/* Final Navigation Footer */}
-            <div className='flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-4 sm:gap-0 mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-100 dark:border-gray-800'>
+            <div className='flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-4 sm:gap-0 mt-8 sm:mt-12 pt-4 sm:pt-6'>
                 <button
                     onClick={onBack}
                     disabled={submitting}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Lock, ArrowRight, Clock as ClockIcon, AlertCircle, RefreshCw } from 'lucide-react';
 import useServices from '../../hooks/useServices';
+import ErrorState from '../common/ErrorState';
 import { useAuth } from '../../context/AuthContext';
 import SpecializedServiceModal from './SpecializedServiceModal';
 
@@ -61,25 +62,12 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, onUpdateFields }) =>
                     ))}
                 </div>
             ) : error ? (
-                <div className='flex flex-col items-center justify-center py-20 px-4 bg-white dark:bg-white/[0.02] border border-dashed border-gray-200 dark:border-gray-800 rounded-[32px]'>
-                    <div className='w-16 h-16 bg-rose-50 dark:bg-rose-500/10 rounded-full flex items-center justify-center mb-6 text-rose-500 shadow-theme-sm'>
-                        <AlertCircle size={32} />
-                    </div>
-                    <h3 className='text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2'>
-                        Unable to Load Services
-                    </h3>
-                    <p className='text-gray-500 dark:text-gray-400 text-sm max-w-sm text-center mb-8 font-medium'>
-                        {error.includes('fetch') 
-                            ? "We're having trouble connecting to our servers. Please check your internet connection." 
-                            : "Something went wrong while retrieving our services. Please try again later."}
-                    </p>
-                    <button
-                        onClick={refetch}
-                        className='flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-brand-500 text-white rounded-2xl font-bold hover:opacity-90 active:scale-95 transition-all text-sm uppercase tracking-widest'
-                    >
-                        <RefreshCw size={18} className={`${loading ? 'animate-spin' : ''}`} />
-                        {loading ? 'Retrying...' : 'Try Again'}
-                    </button>
+                <div className='grow flex flex-col'>
+                    <ErrorState 
+                        error={error} 
+                        onRetry={refetch} 
+                        title="Unable to load Services"
+                    />
                 </div>
             ) : (
                 <div className='grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6'>
@@ -146,7 +134,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, onUpdateFields }) =>
             )}
 
             {/* Navigation */}
-            <div className='flex justify-end pt-6 sm:pt-8 border-t border-gray-100 dark:border-gray-700'>
+            <div className='flex justify-end pt-2 sm:pt-4'>
                 <button
                     onClick={onNext}
                     disabled={!selectedServiceId}

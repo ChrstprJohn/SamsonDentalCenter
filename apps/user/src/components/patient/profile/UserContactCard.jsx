@@ -5,9 +5,11 @@ import Button from '../../ui/Button';
 import Input from '../../ui/Input';
 import Label from '../../ui/Label';
 import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 
 export default function UserContactCard() {
     const { user, updateProfile } = useAuth();
+    const { showToast } = useToast();
     const { isOpen, openModal, closeModal } = useModal();
     const [isSaving, setIsSaving] = useState(false);
 
@@ -19,9 +21,11 @@ export default function UserContactCard() {
             const phone = formData.get('phone');
             
             await updateProfile({ phone });
+            showToast('Contact information updated!');
             closeModal();
         } catch (error) {
             console.error('Failed to update contact info:', error);
+            showToast(error.message || 'Failed to update contact. Please try again.', 'error', 'Update Failed');
         } finally {
             setIsSaving(false);
         }

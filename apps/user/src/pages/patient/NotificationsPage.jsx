@@ -8,6 +8,7 @@ import { formatFullDateTime } from '../../hooks/useAppointments';
 import { Clock, Inbox, Star, XCircle, Search } from 'lucide-react';
 import { renderNotification } from '../../utils/notificationRenderer';
 import NotificationSkeleton from '../../components/patient/notification/NotificationSkeleton';
+import ErrorState from '../../components/common/ErrorState';
 
 const NotificationsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -155,9 +156,13 @@ const NotificationsPage = () => {
         return (
             <>
                 <PageBreadcrumb pageTitle={breadcrumbTitle} />
-                <div className='flex items-center justify-center grow py-20 text-error-500'>
-                    {error}
-                </div>
+                <ErrorState 
+                    error={error} 
+                    onRetry={() => fetchNotifications(1, ITEMS_PER_PAGE)} 
+                    title="Failed to load notifications"
+                    parentPath="/patient"
+                    parentName="Dashboard"
+                />
             </>
         );
     }

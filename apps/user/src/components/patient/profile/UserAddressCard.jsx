@@ -1,16 +1,40 @@
+import { useState } from 'react';
 import { useModal } from '../../../hooks/useModal';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';
 import Label from '../../ui/Label';
+import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 
 export default function UserAddressCard() {
+    const { user, updateProfile } = useAuth();
+    const { showToast } = useToast();
     const { isOpen, openModal, closeModal } = useModal();
+    const [isSaving, setIsSaving] = useState(false);
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
-        console.log('Saving changes...');
-        closeModal();
+        setIsSaving(true);
+        try {
+            const formData = new FormData(e.target);
+            const country = formData.get('country');
+            const city = formData.get('city');
+            const postal_code = formData.get('postal_code');
+            
+            await updateProfile({ 
+                country,
+                city,
+                postal_code
+            });
+            showToast('Address updated successfully!');
+            closeModal();
+        } catch (error) {
+            console.error('Failed to update address:', error);
+            showToast(error.message || 'Failed to update address. Please try again.', 'error', 'Update Failed');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -27,7 +51,7 @@ export default function UserAddressCard() {
                                 Country
                             </p>
                             <p className='text-[clamp(14px,1vw,15px)] font-semibold text-gray-800 dark:text-white/90'>
-                                Philippines
+                                {user?.country || 'Philippines'}
                             </p>
                         </div>
 
@@ -36,7 +60,7 @@ export default function UserAddressCard() {
                                 City/State
                             </p>
                             <p className='text-[clamp(14px,1vw,15px)] font-semibold text-gray-800 dark:text-white/90'>
-                                Manila, Metro Manila
+                                {user?.city || 'Manila, Metro Manila'}
                             </p>
                         </div>
 
@@ -45,7 +69,7 @@ export default function UserAddressCard() {
                                 Postal Code
                             </p>
                             <p className='text-[clamp(14px,1vw,15px)] font-semibold text-gray-800 dark:text-white/90'>
-                                1000
+                                {user?.postal_code || '1000'}
                             </p>
                         </div>
                     </div>
@@ -90,26 +114,26 @@ export default function UserAddressCard() {
                             <div className='grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2'>
                                 <div>
                                     <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Country</Label>
-                                    <Input className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue='Philippines' />
+                                    <Input name="country" className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue={user?.country || 'Philippines'} />
                                 </div>
 
                                 <div>
                                     <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">City/State</Label>
-                                    <Input className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue='Manila, Metro Manila' />
+                                    <Input name="city" className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue={user?.city || 'Manila, Metro Manila'} />
                                 </div>
 
                                 <div>
                                     <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Postal Code</Label>
-                                    <Input className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue='1000' />
+                                    <Input name="postal_code" className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue={user?.postal_code || '1000'} />
                                 </div>
                             </div>
                         </div>
                         <div className='flex items-center gap-3 px-2 mt-6 lg:justify-end'>
-                            <Button variant='outline' onClick={closeModal}>
+                            <Button variant='outline' onClick={closeModal} disabled={isSaving}>
                                 Close
                             </Button>
-                            <Button type='submit'>
-                                Save Changes
+                            <Button type='submit' disabled={isSaving}>
+                                {isSaving ? 'Saving...' : 'Save Changes'}
                             </Button>
                         </div>
                     </form>

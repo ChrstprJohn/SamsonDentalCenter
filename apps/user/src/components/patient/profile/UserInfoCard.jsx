@@ -5,9 +5,11 @@ import Button from '../../ui/Button';
 import Input from '../../ui/Input';
 import Label from '../../ui/Label';
 import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 
 export default function UserInfoCard() {
     const { user, updateProfile } = useAuth();
+    const { showToast } = useToast();
     const { isOpen, openModal, closeModal } = useModal();
     const [isSaving, setIsSaving] = useState(false);
 
@@ -27,9 +29,11 @@ export default function UserInfoCard() {
                 middle_name, 
                 suffix
             });
+            showToast('Personal information updated!');
             closeModal();
         } catch (error) {
             console.error('Failed to update personal info:', error);
+            showToast(error.message || 'Failed to update info. Please try again.', 'error', 'Update Failed');
         } finally {
             setIsSaving(false);
         }
