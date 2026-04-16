@@ -28,7 +28,7 @@ const AppointmentTableRow = ({ appointment, user, openDropdown, onToggleDropdown
             <div className='hidden sm:flex items-center gap-4 w-full'>
                 <div className='shrink-0 pl-1 text-gray-300 dark:text-gray-600 transition-colors group-hover:text-amber-400'>
                     <div className='w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-500 font-bold text-sm shadow-sm'>
-                        {getInitial(dentistName)}
+                        {getInitial(appointment.service)}
                     </div>
                 </div>
 
@@ -47,9 +47,6 @@ const AppointmentTableRow = ({ appointment, user, openDropdown, onToggleDropdown
                     </span>
                 </div>
 
-                <div className='w-32 shrink-0 truncate text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-medium text-right'>
-                    <span title={patientName}>{truncateText(patientName, 15)}</span>
-                </div>
 
                 <div className='flex items-center gap-4 shrink-0 min-w-[100px] justify-end' onClick={(e) => e.stopPropagation()}>
                     <Badge size='sm' color={badgeColor}>
@@ -80,7 +77,7 @@ const AppointmentTableRow = ({ appointment, user, openDropdown, onToggleDropdown
             <div className='flex sm:hidden gap-4 w-full'>
                 <div className='shrink-0'>
                     <div className='w-12 h-12 rounded-full bg-brand-500 flex items-center justify-center text-white font-bold text-lg shadow-sm'>
-                        {getInitial(dentistName)}
+                        {getInitial(appointment.service)}
                     </div>
                 </div>
                 <div className='flex-grow min-w-0 flex flex-col gap-0.5'>

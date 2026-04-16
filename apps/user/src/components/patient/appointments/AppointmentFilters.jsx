@@ -38,8 +38,8 @@ const AppointmentFilters = ({ search, onSearchChange, statusFilter, onStatusChan
     return (
         <div className='border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900'>
             {/* Search and Action Row */}
-            <div className='px-4 sm:px-6 pt-5 pb-0 sm:py-5 flex items-center gap-3 sm:gap-4'>
-                <div className='relative flex-grow max-w-2xl'>
+            <div className='px-4 sm:px-6 pt-5 pb-0 sm:pt-5 sm:pb-3 flex items-center gap-3 sm:gap-4'>
+                <div className='relative flex-grow'>
                     <span className='absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400'>
                         <Search size={18} />
                     </span>
