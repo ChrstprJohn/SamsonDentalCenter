@@ -217,9 +217,11 @@ const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab }) => {
                     </div>
 
                     {/* Dynamic Child Content */}
-                    {(!activeTab || activeTab === 'profile') && <DoctorProfileDetail doctor={doctor} />}
-                    {activeTab === 'schedule' && <DoctorScheduleDetail doctor={doctor} />}
-                    {activeTab === 'history' && <DoctorHistoryDetail doctor={doctor} />}
+                    <div className='min-h-120 md:min-h-140'>
+                        {(!activeTab || activeTab === 'profile') && <DoctorProfileDetail doctor={doctor} />}
+                        {activeTab === 'schedule' && <DoctorScheduleDetail doctor={doctor} />}
+                        {activeTab === 'history' && <DoctorHistoryDetail doctor={doctor} />}
+                    </div>
 
                 </div>
             </div>

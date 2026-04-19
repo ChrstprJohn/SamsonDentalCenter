@@ -61,7 +61,7 @@ const DoctorInbox = ({
             </div>
 
             {/* List Area */}
-            <div className='grow flex flex-col overflow-y-auto no-scrollbar'>
+            <div className='grow flex flex-col min-h-120 md:min-h-140 overflow-y-auto no-scrollbar'>
                 {doctors.length > 0 ? (
                     doctors.map((doctor) => (
                         <DoctorRow 
@@ -89,14 +89,8 @@ const DoctorInbox = ({
             {/* Footer Area / Consistency with AppointmentPagination */}
             <div className='fixed bottom-0 left-0 right-0 sm:relative z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md px-4 sm:px-6 py-2 sm:py-5 border-t border-gray-100 dark:border-gray-800 sm:shadow-none'>
                 <div className='flex flex-col items-center justify-center w-full max-w-md mx-auto'>
-                    <div className='flex items-center justify-between w-full sm:justify-center'>
-                        <p className='sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest'>
-                            {doctors.length} Doctors
-                        </p>
+                    <div className='flex items-center justify-center w-full sm:justify-center'>
                         <div className='flex justify-center'>
-                            <p className='hidden sm:block text-[10px] font-bold text-gray-400 uppercase tracking-widest mr-4'>
-                                Total: {doctors.length}
-                            </p>
                             <div className='flex gap-1'>
                                 {[1].map(n => (
                                     <button key={n} className='w-8 h-8 rounded-lg bg-brand-500 text-white text-xs font-bold leading-none flex items-center justify-center'>{n}</button>

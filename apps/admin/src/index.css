@@ -162,6 +162,10 @@ html, body {
     --z-index-9999: 9999;
     --z-index-99999: 99999;
     --z-index-999999: 999999;
+
+    /* Custom Spacing for Height Standardization (Standardizing with Patient Portal) */
+    --spacing-120: 30rem;
+    --spacing-140: 35rem;
 }
 
 @layer base {

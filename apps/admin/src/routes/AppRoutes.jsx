@@ -38,7 +38,7 @@ const AppRoutes = () => {
                     <Route index element={<AdminDashboard />} />
                     <Route path='doctors'>
                         <Route index element={<Navigate to="profile" replace />} />
-                        <Route path=':tab' element={<Doctors />} />
+                        <Route path=':tab/:id?' element={<Doctors />} />
                     </Route>
                     <Route path='profile' element={<AdminProfile />} />
                 </Route>

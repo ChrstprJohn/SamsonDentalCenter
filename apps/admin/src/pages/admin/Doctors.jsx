@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import DoctorInbox from '../../components/admin/doctors/DoctorInbox';
 import DoctorDetailView from '../../components/admin/doctors/DoctorDetailView';
@@ -71,13 +71,14 @@ const MOCK_DOCTORS = [
 
 const Doctors = () => {
     const { isMobileOpen } = useSidebar();
-    const { tab } = useParams();
+    const { tab, id } = useParams();
+    const navigate = useNavigate();
     const activeTab = tab || 'profile';
 
-    const [selectedDoctorId, setSelectedDoctorId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
 
+    const selectedDoctorId = id;
     const selectedDoctor = MOCK_DOCTORS.find(d => d.id === selectedDoctorId);
 
     // Filter Logic
@@ -114,14 +115,14 @@ const Doctors = () => {
                     {selectedDoctorId ? (
                         <DoctorDetailView 
                             doctor={selectedDoctor} 
-                            onBack={() => setSelectedDoctorId(null)} 
+                            onBack={() => navigate(`/doctors/${activeTab}`)} 
                             activeTab={activeTab}
                         />
                     ) : (
                         <DoctorInbox 
                             activeTab={activeTab}
                             doctors={filteredDoctors}
-                            onDoctorClick={(id) => setSelectedDoctorId(id)}
+                            onDoctorClick={(id) => navigate(`/doctors/${activeTab}/${id}`)}
                             searchQuery={searchQuery}
                             onSearchChange={setSearchQuery}
                             activeFilter={activeFilter}

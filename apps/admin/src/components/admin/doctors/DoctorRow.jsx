@@ -78,7 +78,7 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
                 </div>
 
                 <div className='w-48 lg:w-56 shrink-0 flex items-center gap-3'>
-                    <div className='w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold text-xs border border-white dark:border-gray-800 shrink-0'>
+                    <div className='w-11 h-11 rounded-full overflow-hidden bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold text-sm border border-white dark:border-gray-800 shrink-0'>
                         {photo_url ? (
                             <img src={photo_url} alt={full_name} className='w-full h-full object-cover' />
                         ) : (
@@ -97,10 +97,10 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
                         <span
                             className={`${!is_active ? 'text-gray-600 dark:text-gray-400 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}
                         >
-                            {displayCategory}
+                            {tier === 'both' ? 'General & Specialized Dentist' : tier === 'general' ? 'General Dentist' : 'Specialized Dentist'}
                         </span>
                         <span className='text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-medium ml-2'>
-                            - {tier === 'both' ? 'General & Specialized' : tier.charAt(0).toUpperCase() + tier.slice(1)}
+                            - {displayCategory}
                         </span>
                     </p>
                 </div>
@@ -113,7 +113,7 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
             {/* Mobile View (xs only) */}
             <div className='flex sm:hidden gap-4 w-full'>
                 <div className='shrink-0'>
-                    <div className='relative w-12 h-12 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-lg overflow-hidden border border-brand-600'>
+                    <div className='relative w-14 h-14 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-xl overflow-hidden border border-brand-600'>
                        {photo_url ? (
                             <img src={photo_url} alt={full_name} className='w-full h-full object-cover' />
                         ) : (
@@ -134,7 +134,7 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
                     <div
                         className={`text-xs truncate ${!is_active ? 'text-gray-600' : 'text-gray-900 dark:text-white font-semibold'}`}
                     >
-                        {displayCategory}
+                        {tier === 'both' ? 'General & Specialized Dentist' : tier === 'general' ? 'General Dentist' : 'Specialized Dentist'}
                     </div>
                     <div className='flex justify-between items-end mt-1'>
                         <div className='text-[10px] text-gray-400 truncate pr-4 flex items-center gap-1'><ShieldCheck size={10}/> {license_number}</div>
