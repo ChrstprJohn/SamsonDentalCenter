@@ -10,7 +10,7 @@ for (let h = 8; h <= 17; h++) {
 }
 TIMES.push(`18:00`);
 
-const WeeklyTimeline = ({ doctor, onBlockClick }) => {
+const WeeklyTimeline = ({ doctor, events = [], onBlockClick }) => {
     const [startDate, setStartDate] = useState(startOfDay(new Date()));
     const [daysToShow, setDaysToShow] = useState(7);
 
@@ -22,20 +22,6 @@ const WeeklyTimeline = ({ doctor, onBlockClick }) => {
     }, []);
 
     const dates = Array.from({ length: daysToShow }, (_, i) => addDays(startDate, i));
-
-    // Sample Data: Dynamic relative to today
-    const todayStr = format(new Date(), 'yyyy-MM-dd');
-    const tomorrowStr = format(addDays(new Date(), 1), 'yyyy-MM-dd');
-    const dayAfterStr = format(addDays(new Date(), 2), 'yyyy-MM-dd');
-
-    const events = [
-        { date: todayStr, start: '09:30', duration: 45, service: 'Dental Cleaning', patient: 'John Doe', type: 'appointment' },
-        { date: todayStr, start: '12:00', duration: 60, service: 'Lunch Break', patient: 'Staff', type: 'blocked' },
-        { date: tomorrowStr, start: '10:00', duration: 90, service: 'Root Canal', patient: 'Jane Smith', type: 'appointment' },
-        { date: tomorrowStr, start: '14:00', duration: 45, service: 'Checkup', patient: 'Mike Ross', type: 'appointment' },
-        { date: dayAfterStr, start: '08:00', duration: 120, service: 'Surgery Prep', patient: 'Clinical Staff', type: 'blocked' },
-        { date: dayAfterStr, start: '11:00', duration: 30, service: 'Quick Consult', patient: 'Harvey Specter', type: 'appointment' },
-    ];
 
     const formatTimeToAMPM = (time) => {
         const [h, m] = time.split(':').map(Number);
@@ -90,7 +76,11 @@ const WeeklyTimeline = ({ doctor, onBlockClick }) => {
                     </p>
                 </div>
                 <div className='hidden sm:flex items-center gap-3'>
-                    <Button variant="outline" size="sm" onClick={onBlockClick} className="gap-2">
+                    <Button 
+                        variant="soft" 
+                        onClick={onBlockClick} 
+                        className="text-sm font-bold h-10 px-4 flex items-center gap-2 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 border border-transparent dark:border-red-900/30"
+                    >
                         <CalendarOff size={16} />
                         Block Time
                     </Button>
@@ -132,7 +122,7 @@ const WeeklyTimeline = ({ doctor, onBlockClick }) => {
                         return (
                             <div key={i} className={`flex flex-col items-center sm:items-start justify-center sm:justify-start p-1 sm:p-3 border-r border-gray-300 dark:border-gray-700 last:border-r-0 ${isToday ? 'bg-brand-50/30 dark:bg-brand-500/5' : ''}`}>
                                 <span className={`text-[11px] sm:text-lg font-black ${isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
-                                    {format(date, 'd')}
+                                     {format(date, 'd')}
                                 </span>
                                 <span className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-tight sm:tracking-widest mt-0.5 ${isToday ? 'text-brand-500 opacity-80' : 'text-gray-400'}`}>
                                     {format(date, 'EEE')}
@@ -214,6 +204,18 @@ const WeeklyTimeline = ({ doctor, onBlockClick }) => {
                         ))}
                     </div>
                 </div>
+            </div>
+
+            {/* Mobile Action Buttons (Under Timeline/Grid) */}
+            <div className='flex sm:hidden flex-col items-stretch gap-3 mt-6 px-5 pb-6'>
+                <Button 
+                    variant="soft" 
+                    onClick={onBlockClick}
+                    className="text-[13px] w-full font-bold h-11 px-4 flex items-center justify-center gap-2 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 border border-transparent dark:border-red-900/30"
+                >
+                    <CalendarOff size={16} />
+                    Block Time
+                </Button>
             </div>
         </div>
     );
