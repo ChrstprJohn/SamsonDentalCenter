@@ -45,6 +45,28 @@ export default function DashboardCalendar({ appointments = [], loading = false }
         const [h, m] = timeStr.split(':').map(Number);
         return (h * 60 + m) - (START_HOUR * 60);
     };
+    
+    const getAppointmentStyles = (app) => {
+        const s = (app.status || '').toUpperCase();
+        const type = (app.type || '').toLowerCase();
+        const isBlocked = s === 'CANCELLED' || s === 'REJECTED' || s === 'NO_SHOW' || type === 'blocked';
+        
+        if (isBlocked) {
+            return {
+                card: 'border-l-red-500 dark:border-l-red-400 border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-950/40 hover:shadow-red-500/10 dark:hover:bg-red-900/20',
+                title: 'text-red-700 dark:text-red-300 group-hover:text-red-600 dark:group-hover:text-red-200',
+                time: 'text-red-600/80 dark:text-red-400/80',
+                duration: 'text-red-500/70 dark:text-red-500/70'
+            };
+        }
+        
+        return {
+            card: 'border-l-brand-500 dark:border-l-brand-400 border-brand-100 dark:border-gray-700 bg-[#f0f9ff] dark:bg-white/[0.08] hover:shadow-brand-500/10 dark:hover:bg-white/[0.12]',
+            title: 'text-brand-700 dark:text-brand-300 group-hover:text-brand-600 dark:group-hover:text-brand-200',
+            time: 'text-brand-600/80 dark:text-brand-400/80',
+            duration: 'text-brand-500/70 dark:text-brand-500/70'
+        };
+    };
 
     const getAppointmentTracks = (dayAppts) => {
         const sorted = [...dayAppts].sort((a, b) => getMinuteOffset(a.start_time) - getMinuteOffset(b.start_time));
@@ -110,14 +132,14 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                     
                     {/* Time Scale Header (Absolute Positioning for perfect alignment) */}
                     <div className='grid border-b border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-white/[0.03] sticky top-0 z-30' style={{ gridTemplateColumns: `${dayColWidth}px ${timelinePadding}px 1fr` }}>
-                        <div className='p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 bg-white dark:bg-[#111827] z-40 text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] text-center'>Day / Time</div>
+                        <div className='p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 bg-white dark:bg-gray-900 z-40 text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] text-center'>Day / Time</div>
                         <div className='border-r border-gray-300 dark:border-gray-700 bg-gray-50/10 dark:bg-white/[0.01]' />
                         
                         <div className='relative h-14 w-full'>
                             {/* Header Grid Lines (Ticks) */}
                             <div className='absolute inset-0 grid pointer-events-none' style={{ gridTemplateColumns: `repeat(${TIME_SLOTS.length - 1}, 1fr)` }}>
                                 {TIME_SLOTS.slice(0, -1).map((_, i) => (
-                                    <div key={i} className='border-r border-gray-200 dark:border-gray-800/40 h-full' />
+                                    <div key={i} className='border-r border-gray-200 dark:border-gray-700 h-full' />
                                 ))}
                             </div>
 
@@ -154,7 +176,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                     style={{ gridTemplateColumns, minHeight: `${rowHeight}px` }}
                                 >
                                     {/* Sticky Date Label (Opaque to prevent overlap visibility) */}
-                                    <div className={`p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 z-20 flex flex-col items-center justify-center shadow-[4px_0_10px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.3)] ${active ? 'bg-brand-50 dark:bg-[#1f2937]' : 'bg-white dark:bg-[#111827]'}`}>
+                                    <div className={`p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 z-20 flex flex-col items-center justify-center shadow-[4px_0_10px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.3)] ${active ? 'bg-brand-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-900'}`}>
                                         <span className={`text-[clamp(1.1rem,3vw,1.75rem)] font-black leading-none ${active ? 'text-brand-500 dark:text-brand-400' : 'text-gray-900 dark:text-gray-100'}`}>{format(day, 'd')}</span>
                                         <span className={`text-[clamp(0.5rem,1.2vw,0.65rem)] font-black uppercase tracking-[0.15em] mt-1 ${active ? 'text-brand-500 dark:text-brand-400 opacity-80' : 'text-gray-400 dark:text-gray-500'}`}>{format(day, 'EEE')}</span>
                                     </div>
@@ -166,7 +188,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                         {/* Background Grid Lines */}
                                         <div className='absolute inset-0 grid pointer-events-none' style={{ gridTemplateColumns: `repeat(${TIME_SLOTS.length - 1}, 1fr)` }}>
                                             {TIME_SLOTS.slice(0, -1).map((_, i) => (
-                                                <div key={i} className='border-r border-gray-200 dark:border-gray-800/20 h-full' />
+                                                <div key={i} className='border-r border-gray-200 dark:border-white/[0.05] h-full' />
                                             ))}
                                         </div>
 
@@ -179,6 +201,8 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                                     const left = (start / TOTAL_MINUTES) * 100;
                                                     const width = (duration / TOTAL_MINUTES) * 100;
 
+                                                    const styles = getAppointmentStyles(app);
+                                                    
                                                     return (
                                                         <div 
                                                             key={`${trackIndex}-${i}`}
@@ -194,14 +218,14 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                                                 to={`/patient/appointments/${app.id}`}
                                                                 className={`
                                                                     h-full w-full p-3 flex flex-col justify-center overflow-hidden 
-                                                                    shadow-sm border-l-[4px] border-l-brand-500 dark:border-l-brand-400 border-y border-r dark:border-r-0 border-brand-100 dark:border-gray-800
-                                                                    bg-[#f0f9ff] dark:bg-white/[0.05] backdrop-blur-[2px] hover:shadow-lg hover:shadow-brand-500/10 dark:hover:bg-white/[0.1] transition-all group
+                                                                    shadow-sm border-l-[4px] border-y border-r dark:border-r-0 backdrop-blur-[2px] transition-all group
+                                                                    ${styles.card}
                                                                 `}
                                                             >
-                                                                <div className='font-black truncate leading-tight text-[clamp(0.7rem,1.4vw,0.85rem)] mb-1 uppercase tracking-tight text-brand-700 dark:text-brand-300 group-hover:text-brand-600 dark:group-hover:text-brand-200'>
+                                                                <div className={`font-black truncate leading-tight text-[clamp(0.7rem,1.4vw,0.85rem)] mb-1 uppercase tracking-tight ${styles.title}`}>
                                                                     {app.service?.name || app.service}
                                                                 </div>
-                                                                <div className='font-bold truncate opacity-90 text-[clamp(0.6rem,1.2vw,0.75rem)] mb-0.5 text-brand-600/80 dark:text-brand-400/80'>
+                                                                <div className={`font-bold truncate opacity-90 text-[clamp(0.6rem,1.2vw,0.75rem)] mb-0.5 ${styles.time}`}>
                                                                     {(() => {
                                                                         const [h, m] = app.start_time.split(':').map(Number);
                                                                         const s = new Date();
@@ -210,7 +234,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                                                         return `${format(s, 'h:mm')} - ${format(e, 'h:mm a')}`;
                                                                     })()}
                                                                 </div>
-                                                                <div className='opacity-70 text-[clamp(0.55rem,1.1vw,0.7rem)] font-bold text-brand-500/70 dark:text-brand-500/70'>
+                                                                <div className={`opacity-70 text-[clamp(0.55rem,1.1vw,0.7rem)] font-bold ${styles.duration}`}>
                                                                     {duration} mins
                                                                 </div>
                                                             </Link>
