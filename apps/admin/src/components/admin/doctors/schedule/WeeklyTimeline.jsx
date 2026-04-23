@@ -3,65 +3,78 @@ import { format, addDays, startOfDay, addMinutes } from 'date-fns';
 import { ChevronLeft, ChevronRight, CalendarOff } from 'lucide-react';
 import { Button } from '../../../ui';
 
-// 8 AM to 5 PM in 30min intervals
+// 8 AM to 6 PM in 30min intervals (20 slots total)
 const TIMES = [];
 for (let h = 8; h <= 17; h++) {
-    TIMES.push(`${h}:00`);
-    TIMES.push(`${h}:30`);
+    TIMES.push(`${h}:00`, `${h}:30`);
 }
+TIMES.push(`18:00`);
 
-const WeeklyTimeline = ({ doctor }) => {
+const WeeklyTimeline = ({ doctor, onBlockClick }) => {
     const [startDate, setStartDate] = useState(startOfDay(new Date()));
-    const dates = Array.from({ length: 7 }, (_, i) => addDays(startDate, i));
+    const [daysToShow, setDaysToShow] = useState(7);
 
-    // Sample Data: Blocked times and appointments (mocked for demo)
+    React.useEffect(() => {
+        const handleResize = () => setDaysToShow(window.innerWidth < 640 ? 3 : 7);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const dates = Array.from({ length: daysToShow }, (_, i) => addDays(startDate, i));
+
+    // Sample Data: Dynamic relative to today
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const tomorrowStr = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+    const dayAfterStr = format(addDays(new Date(), 2), 'yyyy-MM-dd');
+
     const events = [
-        {
-            id: 1,
-            type: 'appointment',
-            label: 'Cleaning - John Doe',
-            start: addMinutes(addDays(startOfDay(new Date()), 0), 9 * 60 + 30), // Today 9:30 AM
-            duration: 45,
-            color: '#38bdf8'
-        },
-        {
-            id: 2,
-            type: 'blocked',
-            label: 'Lunch Break',
-            start: addMinutes(addDays(startOfDay(new Date()), 0), 12 * 60), // Today 12:00 PM
-            duration: 60,
-            color: '#64748b'
-        },
-        {
-            id: 3,
-            type: 'appointment',
-            label: 'Root Canal - Jane Smith',
-            start: addMinutes(addDays(startOfDay(new Date()), 1), 10 * 60), // Tomorrow 10:00 AM
-            duration: 90,
-            color: '#818cf8'
-        }
+        { date: todayStr, start: '09:30', duration: 45, service: 'Dental Cleaning', patient: 'John Doe', type: 'appointment' },
+        { date: todayStr, start: '12:00', duration: 60, service: 'Lunch Break', patient: 'Staff', type: 'blocked' },
+        { date: tomorrowStr, start: '10:00', duration: 90, service: 'Root Canal', patient: 'Jane Smith', type: 'appointment' },
+        { date: tomorrowStr, start: '14:00', duration: 45, service: 'Checkup', patient: 'Mike Ross', type: 'appointment' },
+        { date: dayAfterStr, start: '08:00', duration: 120, service: 'Surgery Prep', patient: 'Clinical Staff', type: 'blocked' },
+        { date: dayAfterStr, start: '11:00', duration: 30, service: 'Quick Consult', patient: 'Harvey Specter', type: 'appointment' },
     ];
 
-    const getEventStyle = (event) => {
-        const startHour = event.start.getHours();
-        const startMinutes = event.start.getMinutes();
-        
-        // Grid starts at 8 AM. Each 30min slot is 40px high (80px per hour)
-        // Added 20px top offset for the half-row spacer that prevents label cutoff
-        const top = (startHour - 8) * 80 + (startMinutes / 60) * 80 + 20;
-        const height = (event.duration / 60) * 80;
+    const formatTimeToAMPM = (time) => {
+        const [h, m] = time.split(':').map(Number);
+        return format(new Date().setHours(h, m), 'h:mm a');
+    };
 
+    const getTimeRange = (start, duration) => {
+        const [h, m] = start.split(':').map(Number);
+        const startTime = new Date();
+        startTime.setHours(h, m, 0, 0);
+        const endTime = addMinutes(startTime, duration);
+        return `${format(startTime, 'h:mm')} - ${format(endTime, 'h:mm a')}`;
+    };
+
+    // Layout constants — all positioning math uses these same values
+    const ROW_PX = daysToShow === 3 ? 56 : 80; // Compact 56px on mobile, spacious 80px on desktop
+    const SPACER_PX = 20;
+    const NUM_SLOTS = TIMES.length - 1; // 20 visible 30-min slots
+    const GRID_HEIGHT = SPACER_PX + NUM_SLOTS * ROW_PX; // total px height
+
+    const getEventStyles = (startTime, duration, isBlocked) => {
+        const [hStr, mStr] = startTime.split(':');
+        const h = parseInt(hStr, 10);
+        const m = parseInt(mStr, 10);
+        const startMinutes = (h - 8) * 60 + m;
+        const top = SPACER_PX + (startMinutes / 30) * ROW_PX;
+        const height = (duration / 30) * ROW_PX;
         return {
             top: `${top}px`,
-            height: `${height - 2}px`, 
-            backgroundColor: event.type === 'blocked' ? '#f8fafc' : `${event.color}15`,
-            borderLeft: `3px solid ${event.type === 'blocked' ? '#94a3b8' : event.color}`,
-            color: event.type === 'blocked' ? '#475569' : event.color,
-            borderColor: event.type === 'blocked' ? '#e2e8f0' : `${event.color}30`
+            height: `${Math.max(height - 2, 20)}px`,
+            backgroundColor: isBlocked ? '#fff1f2' : '#f0f9ff', // lighter red-50/blue-50
+            borderColor: isBlocked ? '#fecaca #fca5a5 #fca5a5 #ef4444' : '#dbeafe #93c5fd #93c5fd #3b82f6', // top, right, bottom, left
+            color: isBlocked ? '#991b1b' : '#1e40af',
+            borderStyle: 'solid',
+            borderWidth: '1px 1px 1px 4px', // Clean left-accent border
         };
     };
 
-    const nav = (days) => setStartDate(addDays(startDate, days));
+    const nav = (offset) => setStartDate(addDays(startDate, offset === 7 || offset === -7 ? (daysToShow === 3 ? (offset > 0 ? 3 : -3) : offset) : offset));
     const goToday = () => setStartDate(startOfDay(new Date()));
 
     return (
@@ -70,17 +83,14 @@ const WeeklyTimeline = ({ doctor }) => {
             <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h4 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        Upcoming Schedule
+                        {daysToShow === 3 ? '3-Day Schedule' : 'Upcoming Schedule'}
                     </h4>
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
-                        Timeline view of appointments and manual blocks for the next 7 days.
+                        {daysToShow === 3 ? 'Timeline view for the next 3 days.' : 'Timeline view of appointments and manual blocks for the next 7 days.'}
                     </p>
                 </div>
                 <div className='hidden sm:flex items-center gap-3'>
-                    <Button 
-                        variant="soft" 
-                        className="text-sm font-bold h-10 px-4 flex items-center gap-2 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
-                    >
+                    <Button variant="outline" size="sm" onClick={onBlockClick} className="gap-2">
                         <CalendarOff size={16} />
                         Block Time
                     </Button>
@@ -88,40 +98,43 @@ const WeeklyTimeline = ({ doctor }) => {
             </div>
 
             {/* Grid Wrapper */}
-            <div className="flex flex-col h-auto overflow-x-auto no-scrollbar">
+            <div className="flex flex-col h-auto overflow-hidden" style={{ '--gutter-width': 'clamp(56px, 15vw, 90px)' }}>
                 
                 {/* Grid Header: Date Range & Nav (Matches WeeklyRoutine Month Nav) */}
-                <div className='flex flex-col sm:flex-row sm:items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/[0.01] gap-4 min-w-[700px]'>
+                <div className='flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/[0.01] gap-2'>
                     <div>
-                        <h3 className='text-lg font-bold text-gray-900 dark:text-white'>
-                            Week of {format(startDate, 'MMMM d, yyyy')}
+                        <h3 className='text-xs sm:text-lg font-bold text-gray-900 dark:text-white truncate max-w-[150px] sm:max-w-none'>
+                            {daysToShow === 3 
+                                ? `${format(startDate, 'MMM d')} - ${format(addDays(startDate, 2), 'd, yyyy')}`
+                                : `Week of ${format(startDate, 'MMMM d, yyyy')}`
+                            }
                         </h3>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={goToday} className="text-xs font-bold px-3 h-8 border-gray-200 dark:border-gray-700">Today</Button>
-                        <div className="flex items-center gap-1 ml-2">
-                            <button onClick={() => nav(-7)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-300 dark:border-gray-700 text-gray-500 transition-all">
-                                <ChevronLeft size={16} />
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                        <Button variant="outline" size="sm" onClick={goToday} className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-3 h-7 sm:h-8 border-gray-200 dark:border-gray-700">Today</Button>
+                        <div className="flex items-center gap-0.5 sm:gap-1 ml-1 sm:ml-2">
+                            <button onClick={() => nav(-7)} className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-500 transition-all">
+                                <ChevronLeft size={12} className="sm:w-4 sm:h-4" />
                             </button>
-                            <button onClick={() => nav(7)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-300 dark:border-gray-700 text-gray-500 transition-all">
-                                <ChevronRight size={16} />
+                            <button onClick={() => nav(7)} className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-500 transition-all">
+                                <ChevronRight size={12} className="sm:w-4 sm:h-4" />
                             </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Day Headers row - Synchronized width and grid */}
-                <div className="grid border-b border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-transparent min-w-[700px]"
-                    style={{ gridTemplateColumns: `80px repeat(7, 1fr)` }}>
+                {/* Day Headers row - Fluid on mobile */}
+                <div className="grid border-b border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-transparent"
+                    style={{ gridTemplateColumns: `var(--gutter-width) repeat(${daysToShow}, 1fr)` }}>
                     <div className="border-r border-gray-300 dark:border-gray-700" />
                     {dates.map((date, i) => {
                         const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
                         return (
-                            <div key={i} className={`flex flex-col items-start justify-start p-2 sm:p-3 border-r border-gray-300 dark:border-gray-700 last:border-r-0 ${isToday ? 'bg-brand-50/30 dark:bg-brand-500/5' : ''}`}>
-                                <span className={`text-sm sm:text-lg font-black ${isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
+                            <div key={i} className={`flex flex-col items-center sm:items-start justify-center sm:justify-start p-1 sm:p-3 border-r border-gray-300 dark:border-gray-700 last:border-r-0 ${isToday ? 'bg-brand-50/30 dark:bg-brand-500/5' : ''}`}>
+                                <span className={`text-[11px] sm:text-lg font-black ${isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
                                     {format(date, 'd')}
                                 </span>
-                                <span className={`text-[10px] font-bold uppercase tracking-widest mt-0.5 ${isToday ? 'text-brand-500 opacity-80' : 'text-gray-400'}`}>
+                                <span className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-tight sm:tracking-widest mt-0.5 ${isToday ? 'text-brand-500 opacity-80' : 'text-gray-400'}`}>
                                     {format(date, 'EEE')}
                                 </span>
                             </div>
@@ -129,71 +142,74 @@ const WeeklyTimeline = ({ doctor }) => {
                     })}
                 </div>
 
-                {/* Timeline Body */}
-                <div className="no-scrollbar min-w-[700px] pb-10">
-                    <div className="grid relative"
-                        style={{ 
-                            gridTemplateColumns: `80px repeat(7, 1fr)`,
-                            // 20px spacer row + grid rows
-                            gridTemplateRows: `20px repeat(${TIMES.length - 1}, 40px)` 
-                        }}>
-                        
-                        {/* 1. Time Gutter (Column 1) */}
-                        <div className="grid border-r border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900/50" 
-                             style={{ gridColumn: 1, gridRow: `1 / span ${TIMES.length}` }}>
-                            
-                            {/* Top Spacer Cell (Ensures first label isn't cut off) */}
-                            <div className="h-5" /> 
+                {/* Timeline Body - Fluid on mobile */}
+                <div className="no-scrollbar pb-10">
+                    {/* Single parent grid — both gutter labels and event pills use the same coordinate space */}
+                    <div className="flex" style={{ height: `${GRID_HEIGHT}px` }}>
 
+                        {/* Time Gutter — absolutely positioned labels sharing SPACER_PX + ROW_PX math */}
+                        <div className="relative flex-shrink-0 border-r border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900/50"
+                             style={{ width: 'var(--gutter-width)' }}>
                             {TIMES.map((time, i) => {
-                                const [h, m] = time.split(':').map(Number);
+                                const [hStr, mStr] = time.split(':');
+                                const h = parseInt(hStr, 10);
+                                const m = parseInt(mStr, 10);
                                 const isHalf = m !== 0;
+                                const topPx = SPACER_PX + i * ROW_PX;
                                 return (
-                                    <div key={i} className="flex justify-center items-start h-10 relative">
-                                        {/* Line Alignment: Labels formatted to h:mm a */}
-                                        <span className={`absolute top-0 text-[10px] font-black tabular-nums transform -translate-y-1/2 ${isHalf ? 'text-gray-400 opacity-60' : 'text-gray-700 dark:text-gray-200'}`}>
-                                            {format(new Date().setHours(h, m), isHalf ? 'h:mm a' : 'h a')}
-                                        </span>
-                                    </div>
+                                    <span key={i}
+                                          className={`absolute left-0 right-0 text-center text-[9px] sm:text-[13px] font-black tabular-nums -translate-y-1/2 select-none ${isHalf ? 'text-gray-400' : 'text-gray-800 dark:text-gray-100'}`}
+                                          style={{ top: `${topPx}px` }}>
+                                        {format(new Date().setHours(h, m), isHalf ? 'h:mm' : 'h a')}
+                                    </span>
                                 );
                             })}
                         </div>
 
-                        {/* 2. Grid Cells and Data Columns (Columns 2-8) */}
+                        {/* Data columns — one per visible day */}
                         {dates.map((date, colIndex) => (
-                            <div key={colIndex} 
-                                 className="relative border-r border-gray-300 dark:border-gray-700 last:border-r-0"
-                                 style={{ gridColumn: colIndex + 2, gridRow: `1 / span ${TIMES.length}` }}>
-                                
-                                {/* Top Spacer Grid Cell */}
-                                <div className="h-5 border-b border-transparent" />
+                            <div key={colIndex}
+                                 className="relative flex-1 border-r border-gray-300 dark:border-gray-700 last:border-r-0 bg-white dark:bg-transparent">
 
-                                {/* 30min Background Slots - Aligned perfectly with labels */}
+                                {/* Horizontal grid lines */}
                                 {TIMES.slice(0, -1).map((_, rowIndex) => (
-                                    <div key={rowIndex} className={`h-10 border-b border-gray-300 dark:border-gray-700 ${rowIndex % 2 === 1 ? 'opacity-40' : 'opacity-100'}`} />
+                                    <div key={rowIndex}
+                                         className="absolute left-0 right-0 border-b border-gray-300 dark:border-gray-700"
+                                         style={{ top: `${SPACER_PX + rowIndex * ROW_PX}px`, height: `${ROW_PX}px` }} />
                                 ))}
 
                                 {/* Event Pills Overlay */}
-                                <div className="absolute inset-0 pointer-events-none">
-                                    {events
-                                        .filter(e => startOfDay(e.start).getTime() === date.getTime())
-                                        .map(event => (
-                                            <div 
-                                                key={event.id}
-                                                className="absolute left-[6px] right-[6px] p-2 rounded-lg border shadow-sm flex flex-col gap-0.5 pointer-events-auto z-10 transition-all hover:ring-2 hover:ring-offset-1 dark:hover:ring-offset-gray-900 overflow-hidden"
-                                                style={{...getEventStyle(event)}}
-                                            >
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-[8px] font-black uppercase tracking-tighter truncate opacity-80">
-                                                        {format(event.start, 'h:mm a')}
-                                                    </span>
+                                {events.filter(e => e.date === format(date, 'yyyy-MM-dd')).map((event, i) => {
+                                    const isBlocked = event.type === 'blocked';
+                                    const styles = getEventStyles(event.start, event.duration, isBlocked);
+                                    
+                                    // Clamp visibility to current grid height if it overflows (6 PM limit)
+                                    return (
+                                        <div 
+                                            key={i}
+                                            className={`absolute left-0.5 right-0.5 rounded-lg text-[10px] flex flex-row overflow-hidden shadow-sm transition-all hover:scale-[1.01] hover:shadow-md hover:z-20 box-border`}
+                                            style={{
+                                                ...styles,
+                                                maxHeight: `calc(${GRID_HEIGHT}px - ${styles.top})`,
+                                                zIndex: 10,
+                                            }}
+                                        >
+                                            <div className="flex flex-col flex-1 p-1.5 sm:p-2.5 justify-center min-w-0">
+                                                <div className='font-black truncate leading-none text-[9px] sm:text-[13px] mb-0.5 sm:mb-1 uppercase tracking-tight'>
+                                                    {isBlocked ? 'Blocked: ' + event.service : event.service}
                                                 </div>
-                                                <span className="text-[10px] font-bold leading-tight line-clamp-2">
-                                                    {event.label}
-                                                </span>
+                                                <div className='font-bold truncate opacity-90 text-[8px] sm:text-[12px] mb-1 sm:mb-1.5'>
+                                                    {event.patient}
+                                                </div>
+                                                <div className='opacity-80 text-[7px] sm:text-[11px] font-bold flex items-center gap-1.5 sm:gap-2'>
+                                                    <span className="whitespace-nowrap">{getTimeRange(event.start, event.duration)}</span>
+                                                    <span className="opacity-40">•</span>
+                                                    <span className="whitespace-nowrap">{event.duration}m</span>
+                                                </div>
                                             </div>
-                                        ))}
-                                </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         ))}
                     </div>

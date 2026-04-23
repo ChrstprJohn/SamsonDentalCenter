@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { format, isSameDay, isSameMonth } from 'date-fns';
 import { Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CalendarOff, CheckSquare } from 'lucide-react';
 import { Switch, Input, Button, Modal } from '../../../ui';
 import { useToast } from '../../../../context/ToastContext.jsx';
 
-const WeeklyRoutine = () => {
+const WeeklyRoutine = ({ externalBlockModalOpen, setExternalBlockModalOpen }) => {
     const { showToast } = useToast();
     const initialDays = [
         { id: 'Monday', isWorking: true, start: '08:00', end: '17:00' },
@@ -21,7 +22,12 @@ const WeeklyRoutine = () => {
     
     // Modal States
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+    
+    // Internal fallback if no external state is provided (for backward compat)
+    const [_isBlockModalOpen, _setIsBlockModalOpen] = useState(false);
+    const isBlockModalOpen = externalBlockModalOpen !== undefined ? externalBlockModalOpen : _isBlockModalOpen;
+    const setIsBlockModalOpen = setExternalBlockModalOpen !== undefined ? setExternalBlockModalOpen : _setIsBlockModalOpen;
+
     const [blockModalMode, setBlockModalMode] = useState('view');
 
     // Blocked Dates State (YYYY-MM-DD format)
@@ -158,8 +164,8 @@ const WeeklyRoutine = () => {
     const blockMonthName = blockCalDate.toLocaleString('default', { month: 'long' });
 
     return (
-        <div className='p-[clamp(1rem,5vw,1.75rem)] border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] flex flex-col'>
-            <div className='mb-6 flex flex-col xl:flex-row xl:items-center justify-between gap-4'>
+        <div className="flex flex-col border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-white/[0.03] overflow-hidden">
+            <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h4 className='text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2'>
                         Weekly Routine & Blocks
@@ -189,19 +195,19 @@ const WeeklyRoutine = () => {
             </div>
 
             {/* Main Read-only Display view: Full Calendar */}
-            <div className='-mx-[clamp(1rem,5vw,1.75rem)] sm:mx-0 border-y sm:border border-gray-200 dark:border-gray-700 sm:rounded-xl overflow-hidden bg-white dark:bg-transparent'>
-                <div className='flex flex-col sm:flex-row sm:items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/[0.01] gap-4'>
+            <div className='overflow-hidden bg-white dark:bg-transparent'>
+                <div className='flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/[0.01] gap-2'>
                     <div>
-                        <h3 className='text-lg font-bold text-gray-900 dark:text-white'>{monthName} {year}</h3>
+                        <h3 className='text-sm sm:text-lg font-bold text-gray-900 dark:text-white truncate max-w-[120px] sm:max-w-none'>{monthName} {year}</h3>
                     </div>
-                    <div className='flex items-center gap-2'>
-                        <Button variant="outline" size="sm" onClick={goThisMonth} className="text-xs font-bold px-3 h-8 border-gray-200 dark:border-gray-700">This Month</Button>
-                        <div className='flex items-center gap-1 ml-2'>
+                    <div className='flex items-center gap-1.5 sm:gap-2'>
+                        <Button variant="outline" size="sm" onClick={goThisMonth} className="text-[10px] sm:text-xs font-bold px-2 sm:px-3 h-7 sm:h-8 border-gray-200 dark:border-gray-700">Today</Button>
+                        <div className='flex items-center gap-1 ml-1 sm:ml-2'>
                             <button onClick={() => navMonth(setCurrentDate, currentDate, -1)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-500 transition-all'>
-                                <ChevronLeft size={16} />
+                                <ChevronLeft size={14} className="sm:w-4 sm:h-4" />
                             </button>
                             <button onClick={() => navMonth(setCurrentDate, currentDate, 1)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-500 transition-all'>
-                                <ChevronRight size={16} />
+                                <ChevronRight size={14} className="sm:w-4 sm:h-4" />
                             </button>
                         </div>
                     </div>
@@ -213,8 +219,9 @@ const WeeklyRoutine = () => {
                     ))}
                 </div>
 
-                <div className='grid grid-cols-7 bg-gray-200 dark:bg-gray-700 gap-[1px]'>
-                    {Array.from({ length: startingDay }).map((_, i) => <div key={`empty-${i}`} className='bg-gray-50 dark:bg-gray-800/40 aspect-square' />)}
+                {/* Day grid */}
+                <div className='grid grid-cols-7 w-full border-t border-l border-gray-200 dark:border-gray-700'>
+                    {Array.from({ length: startingDay }).map((_, i) => <div key={`empty-${i}`} className='bg-gray-50/50 dark:bg-gray-800/10 border-r border-b border-gray-100 dark:border-gray-800 aspect-square' />)}
                     {Array.from({ length: daysInMonth }).map((_, i) => {
                         const dateNum = i + 1;
                         const dateObj = new Date(year, month, dateNum);
@@ -226,21 +233,53 @@ const WeeklyRoutine = () => {
                         const isBlocked = blockedDates.has(dateKey);
                         const isEffectivelyWorking = dayConfig.isWorking && !isBlocked;
 
+                        const isSelected = isSameDay(dateObj, currentDate);
+                        const isToday = isSameDay(dateObj, new Date());
+
                         return (
-                            <div key={dateNum} className={`bg-white dark:bg-gray-900 aspect-square p-1.5 sm:p-3 flex flex-col transition-colors min-w-0 overflow-hidden ${!isEffectivelyWorking ? 'opacity-70 bg-gray-50 dark:bg-white/[0.01]' : 'hover:bg-gray-50 dark:hover:bg-white/[0.02]'}`}>
-                                <span className={`text-sm sm:text-lg font-black w-full text-center sm:text-left ${!isEffectivelyWorking ? 'text-gray-400' : 'text-gray-900 dark:text-white'}`}>
-                                    {dateNum}
-                                </span>
-                                <div className='flex-grow flex flex-col justify-end pb-0 sm:pb-1 min-w-0 w-full'>
+                            <div 
+                                key={dateNum} 
+                                onClick={() => setCurrentDate(dateObj)}
+                                className={`
+                                    relative aspect-square p-1.5 sm:p-3 flex flex-col transition-all cursor-pointer group
+                                    border-r border-b border-gray-200 dark:border-gray-700
+                                    ${!isEffectivelyWorking ? 'bg-gray-50/30 dark:bg-white/[0.01]' : 'bg-white dark:bg-transparent hover:bg-gray-50 dark:hover:bg-white/[0.02]'}
+                                `}
+                            >
+                                <div className="flex items-center justify-between mb-auto">
+                                    <span className={`text-xs sm:text-lg font-black ${!isEffectivelyWorking ? 'text-gray-400' : isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
+                                        {dateNum}
+                                    </span>
+                                    {isToday && <div className="w-1.5 h-1.5 rounded-full bg-brand-500" />}
+                                </div>
+
+                                <div className='flex flex-col justify-end min-w-0 w-full mt-auto'>
                                     {isEffectivelyWorking ? (
-                                        <div className='w-full text-center text-[9px] sm:text-xs font-bold text-gray-900 dark:text-white truncate bg-gray-100 dark:bg-black/20 rounded py-0.5 sm:py-1 px-0.5 sm:px-1'>
-                                            {formatTimeToAMPM(dayConfig.start)}
-                                            <span className="hidden lg:inline"> - {formatTimeToAMPM(dayConfig.end)}</span>
+                                        <div className='flex flex-col sm:flex-row sm:items-center sm:gap-1 text-[8px] sm:text-[11px] font-bold text-gray-700 dark:text-gray-300 leading-[1.1] sm:leading-normal truncate'>
+                                            {(() => {
+                                                const f = (t) => {
+                                                    const [h, m] = t.split(':').map(Number);
+                                                    const d = new Date().setHours(h, m);
+                                                    return format(d, m === 0 ? 'ha' : 'h:mma').toLowerCase();
+                                                };
+                                                return (
+                                                    <>
+                                                        <span>{f(dayConfig.start)}</span>
+                                                        <div className="flex items-center gap-0.5 sm:gap-1">
+                                                            <span className="opacity-40 sm:hidden">/</span>
+                                                            <span className="opacity-40 hidden sm:inline">-</span>
+                                                            <span>{f(dayConfig.end)}</span>
+                                                        </div>
+                                                    </>
+                                                );
+                                            })()}
                                         </div>
                                     ) : (
-                                        <div className='w-full text-center text-[7px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-tight sm:tracking-widest flex items-center justify-center gap-0 sm:gap-1 truncate'>
-                                            {isBlocked && <CalendarOff size={10} className="mb-[1px] hidden sm:block" />}
-                                            <span className="truncate w-full">{isBlocked ? 'Blocked' : 'Closed'}</span>
+                                        <div className='w-full flex items-center gap-1 opacity-60'>
+                                            {isBlocked && <CalendarOff size={10} className="text-red-500" />}
+                                            <span className='text-[7px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 truncate'>
+                                                {isBlocked ? 'Blocked' : 'Closed'}
+                                            </span>
                                         </div>
                                     )}
                                 </div>
@@ -248,12 +287,12 @@ const WeeklyRoutine = () => {
                         );
                     })}
 
-                    {Array.from({ length: (7 - ((startingDay + daysInMonth) % 7)) % 7 }).map((_, i) => <div key={`empty-end-${i}`} className='bg-gray-50 dark:bg-gray-800/40 aspect-square' />)}
+                    {Array.from({ length: (7 - ((startingDay + daysInMonth) % 7)) % 7 }).map((_, i) => <div key={`empty-end-${i}`} className='bg-gray-50/50 dark:bg-gray-800/10 border-r border-b border-gray-100 dark:border-gray-800 aspect-square' />)}
                 </div>
             </div>
 
             {/* Mobile Action Buttons (Under Calendar) */}
-            <div className='flex sm:hidden flex-col items-stretch gap-3 mt-6'>
+            <div className='flex sm:hidden flex-col items-stretch gap-3 mt-6 px-5 pb-6'>
                 <Button 
                     variant="soft" 
                     onClick={openBlockModal}
