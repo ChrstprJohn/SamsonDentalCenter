@@ -893,7 +893,7 @@ export const setDentistSchedule = async (dentistId, dayOfWeek, schedule) => {
  * Bulk set a dentist's entire weekly schedule.
  *
  * @param {string} dentistId - Dentist UUID
- * @param {Array} schedules - Array of { day_of_week, is_working, start_time, end_time }
+ * @param {Array} schedules - Array of { day_of_week, is_working, start_time, end_time, break_start_time, break_end_time }
  */
 export const setBulkSchedule = async (dentistId, schedules) => {
     const rows = schedules.map((s) => ({
@@ -902,6 +902,8 @@ export const setBulkSchedule = async (dentistId, schedules) => {
         is_working: s.is_working,
         start_time: s.start_time || null,
         end_time: s.end_time || null,
+        break_start_time: s.break_start_time || null,
+        break_end_time: s.break_end_time || null,
     }));
 
     const { data, error } = await supabaseAdmin

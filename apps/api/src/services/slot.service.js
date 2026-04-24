@@ -285,6 +285,13 @@ export const getAvailableSlots = async (
             });
             if (hasBlockConflict) return false;
 
+            // Check if this slot overlaps with the dentist's recurring break
+            if (schedule.break_start_time && schedule.break_end_time) {
+                if (timesOverlap(slot, slotEnd, schedule.break_start_time, schedule.break_end_time)) {
+                    return false;
+                }
+            }
+
             return true;
         });
 
