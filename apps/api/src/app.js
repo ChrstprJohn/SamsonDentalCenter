@@ -69,7 +69,8 @@ app.use(
                 process.env.DOCTOR_URL || 'http://localhost:5176',
                 'http://localhost:3000', // Documentation or Legacy
             ].filter(Boolean)
-             .concat((process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean));
+             .concat((process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean))
+             .map(url => url.replace(/\/$/, ''));
 
             if (!origin || allowedOrigins.includes(origin)) {
                 callback(null, true);
