@@ -1249,7 +1249,11 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
         .order('start_time', { ascending: true });
 
     // Apply filters
-    if (filters.date) query = query.eq('appointment_date', filters.date);
+    if (filters.date) {
+        query = query.eq('appointment_date', filters.date);
+    } else if (filters.date_from) {
+        query = query.gte('appointment_date', filters.date_from);
+    }
     
     // If a specific status is requested, use it; otherwise, exclude 'zombie' statuses by default
     // to prevent rescheduled/cancelled/missed appointments from cluttering active lists.

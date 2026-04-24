@@ -52,11 +52,11 @@ const DoctorScheduleDetail = ({ doctor }) => {
 
                 newEvents.push({
                     id: appt.id,
-                    date: appt.appointment_date,
+                    date: appt.date,
                     start: appt.start_time.substring(0, 5),
                     duration: duration,
-                    service: appt.service?.name || 'Dental Service',
-                    patient: appt.patient?.full_name || 'Guest Patient',
+                    service: appt.service || 'Dental Service',
+                    patient: appt.patient?.name || 'Guest Patient',
                     type: 'appointment',
                     status: appt.status
                 });

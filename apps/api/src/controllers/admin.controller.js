@@ -107,10 +107,11 @@ const formatDoctorResponse = (d) => {
  */
 export const getAllAppointments = async (req, res, next) => {
     try {
-        const { date, status, dentist_id, patient_id, tier, page = 1, limit = 20 } = req.query;
+        const { date, date_from, status, dentist_id, patient_id, tier, page = 1, limit = 20 } = req.query;
 
         const filters = {
             date: date || null,
+            date_from: date_from || null,
             status: status || null,
             dentist_id: dentist_id || null,
             patient_id: patient_id || null,
