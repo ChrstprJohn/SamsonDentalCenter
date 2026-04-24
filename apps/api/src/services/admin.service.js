@@ -1313,24 +1313,161 @@ export const searchPatients = async (search = null) => {
 };
 
 /**
- * Get all active dentists with their profile info.
+ * Get all dentists (active + inactive) with full profile and services.
  *
- * @returns {Array} List of dentists with profile data
+ * @returns {Array} List of dentists with profile data and authorized services
  */
 export const getDentistsList = async () => {
     const { data, error } = await supabaseAdmin
         .from('dentists')
         .select(
             `
-        *,
-        profile: profiles(full_name, email, phone)
+        id, license_number, specialization, tier, bio, photo_url, is_active, created_at,
+        profile: profiles(id, full_name, first_name, last_name, middle_name, suffix, email, phone),
+        dentist_services(service_id, service:services(id, name, tier))
             `,
         )
-        .eq('is_active', true);
+        .order('created_at', { ascending: true });
 
     if (error) throw new AppError(error.message, 500);
 
     return data;
+};
+
+/**
+ * Get a single dentist by ID with full profile and services.
+ *
+ * @param {string} dentistId - Dentist UUID
+ * @returns {object} Dentist with profile and services
+ */
+export const getDentistById = async (dentistId) => {
+    const { data, error } = await supabaseAdmin
+        .from('dentists')
+        .select(
+            `
+        id, license_number, specialization, tier, bio, photo_url, is_active, created_at,
+        profile: profiles(id, full_name, first_name, last_name, middle_name, suffix, email, phone),
+        dentist_services(service_id, service:services(id, name, tier))
+            `,
+        )
+        .eq('id', dentistId)
+        .single();
+
+    if (error) throw new AppError(error.message, 404);
+    return data;
+};
+
+/**
+ * Update a dentist's profile fields.
+ * Updates both `dentists` table (bio, photo_url, is_active, license_number)
+ * and `profiles` table (name fields, email, phone).
+ *
+ * @param {string} dentistId - Dentist UUID
+ * @param {object} fields - { bio?, photo_url?, is_active?, license_number?, first_name?, last_name?, middle_name?, suffix?, email?, phone? }
+ * @returns {object} Updated dentist with profile
+ */
+export const updateDentistProfileData = async (dentistId, fields) => {
+    const {
+        bio, photo_url, is_active, license_number,
+        first_name, last_name, middle_name, suffix, email, phone,
+    } = fields;
+
+    // 1. Get current dentist to know profile_id and current name parts
+    const { data: current, error: fetchErr } = await supabaseAdmin
+        .from('dentists')
+        .select(`
+            id, 
+            profile_id, 
+            profile:profiles(first_name, last_name, middle_name, suffix)
+        `)
+        .eq('id', dentistId)
+        .single();
+
+    if (fetchErr || !current) throw new AppError('Dentist not found.', 404);
+
+    // 2. Update dentists table
+    const dentistUpdates = {};
+    if (bio !== undefined) dentistUpdates.bio = bio;
+    if (photo_url !== undefined) dentistUpdates.photo_url = photo_url;
+    if (is_active !== undefined) dentistUpdates.is_active = is_active;
+    if (license_number !== undefined) dentistUpdates.license_number = license_number;
+
+    if (Object.keys(dentistUpdates).length > 0) {
+        dentistUpdates.updated_at = new Date().toISOString();
+        const { error: dentistErr } = await supabaseAdmin
+            .from('dentists')
+            .update(dentistUpdates)
+            .eq('id', dentistId);
+        if (dentistErr) throw new AppError(dentistErr.message, 500);
+    }
+
+    // 3. Update profiles table (name + contact)
+    const profileUpdates = {};
+    if (first_name !== undefined) profileUpdates.first_name = first_name;
+    if (last_name !== undefined) profileUpdates.last_name = last_name;
+    if (middle_name !== undefined) profileUpdates.middle_name = middle_name;
+    if (suffix !== undefined) profileUpdates.suffix = suffix;
+    if (email !== undefined) profileUpdates.email = email;
+    if (phone !== undefined) profileUpdates.phone = phone;
+
+    // Rebuild full_name if any name parts changed
+    if (
+        first_name !== undefined ||
+        last_name !== undefined ||
+        middle_name !== undefined ||
+        suffix !== undefined
+    ) {
+        const fn = first_name !== undefined ? first_name : current.profile?.first_name || '';
+        const mn = middle_name !== undefined ? middle_name : current.profile?.middle_name || '';
+        const ln = last_name !== undefined ? last_name : current.profile?.last_name || '';
+        const sf = suffix !== undefined ? suffix : current.profile?.suffix || '';
+
+        profileUpdates.full_name = `Dr. ${fn}${mn ? ' ' + mn : ''} ${ln}${sf ? ' ' + sf : ''}`
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    if (Object.keys(profileUpdates).length > 0) {
+        profileUpdates.updated_at = new Date().toISOString();
+        const { error: profileErr } = await supabaseAdmin
+            .from('profiles')
+            .update(profileUpdates)
+            .eq('id', current.profile_id);
+        if (profileErr) throw new AppError(profileErr.message, 500);
+    }
+
+    // 4. Return fresh data
+    return getDentistById(dentistId);
+};
+
+/**
+ * Replace a dentist's authorized services.
+ * Deletes existing dentist_services rows and inserts the new set.
+ *
+ * @param {string} dentistId - Dentist UUID
+ * @param {string[]} serviceIds - Array of service UUIDs
+ * @returns {object} Updated dentist with new services
+ */
+export const replaceDentistServices = async (dentistId, serviceIds) => {
+    // 1. Delete existing service mappings
+    const { error: deleteErr } = await supabaseAdmin
+        .from('dentist_services')
+        .delete()
+        .eq('dentist_id', dentistId);
+
+    if (deleteErr) throw new AppError(deleteErr.message, 500);
+
+    // 2. Insert new mappings (skip if empty array)
+    if (Array.isArray(serviceIds) && serviceIds.length > 0) {
+        const rows = serviceIds.map((sid) => ({ dentist_id: dentistId, service_id: sid }));
+        const { error: insertErr } = await supabaseAdmin
+            .from('dentist_services')
+            .insert(rows);
+        if (insertErr) throw new AppError(insertErr.message, 500);
+    }
+
+    // 3. Return fresh data
+    return getDentistById(dentistId);
 };
 
 // ═══════════════════════════════════════════════

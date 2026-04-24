@@ -1,57 +1,63 @@
 import React, { useState, useMemo } from 'react';
-import { TrendingUp, ClipboardList, Star, CheckCircle2, AlertCircle, Save, X, Info } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Save, Info } from 'lucide-react';
 import Button from '../../../ui/Button';
 import { useToast } from '../../../../context/ToastContext.jsx';
+import useServices from '../../../../hooks/useServices';
 
-const DoctorProfileDetail = ({ doctor }) => {
+const DoctorProfileDetail = ({ doctor, updateDoctorServices }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [selectedServices, setSelectedServices] = useState(doctor.services || []);
+    const { services: allServices = [] } = useServices();
+    
+    // selectedServices now stores full service objects instead of just names
+    const currentServices = doctor.services || [];
+    const [selectedServices, setSelectedServices] = useState(
+        currentServices.map(s => s.name)
+    );
+
+    // Sync state when props update (e.g. after a backend save updates the authorized list)
+    React.useEffect(() => {
+        setSelectedServices((doctor.services || []).map(s => s.name));
+    }, [doctor.services]);
+    const [isSaving, setIsSaving] = useState(false);
     const { showToast } = useToast();
 
     const categorizedServices = useMemo(() => {
-        const defaultServices = [
-            { name: 'Dental Cleaning', category: 'General' },
-            { name: 'Root Canal', category: 'Specialized' },
-            { name: 'Teeth Whitening', category: 'General' },
-            { name: 'Orthodontic Consult', category: 'Specialized' },
-            { name: 'Oral Surgery', category: 'Specialized' },
-            { name: 'X-Ray Scan', category: 'General' },
-            { name: 'Filling', category: 'General' },
-            { name: 'Extraction', category: 'General' },
-            { name: 'Braces Adjustment', category: 'Specialized' },
-            { name: 'Invisalign Check', category: 'Specialized' },
-            { name: 'Fluoride Treatment', category: 'General' },
-            { name: 'Sealants', category: 'General' }
-        ];
+        const fallbackId = (index) => `temp-${index}`;
+        
+        const mappedServices = allServices.map((s, index) => ({
+            id: s.id || fallbackId(index),
+            name: s.name,
+            category: s.category || (s.tier === 'general' ? 'General' : s.tier === 'specialized' ? 'Specialized' : 'Clinical')
+        }));
         
         return {
-            authorized: defaultServices.filter(s => selectedServices.includes(s.name)),
-            general: defaultServices.filter(s => !selectedServices.includes(s.name) && s.category?.toLowerCase() === 'general'),
-            specialized: defaultServices.filter(s => !selectedServices.includes(s.name) && s.category?.toLowerCase() === 'specialized')
+            authorized: mappedServices.filter(s => selectedServices.includes(s.name)),
+            general: mappedServices.filter(s => !selectedServices.includes(s.name) && s.category?.toLowerCase() === 'general'),
+            specialized: mappedServices.filter(s => !selectedServices.includes(s.name) && s.category?.toLowerCase() === 'specialized')
         };
-    }, [selectedServices]);
+    }, [selectedServices, allServices]);
 
     const renderServiceCheckbox = (service) => {
         const isChecked = selectedServices.includes(service.name);
         return (
             <label 
                 key={service.name}
-                className={`h-full flex items-center justify-between p-2.5 sm:p-3 rounded-lg border transition-all cursor-pointer group ${
+                className={`h-full flex items-center justify-between p-2.5 sm:p-3 rounded-lg border transition-all cursor-pointer group overflow-hidden ${
                     isChecked 
                         ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-500/10' 
                         : 'border-gray-100 dark:border-gray-800/80 hover:border-brand-500/50 hover:bg-white dark:hover:bg-white/[0.03] bg-gray-50/30 dark:bg-white/[0.01]'
                 }`}
             >
-                <div className='flex items-center gap-2 sm:gap-3'>
+                <div className='flex items-center gap-2 sm:gap-3 min-w-0'>
                     <input 
                         type="checkbox"
-                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900"
+                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 shrink-0"
                         checked={isChecked}
                         onChange={() => toggleService(service.name)}
                     />
-                    <div className="min-w-0">
+                    <div className="min-w-0 max-w-full">
                         <p className={`text-[clamp(11px,2.5vw,14px)] font-semibold text-gray-800 dark:text-white/90 truncate`}>{service.name}</p>
-                        <span className={`text-[clamp(8px,2vw,9px)] font-bold uppercase tracking-widest transition-colors ${isChecked ? 'text-brand-500/70' : 'text-gray-400 group-hover:text-brand-500/70'}`}>
+                        <span className={`text-[clamp(8px,2vw,9px)] font-bold uppercase tracking-widest transition-colors block truncate ${isChecked ? 'text-brand-500/70' : 'text-gray-400 group-hover:text-brand-500/70'}`}>
                             {service.category || 'Clinical'}
                         </span>
                     </div>
@@ -68,46 +74,41 @@ const DoctorProfileDetail = ({ doctor }) => {
         );
     };
 
-    const handleSave = () => {
-        // In a real app, this would be an API call
-        showToast('Authorized services updated successfully!');
-        console.log('Saving services for doctor:', doctor.id, selectedServices);
-        doctor.services = selectedServices; // Update local mock data
-        doctor.service_count = selectedServices.length;
-        setIsEditing(false);
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            if (updateDoctorServices) {
+                // Find all the matching service IDs from allServices
+                const serviceIdsToSave = allServices
+                    .filter(s => selectedServices.includes(s.name))
+                    .map(s => s.id)
+                    .filter(Boolean);
+                
+                await updateDoctorServices(doctor.id, serviceIdsToSave);
+                showToast('Authorized services updated successfully!');
+            } else {
+                doctor.services = selectedServices.map(name => ({ name }));
+                doctor.service_count = selectedServices.length;
+                showToast('Authorized services updated successfully!');
+            }
+        } catch (err) {
+            showToast('Failed to update services.', 'error');
+        } finally {
+            setIsSaving(false);
+            setIsEditing(false);
+        }
     };
 
     const handleCancel = () => {
         showToast("Changes discarded. You've exited edit mode.", 'notice', 'Notice');
-        setSelectedServices(doctor.services || []);
+        setSelectedServices(currentServices.map(s => s.name));
         setIsEditing(false);
     };
 
     return (
-        <div className='space-y-6'>
-            {/* Dashboard Metrics (Mini Stats) */}
-            <div className='grid grid-cols-2 lg:grid-cols-3 gap-4'>
-                <div className='p-[clamp(1rem,4vw,1.5rem)] border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] space-y-2 flex flex-col'>
-                    <TrendingUp size={20} className='text-brand-500 mb-1' />
-                    <h4 className='text-[clamp(1.25rem,4.5vw,1.5rem)] font-black text-gray-900 dark:text-white font-outfit leading-tight'>{doctor.stats.total_appointments}</h4>
-                    <p className='text-[clamp(9px,2vw,10px)] font-bold text-gray-400 uppercase tracking-widest'>Total Appointments</p>
-                </div>
-                <div className='p-[clamp(1rem,4vw,1.5rem)] border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] space-y-2 flex flex-col'>
-                    <ClipboardList size={20} className='text-success-500 mb-1' />
-                    <h4 className='text-[clamp(1.25rem,4.5vw,1.5rem)] font-black text-gray-900 dark:text-white font-outfit leading-tight'>{doctor.stats.treatment_count}</h4>
-                    <p className='text-[clamp(9px,2vw,10px)] font-bold text-gray-400 uppercase tracking-widest'>Treatments Logged</p>
-                </div>
-                <div className='col-span-2 lg:col-span-1 p-[clamp(1rem,4vw,1.5rem)] border border-brand-200 rounded-xl dark:border-brand-500/30 bg-brand-50/50 dark:bg-brand-500/[0.02] space-y-2 flex flex-col'>
-                    <div className='flex items-center gap-1.5 text-amber-500 mb-1'>
-                        <Star size={20} fill='currentColor' />
-                    </div>
-                    <h4 className='text-[clamp(1.25rem,4.5vw,1.5rem)] font-black text-gray-900 dark:text-white font-outfit leading-tight'>{doctor.stats.rating} / 5.0</h4>
-                    <p className='text-[clamp(9px,2vw,10px)] font-bold text-brand-600/70 dark:text-brand-400 uppercase tracking-widest'>Patient Rating</p>
-                </div>
-            </div>
-
+        <div className='space-y-4'>
             {/* Services & Skills Mapping */}
-            <div className='p-[clamp(1rem,5vw,1.75rem)] border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03]'>
+            <div className='p-4 sm:p-5 border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03]'>
                 <div className='flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between mb-6'>
                     <div>
                         <h4 className='text-[clamp(16px,2.5vw,18px)] font-bold text-gray-900 dark:text-white'>
@@ -194,10 +195,11 @@ const DoctorProfileDetail = ({ doctor }) => {
                             </button>
                             <button 
                                 onClick={handleSave}
-                                className='flex items-center gap-2 px-6 py-2.5 rounded-lg bg-brand-500 text-white text-sm font-bold hover:bg-brand-600 transition-colors shadow-lg shadow-brand-500/20'
+                                disabled={isSaving}
+                                className='flex items-center gap-2 px-6 py-2.5 rounded-lg bg-brand-500 text-white text-sm font-bold hover:bg-brand-600 transition-colors shadow-lg shadow-brand-500/20 disabled:opacity-50 disabled:cursor-not-allowed'
                             >
                                 <Save size={16} />
-                                Save Changes
+                                {isSaving ? 'Saving...' : 'Save Changes'}
                             </button>
                         </div>
                     </div>
@@ -209,13 +211,13 @@ const DoctorProfileDetail = ({ doctor }) => {
                                     key={i}
                                     className='h-full flex items-center justify-between p-3 sm:p-4 rounded-lg border border-gray-100 dark:border-gray-800/80 hover:border-brand-500/50 transition-colors group bg-gray-50/50 dark:bg-white/[0.01]'
                                 >
-                                    <div className='flex items-center gap-2 sm:gap-3'>
+                                    <div className='flex items-center gap-2 sm:gap-3 min-w-0 overflow-hidden'>
                                         <div className='w-4 h-4 sm:w-5 sm:h-5 rounded bg-brand-500 flex items-center justify-center text-white shrink-0'>
                                             <CheckCircle2 size={10} sm:size={12} strokeWidth={3} />
                                         </div>
-                                        <div className="min-w-0">
+                                        <div className="min-w-0 max-w-full">
                                             <p className='text-[clamp(11px,2.5vw,14px)] font-semibold text-gray-800 dark:text-white/90 truncate'>{service}</p>
-                                            <span className='text-[clamp(8px,2vw,9px)] font-bold uppercase tracking-widest text-brand-500/80'>
+                                            <span className='text-[clamp(8px,2vw,9px)] font-bold uppercase tracking-widest text-brand-500/80 block truncate'>
                                                 Authorized
                                             </span>
                                         </div>

@@ -29,6 +29,9 @@ import {
     getTodayAppointmentsFiltered,
     searchPatients,
     getDentistsList,
+    getDentistById,
+    updateDentistProfileData,
+    replaceDentistServices,
     recordPayment,
     getPaymentDetails,
     updatePayment,
@@ -55,6 +58,41 @@ import {
     sendApprovalNotice,
     sendRejectionNotice,
 } from '../services/notification.service.js';
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+
+/**
+ * Shared helper to flatten the dentist object to match frontend expectations.
+ */
+const formatDoctorResponse = (d) => {
+    if (!d) return null;
+    return {
+        id: d.id,
+        profile_id: d.profile?.id,
+        full_name: d.profile?.full_name,
+        first_name: d.profile?.first_name,
+        last_name: d.profile?.last_name,
+        middle_name: d.profile?.middle_name,
+        suffix: d.profile?.suffix,
+        email: d.profile?.email,
+        phone: d.profile?.phone,
+        tier: d.tier,
+        license_number: d.license_number,
+        specialization: d.specialization,
+        bio: d.bio,
+        photo_url: d.photo_url,
+        is_active: d.is_active,
+        created_at: d.created_at,
+        services: (d.dentist_services || []).map((ds) => ({
+            id: ds.service?.id,
+            name: ds.service?.name,
+            tier: ds.service?.tier,
+        })),
+        service_count: (d.dentist_services || []).length,
+    };
+};
 
 // ═══════════════════════════════════════════════
 // APPOINTMENT MANAGEMENT
@@ -476,16 +514,59 @@ export const getDentists = async (req, res, next) => {
         const data = await getDentistsList();
 
         res.json({
-            dentists: data.map((d) => ({
-                id: d.id,
-                name: d.profile?.full_name,
-                email: d.profile?.email,
-                phone: d.profile?.phone,
-                tier: d.tier,
-                license_number: d.license_number,
-                specializations: d.specializations,
-            })),
+            dentists: data.map(formatDoctorResponse),
         });
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * GET /api/admin/dentists/:id
+ *
+ * Get a single dentist's full profile.
+ */
+export const getDentistByIdHandler = async (req, res, next) => {
+    try {
+        const d = await getDentistById(req.params.id);
+        res.json({
+            doctor: formatDoctorResponse(d),
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * PATCH /api/admin/dentists/:id/profile
+ *
+ * Update a dentist's profile (bio, photo, name, contact, status).
+ * Body: { bio?, photo_url?, is_active?, license_number?,
+ *         first_name?, last_name?, middle_name?, suffix?, email?, phone? }
+ */
+export const updateDentistProfileHandler = async (req, res, next) => {
+    try {
+        const updated = await updateDentistProfileData(req.params.id, req.body);
+        res.json({ message: 'Doctor profile updated.', doctor: formatDoctorResponse(updated) });
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * PATCH /api/admin/dentists/:id/services
+ *
+ * Replace authorized services for a dentist.
+ * Body: { service_ids: string[] }
+ */
+export const updateDentistServicesHandler = async (req, res, next) => {
+    try {
+        const { service_ids } = req.body;
+        if (!Array.isArray(service_ids)) {
+            return res.status(400).json({ error: 'service_ids must be an array of UUIDs.' });
+        }
+        const updated = await replaceDentistServices(req.params.id, service_ids);
+        res.json({ message: 'Doctor services updated.', doctor: formatDoctorResponse(updated) });
     } catch (err) {
         next(err);
     }

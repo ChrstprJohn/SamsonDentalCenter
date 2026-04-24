@@ -20,6 +20,9 @@ import {
     removeAnnouncement,
     // Schedule Management
     getDentists,
+    getDentistByIdHandler,
+    updateDentistProfileHandler,
+    updateDentistServicesHandler,
     viewDentistSchedule,
     updateDentistSchedule,
     blockDentistAvailability,
@@ -110,6 +113,9 @@ router.post('/holidays', createHolidayHandler);
 // ── Schedule Management ──
 router.get('/dentists', getDentists);
 router.get('/dentists/available', getAvailableDentistsForReassignment); // NEW
+router.get('/dentists/:id', getDentistByIdHandler); // NEW
+router.patch('/dentists/:id/profile', updateDentistProfileHandler); // NEW
+router.patch('/dentists/:id/services', updateDentistServicesHandler); // NEW
 router.get('/dentists/:id/schedule', viewDentistSchedule);
 router.put('/dentists/:id/schedule', updateDentistSchedule);
 router.post('/dentists/:id/block', blockDentistAvailability);

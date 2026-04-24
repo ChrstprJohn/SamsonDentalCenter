@@ -6,11 +6,13 @@ import DoctorHistoryDetail from './history/DoctorHistoryDetail';
 import { Button, Modal, Input, Label, Switch } from '../../ui';
 import { useToast } from '../../../context/ToastContext.jsx';
 
-const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab }) => {
+const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab, updateDoctorProfile, updateDoctorContact, updateDoctorServices }) => {
+    if (!initialDoctor) return null;
+
     // Parse Full Name for initial state
     // Format assumed: Dr. First Middle Last Suffix (simplistic parse)
     const parseName = (name) => {
-        const parts = name.replace('Dr. ', '').split(' ');
+        const parts = (name || '').replace('Dr. ', '').split(' ');
         return {
             first: parts[0] || '',
             last: parts[parts.length - 1] || '',
@@ -19,16 +21,23 @@ const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab }) => {
         };
     };
 
-    const initialNames = parseName(initialDoctor.full_name);
+    const initialNames = parseName(initialDoctor.first_name ? `${initialDoctor.first_name} ${initialDoctor.last_name}` : initialDoctor.full_name);
 
     const [doctor, setDoctor] = useState(initialDoctor);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isEditContactModalOpen, setIsEditContactModalOpen] = useState(false);
+    const [formNames, setFormNames] = useState(initialNames);
+    
+    // Sync state when props update (e.g. after a save operation fetches new data)
+    React.useEffect(() => {
+        if (!initialDoctor) return;
+        setDoctor(initialDoctor);
+        setFormNames(parseName(initialDoctor.first_name ? `${initialDoctor.first_name} ${initialDoctor.last_name}` : initialDoctor.full_name));
+    }, [initialDoctor]);
     const [isSaving, setIsSaving] = useState(false);
     const [selectedAvatar, setSelectedAvatar] = useState(doctor.photo_url);
     const [isActive, setIsActive] = useState(doctor.is_active);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isEditContactModalOpen, setIsEditContactModalOpen] = useState(false);
 
-    const [formNames, setFormNames] = useState(initialNames);
     const { showToast } = useToast();
 
     const AVATARS = [
@@ -51,10 +60,7 @@ const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab }) => {
 
     const handleSaveProfile = async (e) => {
         e.preventDefault();
-        showToast('Professional identity updated successfully!');
         setIsSaving(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 800));
 
         const formData = new FormData(e.target);
         const fName = formData.get('first_name');
@@ -62,45 +68,64 @@ const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab }) => {
         const mName = formData.get('middle_name');
         const suffix = formData.get('suffix');
 
-        const reconstructedFullName = `Dr. ${fName} ${mName ? mName + ' ' : ''}${lName}${suffix ? ' ' + suffix : ''}`;
+        try {
+            if (updateDoctorProfile) {
+                const updatedDoctor = await updateDoctorProfile(doctor.id, {
+                    first_name: fName,
+                    last_name: lName,
+                    middle_name: mName,
+                    suffix: suffix,
+                    license_number: formData.get('license_number'),
+                    bio: formData.get('bio'),
+                    photo_url: selectedAvatar,
+                    is_active: isActive
+                });
+                setDoctor(updatedDoctor);
+            } else {
+                // Fallback for mock environment
+                const reconstructedFullName = `Dr. ${fName} ${mName ? mName + ' ' : ''}${lName}${suffix ? ' ' + suffix : ''}`;
+                setDoctor(prev => ({
+                    ...prev,
+                    full_name: reconstructedFullName,
+                    license_number: formData.get('license_number'),
+                    bio: formData.get('bio'),
+                    photo_url: selectedAvatar,
+                    is_active: isActive
+                }));
+            }
 
-        setDoctor(prev => ({
-            ...prev,
-            full_name: reconstructedFullName,
-            license_number: formData.get('license_number'),
-            bio: formData.get('bio'),
-            photo_url: selectedAvatar,
-            is_active: isActive
-        }));
-
-        setFormNames({
-            first: fName,
-            last: lName,
-            middle: mName,
-            suffix: suffix
-        });
-
-        setIsSaving(false);
-        setIsEditModalOpen(false);
+            setFormNames({ first: fName, last: lName, middle: mName, suffix });
+            showToast('Professional identity updated successfully!');
+            setIsEditModalOpen(false);
+        } catch (err) {
+            showToast('Failed to update profile.', 'error');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleSaveContact = async (e) => {
         e.preventDefault();
-        showToast('Contact credentials updated successfully!');
         setIsSaving(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 800));
 
         const formData = new FormData(e.target);
+        const email = formData.get('email');
+        const phone = formData.get('phone');
         
-        setDoctor(prev => ({
-            ...prev,
-            email: formData.get('email'),
-            phone: formData.get('phone')
-        }));
-
-        setIsSaving(false);
-        setIsEditContactModalOpen(false);
+        try {
+            if (updateDoctorContact) {
+                const updatedDoctor = await updateDoctorContact(doctor.id, { email, phone });
+                setDoctor(updatedDoctor);
+            } else {
+                setDoctor(prev => ({ ...prev, email, phone }));
+            }
+            showToast('Contact credentials updated successfully!');
+            setIsEditContactModalOpen(false);
+        } catch (err) {
+            showToast('Failed to update contact.', 'error');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -224,7 +249,7 @@ const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab }) => {
 
                     {/* Dynamic Child Content */}
                     <div className='min-h-120 md:min-h-140'>
-                        {(!activeTab || activeTab === 'profile') && <DoctorProfileDetail doctor={doctor} />}
+                        {(!activeTab || activeTab === 'profile') && <DoctorProfileDetail doctor={doctor} updateDoctorServices={updateDoctorServices} />}
                         {activeTab === 'schedule' && <DoctorScheduleDetail doctor={doctor} />}
                         {activeTab === 'history' && <DoctorHistoryDetail doctor={doctor} />}
                     </div>

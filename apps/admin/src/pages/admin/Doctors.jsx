@@ -5,69 +5,7 @@ import DoctorInbox from '../../components/admin/doctors/DoctorInbox';
 import DoctorDetailView from '../../components/admin/doctors/DoctorDetailView';
 import { useSidebar } from '../../context/SidebarContext';
 import { UserPlus } from 'lucide-react';
-
-const MOCK_DOCTORS = [
-    {
-        id: '1',
-        full_name: 'Dr. Sarah Smith',
-        email: 'sarah.smith@primeradental.com',
-        phone: '+1 (555) 123-4567',
-        bio: 'Expert in restorative and cosmetic dentistry with over 12 years of experience. Dedicated to patient comfort and state-of-the-art dental care.',
-        photo_url: null,
-        tier: 'both', // general, specialized, or both
-        specialization: 'Cosmetic Dentistry',
-        license_number: 'DEN-98231',
-        is_active: true,
-        service_count: 8,
-        services: ['Dental Cleaning', 'Root Canal', 'Teeth Whitening', 'X-Ray Scan', 'Filling', 'Extraction'],
-        created_at: '2023-01-15T10:00:00Z',
-        stats: {
-            total_appointments: 1240,
-            treatment_count: 850,
-            rating: 4.9
-        }
-    },
-    {
-        id: '2',
-        full_name: 'Dr. John Doe',
-        email: 'john.doe@primeradental.com',
-        phone: '+1 (555) 987-6543',
-        bio: 'Specialized in orthodontics and oral surgery. Focuses on complex dental alignments and surgical extractions.',
-        photo_url: null,
-        tier: 'specialized',
-        specialization: 'Orthodontics',
-        license_number: 'DEN-77421',
-        is_active: true,
-        service_count: 5,
-        services: ['Orthodontic Consult', 'Oral Surgery', 'Braces Adjustment', 'Invisalign Check'],
-        created_at: '2023-06-20T10:00:00Z',
-        stats: {
-            total_appointments: 620,
-            treatment_count: 410,
-            rating: 4.7
-        }
-    },
-    {
-        id: '3',
-        full_name: 'Dr. Emily Chen',
-        email: 'emily.chen@primeradental.com',
-        phone: '+1 (555) 444-5555',
-        bio: 'General practitioner with a passion for pediatric dentistry and preventative care for all ages.',
-        photo_url: null,
-        tier: 'general',
-        specialization: 'General Dentistry',
-        license_number: 'DEN-11234',
-        is_active: false,
-        service_count: 12,
-        services: ['Dental Cleaning', 'Teeth Whitening', 'X-Ray Scan', 'Fluoride Treatment', 'Sealants'],
-        created_at: '2024-02-10T10:00:00Z',
-        stats: {
-            total_appointments: 150,
-            treatment_count: 95,
-            rating: 4.8
-        }
-    }
-];
+import { useDoctors } from '../../hooks/useDoctors';
 
 const Doctors = () => {
     const { isMobileOpen } = useSidebar();
@@ -75,16 +13,29 @@ const Doctors = () => {
     const navigate = useNavigate();
     const activeTab = tab || 'profile';
 
+    const { 
+        doctors, 
+        loading, 
+        error, 
+        updateDoctorProfile, 
+        updateDoctorContact, 
+        updateDoctorServices 
+    } = useDoctors();
+
+    console.log("=== DOCTORS FETCHED ===", doctors);
+
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
 
     const selectedDoctorId = id;
-    const selectedDoctor = MOCK_DOCTORS.find(d => d.id === selectedDoctorId);
+    const selectedDoctor = doctors.find(d => d.id === selectedDoctorId);
 
     // Filter Logic
-    const filteredDoctors = MOCK_DOCTORS.filter(d => {
-        const matchesSearch = d.full_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                             d.license_number.toLowerCase().includes(searchQuery.toLowerCase());
+    const filteredDoctors = doctors.filter(d => {
+        const name = d.full_name || '';
+        const license = d.license_number || '';
+        const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                             license.toLowerCase().includes(searchQuery.toLowerCase());
         
         if (!matchesSearch) return false;
 
@@ -101,6 +52,17 @@ const Doctors = () => {
     const parentName = selectedDoctorId ? 'Doctors' : null;
     const parentPath = selectedDoctorId ? '/doctors' : null;
 
+    if (error) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <div className="text-center text-red-500">
+                    <p>Failed to load doctors: {error}</p>
+                    <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-brand-500 text-white rounded">Retry</button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>
             <div className='flex flex-col h-full'>
@@ -114,9 +76,13 @@ const Doctors = () => {
                 <div className='flex flex-col grow'>
                     {selectedDoctorId ? (
                         <DoctorDetailView 
+                            key={selectedDoctorId}
                             doctor={selectedDoctor} 
                             onBack={() => navigate(`/doctors/${activeTab}`)} 
                             activeTab={activeTab}
+                            updateDoctorProfile={updateDoctorProfile}
+                            updateDoctorContact={updateDoctorContact}
+                            updateDoctorServices={updateDoctorServices}
                         />
                     ) : (
                         <DoctorInbox 
