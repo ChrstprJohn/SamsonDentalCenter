@@ -1,15 +1,17 @@
 # Admin Doctor Schedule - Improvement Opportunities
 
-## 1. Recurring Break Times (Lunch Breaks)
+## 1. Recurring Break Times (Lunch Breaks) - ✅ DONE
 
-**Current State:** The `WeeklyRoutine` allows setting daily availability boundaries (e.g., `08:00`
-to `17:00`). If a doctor takes a recurring lunch break daily (e.g., `12:00` to `13:00`), admins must
-manually block that individual hour on the calendar for every existing and future day using the
-`BlockTimeModal`. **Improvement:** Expand the Weekly Routine model (`Edit Weekly Sched` modal) to
-allow one or more standard daily "Break" or "Lunch" intervals. This automatically carves out
-non-bookable slots during those routine shifts. _Note: The database already supports this natively
-via `break_start_time` and `break_end_time` columns in the `dentist_schedule` table! The remaining
-work is strictly wiring the UI and mapping it to the backend update payloads._
+**Current State:** The `WeeklyRoutine` allows setting daily availability boundaries.
+**Improvement:** Expanded the Weekly Routine model (`Edit Weekly Sched` modal) to allow standard
+daily "Break" or "Lunch" intervals utilizing the database's native `break_start_time` and
+`break_end_time` columns. **What was done:**
+
+- Restructured the Edit Weekly Sched modal to display the break time inputs prominently before the
+  daily schedule rows.
+- Fixed UI clipping issues on time input fields.
+- Replaced "closed" terminology with more user-friendly "Not Working" toggle states.
+- Successfully wired the UI payload to the backend.
 
 ## 2. Handling Overlaps when Blocking (The "Displaced" Workflow)
 

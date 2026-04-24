@@ -5,7 +5,7 @@ import { Switch, Input, Button, Modal } from '../../../ui';
 import { useToast } from '../../../../context/ToastContext.jsx';
 import { useDoctors } from '../../../../hooks/useDoctors';
 
-const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOpen }) => {
+const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOpen, onScheduleUpdate }) => {
     const { showToast } = useToast();
     const { fetchDoctorSchedule, updateDoctorScheduleBulk, fetchDoctorBlocks, addDoctorBlock, deleteDoctorBlock } = useDoctors(false);
 
@@ -177,7 +177,10 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             });
 
             await updateDoctorScheduleBulk(doctor.id, payload);
-            setSchedule([...draftSchedule]);
+            await loadData();
+            if (onScheduleUpdate) {
+                onScheduleUpdate();
+            }
             setIsEditModalOpen(false);
             showToast('Weekly routine updated and saved to database.', 'success');
         } catch (err) {

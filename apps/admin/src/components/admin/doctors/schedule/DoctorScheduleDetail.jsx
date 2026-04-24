@@ -86,6 +86,35 @@ const DoctorScheduleDetail = ({ doctor }) => {
                 });
             });
 
+            // 3. Mapping Daily Break Times visually for the next 14 days
+            if (fetchedSchedule && fetchedSchedule.length > 0) {
+                const today = new Date();
+                for (let i = 0; i < 14; i++) {
+                    const targetDate = addDays(today, i);
+                    const jsDay = targetDate.getDay();
+                    const scheduleIndex = jsDay === 0 ? 6 : jsDay - 1; // map 0=Sun to 6, 1=Mon to 0
+
+                    const dailyConfig = fetchedSchedule.find(s => s.day_of_week === scheduleIndex);
+                    
+                    if (dailyConfig && dailyConfig.is_working && dailyConfig.break_start_time && dailyConfig.break_end_time) {
+                        const dateKey = format(targetDate, 'yyyy-MM-dd');
+                        const startObj = new Date(`1970-01-01T${dailyConfig.break_start_time}`);
+                        const endObj = new Date(`1970-01-01T${dailyConfig.break_end_time}`);
+                        const duration = Math.round((endObj - startObj) / (1000 * 60));
+
+                        newEvents.push({
+                            id: `break-${dateKey}`,
+                            date: dateKey,
+                            start: dailyConfig.break_start_time.substring(0, 5),
+                            duration: duration,
+                            service: 'Lunch / Break',
+                            patient: 'Recurring Daily Break',
+                            type: 'blocked'
+                        });
+                    }
+                }
+            }
+
             setEvents(newEvents);
         } catch (err) {
             console.error('Failed to load calendar events:', err);
@@ -122,6 +151,7 @@ const DoctorScheduleDetail = ({ doctor }) => {
                     doctor={doctor} 
                     externalBlockModalOpen={isBlockModalOpen}
                     setExternalBlockModalOpen={setIsBlockModalOpen}
+                    onScheduleUpdate={loadCalendarData}
                 />
             </div>
 
