@@ -2,21 +2,23 @@ import React, { useState } from 'react';
 import { Clock, Calendar as CalendarIcon, CheckSquare, AlertCircle, X, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { Modal, Button, Input, Badge } from '../../../ui';
 import { format, addMinutes, isSameDay } from 'date-fns';
+import { useDoctors } from '../../../../hooks/useDoctors';
 
-const BlockTimeModal = ({ isOpen, onClose, events = [], onSave }) => {
+const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { minStart: 8, maxEnd: 18 }, onSave }) => {
+    const { addDoctorBlock, deleteDoctorBlock } = useDoctors(false);
     const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     const [slotGap, setSlotGap] = useState(30); // 30 or 60
     const [blockModalMode, setBlockModalMode] = useState('block'); // 'block' or 'unblock'
     const [draftBlockedSlots, setDraftBlockedSlots] = useState(new Set());
     const [draftUnblockedSlots, setDraftUnblockedSlots] = useState(new Set());
-    const [blockReason, setBlockReason] = useState('personal');
+    const [blockReason, setBlockReason] = useState('leave');
     const [otherReason, setOtherReason] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
-    // 8 AM to 6 PM 
+    // Generate Dynamic Times based on bounds
     const TIMES = [];
-    for (let h = 8; h <= 17; h++) {
-        const hour = h > 12 ? h - 12 : h;
+    for (let h = timeBounds.minStart; h < timeBounds.maxEnd; h++) {
+        const hour = h > 12 ? h - 12 : h === 0 ? 12 : h;
         const ampm = h >= 12 ? 'PM' : 'AM';
         
         TIMES.push(`${hour}:00 ${ampm}`);
@@ -51,7 +53,7 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], onSave }) => {
     };
 
     const isSlotOccupied = (time24h) => {
-        return events.some(event => {
+        return events.find(event => {
             if (event.date !== selectedDate) return false;
             const [eh, em] = event.start.split(':').map(Number);
             const eventStart = eh * 60 + em;
@@ -59,29 +61,94 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], onSave }) => {
             const [th, tm] = time24h.split(':').map(Number);
             const slotStart = th * 60 + tm;
             const slotEnd = slotStart + slotGap;
-            return slotStart < eventEnd && eventStart < slotEnd;
+            const isOverlap = slotStart < eventEnd && eventStart < slotEnd;
+            return isOverlap;
         });
     };
 
     const handleSave = async () => {
+        if (!doctor?.id) return;
         setIsSaving(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        if (onSave) {
+        try {
             const reasonText = blockReason === 'other' ? otherReason : 
                              blockReason === 'leave' ? 'Vacation / Leave' :
                              blockReason === 'emergency' ? 'Emergency Closure' :
                              'Personal Reasons';
-            
-            onSave(selectedDate, draftBlockedSlots, draftUnblockedSlots, reasonText);
+
+            if (blockModalMode === 'block') {
+                // Group contiguous slots
+                const sortedSlots = Array.from(draftBlockedSlots).sort((a, b) => {
+                    return convertTo24h(a).localeCompare(convertTo24h(b));
+                });
+
+                const groups = [];
+                if (sortedSlots.length > 0) {
+                    let currentGroup = { start: sortedSlots[0], end: sortedSlots[0] };
+                    for (let i = 1; i < sortedSlots.length; i++) {
+                        const prevEnd24 = convertTo24h(currentGroup.end);
+                        const [ph, pm] = prevEnd24.split(':').map(Number);
+                        const expectedNext = format(addMinutes(new Date().setHours(ph, pm, 0, 0), slotGap), 'HH:mm');
+                        
+                        if (convertTo24h(sortedSlots[i]) === expectedNext) {
+                            currentGroup.end = sortedSlots[i];
+                        } else {
+                            groups.push(currentGroup);
+                            currentGroup = { start: sortedSlots[i], end: sortedSlots[i] };
+                        }
+                    }
+                    groups.push(currentGroup);
+                }
+
+                // Call API for each group
+                await Promise.all(groups.map(group => {
+                    const start24 = convertTo24h(group.start);
+                    const [eh, em] = convertTo24h(group.end).split(':').map(Number);
+                    const end24 = format(addMinutes(new Date().setHours(eh, em, 0, 0), slotGap), 'HH:mm');
+
+                    return addDoctorBlock(doctor.id, {
+                        block_date: selectedDate,
+                        start_time: start24,
+                        end_time: end24,
+                        reason: reasonText,
+                        cancel_appointments: false
+                    });
+                }));
+            } else {
+                // Unblock logic: Find blocks spanning these slots
+                const blockIdsToDelete = new Set();
+                draftUnblockedSlots.forEach(slotTime => {
+                    const slot24 = convertTo24h(slotTime);
+                    const [sh, sm] = slot24.split(':').map(Number);
+                    const slotStartMin = sh * 60 + sm;
+                    const slotEndMin = slotStartMin + slotGap;
+
+                    events.forEach(event => {
+                        if (event.type === 'blocked' && event.date === selectedDate) {
+                            const [eh, em] = event.start.split(':').map(Number);
+                            const eventStart = eh * 60 + em;
+                            const eventEnd = eventStart + (event.duration || 30);
+                            
+                            if (slotStartMin < eventEnd && eventStart < slotEndMin) {
+                                blockIdsToDelete.add(event.id);
+                            }
+                        }
+                    });
+                });
+
+                if (blockIdsToDelete.size > 0) {
+                    await Promise.all(Array.from(blockIdsToDelete).map(id => deleteDoctorBlock(doctor.id, id)));
+                }
+            }
+
+            if (onSave) onSave();
+            onClose();
+            setDraftBlockedSlots(new Set());
+            setDraftUnblockedSlots(new Set());
+        } catch (err) {
+            console.error('Failed to update blocks:', err);
+        } finally {
+            setIsSaving(false);
         }
-        
-        setIsSaving(false);
-        onClose();
-        // Clear drafts
-        setDraftBlockedSlots(new Set());
-        setDraftUnblockedSlots(new Set());
     };
 
     return (
@@ -132,7 +199,9 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], onSave }) => {
                             <div className="max-h-[40vh] sm:max-h-[420px] overflow-y-auto no-scrollbar p-6">
                                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                                     {TIMES.map(time => {
-                                        const occupied = isSlotOccupied(convertTo24h(time));
+                                        const occupiedEvent = isSlotOccupied(convertTo24h(time));
+                                        const occupied = !!occupiedEvent;
+                                        const isAppointment = occupied && occupiedEvent.type === 'appointment';
                                         const isPendingBlock = draftBlockedSlots.has(time);
                                         const isPendingUnblock = draftUnblockedSlots.has(time);
                                         
@@ -149,8 +218,10 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], onSave }) => {
                                                     dotClass = "bg-red-500";
                                                 }
                                             } else {
-                                                pillClass = "bg-gray-50 dark:bg-white/[0.02] border-transparent opacity-40 cursor-not-allowed text-gray-400";
-                                                dotClass = "bg-gray-300 dark:bg-gray-600";
+                                                pillClass = isAppointment 
+                                                    ? "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-900/30 text-blue-700 dark:text-blue-200 cursor-not-allowed"
+                                                    : "bg-gray-50 dark:bg-white/[0.02] border-transparent opacity-40 cursor-not-allowed text-gray-400";
+                                                dotClass = isAppointment ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-600";
                                             }
                                         } else if (isPendingBlock) {
                                             pillClass = "bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 shadow-sm";
@@ -161,18 +232,29 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], onSave }) => {
                                             <button
                                                 key={time}
                                                 onClick={() => toggleSlot(time)}
-                                                className={`h-10 rounded-full border px-3 flex items-center justify-between transition-all active:scale-95 ${pillClass}`}
+                                                className={`h-11 rounded-xl border px-3 flex items-center justify-between transition-all active:scale-95 ${pillClass}`}
                                             >
-                                                <div className='flex items-center gap-2.5'>
-                                                    <div className={`w-2 h-2 rounded-full shrink-0 ${dotClass}`} />
-                                                    <span className="text-[11px] font-black tabular-nums whitespace-nowrap">{time}</span>
+                                                <div className='flex flex-col items-start min-w-0'>
+                                                    <div className='flex items-center gap-2'>
+                                                        <div className={`w-2 h-2 rounded-full shrink-0 ${dotClass}`} strokeWidth={0} />
+                                                        <span className="text-[10px] font-black tabular-nums whitespace-nowrap uppercase">{time}</span>
+                                                    </div>
+                                                    {isAppointment && (
+                                                        <span className="text-[8px] font-bold truncate w-full mt-0.5 opacity-80 uppercase tracking-tighter text-left">
+                                                            {occupiedEvent.patient}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 
                                                 <div className='flex items-center justify-center shrink-0 ml-1'>
                                                     {occupied ? (
                                                         blockModalMode === 'unblock' ? (
                                                             <input type="checkbox" readOnly checked={!isPendingUnblock} className="w-3 h-3 accent-red-500 translate-y-[-0.5px]" />
-                                                        ) : <span className="text-[7px] font-black text-red-500/60 uppercase tracking-tighter">BLK</span>
+                                                        ) : (
+                                                            <span className={`text-[7px] font-black uppercase tracking-tighter ${isAppointment ? 'text-blue-500' : 'text-red-500/60'}`}>
+                                                                {isAppointment ? 'BOOKED' : 'BLOCKED'}
+                                                            </span>
+                                                        )
                                                     ) : isPendingBlock ? (
                                                         <input type="checkbox" readOnly checked className="w-3 h-3 accent-brand-500 translate-y-[-0.5px]" />
                                                     ) : (
