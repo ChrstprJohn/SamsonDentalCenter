@@ -91,11 +91,19 @@ const AppRoutes = () => {
                 {/* ── Auth ── */}
                 <Route
                     path='/login'
-                    element={<LoginPage />}
+                    element={
+                        <GuestOnlyRoute redirectTo='/'>
+                            <LoginPage />
+                        </GuestOnlyRoute>
+                    }
                 />
                 <Route
                     path='/register'
-                    element={<RegisterPage />}
+                    element={
+                        <GuestOnlyRoute redirectTo='/'>
+                            <RegisterPage />
+                        </GuestOnlyRoute>
+                    }
                 />
 
                 {/* ── Email Link Pages (Standalone) ── */}
