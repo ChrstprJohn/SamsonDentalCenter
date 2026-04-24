@@ -3,33 +3,50 @@ import { ArrowLeft, Mail, Phone, Calendar } from 'lucide-react';
 import DoctorProfileDetail from './profile/DoctorProfileDetail';
 import DoctorScheduleDetail from './schedule/DoctorScheduleDetail';
 import DoctorHistoryDetail from './history/DoctorHistoryDetail';
+import DoctorSecurityDetail from './DoctorSecurityDetail';
 import { Button, Modal, Input, Label, Switch } from '../../ui';
 import { useToast } from '../../../context/ToastContext.jsx';
+import { useNavigate } from 'react-router-dom';
 
-const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab }) => {
-    // Parse Full Name for initial state
-    // Format assumed: Dr. First Middle Last Suffix (simplistic parse)
-    const parseName = (name) => {
-        const parts = name.replace('Dr. ', '').split(' ');
-        return {
-            first: parts[0] || '',
-            last: parts[parts.length - 1] || '',
-            middle: parts.length > 2 ? parts.slice(1, -1).join(' ') : '',
-            suffix: '' // Hard to guess suffix from full string reliably
-        };
+const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab, updateDoctorProfile, updateDoctorContact, updateDoctorServices }) => {
+    if (!initialDoctor) return null;
+
+    const initialNames = {
+        first: initialDoctor.first_name || '',
+        last: initialDoctor.last_name || '',
+        middle: initialDoctor.middle_name || '',
+        suffix: initialDoctor.suffix || ''
     };
 
-    const initialNames = parseName(initialDoctor.full_name);
-
     const [doctor, setDoctor] = useState(initialDoctor);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isEditContactModalOpen, setIsEditContactModalOpen] = useState(false);
+    const [formNames, setFormNames] = useState(initialNames);
+    
+    // Sync state when props update (e.g. after a save operation fetches new data)
+    React.useEffect(() => {
+        if (!initialDoctor) return;
+        setDoctor(initialDoctor);
+        setFormNames({
+            first: initialDoctor.first_name || '',
+            last: initialDoctor.last_name || '',
+            middle: initialDoctor.middle_name || '',
+            suffix: initialDoctor.suffix || ''
+        });
+    }, [initialDoctor]);
     const [isSaving, setIsSaving] = useState(false);
     const [selectedAvatar, setSelectedAvatar] = useState(doctor.photo_url);
     const [isActive, setIsActive] = useState(doctor.is_active);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isEditContactModalOpen, setIsEditContactModalOpen] = useState(false);
 
-    const [formNames, setFormNames] = useState(initialNames);
     const { showToast } = useToast();
+    const navigate = useNavigate();
+
+    const tabs = [
+        { id: 'profile', label: 'Profile' },
+        { id: 'schedule', label: 'Schedule' },
+        { id: 'history', label: 'History' },
+        { id: 'security', label: 'Security' },
+    ];
 
     const AVATARS = [
         'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
@@ -51,10 +68,7 @@ const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab }) => {
 
     const handleSaveProfile = async (e) => {
         e.preventDefault();
-        showToast('Professional identity updated successfully!');
         setIsSaving(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 800));
 
         const formData = new FormData(e.target);
         const fName = formData.get('first_name');
@@ -62,66 +76,107 @@ const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab }) => {
         const mName = formData.get('middle_name');
         const suffix = formData.get('suffix');
 
-        const reconstructedFullName = `Dr. ${fName} ${mName ? mName + ' ' : ''}${lName}${suffix ? ' ' + suffix : ''}`;
+        try {
+            if (updateDoctorProfile) {
+                const updatedDoctor = await updateDoctorProfile(doctor.id, {
+                    first_name: fName,
+                    last_name: lName,
+                    middle_name: mName,
+                    suffix: suffix,
+                    license_number: formData.get('license_number'),
+                    bio: formData.get('bio'),
+                    photo_url: selectedAvatar,
+                    is_active: isActive
+                });
+                setDoctor(updatedDoctor);
+            } else {
+                // Fallback for mock environment
+                const reconstructedFullName = `Dr. ${fName} ${mName ? mName + ' ' : ''}${lName}${suffix ? ' ' + suffix : ''}`;
+                setDoctor(prev => ({
+                    ...prev,
+                    full_name: reconstructedFullName,
+                    license_number: formData.get('license_number'),
+                    bio: formData.get('bio'),
+                    photo_url: selectedAvatar,
+                    is_active: isActive
+                }));
+            }
 
-        setDoctor(prev => ({
-            ...prev,
-            full_name: reconstructedFullName,
-            license_number: formData.get('license_number'),
-            bio: formData.get('bio'),
-            photo_url: selectedAvatar,
-            is_active: isActive
-        }));
-
-        setFormNames({
-            first: fName,
-            last: lName,
-            middle: mName,
-            suffix: suffix
-        });
-
-        setIsSaving(false);
-        setIsEditModalOpen(false);
+            setFormNames({ first: fName, last: lName, middle: mName, suffix });
+            showToast('Professional identity updated successfully!');
+            setIsEditModalOpen(false);
+        } catch (err) {
+            showToast('Failed to update profile.', 'error');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleSaveContact = async (e) => {
         e.preventDefault();
-        showToast('Contact credentials updated successfully!');
         setIsSaving(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 800));
 
         const formData = new FormData(e.target);
+        const email = formData.get('email');
+        const phone = formData.get('phone');
         
-        setDoctor(prev => ({
-            ...prev,
-            email: formData.get('email'),
-            phone: formData.get('phone')
-        }));
-
-        setIsSaving(false);
-        setIsEditContactModalOpen(false);
+        try {
+            if (updateDoctorContact) {
+                const updatedDoctor = await updateDoctorContact(doctor.id, { email, phone });
+                setDoctor(updatedDoctor);
+            } else {
+                setDoctor(prev => ({ ...prev, email, phone }));
+            }
+            showToast('Contact credentials updated successfully!');
+            setIsEditContactModalOpen(false);
+        } catch (err) {
+            showToast('Failed to update contact.', 'error');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
         <div className='flex flex-col grow min-h-0 bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-100 dark:border-gray-800 overflow-hidden no-scrollbar'>
             {/* Top Navigation */}
-            <div className='sticky top-0 z-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between'>
-                <div className='flex items-center gap-3'>
-                    <button
-                        onClick={onBack}
-                        className='p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 transition-colors'
-                    >
-                        <ArrowLeft size={20} />
-                    </button>
-                    <div>
-                        <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
-                            {doctor.full_name}
-                        </h3>
-                        <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1'>
-                            Detail Profile
-                        </p>
+            <div className='sticky top-0 z-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800'>
+                <div className='px-4 sm:px-6 py-4 flex items-center justify-between'>
+                    <div className='flex items-center gap-3'>
+                        <button
+                            onClick={onBack}
+                            className='p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 transition-colors'
+                        >
+                            <ArrowLeft size={20} />
+                        </button>
+                        <div>
+                            <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                                {doctor.full_name}
+                            </h3>
+                            <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1'>
+                                Detail Profile
+                            </p>
+                        </div>
                     </div>
+                </div>
+
+                {/* Sub-navigation Tabs */}
+                <div className='px-4 sm:px-6 flex items-center gap-6'>
+                    {tabs.map((t) => (
+                        <button
+                            key={t.id}
+                            onClick={() => navigate(`/doctors/${t.id}/${doctor.id}`)}
+                            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+                                activeTab === t.id 
+                                    ? 'text-brand-500' 
+                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                            }`}
+                        >
+                            {t.label}
+                            {activeTab === t.id && (
+                                <div className='absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500 rounded-full' />
+                            )}
+                        </button>
+                    ))}
                 </div>
             </div>
 
@@ -224,9 +279,10 @@ const DoctorDetailView = ({ doctor: initialDoctor, onBack, activeTab }) => {
 
                     {/* Dynamic Child Content */}
                     <div className='min-h-120 md:min-h-140'>
-                        {(!activeTab || activeTab === 'profile') && <DoctorProfileDetail doctor={doctor} />}
+                        {(!activeTab || activeTab === 'profile') && <DoctorProfileDetail doctor={doctor} updateDoctorServices={updateDoctorServices} />}
                         {activeTab === 'schedule' && <DoctorScheduleDetail doctor={doctor} />}
                         {activeTab === 'history' && <DoctorHistoryDetail doctor={doctor} />}
+                        {activeTab === 'security' && <DoctorSecurityDetail doctor={doctor} />}
                     </div>
 
                 </div>

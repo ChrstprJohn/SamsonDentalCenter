@@ -9,6 +9,7 @@ import ScrollToTop from './ScrollToTop';
 
 // Auth pages
 import LoginPage from '../pages/auth/LoginPage';
+import SetPasswordPage from '../pages/auth/SetPasswordPage';
 
 // Doctor pages
 import DoctorDashboard from '../pages/doctor/DoctorDashboard';
@@ -20,10 +21,8 @@ const AppRoutes = () => {
             <ScrollToTop />
             <Routes>
                 {/* ── Auth ── */}
-                <Route
-                    path='/login'
-                    element={<LoginPage />}
-                />
+                <Route path='/login' element={<LoginPage />} />
+                <Route path='/set-password' element={<SetPasswordPage />} />
 
                 {/* ── Doctor Portal (Sidebar Layout) ── */}
                 <Route

@@ -3,16 +3,18 @@ import { format, addDays, startOfDay, addMinutes } from 'date-fns';
 import { ChevronLeft, ChevronRight, CalendarOff } from 'lucide-react';
 import { Button } from '../../../ui';
 
-// 8 AM to 6 PM in 30min intervals (20 slots total)
-const TIMES = [];
-for (let h = 8; h <= 17; h++) {
-    TIMES.push(`${h}:00`, `${h}:30`);
-}
-TIMES.push(`18:00`);
-
-const WeeklyTimeline = ({ doctor, events = [], onBlockClick }) => {
+const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEnd: 18 }, onBlockClick }) => {
     const [startDate, setStartDate] = useState(startOfDay(new Date()));
     const [daysToShow, setDaysToShow] = useState(7);
+
+    // Generate Dynamic Times based on bounds
+    const TIMES = [];
+    for (let h = timeBounds.minStart; h < timeBounds.maxEnd; h++) {
+        const h24 = h.toString().padStart(2, '0');
+        TIMES.push(`${h24}:00`, `${h24}:30`);
+    }
+    TIMES.push(`${timeBounds.maxEnd.toString().padStart(2, '0')}:00`);
+
 
     React.useEffect(() => {
         const handleResize = () => setDaysToShow(window.innerWidth < 640 ? 3 : 7);
@@ -46,7 +48,7 @@ const WeeklyTimeline = ({ doctor, events = [], onBlockClick }) => {
         const [hStr, mStr] = startTime.split(':');
         const h = parseInt(hStr, 10);
         const m = parseInt(mStr, 10);
-        const startMinutes = (h - 8) * 60 + m;
+        const startMinutes = (h - timeBounds.minStart) * 60 + m;
         const top = SPACER_PX + (startMinutes / 30) * ROW_PX;
         const height = (duration / 30) * ROW_PX;
         return {

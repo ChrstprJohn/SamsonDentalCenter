@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { format, isSameDay, isSameMonth } from 'date-fns';
 import { Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CalendarOff, CheckSquare } from 'lucide-react';
 import { Switch, Input, Button, Modal } from '../../../ui';
 import { useToast } from '../../../../context/ToastContext.jsx';
+import { useDoctors } from '../../../../hooks/useDoctors';
 
-const WeeklyRoutine = ({ externalBlockModalOpen, setExternalBlockModalOpen }) => {
+const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOpen, onScheduleUpdate }) => {
     const { showToast } = useToast();
+    const { fetchDoctorSchedule, updateDoctorScheduleBulk, fetchDoctorBlocks, addDoctorBlock, deleteDoctorBlock, fetchDoctorAppointments } = useDoctors(false);
+
     const initialDays = [
-        { id: 'Monday', isWorking: true, start: '08:00', end: '17:00' },
-        { id: 'Tuesday', isWorking: true, start: '08:00', end: '17:00' },
-        { id: 'Wednesday', isWorking: true, start: '08:00', end: '17:00' },
-        { id: 'Thursday', isWorking: true, start: '08:00', end: '17:00' },
-        { id: 'Friday', isWorking: true, start: '08:00', end: '17:00' },
+        { id: 'Monday', isWorking: false, start: '08:00', end: '17:00' },
+        { id: 'Tuesday', isWorking: false, start: '08:00', end: '17:00' },
+        { id: 'Wednesday', isWorking: false, start: '08:00', end: '17:00' },
+        { id: 'Thursday', isWorking: false, start: '08:00', end: '17:00' },
+        { id: 'Friday', isWorking: false, start: '08:00', end: '17:00' },
         { id: 'Saturday', isWorking: false, start: '08:00', end: '12:00' },
         { id: 'Sunday', isWorking: false, start: '08:00', end: '12:00' }
     ];
@@ -19,7 +22,11 @@ const WeeklyRoutine = ({ externalBlockModalOpen, setExternalBlockModalOpen }) =>
     const [schedule, setSchedule] = useState(initialDays);
     const [draftSchedule, setDraftSchedule] = useState(initialDays);
     const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     
+    // Track DB block IDs for deletion logic
+    const [dbBlocks, setDbBlocks] = useState({}); // { dateKey: blockId }
+
     // Modal States
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     
@@ -35,6 +42,11 @@ const WeeklyRoutine = ({ externalBlockModalOpen, setExternalBlockModalOpen }) =>
     const [draftBlockedDates, setDraftBlockedDates] = useState(new Set());
     const [draftUnblockedDates, setDraftUnblockedDates] = useState(new Set());
     
+    // Break Schedule States
+    const [globalBreakEnabled, setGlobalBreakEnabled] = useState(false);
+    const [globalBreakStart, setGlobalBreakStart] = useState('12:00');
+    const [globalBreakEnd, setGlobalBreakEnd] = useState('13:00');
+    
     // Reason States
     const [blockReason, setBlockReason] = useState('leave');
     const [otherReason, setOtherReason] = useState('');
@@ -44,6 +56,84 @@ const WeeklyRoutine = ({ externalBlockModalOpen, setExternalBlockModalOpen }) =>
 
     // Block Modal Calendar State
     const [blockCalDate, setBlockCalDate] = useState(new Date());
+
+    const loadData = useCallback(async () => {
+        if (!doctor?.id) return;
+        try {
+            setIsLoading(true);
+            const [fetchedSchedule, fetchedBlocks] = await Promise.all([
+                fetchDoctorSchedule(doctor.id),
+                fetchDoctorBlocks(doctor.id)
+            ]);
+
+            // Map Schedule
+            if (fetchedSchedule && fetchedSchedule.length > 0) {
+                // Ensure we start with a fresh DEEP copy of initialDays
+                const newSchedule = initialDays.map(day => ({ ...day }));
+
+                fetchedSchedule.forEach(item => {
+                    // Map 0 (Sun) -> 6, 1 (Mon) -> 0, etc.
+                    const idx = item.day_of_week === 0 ? 6 : item.day_of_week - 1;
+                    if (newSchedule[idx]) {
+                        newSchedule[idx] = {
+                            ...newSchedule[idx],
+                            isWorking: item.is_working ?? item.is_available ?? newSchedule[idx].isWorking,
+                            start: (item.start_time || item.start)?.substring(0, 5) || newSchedule[idx].start,
+                            end: (item.end_time || item.end)?.substring(0, 5) || newSchedule[idx].end,
+                            break_start_time: item.break_start_time?.substring(0, 5) || null,
+                            break_end_time: item.break_end_time?.substring(0, 5) || null
+                        };
+                    }
+                });
+                setSchedule(newSchedule);
+                setDraftSchedule(newSchedule);
+            }
+
+            // Map Blocks
+            const blockSet = new Set();
+            const blockMap = {};
+            fetchedBlocks.forEach(b => {
+                const dateKey = b.block_date.substring(0, 10);
+                blockSet.add(dateKey);
+                blockMap[dateKey] = b.id;
+            });
+            setBlockedDates(blockSet);
+            setDbBlocks(blockMap);
+
+        } catch (err) {
+            console.error('Failed to load doctor schedule:', err);
+            showToast('Failed to load doctor schedule.', 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [doctor?.id, fetchDoctorSchedule, fetchDoctorBlocks]);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
+
+    const syncDraftWithSchedule = useCallback(() => {
+        const deepCopy = schedule.map(day => ({ ...day }));
+        setDraftSchedule(deepCopy);
+        
+        const workingDayWithBreak = schedule.find(d => d.isWorking && d.break_start_time);
+        if (workingDayWithBreak) {
+            setGlobalBreakEnabled(true);
+            setGlobalBreakStart(workingDayWithBreak.break_start_time.substring(0, 5));
+            setGlobalBreakEnd(workingDayWithBreak.break_end_time.substring(0, 5));
+        } else {
+            setGlobalBreakEnabled(false);
+            setGlobalBreakStart('12:00');
+            setGlobalBreakEnd('13:00');
+        }
+    }, [schedule]);
+
+    // Keep draft schedule in sync with fetched schedule when modal is not open
+    useEffect(() => {
+        if (!isEditModalOpen) {
+            syncDraftWithSchedule();
+        }
+    }, [isEditModalOpen, syncDraftWithSchedule]);
 
     const navMonth = (setter, date, offset) => {
         setter(new Date(date.getFullYear(), date.getMonth() + offset, 1));
@@ -64,15 +154,15 @@ const WeeklyRoutine = ({ externalBlockModalOpen, setExternalBlockModalOpen }) =>
 
     // --- Weekly Edit Actions ---
     const handleToggle = (index) => {
-        const newSchedule = [...draftSchedule];
-        newSchedule[index].isWorking = !newSchedule[index].isWorking;
-        setDraftSchedule(newSchedule);
+        setDraftSchedule(prev => prev.map((day, i) => 
+            i === index ? { ...day, isWorking: !day.isWorking } : day
+        ));
     };
 
     const handleTimeChange = (index, field, value) => {
-        const newSchedule = [...draftSchedule];
-        newSchedule[index][field] = value;
-        setDraftSchedule(newSchedule);
+        setDraftSchedule(prev => prev.map((day, i) => 
+            i === index ? { ...day, [field]: value } : day
+        ));
     };
 
     const applyToAll = () => {
@@ -85,14 +175,71 @@ const WeeklyRoutine = ({ externalBlockModalOpen, setExternalBlockModalOpen }) =>
         showToast('Monday\'s hours applied to all working days.', 'success');
     };
 
-    const saveWeekly = () => {
+    const saveWeekly = async () => {
+        if (!doctor?.id) return;
         setIsSaving(true);
-        setTimeout(() => {
-            setSchedule([...draftSchedule]);
-            setIsSaving(false);
+        try {
+            const payload = draftSchedule.map((day, idx) => {
+                const dow = idx === 6 ? 0 : idx + 1;
+                return {
+                    day_of_week: dow,
+                    is_working: day.isWorking,
+                    start_time: day.start,
+                    end_time: day.end,
+                    break_start_time: (day.isWorking && globalBreakEnabled) ? globalBreakStart : null,
+                    break_end_time: (day.isWorking && globalBreakEnabled) ? globalBreakEnd : null
+                };
+            });
+
+            // === MASS OVERLAP DETECTION PHASE ===
+            const allAppointments = await fetchDoctorAppointments(doctor.id);
+            let overlapCount = 0;
+            
+            allAppointments.forEach(appt => {
+                if (['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'RESCHEDULED'].includes((appt.status || '').toUpperCase())) return;
+                
+                const [y, m, d] = (appt.date || '').split('-');
+                const jsDow = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay(); 
+                const draftDay = payload.find(d => d.day_of_week === jsDow);
+                
+                if (!draftDay || !draftDay.is_working) {
+                    overlapCount++;
+                } else {
+                    const ast = (appt.start_time || '').substring(0, 5);
+                    const aet = (appt.end_time || '').substring(0, 5);
+                    
+                    if (ast < draftDay.start_time || aet > draftDay.end_time) {
+                        overlapCount++;
+                    } else if (draftDay.break_start_time && draftDay.break_end_time) {
+                        if (ast < draftDay.break_end_time && aet > draftDay.break_start_time) {
+                            overlapCount++;
+                        }
+                    }
+                }
+            });
+
+            let overwrite = false;
+            if (overlapCount > 0) {
+                const confirmed = window.confirm(`Warning: Altering your Master Weekly Routine will displace ${overlapCount} existing appointment(s).\n\nThey will permanently fall into the Secretary Displaced Queue.\n\nContinue with mass displacement?`);
+                if (!confirmed) {
+                    setIsSaving(false);
+                    return;
+                }
+                overwrite = true;
+            }
+
+            await updateDoctorScheduleBulk(doctor.id, payload, overwrite);
+            await loadData();
+            if (onScheduleUpdate) {
+                onScheduleUpdate();
+            }
             setIsEditModalOpen(false);
-            showToast('Weekly routine updated.', 'success');
-        }, 800);
+            showToast('Weekly routine updated and saved to database.', 'success');
+        } catch (err) {
+            showToast('Failed to save weekly routine.', 'error');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     // --- Block Date Actions ---
@@ -110,32 +257,84 @@ const WeeklyRoutine = ({ externalBlockModalOpen, setExternalBlockModalOpen }) =>
         }
     };
 
-    const saveBlocks = () => {
+    const saveBlocks = async () => {
+        if (!doctor?.id) return;
         setIsSaving(true);
-        setTimeout(() => {
-            setBlockedDates(prev => {
-                const next = new Set(prev);
-                draftUnblockedDates.forEach(d => next.delete(d));
-                draftBlockedDates.forEach(d => next.add(d));
-                return next;
+        try {
+            // === OVERLAP DETECTION PHASE ===
+            const allAppointments = await fetchDoctorAppointments(doctor.id);
+            const newBlockDates = Array.from(draftBlockedDates);
+            let overlapCount = 0;
+            
+            // Any active appointment landing on a newly blocked date is displaced
+            allAppointments.forEach(appt => {
+                if (newBlockDates.includes(appt.date)) {
+                    if (!['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'RESCHEDULED'].includes((appt.status || '').toUpperCase())) {
+                        overlapCount++;
+                    }
+                }
             });
+
+            let overwrite = false;
+            if (overlapCount > 0) {
+                const confirmed = window.confirm(`Warning: Blocking these dates will displace ${overlapCount} existing appointment(s).\n\nThey will fall into the Secretary Displaced Queue. Continue with displacement?`);
+                if (!confirmed) {
+                    setIsSaving(false);
+                    return;
+                }
+                overwrite = true;
+            }
+
+            // 1. Process Deletions (Unblocks)
+            const deletionPromises = Array.from(draftUnblockedDates).map(dateKey => {
+                const blockId = dbBlocks[dateKey];
+                if (blockId) {
+                    return deleteDoctorBlock(doctor.id, blockId);
+                }
+                return Promise.resolve();
+            });
+
+            // 2. Process Additions (Blocks)
+            const additionPromises = newBlockDates.map(dateKey => {
+                return addDoctorBlock(doctor.id, {
+                    block_date: dateKey,
+                    reason: blockReason,
+                    notes: blockReason === 'other' ? otherReason : '',
+                    cancel_appointments: false,
+                    overwrite: overwrite
+                });
+            });
+
+            await Promise.all([...deletionPromises, ...additionPromises]);
+
+            // 3. Reload everything to be sync with DB
+            await loadData();
+            if (onScheduleUpdate) {
+                onScheduleUpdate();
+            }
+            
             setIsSaving(false);
             setIsBlockModalOpen(false);
-            showToast('Blocked dates updated.', 'success');
-        }, 800);
+            showToast('Blocked dates successfully updated.', 'success');
+        } catch (err) {
+            console.error('Save blocks error:', err);
+            showToast('Error updating blocked dates.', 'error');
+            setIsSaving(false);
+        }
     };
 
     const openEditModal = () => {
-        setDraftSchedule([...schedule]);
+        syncDraftWithSchedule();
         setIsEditModalOpen(true);
     };
 
     const openBlockModal = () => {
-        setDraftBlockedDates(new Set()); // Only track *new* selections in this session
+        setDraftBlockedDates(new Set()); 
         setDraftUnblockedDates(new Set());
         setBlockReason('leave');
         setOtherReason('');
-        setBlockCalDate(new Date()); // reset to current month
+        setBlockCalDate(new Date()); 
+        setBlockModalMode('view');
         setIsBlockModalOpen(true);
     };
 
@@ -195,7 +394,15 @@ const WeeklyRoutine = ({ externalBlockModalOpen, setExternalBlockModalOpen }) =>
             </div>
 
             {/* Main Read-only Display view: Full Calendar */}
-            <div className='overflow-hidden bg-white dark:bg-transparent'>
+            <div className={`overflow-hidden bg-white dark:bg-transparent transition-opacity duration-300 ${isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                {isLoading && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-gray-900/50 backdrop-blur-[1px]">
+                        <div className="flex flex-col items-center gap-2">
+                            <div className="w-8 h-8 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Syncing Routine...</span>
+                        </div>
+                    </div>
+                )}
                 <div className='flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/[0.01] gap-2'>
                     <div>
                         <h3 className='text-sm sm:text-lg font-bold text-gray-900 dark:text-white truncate max-w-[120px] sm:max-w-none'>{monthName} {year}</h3>
@@ -312,7 +519,7 @@ const WeeklyRoutine = ({ externalBlockModalOpen, setExternalBlockModalOpen }) =>
             </div>
 
             {/* 1. Edit Weekly Schedule Modal */}
-            <Modal isOpen={isEditModalOpen} onClose={() => !isSaving && setIsEditModalOpen(false)} className='max-w-[720px] w-[95%] sm:w-full m-auto'>
+            <Modal isOpen={isEditModalOpen} onClose={() => !isSaving && setIsEditModalOpen(false)} className='max-w-5xl w-[95%] sm:w-full m-auto'>
                 <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-5 dark:bg-gray-900 sm:p-10 max-h-[90vh] flex flex-col'>
                     <div className='mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
                         <div>
@@ -324,46 +531,74 @@ const WeeklyRoutine = ({ externalBlockModalOpen, setExternalBlockModalOpen }) =>
                             </p>
                         </div>
                         <Button variant="outline" onClick={applyToAll} type="button" className="text-xs font-bold h-9 px-3 flex items-center gap-2 whitespace-nowrap">
-                            <Clock size={14} /> Apply Monday to All
+                            <Clock size={14} /> Apply Monday's Hours to All
                         </Button>
                     </div>
 
-                    <div className='overflow-x-auto no-scrollbar flex-grow mb-6'>
-                        <table className='w-full text-left'>
-                            <thead>
-                                <tr className='text-[10px] font-bold uppercase tracking-widest text-gray-400 border-b border-gray-100 dark:border-gray-800'>
-                                    <th className='pb-4'>Day</th>
-                                    <th className='pb-4'>Status</th>
-                                    <th className='pb-4'>Working Hours</th>
-                                </tr>
-                            </thead>
-                            <tbody className='divide-y divide-gray-50 dark:divide-gray-800/50'>
-                                {draftSchedule.map((day, index) => (
-                                    <tr key={day.id} className='group hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors'>
-                                        <td className='py-4 text-sm font-semibold text-gray-800 dark:text-white w-24'>{day.id}</td>
-                                        <td className='py-4 w-32'>
-                                            <div className='flex items-center gap-2'>
-                                                <Switch checked={day.isWorking} onChange={() => handleToggle(index)} />
-                                                <span className={`text-[10px] font-bold uppercase tracking-widest ${day.isWorking ? 'text-brand-500' : 'text-gray-400'}`}>
-                                                    {day.isWorking ? 'Working' : 'Off'}
-                                                </span>
+                    {/* Card Grid Layout for Days + Break */}
+                    <div className='overflow-y-auto no-scrollbar flex-grow mb-6 max-h-[60vh] pr-1'>
+                        <div className='grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3'>
+                            {/* 1. Master Break Config Card */}
+                            <div className='p-2 sm:p-3 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/20 rounded-xl flex flex-col transition-all shadow-sm'>
+                                <div className='flex items-center justify-between mb-2'>
+                                    <span className="text-[10px] sm:text-[12px] font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                        <Clock size={12} className="text-gray-400" />
+                                        Daily Break
+                                    </span>
+                                    <Switch checked={globalBreakEnabled} onChange={() => setGlobalBreakEnabled(!globalBreakEnabled)} className="scale-75 sm:scale-90" />
+                                </div>
+                                
+                                {globalBreakEnabled ? (
+                                    <div className="flex flex-col gap-1.5 mt-auto">
+                                        <div className="flex items-center justify-between gap-1.5">
+                                            <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">Start</span>
+                                            <Input type="time" value={globalBreakStart} onChange={(e) => setGlobalBreakStart(e.target.value)} className="w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500" />
+                                        </div>
+                                        <div className="flex items-center justify-between gap-1.5">
+                                            <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">End</span>
+                                            <Input type="time" value={globalBreakEnd} onChange={(e) => setGlobalBreakEnd(e.target.value)} className="w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500" />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className='flex-grow flex flex-col items-center justify-center py-2 bg-white/40 dark:bg-gray-900/40 rounded-lg mt-auto border border-dashed border-gray-200 dark:border-gray-800'>
+                                        <CalendarOff size={10} className="text-gray-300 mb-1" />
+                                        <span className='text-[7.5px] font-bold text-gray-400 uppercase tracking-widest'>No Break</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 2. Days Cards */}
+                            {draftSchedule.map((day, index) => (
+                                <div key={day.id} className={`p-2 sm:p-3 border rounded-xl flex flex-col transition-all duration-200 shadow-sm ${day.isWorking ? 'border-brand-500/30 bg-brand-50/20 dark:bg-brand-900/10' : 'border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 opacity-80 hover:opacity-100'}`}>
+                                    <div className='flex items-center justify-between mb-2'>
+                                        <span className={`text-[10px] sm:text-[12px] font-black uppercase tracking-widest ${day.isWorking ? 'text-brand-600 dark:text-brand-400' : 'text-gray-500'}`}>
+                                            {day.id}
+                                        </span>
+                                        <Switch checked={day.isWorking} onChange={() => handleToggle(index)} className="scale-75 sm:scale-90" />
+                                    </div>
+                                    
+                                    {day.isWorking ? (
+                                        <div className='flex flex-col gap-1.5 mt-auto'>
+                                            <div className="flex items-center justify-between gap-1.5">
+                                                <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">Start</span>
+                                                <Input type="time" value={day.start} onChange={(e) => handleTimeChange(index, 'start', e.target.value)} className="w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500" />
                                             </div>
-                                        </td>
-                                        <td className='py-4'>
-                                            {day.isWorking ? (
-                                                <div className='flex items-center gap-2'>
-                                                    <Input type="time" value={day.start} onChange={(e) => handleTimeChange(index, 'start', e.target.value)} className="w-32 h-9 text-xs font-bold bg-white dark:bg-gray-900" />
-                                                    <span className='text-gray-400 font-bold text-xs'>to</span>
-                                                    <Input type="time" value={day.end} onChange={(e) => handleTimeChange(index, 'end', e.target.value)} className="w-32 h-9 text-xs font-bold bg-white dark:bg-gray-900" />
-                                                </div>
-                                            ) : (
-                                                <span className='text-xs font-medium text-gray-400 italic block py-1.5'>Closed for routing</span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                            <div className="flex items-center justify-between gap-1.5">
+                                                <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">End</span>
+                                                <Input type="time" value={day.end} onChange={(e) => handleTimeChange(index, 'end', e.target.value)} className="w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500" />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className='flex-grow flex flex-col items-center justify-center py-2 bg-white/50 dark:bg-gray-900/50 rounded-lg mt-auto border border-dashed border-gray-200 dark:border-gray-800 transition-all'>
+                                            <CalendarOff size={10} className="text-gray-300 mb-1" />
+                                            <span className='text-[7.5px] font-bold text-gray-400 uppercase tracking-widest text-center'>
+                                                Off Duty
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     <div className='flex items-center gap-3 pt-6 border-t border-gray-100 dark:border-gray-800 sm:justify-end'>

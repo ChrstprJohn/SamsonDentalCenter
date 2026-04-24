@@ -10,7 +10,7 @@ const truncateText = (text, maxLength) => {
 const getInitial = (name = '') => name.replace(/^Dr\.\s*/i, '').charAt(0).toUpperCase();
 
 const AppointmentTableRow = ({ appointment, user, openDropdown, onToggleDropdown, onViewDetails }) => {
-    const { label: displayStatus, color: badgeColor } = getDisplayStatus(appointment.status, appointment.approval_status);
+    const { label: displayStatus, color: badgeColor } = getDisplayStatus(appointment.status, appointment.approval_status, appointment.cancellation_reason);
     const dentistName = (typeof appointment.dentist === 'object' && appointment.dentist?.profile)
         ? `${appointment.dentist.profile.last_name}, ${appointment.dentist.profile.first_name} ${appointment.dentist.profile.middle_name || ''} ${appointment.dentist.profile.suffix || ''}`.replace(/\s+/g, ' ').trim()
         : (appointment.dentist || 'TBD');

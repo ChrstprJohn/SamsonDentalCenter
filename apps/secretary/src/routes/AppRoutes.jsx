@@ -16,8 +16,8 @@ import FrontDeskPage from '../pages/secretary/FrontDeskPage';
 import CalendarPage from '../pages/secretary/CalendarPage';
 import ApprovalsPage from '../pages/secretary/ApprovalsPage';
 import BookingPage from '../pages/secretary/BookingPage';
-
 import PatientsPage from '../pages/secretary/PatientsPage';
+import DisplacedQueuePage from '../pages/secretary/DisplacedQueuePage';
 
 const AppRoutes = () => {
     return (
@@ -44,8 +44,8 @@ const AppRoutes = () => {
                     <Route path='calendar' element={<CalendarPage />} />
                     <Route path='approvals' element={<ApprovalsPage />} />
                     <Route path='booking' element={<BookingPage />} />
-
                     <Route path='patients' element={<PatientsPage />} />
+                    <Route path='displaced' element={<DisplacedQueuePage />} />
                 </Route>
 
                 {/* ── Catch-all ── */}

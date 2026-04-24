@@ -70,7 +70,7 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
     // ── 4. Get which of those dentists work on this day ──
     const { data: workingDentists } = await supabaseAdmin
         .from('dentist_schedule')
-        .select('dentist_id, start_time, end_time')
+        .select('dentist_id, start_time, end_time, break_start_time, break_end_time')
         .in('dentist_id', qualifiedDentistIds)
         .eq('day_of_week', dayOfWeek)
         .eq('is_working', true);
@@ -79,12 +79,26 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         return null; // No matching dentists working
     }
 
-    // ── 5. Filter: dentist's shift must cover the requested time ──
+    // ── 5. Filter: dentist's shift must cover the requested time, AND not be on break ──
     const eligibleDentists = workingDentists.filter((ds) => {
         // Normalize DB 'HH:MM:SS' to 'HH:MM' for reliable string comparison
         const dsStart = ds.start_time.slice(0, 5);
         const dsEnd = ds.end_time.slice(0, 5);
-        return dsStart <= startTime && dsEnd >= endTime;
+        
+        const isWithinShift = dsStart <= startTime && dsEnd >= endTime;
+        if (!isWithinShift) return false;
+
+        // Check if requested time overlaps with their break
+        if (ds.break_start_time && ds.break_end_time) {
+            const bStart = ds.break_start_time.slice(0, 5);
+            const bEnd = ds.break_end_time.slice(0, 5);
+            // Overlap: requestedStart < breakEnd && breakStart < requestedEnd
+            if (startTime < bEnd && bStart < endTime) {
+                return false;
+            }
+        }
+        
+        return true;
     });
 
     if (eligibleDentists.length === 0) {
@@ -97,15 +111,30 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
     // Check dentist availability blocks (leave, sick, etc.)
     const { data: blocks } = await supabaseAdmin
         .from('dentist_availability_blocks')
-        .select('dentist_id')
+        .select('dentist_id, start_time, end_time')
         .eq('block_date', date)
         .in('dentist_id', eligibleDentistIds);
 
-    const blockedIds = (blocks || []).map((b) => b.dentist_id);
-    const unblockedDentistIds = eligibleDentistIds.filter((id) => !blockedIds.includes(id));
+    const dentistBlockMap = (blocks || []).reduce((acc, b) => {
+        if (!acc[b.dentist_id]) acc[b.dentist_id] = [];
+        acc[b.dentist_id].push(b);
+        return acc;
+    }, {});
+
+    const unblockedDentistIds = eligibleDentistIds.filter((id) => {
+        const dBlocks = dentistBlockMap[id] || [];
+        // A dentist is blocked if they have a block spanning THIS specific requested time
+        const hasConflict = dBlocks.some(b => {
+            const bStart = (b.start_time || '00:00').slice(0, 5);
+            const bEnd = (b.end_time || '23:59').slice(0, 5);
+            // Start1 < End2 && Start2 < End1
+            return startTime < bEnd && bStart < endTime;
+        });
+        return !hasConflict;
+    });
 
     if (unblockedDentistIds.length === 0) {
-        return null; // All are blocked/on leave
+        return null; // All matching dentists working this day are blocked at this specific time
     }
 
     const { data: conflictingAppointments } = await supabaseAdmin
