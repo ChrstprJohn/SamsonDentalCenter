@@ -81,8 +81,20 @@ router.patch('/appointments/:id/noshow', markAsNoShow);
 router.patch('/appointments/:id/complete', markAsComplete);
 router.patch('/appointments/:id/cancel', adminCancel);
 router.patch('/appointments/:id/reassign', reassignAppointment); // NEW
-
-// ── Internal Comments ── (NEW)
+router.patch('/appointments/:id/displaced-handle', async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { supabaseAdmin } = await import('../config/supabase.js');
+        const { error } = await supabaseAdmin
+            .from('appointments')
+            .update({ cancellation_reason: 'SYSTEM_DISPLACED_HANDLED' })
+            .eq('id', id);
+        if (error) throw error;
+        res.json({ message: 'Marked as handled.' });
+    } catch (err) {
+        next(err);
+    }
+});
 router.get('/appointments/:id/comments', getAppointmentCommentsHandler);
 router.post('/appointments/:id/comments', addAppointmentCommentHandler);
 

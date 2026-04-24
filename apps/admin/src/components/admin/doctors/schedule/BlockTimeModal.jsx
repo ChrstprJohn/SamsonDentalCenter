@@ -40,7 +40,8 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
     const toggleSlot = (time) => {
         const rawTime = convertTo24h(time);
         if (blockModalMode === 'block') {
-            if (isSlotOccupied(rawTime)) return;
+            const occupiedEvent = isSlotOccupied(rawTime);
+            if (occupiedEvent && occupiedEvent.type === 'blocked') return;
             const newSlots = new Set(draftBlockedSlots);
             if (newSlots.has(time)) newSlots.delete(time);
             else newSlots.add(time);
@@ -109,6 +110,35 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                     groups.push(currentGroup);
                 }
 
+                // CHECK FOR DISPLACEMENTS
+                let displacedCount = 0;
+                groups.forEach(group => {
+                    const start24 = convertTo24h(group.start);
+                    const [eh, em] = convertTo24h(group.end).split(':').map(Number);
+                    const [sh, sm] = start24.split(':').map(Number);
+                    const startMin = sh * 60 + sm;
+                    const endMin = eh * 60 + em + slotGap;
+
+                    events.forEach(event => {
+                        if (event.type === 'appointment' && event.date === selectedDate) {
+                             const [evh, evm] = event.start.split(':').map(Number);
+                             const eventStart = evh * 60 + evm;
+                             const eventEnd = eventStart + event.duration;
+                             if (startMin < eventEnd && eventStart < endMin) {
+                                 displacedCount++;
+                             }
+                        }
+                    });
+                });
+
+                if (displacedCount > 0) {
+                    const confirmOverwrite = window.confirm(`WARNING: This block will displace ${displacedCount} appointment(s).\n\nThey will be moved to the Secretary Displaced Queue.\n\nDo you want to continue?`);
+                    if (!confirmOverwrite) {
+                        setIsSaving(false);
+                        return;
+                    }
+                }
+
                 // Call API for each group
                 await Promise.all(groups.map(group => {
                     const start24 = convertTo24h(group.start);
@@ -120,7 +150,8 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                         start_time: start24,
                         end_time: end24,
                         reason: reasonText,
-                        cancel_appointments: false
+                        cancel_appointments: false,
+                        overwrite: true
                     });
                 }));
             } else {
@@ -218,7 +249,15 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                         let pillClass = "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-brand-500 hover:shadow-sm";
                                         let dotClass = "bg-gray-200 dark:bg-gray-700";
 
-                                        if (occupied) {
+                                        if (isPendingBlock) {
+                                            if (isAppointment) {
+                                                pillClass = "bg-orange-50 dark:bg-orange-500/10 border-orange-500 text-orange-700 dark:text-orange-400 shadow-sm";
+                                                dotClass = "bg-orange-500 animate-[pulse_1.5s_ease-in-out_infinite]";
+                                            } else {
+                                                pillClass = "bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 shadow-sm";
+                                                dotClass = "bg-brand-500";
+                                            }
+                                        } else if (occupied) {
                                             if (blockModalMode === 'unblock') {
                                                 if (isPendingUnblock) {
                                                     pillClass = "bg-white dark:bg-gray-900 border-dashed border-brand-200 dark:border-gray-700 text-gray-400";
@@ -229,13 +268,10 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                                 }
                                             } else {
                                                 pillClass = isAppointment 
-                                                    ? "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-900/30 text-blue-700 dark:text-blue-200 cursor-not-allowed"
+                                                    ? "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-900/30 text-blue-700 dark:text-blue-200 active:scale-95 hover:border-orange-500"
                                                     : "bg-gray-50 dark:bg-white/[0.02] border-transparent opacity-40 cursor-not-allowed text-gray-400";
                                                 dotClass = isAppointment ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-600";
                                             }
-                                        } else if (isPendingBlock) {
-                                            pillClass = "bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 shadow-sm";
-                                            dotClass = "bg-brand-500";
                                         }
 
                                         if (blockModalMode === 'view') {
@@ -269,7 +305,9 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                                 </div>
                                                 
                                                 <div className='flex items-center justify-center shrink-0 ml-1'>
-                                                    {occupied ? (
+                                                    {isPendingBlock ? (
+                                                        <input type="checkbox" readOnly checked className={`w-3 h-3 translate-y-[-0.5px] ${isAppointment ? 'accent-orange-500' : 'accent-brand-500'}`} />
+                                                    ) : occupied ? (
                                                         blockModalMode === 'unblock' ? (
                                                             <input type="checkbox" readOnly checked={!isPendingUnblock} className="w-3 h-3 accent-red-500 translate-y-[-0.5px]" />
                                                         ) : (
@@ -279,8 +317,6 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                                         )
                                                     ) : blockModalMode === 'view' ? (
                                                         <span className="opacity-0"></span> // Hide checkbox in view mode
-                                                    ) : isPendingBlock ? (
-                                                        <input type="checkbox" readOnly checked className="w-3 h-3 accent-brand-500 translate-y-[-0.5px]" />
                                                     ) : (
                                                         <input type="checkbox" readOnly checked={false} className="w-3 h-3 opacity-10 cursor-pointer" />
                                                     )}

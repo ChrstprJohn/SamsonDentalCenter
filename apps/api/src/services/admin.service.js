@@ -952,6 +952,7 @@ export const getBlocks = async (dentistId = null, fromDate = null) => {
  * @param {string} blockDate - 'YYYY-MM-DD'
  * @param {string|null} startTime - Optional: only cancel from this time (e.g., '08:00')
  * @param {string|null} endTime - Optional: only cancel until this time (e.g., '17:00')
+ * @param {boolean} isOverwrite - Optional: flags appointments as SYSTEM_DISPLACED
  * @returns {object} { cancelled_count, appointments }
  */
 export const bulkCancelForBlock = async (
@@ -959,6 +960,7 @@ export const bulkCancelForBlock = async (
     blockDate,
     startTime = null,
     endTime = null,
+    isOverwrite = false
 ) => {
     // ── Get all appointments for this dentist on this date ──
     const { data: allAppointments, error: fetchErr } = await supabaseAdmin
@@ -992,11 +994,13 @@ export const bulkCancelForBlock = async (
     const appointmentIds = affectedAppointments.map((a) => a.id);
 
     // ── Cancel all affected appointments ──
+    const updateReason = isOverwrite ? 'SYSTEM_DISPLACED' : 'Dentist unavailable (schedule block)';
+
     const { error: updateErr } = await supabaseAdmin
         .from('appointments')
         .update({
             status: APPOINTMENT_STATUS.CANCELLED,
-            cancellation_reason: 'Dentist unavailable (schedule block)',
+            cancellation_reason: updateReason,
             cancelled_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
         })
@@ -1168,6 +1172,7 @@ export const blockDentistSchedule = async (
     notes = null,
     cancelAppointments = false,
     createdBy,
+    overwrite = false
 ) => {
     // Verify dentist exists
     const { data: dentist, error: dentistErr } = await supabaseAdmin
@@ -1199,8 +1204,8 @@ export const blockDentistSchedule = async (
 
     // Optionally auto-cancel appointments that conflict with this block
     let cancelResult = null;
-    if (cancelAppointments) {
-        cancelResult = await bulkCancelForBlock(dentistId, blockDate, startTime, endTime);
+    if (cancelAppointments || overwrite) {
+        cancelResult = await bulkCancelForBlock(dentistId, blockDate, startTime, endTime, overwrite);
     }
 
     return { block, cancelResult };

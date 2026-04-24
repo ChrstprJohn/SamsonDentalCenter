@@ -66,7 +66,7 @@ const DashboardAppointments = () => {
                         </thead>
                         <tbody className='divide-y divide-gray-50 dark:divide-gray-800/50'>
                             {displayed.map((app) => {
-                                const { label, color } = getDisplayStatus(app.status, app.approval_status);
+                                const { label, color } = getDisplayStatus(app.status, app.approval_status, app.cancellation_reason);
                                 const dentistName = typeof app.dentist === 'object'
                                     ? (app.dentist?.profile
                                         ? `${app.dentist.profile.last_name}, ${app.dentist.profile.first_name}`.replace(/,\s*$/, '').trim()

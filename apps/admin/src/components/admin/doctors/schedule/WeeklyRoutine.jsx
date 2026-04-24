@@ -7,7 +7,7 @@ import { useDoctors } from '../../../../hooks/useDoctors';
 
 const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOpen, onScheduleUpdate }) => {
     const { showToast } = useToast();
-    const { fetchDoctorSchedule, updateDoctorScheduleBulk, fetchDoctorBlocks, addDoctorBlock, deleteDoctorBlock } = useDoctors(false);
+    const { fetchDoctorSchedule, updateDoctorScheduleBulk, fetchDoctorBlocks, addDoctorBlock, deleteDoctorBlock, fetchDoctorAppointments } = useDoctors(false);
 
     const initialDays = [
         { id: 'Monday', isWorking: false, start: '08:00', end: '17:00' },
@@ -209,6 +209,30 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
         if (!doctor?.id) return;
         setIsSaving(true);
         try {
+            // === OVERLAP DETECTION PHASE ===
+            const allAppointments = await fetchDoctorAppointments(doctor.id);
+            const newBlockDates = Array.from(draftBlockedDates);
+            let overlapCount = 0;
+            
+            // Any active appointment landing on a newly blocked date is displaced
+            allAppointments.forEach(appt => {
+                if (newBlockDates.includes(appt.date)) {
+                    if (!['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'RESCHEDULED'].includes((appt.status || '').toUpperCase())) {
+                        overlapCount++;
+                    }
+                }
+            });
+
+            let overwrite = false;
+            if (overlapCount > 0) {
+                const confirmed = window.confirm(`Warning: Blocking these dates will displace ${overlapCount} existing appointment(s).\n\nThey will fall into the Secretary Displaced Queue. Continue with displacement?`);
+                if (!confirmed) {
+                    setIsSaving(false);
+                    return;
+                }
+                overwrite = true;
+            }
+
             // 1. Process Deletions (Unblocks)
             const deletionPromises = Array.from(draftUnblockedDates).map(dateKey => {
                 const blockId = dbBlocks[dateKey];
@@ -219,12 +243,13 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             });
 
             // 2. Process Additions (Blocks)
-            const additionPromises = Array.from(draftBlockedDates).map(dateKey => {
+            const additionPromises = newBlockDates.map(dateKey => {
                 return addDoctorBlock(doctor.id, {
                     block_date: dateKey,
                     reason: blockReason,
                     notes: blockReason === 'other' ? otherReason : '',
-                    cancel_appointments: false
+                    cancel_appointments: false,
+                    overwrite: overwrite
                 });
             });
 

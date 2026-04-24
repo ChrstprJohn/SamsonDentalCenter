@@ -28,12 +28,17 @@ export const STATUS_COLOR = {
     Rescheduled: 'light',  // neutral — it's a clean handoff, not a problem
 };
 
-export const getDisplayStatus = (status, approvalStatus) => {
+export const getDisplayStatus = (status, approvalStatus, cancellationReason) => {
     // 1. Rejection is a specific case of "Terminal" in the requests context
     // If it's rejected, we want to see "Rejected" even if status is technically cancelled
     const appStatus = (approvalStatus || '').toLowerCase();
     if (appStatus === 'rejected') {
         return { label: 'Rejected', color: STATUS_COLOR.Rejected };
+    }
+
+    // NEW: System Displaced Override
+    if (status === 'CANCELLED' && cancellationReason?.includes('SYSTEM_DISPLACED')) {
+        return { label: 'Clinic Updating', color: 'warning' };
     }
 
     // 2. Terminal statuses always win — a cancelled appointment is cancelled

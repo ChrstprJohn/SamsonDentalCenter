@@ -129,10 +129,13 @@ export const getAllAppointments = async (req, res, next) => {
                 status: appt.status,
                 service_tier: appt.service_tier,
                 approval_status: appt.approval_status,
+                cancellation_reason: appt.cancellation_reason,
+                rejection_reason: appt.rejection_reason,
                 is_walk_in: appt.is_walk_in,
                 notes: appt.notes,
                 patient: {
                     id: appt.patient_id,
+                    full_name: appt.patient?.full_name || appt.guest_name,
                     name: appt.patient?.full_name || appt.guest_name,
                     email: appt.patient?.email || appt.guest_email,
                     phone: appt.patient?.phone || appt.guest_phone,
@@ -140,7 +143,7 @@ export const getAllAppointments = async (req, res, next) => {
                 service: appt.service?.name,
                 service_tier_label: appt.service?.tier,
                 price: appt.service?.price,
-                dentist: appt.dentist?.profile?.full_name || 'Unassigned',
+                dentist: appt.dentist,
                 created_at: appt.created_at,
             })),
             pagination: result.pagination,
@@ -657,7 +660,7 @@ export const bulkUpdateSchedule = async (req, res, next) => {
  */
 export const blockDentistAvailability = async (req, res, next) => {
     try {
-        const { block_date, start_time, end_time, reason, notes, cancel_appointments } = req.body;
+        const { block_date, start_time, end_time, reason, notes, cancel_appointments, overwrite } = req.body;
 
         if (!block_date || !reason) {
             return res.status(400).json({ error: 'block_date and reason are required.' });
@@ -670,8 +673,9 @@ export const blockDentistAvailability = async (req, res, next) => {
             end_time || null,
             reason,
             notes || null,
-            cancel_appointments || false,
+            cancel_appointments || overwrite || false,
             req.user.id,
+            overwrite || false
         );
 
         res.status(201).json({
