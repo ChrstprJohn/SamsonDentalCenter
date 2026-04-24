@@ -52,7 +52,7 @@ const DashboardStats = ({ entries = [], appointments = [], totalAppointments = 0
                                 
                                 <div className='min-w-0 grow'>
                                     <p className='text-[10px] sm:text-[11px] lg:text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5 uppercase tracking-wider'>
-                                        Latest Appointment
+                                        Next Appointment
                                     </p>
                                     <h3 className='text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white truncate tracking-tight'>
                                         {serviceName || 'No appointments'}
