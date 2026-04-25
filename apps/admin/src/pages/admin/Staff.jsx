@@ -1,34 +1,48 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
+import StaffInbox from '../../components/admin/staff/StaffInbox';
+import StaffDetailView from '../../components/admin/staff/StaffDetailView';
 
 const Staff = () => {
     const { tab, id } = useParams();
+    const navigate = useNavigate();
     const activeTab = tab || 'profile';
+
+    // State for filtering (in real app, this would come from a hook like useStaff)
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeFilter, setActiveFilter] = useState('all');
+
+    const tabLabel = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
+    const breadcrumbTitle = id ? `Staff ${tabLabel}` : "Staff & Reception";
 
     return (
         <div className='flex flex-col h-full'>
             <PageBreadcrumb 
-                pageTitle={id ? "Staff Details" : "Staff & Reception"} 
+                pageTitle={breadcrumbTitle} 
                 parentName={id ? "Staff & Reception" : null}
                 parentPath={id ? "/staff" : null}
                 className='mb-4' 
             />
             
-            <div className='grow flex items-center justify-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl bg-white dark:bg-white/[0.03] p-12 text-center'>
-                <div>
-                    <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-tight'>
-                        {activeTab} - {id ? 'Detail View' : 'Global Module'}
-                    </h3>
-                    <p className='text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto'>
-                        This staff module ({activeTab}) is responding to the route correctly. Currently under design.
-                    </p>
-                    <div className='mt-6 px-4 py-2 bg-brand-50 dark:bg-brand-500/10 rounded-lg inline-block border border-brand-100 dark:border-brand-500/20'>
-                        <span className='text-[10px] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest leading-none'>
-                            Target Context: {id ? `ID # ${id}` : 'General List'}
-                        </span>
-                    </div>
-                </div>
+            <div className='grow flex flex-col'>
+                {id ? (
+                    <StaffDetailView 
+                        id={id}
+                        activeTab={activeTab}
+                        onBack={() => navigate('/staff')}
+                    />
+                ) : (
+                    <StaffInbox 
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        activeFilter={activeFilter}
+                        onFilterChange={setActiveFilter}
+                        activeTab={activeTab}
+                        onAddClick={() => console.log('Add Staff Member clicked')}
+                        onStaffClick={(staffId) => navigate(`/staff/${activeTab}/${staffId}`)}
+                    />
+                )}
             </div>
         </div>
     );

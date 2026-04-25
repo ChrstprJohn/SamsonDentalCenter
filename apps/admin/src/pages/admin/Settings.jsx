@@ -1,35 +1,57 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
+import ClinicGeneralSettings from '../../components/admin/settings/ClinicGeneralSettings';
+import ClinicRulesSettings from '../../components/admin/settings/ClinicRulesSettings';
+import ClinicHolidaysSettings from '../../components/admin/settings/ClinicHolidaysSettings';
+import SystemHealthSettings from '../../components/admin/settings/SystemHealthSettings';
 
 const Settings = () => {
     const { tab } = useParams();
+    const navigate = useNavigate();
     const activeTab = tab || 'general';
 
-    const tabDisplayNames = {
-        general: 'General Details',
-        rules: 'Global Rules',
-        holidays: 'Clinic Holidays',
-        health: 'System Health'
-    };
+    const tabs = [
+        { id: 'general', label: 'General Details' },
+        { id: 'rules', label: 'Global Rules' },
+        { id: 'holidays', label: 'Clinic Holidays' },
+        { id: 'health', label: 'System Health' }
+    ];
 
     return (
         <div className='flex flex-col h-full'>
-            <PageBreadcrumb pageTitle="Clinic Settings" className='mb-4' />
+            <div className='sticky top-0 z-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 -mx-4 sm:-mx-6 px-4 sm:px-6 mb-6'>
+                <div className='py-4'>
+                    <PageBreadcrumb pageTitle={`Settings: ${tabs.find(t => t.id === activeTab)?.label || 'Clinic'}`} />
+                </div>
+                
+                {/* Internal Sub-tabs */}
+                <div className='flex items-center gap-6 overflow-x-auto no-scrollbar'>
+                    {tabs.map((t) => (
+                        <button
+                            key={t.id}
+                            onClick={() => navigate(`/settings/${t.id}`)}
+                            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${
+                                activeTab === t.id 
+                                    ? 'text-brand-500' 
+                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                            }`}
+                        >
+                            {t.label}
+                            {activeTab === t.id && (
+                                <div className='absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500 rounded-full' />
+                            )}
+                        </button>
+                    ))}
+                </div>
+            </div>
             
-            <div className='grow flex items-center justify-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl bg-white dark:bg-white/[0.03] p-12 text-center'>
-                <div>
-                    <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-tight'>
-                        {tabDisplayNames[activeTab] || activeTab}
-                    </h3>
-                    <p className='text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto'>
-                        This configuration panel is now driven by the global sidebar. Currently under architectural review.
-                    </p>
-                    <div className='mt-6 px-4 py-2 bg-brand-50 dark:bg-brand-500/10 rounded-lg inline-block border border-brand-100 dark:border-brand-500/20'>
-                        <span className='text-[10px] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest leading-none'>
-                            Active Tab: {activeTab}
-                        </span>
-                    </div>
+            <div className='flex-grow no-scrollbar'>
+                <div className='max-w-4xl'>
+                    {activeTab === 'general' && <ClinicGeneralSettings />}
+                    {activeTab === 'rules' && <ClinicRulesSettings />}
+                    {activeTab === 'holidays' && <ClinicHolidaysSettings />}
+                    {activeTab === 'health' && <SystemHealthSettings />}
                 </div>
             </div>
         </div>

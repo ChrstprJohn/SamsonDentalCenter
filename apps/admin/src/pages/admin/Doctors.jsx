@@ -50,7 +50,8 @@ const Doctors = () => {
         return true;
     });
 
-    const breadcrumbTitle = selectedDoctorId ? 'Doctor Profile' : 'Doctors';
+    const tabLabel = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
+    const breadcrumbTitle = selectedDoctorId ? `Doctor ${tabLabel}` : 'Doctors Registry';
     const parentName = selectedDoctorId ? 'Doctors' : null;
     const parentPath = selectedDoctorId ? '/doctors' : null;
 
