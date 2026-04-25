@@ -19,17 +19,19 @@ export const getAuditLogs = async (req, res, next) => {
         const from = (parseInt(page) - 1) * parseInt(limit);
         const to = from + parseInt(limit) - 1;
 
-        // Base query: Joining profiles for actor details
-        // We omit old_values and new_values here to save bandwidth
+        // Base query: Using the view for pre-resolved names and roles
         let query = supabaseAdmin
-            .from('audit_log')
+            .from('audit_log_view')
             .select(`
                 id,
                 action,
                 resource_type,
                 resource_id,
                 created_at,
-                actor:profiles!actor_id ( id, full_name, role )
+                actor_id,
+                actor_name,
+                actor_role,
+                resource_name
             `, { count: 'exact' });
 
         // Apply filters

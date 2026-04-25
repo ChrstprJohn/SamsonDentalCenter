@@ -551,7 +551,35 @@ export const getDentistByIdHandler = async (req, res, next) => {
  */
 export const updateDentistProfileHandler = async (req, res, next) => {
     try {
+        // Fetch old values before update
+        const { data: previousData } = await supabaseAdmin
+            .from('dentists')
+            .select(`
+                *,
+                profile:profiles(*)
+            `)
+            .eq('id', req.params.id)
+            .single();
+
         const updated = await updateDentistProfileData(req.params.id, req.body);
+
+        // Audit Log: UPDATE_DOCTOR_PROFILE
+        try {
+            await supabaseAdmin.from('audit_log').insert({
+                actor_id: req.user.id,
+                actor_role: req.user.role,
+                action: 'UPDATE_DOCTOR_PROFILE',
+                target_type: 'dentists',
+                target_id: req.params.id,
+                resource_type: 'dentists',
+                resource_id: req.params.id,
+                old_values: previousData,
+                new_values: req.body
+            });
+        } catch (auditErr) {
+            console.error('Audit Log failed (updateDentistProfile):', auditErr.message);
+        }
+
         res.json({ message: 'Doctor profile updated.', doctor: formatDoctorResponse(updated) });
     } catch (err) {
         next(err);
@@ -570,7 +598,32 @@ export const updateDentistServicesHandler = async (req, res, next) => {
         if (!Array.isArray(service_ids)) {
             return res.status(400).json({ error: 'service_ids must be an array of UUIDs.' });
         }
+
+        // Fetch old values
+        const { data: oldServices } = await supabaseAdmin
+            .from('dentist_services')
+            .select('service_id')
+            .eq('dentist_id', req.params.id);
+
         const updated = await replaceDentistServices(req.params.id, service_ids);
+
+        // Audit Log: UPDATE_DOCTOR_SERVICES
+        try {
+            await supabaseAdmin.from('audit_log').insert({
+                actor_id: req.user.id,
+                actor_role: req.user.role,
+                action: 'UPDATE_DOCTOR_SERVICES',
+                target_type: 'dentists',
+                target_id: req.params.id,
+                resource_type: 'dentist_services',
+                resource_id: req.params.id,
+                old_values: { service_ids: (oldServices || []).map(s => s.service_id) },
+                new_values: { service_ids }
+            });
+        } catch (auditErr) {
+            console.error('Audit Log failed (updateDentistServices):', auditErr.message);
+        }
+
         res.json({ message: 'Doctor services updated.', doctor: formatDoctorResponse(updated) });
     } catch (err) {
         next(err);
@@ -652,7 +705,32 @@ export const bulkUpdateSchedule = async (req, res, next) => {
             overwrite = req.body.overwrite || false;
         }
 
+        // Fetch old values
+        const { data: oldSchedule } = await supabaseAdmin
+            .from('dentist_schedule')
+            .select('*')
+            .eq('dentist_id', req.params.id)
+            .order('day_of_week', { ascending: true });
+
         await setBulkSchedule(req.params.id, schedules, overwrite);
+
+        // Audit Log: UPDATE_GLOBAL_SCHEDULE
+        try {
+            await supabaseAdmin.from('audit_log').insert({
+                actor_id: req.user.id,
+                actor_role: req.user.role,
+                action: 'UPDATE_GLOBAL_SCHEDULE',
+                target_type: 'dentists',
+                target_id: req.params.id,
+                resource_type: 'dentist_schedule',
+                resource_id: req.params.id,
+                old_values: oldSchedule,
+                new_values: { schedules, overwrite }
+            });
+        } catch (auditErr) {
+            console.error('Audit Log failed (bulkUpdateSchedule):', auditErr.message);
+        }
+
         res.json({ message: 'Dentist schedule updated for the week.' });
     } catch (err) {
         next(err);
@@ -686,6 +764,23 @@ export const blockDentistAvailability = async (req, res, next) => {
             req.user.id,
             overwrite || false
         );
+
+        // Audit Log: CREATE_SCHEDULE_BLOCK
+        try {
+            await supabaseAdmin.from('audit_log').insert({
+                actor_id: req.user.id,
+                actor_role: req.user.role,
+                action: 'CREATE_SCHEDULE_BLOCK',
+                target_type: 'dentists',
+                target_id: req.params.id,
+                resource_type: 'dentist_availability_blocks',
+                resource_id: result.block.id,
+                old_values: null,
+                new_values: req.body
+            });
+        } catch (auditErr) {
+            console.error('Audit Log failed (blockDentistAvailability):', auditErr.message);
+        }
 
         res.status(201).json({
             message: `Dentist availability blocked: ${reason}`,
@@ -722,7 +817,33 @@ export const viewDentistBlocks = async (req, res, next) => {
 export const removeDentistBlock = async (req, res, next) => {
     try {
         const { blockId } = req.params;
+
+        // Fetch old values
+        const { data: oldBlock } = await supabaseAdmin
+            .from('dentist_availability_blocks')
+            .select('*')
+            .eq('id', blockId)
+            .single();
+
         await removeAvailabilityBlock(blockId);
+
+        // Audit Log: DELETE_SCHEDULE_BLOCK
+        try {
+            await supabaseAdmin.from('audit_log').insert({
+                actor_id: req.user.id,
+                actor_role: req.user.role,
+                action: 'DELETE_SCHEDULE_BLOCK',
+                target_type: 'dentists',
+                target_id: req.params.id, // The dentist ID from the route
+                resource_type: 'dentist_availability_blocks',
+                resource_id: blockId,
+                old_values: oldBlock,
+                new_values: null
+            });
+        } catch (auditErr) {
+            console.error('Audit Log failed (removeDentistBlock):', auditErr.message);
+        }
+
         res.json({ message: 'Availability block removed.' });
     } catch (err) {
         next(err);
@@ -1211,11 +1332,44 @@ export const getSystemHealthHandler = async (req, res, next) => {
  */
 export const onboardDoctor = async (req, res, next) => {
     try {
-        const dentist = await onboardDentistProfile(req.body);
+        const result = await onboardDentistProfile(req.body);
+
+        // Audit Log: CREATE_DOCTOR
+        try {
+            // Find the dentist ID (created via trigger)
+            const { data: dentist } = await supabaseAdmin
+                .from('dentists')
+                .select('id')
+                .eq('profile_id', result.user.id)
+                .single();
+
+            if (dentist) {
+                await supabaseAdmin.from('audit_log').insert({
+                    actor_id: req.user.id,
+                    actor_role: req.user.role,
+                    action: 'CREATE_DOCTOR',
+                    target_type: 'dentists',
+                    target_id: dentist.id,
+                    resource_type: 'dentists',
+                    resource_id: dentist.id,
+                    old_values: null,
+                    new_values: {
+                        email: req.body.email,
+                        first_name: req.body.first_name,
+                        last_name: req.body.last_name,
+                        specialization: req.body.specialization,
+                        tier: req.body.tier
+                    }
+                });
+            }
+        } catch (auditErr) {
+            console.error('Audit Log failed (onboardDoctor):', auditErr.message);
+        }
+
         res.status(201).json({
             message: 'Doctor onboarded successfully.',
-            user: dentist.user, 
-            message_detail: dentist.message
+            user: result.user, 
+            message_detail: result.message
         });
     } catch (err) {
         next(err);

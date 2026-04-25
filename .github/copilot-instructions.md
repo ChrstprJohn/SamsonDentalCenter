@@ -22,16 +22,22 @@
 
 ## Database, Security & Backend Guidelines
 
-- **The Single Source of Truth & Migrations:** `FINAL-COMPLETE-SCHEMA.sql` is the absolute authority
-  for the database. Do not hallucinate database logic, tables, or relationships. If a feature
-  requires schema updates, you must output a standalone SQL migration script. The user will execute
-  this script themselves and manually update `FINAL-COMPLETE-SCHEMA.sql`. Remind the user to do so,
-  but do not attempt to modify the schema file directly.
+- **The Single Source of Truth & Migrations:** `FINAL-COMPLETE-SCHEMA.sql` is the absolute authority for the database. If we make a new migration, you must update the final schema file also.
+    1. Output a standalone SQL migration script in `BLUEPRINT/BACKEND/MIGRATIONS`.
+    2. Simultaneously update `FINAL-COMPLETE-SCHEMA.sql` to reflect the final state.
+    - You are responsible for keeping both in sync. Do not hallucinate database logic.
 - **Atomic & Secure:** All database mutations must be handled using atomic transactions to prevent
   partial updates or orphaned data.
-- **Performance & Safety:** Keep security (e.g., input validation, SQL injection prevention,
-  role-based access) and speed (e.g., proper indexing, avoiding N+1 query problems) top of mind for
-  every backend operation.
+- **Strict Data Access (No Over-fetching):** Never use `SELECT *` or fetch data the client does not
+  explicitly need. Always define strict `.select(...)` statements specifying exactly the columns
+  required by the interface.
+- **Performance & Safety First:** Modern architectures demand speed and security:
+    - **Security:** Enforce strict input validation (e.g., Zod), aggressive SQL injection
+      prevention, and robust role-based access control (RBAC). Always sanitize user inputs.
+    - **Speed:** Implement proper database indexing, strict query optimization, and aggressively
+      avoid N+1 query problems. Use pagination/cursors for collection queries.
+    - **Caching:** Where appropriate, leverage caching strategies to reduce repetitive database
+      loads.
 
 ## UI / UX Directives
 
