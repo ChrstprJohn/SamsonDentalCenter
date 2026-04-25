@@ -63,6 +63,10 @@ import {
     onboardDoctor,
     bulkUpdateSchedule,
 } from '../controllers/admin.controller.js';
+import { 
+    getAuditLogs, 
+    getAuditLogDetails 
+} from '../controllers/audit.controller.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 import { requireAdmin, requireAdminOrSecretary } from '../middleware/admin.middleware.js'; // UPDATED
 
@@ -155,5 +159,9 @@ router.post('/users', requireAdmin, createUserHandler);
 router.patch('/users/:id/role', requireAdmin, changeUserRoleHandler);
 router.patch('/users/:id/deactivate', requireAdmin, deactivateUserHandler);
 router.get('/system/health', requireAdmin, getSystemHealthHandler);
+
+// ── Audit Logs ── (NEW)
+router.get('/audit-logs', requireAdmin, getAuditLogs);
+router.get('/audit-logs/:id', requireAdmin, getAuditLogDetails);
 
 export default router;

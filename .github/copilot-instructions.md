@@ -2,29 +2,55 @@
 
 ## Global Instructions & AI Directives
 
-- **Plan Before Execution**: Never write or output code immediately. Always propose a high-level
-  architectural plan first. Offer 2-3 structured approaches or solutions, highlighting the
-  trade-offs of each. Wait for explicit selection before writing any code.
-- **Zero Assumptions**: If a request is ambiguous, lacks scope, or you do not have sufficient
+- **Plan Before Execution (Architecture & Best Practices):** Never write or output code immediately.
+  Always propose a high-level architectural plan first. Rely strictly on the latest industry best
+  practices. If there are multiple valid "best practice" approaches for a system or architectural
+  design, you must present at least two structured options. Highlight the trade-offs (pros/cons) of
+  each and wait for explicit selection before writing any code.
+- **Zero Assumptions:** If a request is ambiguous, lacks scope, or you do not have sufficient
   context from the open files, stop. Do not hallucinate or guess. Ask specific, clarifying questions
   to get the required information.
-- **Match Existing Patterns**: Analyze the surrounding codebase. Strictly adapt to and replicate the
+- **Strict Dependency Management:** Do not introduce new npm packages, libraries, or technologies
+  unless absolutely necessary and highly useful. If a new dependency is the best solution, you must
+  ask for permission first. Suggest the package, explain exactly why it is the best choice over a
+  native implementation, and wait for approval.
+- **Match Existing Patterns:** Analyze the surrounding codebase. Strictly adapt to and replicate the
   existing coding style, naming conventions, and structural patterns.
-- **Long-Term Maintainability**: Prioritize the long run. Adhere to strict best practices to avoid
-  technical debt. Code must be clean, modular, and scalable.
-- **Complete Output**: Once a plan is approved, provide the full code for the solution. Do not use
-  placeholders, and do not omit sections for brevity. Provide only the code, with no unnecessary
-  elaboration unless explicitly asked to explain it.
-- **Database Context & Updates**: Rely on `FINAL-COMPLETE-SCHEMA.sql` as the ultimate source of
-  truth for database schema design. For any database schema updates or additions, you must provide
-  the SQL migration script to execute, and state that `FINAL-COMPLETE-SCHEMA.sql` needs to be
-  updated with those changes.
-- **Uncodixfy UI Skills**: If instructed to use Uncodixfy skills or guidelines, STRICTLY adhere to
-  the UI rules defined in `Uncodixfy/Uncodixfy.md`. Avoid default AI aesthetic patterns (e.g.,
-  oversized rounded corners, floating panels, soft gradients, eyebrow labels). Stick to "normal" UI
-  components that feel human-designed, functional, and honest (e.g., Linear, Raycast, Stripe,
-  GitHub). Do not invent new layouts; replicate clean, standard components without unnecessary
+- **Long-Term Maintainability:** Prioritize the long run. Code must be clean, modular, and scalable.
+  Provide only the complete code for the approved solution. Do not use placeholders, and do not omit
+  sections for brevity.
+
+## Database, Security & Backend Guidelines
+
+- **The Single Source of Truth & Migrations:** `FINAL-COMPLETE-SCHEMA.sql` is the absolute authority
+  for the database. Do not hallucinate database logic, tables, or relationships. If a feature
+  requires schema updates, you must output a standalone SQL migration script. The user will execute
+  this script themselves and manually update `FINAL-COMPLETE-SCHEMA.sql`. Remind the user to do so,
+  but do not attempt to modify the schema file directly.
+- **Atomic & Secure:** All database mutations must be handled using atomic transactions to prevent
+  partial updates or orphaned data.
+- **Performance & Safety:** Keep security (e.g., input validation, SQL injection prevention,
+  role-based access) and speed (e.g., proper indexing, avoiding N+1 query problems) top of mind for
+  every backend operation.
+
+## UI / UX Directives
+
+- **Data-Driven UI:** I do not care about heavy UI scaffolding. Your primary directive for UI
+  generation is to ensure that the interface perfectly matches and can be fully supported by the
+  current database schema. Do not design frontend inputs for data we do not track in the backend.
+- **Uncodixfy UI Skills:** STRICTLY adhere to the UI rules defined in `Uncodixfy/Uncodixfy.md`.
+  Avoid default AI aesthetic patterns (e.g., oversized rounded corners, floating panels, soft
+  gradients). Stick to standard, functional components that feel human-designed and honest (e.g.,
+  Linear, GitHub). Do not invent new layouts; replicate clean components without unnecessary
   decoration.
+
+## Documentation & Markdown Standards
+
+- **Core Focus:** When writing `.md` files or documentation, strictly focus on the core ideas,
+  flows, and essential logic. Do not add fluff.
+- **Improvement Proposals:** If you see areas for architectural or logical improvement while
+  documenting, list them in a distinct "Proposed Improvements" section at the bottom of the file.
+  Suggest, but keep the primary document focused on the current core implementation.
 
 ## Architecture Overview
 
