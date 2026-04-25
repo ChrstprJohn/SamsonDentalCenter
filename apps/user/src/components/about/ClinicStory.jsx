@@ -85,8 +85,8 @@ const ClinicStory = () => {
                 <div className='grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start'>
                     {/* Left: Headline + description + tabs + panel */}
                     <div ref={leftContentRef} className='order-2 lg:order-1 lg:col-span-7'>
-                        <p className='inline-flex items-center gap-2 text-xs font-semibold tracking-[0.22em] text-slate-500 uppercase'>
-                            <span className='h-1.5 w-1.5 rounded-full bg-indigo-600' />
+                        <p className='inline-flex items-center gap-2 text-base font-bold tracking-[0.2em] text-slate-600 uppercase'>
+                            <span className='h-2.5 w-2.5 rounded-full bg-indigo-600' />
                             Our story
                         </p>
                         <h2 className='mt-4 text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-slate-900 leading-[1.06]'>
