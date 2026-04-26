@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Badge from '../../components/ui/Badge';
-import { Calendar as CalendarIcon, ChevronDown, Plus, Search, ChevronLeft, ChevronRight, Users, Activity, Tag, ShieldCheck } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronDown, Plus, Search, ChevronLeft, ChevronRight, Users, Tag, ShieldCheck } from 'lucide-react';
 
 const DOCTORS = [
     'All',
@@ -76,16 +76,18 @@ const AppointmentsPage = () => {
     }, [selectedDate, selectedDoctor, selectedServiceType, selectedStatus]);
 
     const getStatusBadge = (status) => {
-        switch (status) {
-            case 'In Progress':
-                return <Badge variant="light" color="warning" size="sm"><span className="px-1 py-0.5 font-bold tracking-wide">{status}</span></Badge>;
-            case 'Upcoming':
-                return <Badge variant="light" color="info" size="sm"><span className="px-1 py-0.5 font-bold tracking-wide">{status}</span></Badge>;
-            case 'Completed':
-                return <Badge variant="light" color="success" size="sm"><span className="px-1 py-0.5 font-bold tracking-wide">{status}</span></Badge>;
-            default:
-                return <Badge variant="light" color="light" size="sm"><span className="px-1 py-0.5 font-bold tracking-wide">{status}</span></Badge>;
-        }
+        const colorMap = {
+            'In Progress': 'warning',
+            'Upcoming': 'info',
+            'Completed': 'success',
+        };
+        const color = colorMap[status] || 'light';
+        
+        return (
+            <Badge variant="light" color={color} size="sm">
+                <span className="px-1 py-0.5 font-bold tracking-wide">{status}</span>
+            </Badge>
+        );
     };
 
     const filteredAppointments = APPOINTMENTS_DATA.filter((apt) => {
@@ -126,7 +128,7 @@ const AppointmentsPage = () => {
                 </div>
 
                 {/* Quick Filters */}
-                <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3">
+                <div className="flex flex-row flex-wrap items-center gap-2 sm:gap-3">
                     <div className="relative group w-full sm:w-auto shrink-0">
                         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors z-10">
                             <CalendarIcon size={16} />
@@ -139,7 +141,7 @@ const AppointmentsPage = () => {
                         />
                     </div>
 
-                    <div className="relative group w-full sm:w-[220px] shrink-0">
+                    <div className="relative group flex-1 sm:flex-none sm:w-[220px] min-w-[140px]">
                         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors z-10">
                             <Users size={16} />
                         </div>
@@ -155,7 +157,7 @@ const AppointmentsPage = () => {
                         <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors" />
                     </div>
 
-                    <div className="relative group w-full sm:w-[180px] shrink-0">
+                    <div className="relative group flex-1 sm:flex-none sm:w-[180px] min-w-[130px]">
                         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors z-10">
                             <Tag size={16} />
                         </div>
@@ -171,7 +173,7 @@ const AppointmentsPage = () => {
                         <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors" />
                     </div>
 
-                    <div className="relative group w-full sm:w-[160px] shrink-0">
+                    <div className="relative group flex-1 sm:flex-none sm:w-[160px] min-w-[130px]">
                         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors z-10">
                             <ShieldCheck size={16} />
                         </div>
