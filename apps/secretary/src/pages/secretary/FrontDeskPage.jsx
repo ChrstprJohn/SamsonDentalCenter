@@ -1,27 +1,7 @@
 import React, { useState } from 'react';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
-import { UserCheck, CheckCircle2, MapPin, X, CalendarClock, CalendarDays } from 'lucide-react';
-
-const ProgressCheckIcon = ({ size = 20, className = "" }) => (
-    <svg
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={className}
-    >
-        {/* Solid right arc */}
-        <path d="M12 3a9 9 0 0 1 0 18" />
-        {/* Dashed left arc */}
-        <path d="M12 21a9 9 0 0 1-9-9 9 9 0 0 1 9-9" strokeDasharray="4 5" />
-        {/* Center check */}
-        <path d="M8 12l3 3 5-5" />
-    </svg>
-);
+import { CheckCircle2, CalendarClock, CalendarDays, UserX, Undo2 } from 'lucide-react';
+import CheckOutModal from '../../components/secretary/frontdesk/CheckOutModal';
 
 const mockFrontDeskAppointments = [
     {
@@ -75,18 +55,65 @@ const mockFrontDeskAppointments = [
         doctorAvatar: 'https://ui-avatars.com/api/?name=Emily+Chen&background=random',
         specialty: 'Specialized Dentistry',
         phone: '+63 999 111 2222',
+    },
+    {
+        id: 5,
+        status: 'No Show',
+        startTime: '2:30 PM',
+        endTime: '3:30 PM',
+        service: 'Tooth Extraction',
+        patient: 'Emma Thompson',
+        patientAvatar: 'https://ui-avatars.com/api/?name=Emma+Thompson&background=random',
+        doctor: 'Dr. James Thompson',
+        doctorAvatar: 'https://ui-avatars.com/api/?name=James+Thompson&background=random',
+        specialty: 'Oral Surgery',
+        phone: '+63 932 555 1111',
     }
 ];
 
 const FrontDeskPage = () => {
     const [activeTab, setActiveTab] = useState('Upcoming');
+    const [appointments, setAppointments] = useState(mockFrontDeskAppointments);
+    const [isCheckOutModalOpen, setIsCheckOutModalOpen] = useState(false);
+    const [isReadOnlyModal, setIsReadOnlyModal] = useState(false);
+    const [selectedApt, setSelectedApt] = useState(null);
 
-    const filteredAppointments = mockFrontDeskAppointments.filter(apt => apt.status === activeTab);
+    const handleStatusChange = (id, newStatus) => {
+        if (newStatus === 'Completed') {
+            const apt = appointments.find(a => a.id === id);
+            setSelectedApt(apt);
+            setIsReadOnlyModal(false);
+            setIsCheckOutModalOpen(true);
+            return;
+        }
+
+        setAppointments(prev => prev.map(apt => 
+            apt.id === id ? { ...apt, status: newStatus } : apt
+        ));
+    };
+
+    const handleViewDetails = (apt) => {
+        setSelectedApt(apt);
+        setIsReadOnlyModal(true);
+        setIsCheckOutModalOpen(true);
+    };
+
+    const handleCheckOutConfirm = (id, treatmentNotes, doctorNotes) => {
+        console.log('Completing appointment:', id, { treatmentNotes, doctorNotes });
+        setAppointments(prev => prev.map(apt => 
+            apt.id === id ? { ...apt, status: 'Completed', treatmentNotes, doctorNotes } : apt
+        ));
+        setIsCheckOutModalOpen(false);
+        setSelectedApt(null);
+    };
+
+    const filteredAppointments = appointments.filter(apt => apt.status === activeTab);
    
     // Calculate counts
-    const upcomingCount = mockFrontDeskAppointments.filter(apt => apt.status === 'Upcoming').length;
-    const inProgressCount = mockFrontDeskAppointments.filter(apt => apt.status === 'In Progress').length;
-    const completedCount = mockFrontDeskAppointments.filter(apt => apt.status === 'Completed').length;
+    const upcomingCount = appointments.filter(apt => apt.status === 'Upcoming').length;
+    const inProgressCount = appointments.filter(apt => apt.status === 'In Progress').length;
+    const completedCount = appointments.filter(apt => apt.status === 'Completed').length;
+    const noShowCount = appointments.filter(apt => apt.status === 'No Show').length;
 
     return (
         <div className="flex flex-col h-full w-full max-w-full overflow-x-hidden pb-8">
@@ -103,68 +130,54 @@ const FrontDeskPage = () => {
 
             {/* Tabs & Date Selection Row */}
             <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-gray-200 dark:border-gray-800 mt-6 sm:mt-8 gap-4 sm:gap-0">
-               
-                {/* Tabs */}
-                <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar w-full sm:w-auto shrink-0 pb-px">
-                    <button
+                <div className="grid grid-cols-4 gap-2 sm:flex sm:items-center w-full sm:w-auto shrink-0 pb-px overflow-hidden">
+                    <button 
                         onClick={() => setActiveTab('Upcoming')}
-                        className={`flex items-center gap-2 pb-2.5 px-1 border-b-2 transition-colors whitespace-nowrap ${
-                            activeTab === 'Upcoming'
-                            ? 'border-brand-500 text-[#0B1120] dark:text-white'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                        }`}
+                        className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 pb-2.5 px-1 border-b-2 transition-all whitespace-nowrap ${activeTab === 'Upcoming' ? 'border-brand-500 text-[#0B1120] dark:text-white' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
                     >
-                        <CalendarClock size={16} className={`shrink-0 ${activeTab === 'Upcoming' ? 'text-blue-600 dark:text-blue-500' : 'text-blue-600/70 dark:text-blue-500/70'}`} />
-                        <span className="font-semibold text-sm sm:text-base">Upcoming</span>
-                        <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold ${
-                            activeTab === 'Upcoming'
-                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200'
-                            : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-                        }`}>
+                        <CalendarClock size={16} className={`shrink-0 hidden sm:block ${activeTab === 'Upcoming' ? 'text-blue-600 dark:text-blue-500' : 'text-gray-400'}`} />
+                        <span className={`font-semibold text-[10px] xs:text-xs sm:text-base ${activeTab === 'Upcoming' ? '' : 'font-medium'}`}>Upcoming</span>
+                        <span className={`sm:ml-1 px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-semibold ${activeTab === 'Upcoming' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
                             {upcomingCount}
                         </span>
                     </button>
 
-                    <button
+                    <button 
                         onClick={() => setActiveTab('In Progress')}
-                        className={`flex items-center gap-2 pb-2.5 px-1 border-b-2 transition-colors whitespace-nowrap ${
-                            activeTab === 'In Progress'
-                            ? 'border-brand-500 text-[#0B1120] dark:text-white'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                        }`}
+                        className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 pb-2.5 px-1 border-b-2 transition-all whitespace-nowrap ${activeTab === 'In Progress' ? 'border-brand-500 text-[#0B1120] dark:text-white' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
                     >
-                        <ProgressCheckIcon size={16} className={`shrink-0 ${activeTab === 'In Progress' ? 'text-amber-500' : 'text-amber-500/70'}`} />
-                        <span className="font-semibold text-sm sm:text-base">In Progress</span>
-                        <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold ${
-                            activeTab === 'In Progress'
-                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                            : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-                        }`}>
+                        <div className="hidden sm:block">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 ${activeTab === 'In Progress' ? 'text-amber-500' : 'text-gray-400'}`}><path d="M12 3a9 9 0 0 1 0 18"/><path d="M12 21a9 9 0 0 1-9-9 9 9 0 0 1 9-9" strokeDasharray="4 5"/><path d="M8 12l3 3 5-5"/></svg>
+                        </div>
+                        <span className={`font-semibold text-[10px] xs:text-xs sm:text-base ${activeTab === 'In Progress' ? '' : 'font-medium'}`}>In Progress</span>
+                        <span className={`sm:ml-1 px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-semibold ${activeTab === 'In Progress' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
                             {inProgressCount}
                         </span>
                     </button>
 
-                    <button
+                    <button 
                         onClick={() => setActiveTab('Completed')}
-                        className={`flex items-center gap-2 pb-2.5 px-1 border-b-2 transition-colors whitespace-nowrap ${
-                            activeTab === 'Completed'
-                            ? 'border-brand-500 text-[#0B1120] dark:text-white'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                        }`}
+                        className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 pb-2.5 px-1 border-b-2 transition-all whitespace-nowrap ${activeTab === 'Completed' ? 'border-brand-500 text-[#0B1120] dark:text-white' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
                     >
-                        <CheckCircle2 size={16} className={`shrink-0 ${activeTab === 'Completed' ? 'text-emerald-500' : 'text-emerald-500/70'}`} />
-                        <span className="font-semibold text-sm sm:text-base">Completed</span>
-                        <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold ${
-                            activeTab === 'Completed'
-                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                            : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-                        }`}>
+                        <CheckCircle2 size={16} className={`shrink-0 hidden sm:block ${activeTab === 'Completed' ? 'text-emerald-500' : 'text-gray-400'}`} />
+                        <span className={`font-semibold text-[10px] xs:text-xs sm:text-base ${activeTab === 'Completed' ? '' : 'font-medium'}`}>Completed</span>
+                        <span className={`sm:ml-1 px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-semibold ${activeTab === 'Completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
                             {completedCount}
+                        </span>
+                    </button>
+
+                    <button 
+                        onClick={() => setActiveTab('No Show')}
+                        className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 pb-2.5 px-1 border-b-2 transition-all whitespace-nowrap ${activeTab === 'No Show' ? 'border-brand-500 text-[#0B1120] dark:text-white' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
+                    >
+                        <UserX size={16} className={`shrink-0 hidden sm:block ${activeTab === 'No Show' ? 'text-red-500' : 'text-gray-400'}`} />
+                        <span className={`font-semibold text-[10px] xs:text-xs sm:text-base ${activeTab === 'No Show' ? '' : 'font-medium'}`}>No Show</span>
+                        <span className={`sm:ml-1 px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-semibold ${activeTab === 'No Show' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
+                            {noShowCount}
                         </span>
                     </button>
                 </div>
 
-                {/* Date Selection */}
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800/80 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium text-xs sm:text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mb-3 sm:mb-2 shadow-sm w-fit">
                     <CalendarDays size={14} className="text-gray-400 dark:text-gray-500 shrink-0" />
                     <span className="truncate">Today, 25 Apr 2026</span>
@@ -228,17 +241,32 @@ const FrontDeskPage = () => {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex items-center justify-end w-full md:w-auto mt-1 sm:mt-0 shrink-0">
-                                    {apt.status === 'Completed' ? (
-                                        <button className="w-full md:w-auto px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-md shadow-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-95">
+                                <div className="flex items-center justify-end w-full md:w-auto mt-1 sm:mt-0 shrink-0 gap-2">
+                                    {apt.status === 'In Progress' && (
+                                        <button 
+                                            onClick={() => handleStatusChange(apt.id, 'Upcoming')}
+                                            className="p-2 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-200 dark:hover:bg-white/10 transition-colors active:scale-95 shadow-sm" 
+                                            title="Return to Upcoming"
+                                        >
+                                            <Undo2 size={16} />
+                                        </button>
+                                    )}
+                                    {apt.status === 'Completed' || apt.status === 'No Show' ? (
+                                        <button 
+                                            onClick={() => handleViewDetails(apt)}
+                                            className="w-full md:w-auto px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-md shadow-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-95"
+                                        >
                                             View Details
                                         </button>
                                     ) : (
-                                        <button className={`w-full md:w-auto px-4 py-2 text-white text-xs sm:text-sm font-medium rounded-md shadow-sm hover:shadow transition-all active:scale-95 ${
-                                            apt.status === 'Upcoming'
-                                                ? 'bg-blue-600 hover:bg-blue-700'
-                                                : 'bg-emerald-600 hover:bg-emerald-700'
-                                        }`}>
+                                        <button 
+                                            onClick={() => handleStatusChange(apt.id, apt.status === 'Upcoming' ? 'In Progress' : 'Completed')}
+                                            className={`w-full md:w-auto px-4 py-2 text-white text-xs sm:text-sm font-medium rounded-md shadow-sm hover:shadow transition-all active:scale-95 ${
+                                                apt.status === 'Upcoming'
+                                                    ? 'bg-blue-600 hover:bg-blue-700'
+                                                    : 'bg-emerald-600 hover:bg-emerald-700'
+                                            }`}
+                                        >
                                             {apt.status === 'Upcoming' ? 'Check In' : 'Check Out'}
                                         </button>
                                     )}
@@ -252,6 +280,15 @@ const FrontDeskPage = () => {
                     </div>
                 )}
             </div>
+
+            {/* Check Out Modal */}
+            <CheckOutModal 
+                isOpen={isCheckOutModalOpen}
+                onClose={() => setIsCheckOutModalOpen(false)}
+                appointment={selectedApt}
+                onConfirm={handleCheckOutConfirm}
+                isReadOnly={isReadOnlyModal}
+            />
         </div>
     );
 };

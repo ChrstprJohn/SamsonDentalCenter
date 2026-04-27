@@ -21,7 +21,7 @@ const LayoutContent = () => {
                 } ${isMobileOpen ? 'ml-0' : ''}`}
             >
                 <SecretaryHeader />
-                <div className='flex-grow pt-0 px-0 pb-0 sm:p-4 mx-auto w-full max-w-[1536px] md:p-6 bg-white sm:bg-transparent dark:bg-gray-900 dark:sm:bg-transparent'>
+                <div className='flex-grow px-4 sm:px-6 py-2 sm:py-4 mx-auto w-full max-w-[1536px] bg-white sm:bg-transparent dark:bg-gray-900 dark:sm:bg-transparent'>
                     <Outlet />
                 </div>
             </div>
