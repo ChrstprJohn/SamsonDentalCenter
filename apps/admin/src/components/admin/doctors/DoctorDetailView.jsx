@@ -150,9 +150,9 @@ const DoctorDetailView = ({
     const isSidebarOpen = isExpanded || isHovered;
 
     return (
-        <div className='bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-200 dark:border-gray-800 transition-all duration-300'>
+        <div className='bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-200 dark:border-gray-700 transition-all duration-300 overflow-hidden'>
             {/* A. Identity Section — Now part of normal flow */}
-            <div className='bg-white dark:bg-white/[0.03] border-b border-gray-200 dark:border-gray-800'>
+            <div className='bg-white dark:bg-transparent border-b border-gray-200 dark:border-gray-700'>
                 <div className='px-4 sm:px-6 py-4 sm:py-7 flex items-center justify-between'>
                     <div className='flex items-center gap-4'>
                         <div className='bg-gray-100 dark:bg-white/5 p-1.5 rounded-xl'>
@@ -176,15 +176,15 @@ const DoctorDetailView = ({
             </div>
 
             {/* B. Navigation Tabs Section — Sticky with header offset to browser viewport */}
-            <div className='sticky top-[68px] lg:top-[76px] z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm sm:shadow-none'>
-                <div className='bg-white dark:bg-white/[0.03] px-4 sm:px-6 flex items-center gap-[clamp(20px,3vw,32px)] overflow-x-auto no-scrollbar'>
+            <div className='sticky top-[68px] lg:top-[76px] z-30 bg-white dark:bg-[#1f2021] border-b border-gray-200 dark:border-gray-700 shadow-sm sm:shadow-none'>
+                <div className='bg-white dark:bg-transparent px-4 sm:px-6 flex items-center gap-[clamp(20px,3vw,32px)] overflow-x-auto no-scrollbar'>
                     {tabs.map((t) => (
                         <button
                             key={t.id}
                             onClick={() => navigate(`/doctors/${t.id}/${doctor.id}`)}
                             className={`pt-4 pb-3 text-[clamp(9px,1.1vw,11px)] font-black uppercase tracking-[0.1em] transition-all relative whitespace-nowrap ${activeTab === t.id
-                                    ? 'text-brand-500'
-                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                                ? 'text-brand-500'
+                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
                                 }`}
                         >
                             {t.label}
@@ -199,9 +199,9 @@ const DoctorDetailView = ({
             {/* C. Content Body */}
             <div className='p-4 sm:p-6 lg:p-8 space-y-6'>
 
-                    {/* A. Profile Header Card — only on Profile tab */}
-                    {(!activeTab || activeTab === 'profile') && (
-                        <div className='p-[clamp(16px,2.5vw,28px)] border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+                {/* A. Profile Header Card — only on Profile tab */}
+                {(!activeTab || activeTab === 'profile') && (
+                    <div className='p-[clamp(16px,2.5vw,28px)] border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                         <div className='flex flex-col gap-[clamp(16px,2vw,24px)] xl:flex-row xl:items-start xl:justify-between'>
                             <div className='flex flex-col items-center w-full gap-[clamp(16px,2vw,24px)] xl:flex-row xl:items-center'>
                                 <div className='relative shrink-0'>

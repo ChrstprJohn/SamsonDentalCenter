@@ -24,7 +24,7 @@ const DoctorServicesDetail = ({ doctor, updateDoctorServices }) => {
         const fallbackId = (index) => `temp-${index}`;
         
         const mappedServices = allServices.map((s, index) => ({
-            id: s.id || fallbackId(index),
+            id: s.id,
             name: s.name,
             category: s.category || (s.tier === 'general' ? 'General' : s.tier === 'specialized' ? 'Specialized' : 'Clinical')
         }));
