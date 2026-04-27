@@ -89,5 +89,12 @@
 
 ## Conventions
 
+- **Feature-Based UI Architecture:** Strict separation between Pages and Components is required.
+    - `pages/` must ONLY contain routing logic, high-level structural layouts, and top-level
+      state/data-fetching.
+    - NEVER write UI blocks, form modals, or complex cards directly inside a `pages/` file.
+    - All UI elements must be extracted into focused components organized by feature inside the
+      `components/` directory (e.g., `components/services/ServiceCard.jsx`,
+      `components/doctors/DoctorModal.jsx`). Pages should simply import and render these components.
 - Changes spanning frontend and backend should be properly grouped by feature in `apps/`.
 - Ensure appropriate usage of turbo when resolving build tasks.
