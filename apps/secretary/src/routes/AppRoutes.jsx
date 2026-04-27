@@ -18,6 +18,7 @@ import ApprovalsPage from '../pages/secretary/ApprovalsPage';
 import BookingPage from '../pages/secretary/BookingPage';
 import PatientsPage from '../pages/secretary/PatientsPage';
 import DisplacedQueuePage from '../pages/secretary/DisplacedQueuePage';
+import AppointmentsPage from '../pages/secretary/AppointmentsPage';
 
 const AppRoutes = () => {
     return (
@@ -46,6 +47,7 @@ const AppRoutes = () => {
                     <Route path='booking' element={<BookingPage />} />
                     <Route path='patients' element={<PatientsPage />} />
                     <Route path='displaced' element={<DisplacedQueuePage />} />
+                    <Route path='appointments' element={<AppointmentsPage />} />
                 </Route>
 
                 {/* ── Catch-all ── */}
