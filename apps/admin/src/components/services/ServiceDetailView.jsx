@@ -106,7 +106,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                 <span className='text-[8px] sm:text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.2em] mb-1 sm:mb-2'>
                                     {service.tier} Service
                                 </span>
-                                <h1 className={`text-xl ${isSidebarOpen ? 'sm:text-lg lg:text-xl' : 'sm:text-xl lg:text-2xl'} font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight leading-tight transition-all duration-300 ease-in-out`}>
+                                <h1 className={`mb-1 text-[clamp(18px,2.5vw,24px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight leading-tight transition-all duration-300 ease-in-out`}>
                                     {service.name}
                                 </h1>
                             </div>
@@ -123,7 +123,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                     <div className='w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-500'>
                                         <Info size={16} sm={20} />
                                     </div>
-                                    <h3 className={`text-sm ${isSidebarOpen ? 'sm:text-base' : 'sm:text-lg'} font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out`}>
+                                    <h3 className={`text-[clamp(14px,1.5vw,18px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out`}>
                                         Service Detail
                                     </h3>
                                 </div>
@@ -141,12 +141,12 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
 
                             <div className='space-y-4 sm:space-y-6 flex-grow transition-all duration-300 ease-in-out'>
                                 <div className='transition-all duration-300 ease-in-out'>
-                                    <Label className={`text-[8px] ${isSidebarOpen ? 'sm:text-[9px] lg:text-[10px]' : 'sm:text-[10px] lg:text-[11px]'} font-bold uppercase tracking-[0.15em] text-gray-400 mb-1 sm:mb-2 block transition-all duration-300 ease-in-out`}>Display Name</Label>
-                                    <p className={`text-xs ${isSidebarOpen ? 'sm:text-[13px] lg:text-sm' : 'sm:text-sm lg:text-base'} font-bold text-gray-900 dark:text-white uppercase tracking-tight transition-all duration-300 ease-in-out`}>{service.name}</p>
+                                    <Label className={`text-[clamp(8px,1vw,11px)] font-bold uppercase tracking-[0.15em] text-gray-400 mb-1 sm:mb-2 block transition-all duration-300 ease-in-out`}>Display Name</Label>
+                                    <p className={`text-[clamp(12px,1.5vw,16px)] font-bold text-gray-900 dark:text-white uppercase tracking-tight transition-all duration-300 ease-in-out`}>{service.name}</p>
                                 </div>
                                 <div className='transition-all duration-300 ease-in-out'>
-                                    <Label className={`text-[8px] ${isSidebarOpen ? 'sm:text-[9px] lg:text-[10px]' : 'sm:text-[10px] lg:text-[11px]'} font-bold uppercase tracking-[0.15em] text-gray-400 mb-1 sm:mb-2 block transition-all duration-300 ease-in-out`}>Description</Label>
-                                    <p className={`text-[11px] ${isSidebarOpen ? 'sm:text-[13px] lg:text-sm' : 'sm:text-sm lg:text-base'} text-gray-500 dark:text-gray-400 leading-relaxed max-w-3xl font-medium transition-all duration-300 ease-in-out`}>
+                                    <Label className={`text-[clamp(8px,1vw,11px)] font-bold uppercase tracking-[0.15em] text-gray-400 mb-1 sm:mb-2 block transition-all duration-300 ease-in-out`}>Description</Label>
+                                    <p className={`text-[clamp(11px,1.2vw,14px)] text-gray-500 dark:text-gray-400 leading-relaxed max-w-3xl font-medium transition-all duration-300 ease-in-out`}>
                                         {service.description || 'No description provided for this service.'}
                                     </p>
                                 </div>
@@ -171,7 +171,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                     <div className='w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-500'>
                                         <Settings size={16} sm={20} />
                                     </div>
-                                    <h3 className={`text-sm ${isSidebarOpen ? 'sm:text-base' : 'sm:text-lg'} font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out`}>
+                                    <h3 className={`text-[clamp(14px,1.5vw,18px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out`}>
                                         Operations
                                     </h3>
                                 </div>
@@ -190,16 +190,16 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                             <div className='space-y-2 sm:space-y-4 flex-grow transition-all duration-300 ease-in-out'>
                                 <div className='flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out'>
                                     <div className='flex flex-col'>
-                                        <span className={`text-[8px] ${isSidebarOpen ? 'sm:text-[9px] lg:text-[10px]' : 'sm:text-[10px] lg:text-[11px]'} font-bold text-gray-400 uppercase tracking-widest transition-all duration-300 ease-in-out`}>Avg Duration</span>
-                                        <span className={`text-sm ${isSidebarOpen ? 'sm:text-base lg:text-lg' : 'sm:text-lg lg:text-xl'} font-bold text-gray-900 dark:text-white transition-all duration-300 ease-in-out`}>{service.duration}</span>
+                                        <span className={`text-[clamp(8px,1vw,11px)] font-bold text-gray-400 uppercase tracking-widest transition-all duration-300 ease-in-out`}>Avg Duration</span>
+                                        <span className={`text-[clamp(14px,2vw,20px)] font-bold text-gray-900 dark:text-white transition-all duration-300 ease-in-out`}>{service.duration}</span>
                                     </div>
                                     <Clock size={14} sm={20} className='text-gray-300 dark:text-gray-700 transition-all duration-300 ease-in-out' />
                                 </div>
 
                                 <div className='flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out'>
                                     <div className='flex flex-col'>
-                                        <span className={`text-[8px] ${isSidebarOpen ? 'sm:text-[9px] lg:text-[10px]' : 'sm:text-[10px] lg:text-[11px]'} font-bold text-gray-400 uppercase tracking-widest transition-all duration-300 ease-in-out`}>Tier</span>
-                                        <span className={`text-[9px] ${isSidebarOpen ? 'sm:text-[10px] lg:text-[11px]' : 'sm:text-[11px] lg:text-xs'} font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.1em] transition-all duration-300 ease-in-out`}>{service.tier}</span>
+                                        <span className={`text-[clamp(8px,1vw,11px)] font-bold text-gray-400 uppercase tracking-widest transition-all duration-300 ease-in-out`}>Tier</span>
+                                        <span className={`text-[clamp(9px,1vw,12px)] font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.1em] transition-all duration-300 ease-in-out`}>{service.tier}</span>
                                     </div>
                                 </div>
                             </div>

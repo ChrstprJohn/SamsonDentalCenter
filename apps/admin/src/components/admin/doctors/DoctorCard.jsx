@@ -44,17 +44,17 @@ const DoctorCard = ({ doctor, onClick }) => {
                             </div>
                         </div>
                         <div>
-                            <h3 className={`font-bold ${isSidebarOpen ? 'sm:text-base lg:text-lg' : 'sm:text-[13px] lg:text-base'} text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out`}>
+                            <h3 className={`font-bold text-[clamp(14px,1.5vw,18px)] text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out`}>
                                 {full_name.startsWith('Dr.') ? full_name : `Dr. ${full_name}`}
                             </h3>
-                            <p className={`text-[9px] ${isSidebarOpen ? 'sm:text-[11px]' : 'sm:text-[10px]'} text-brand-600 dark:text-brand-400 font-medium transition-all duration-300 ease-in-out uppercase tracking-widest`}>
+                            <p className={`text-[clamp(9px,1vw,11px)] text-brand-600 dark:text-brand-400 font-medium transition-all duration-300 ease-in-out uppercase tracking-widest`}>
                                 {specialization || (tier === 'both' ? 'General & Specialist' : `${tier.charAt(0).toUpperCase() + tier.slice(1)} Dentist`)}
                             </p>
                         </div>
                     </div>
 
                     {/* Status Badge */}
-                    <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] ${isSidebarOpen ? 'lg:text-[11px]' : 'lg:text-[10px]'} font-bold uppercase tracking-wider transition-all duration-300 ease-in-out ${
+                    <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[clamp(9px,1vw,11px)] font-bold uppercase tracking-wider transition-all duration-300 ease-in-out ${
                         is_active 
                             ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' 
                             : 'bg-gray-50 text-gray-500 border-gray-100 dark:bg-white/5 dark:text-gray-400 dark:border-white/10'
@@ -65,23 +65,23 @@ const DoctorCard = ({ doctor, onClick }) => {
 
                 {/* Contact Info */}
                 <div className='mt-6 space-y-2.5 transition-all duration-300 ease-in-out'>
-                    <div className='flex items-center gap-3 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 transition-all duration-300 ease-in-out'>
+                    <div className='flex items-center gap-3 text-[10px] sm:text-[clamp(11px,1.2vw,14px)] text-gray-500 dark:text-gray-400 transition-all duration-300 ease-in-out'>
                         <Phone size={14} className='opacity-70 shrink-0' />
-                        <span className={`${isSidebarOpen ? 'lg:text-sm' : 'lg:text-xs'} transition-all duration-300 ease-in-out`}>{phone_number || '+1 (555) 000-0000'}</span>
+                        <span className={`transition-all duration-300 ease-in-out`}>{phone_number || '+1 (555) 000-0000'}</span>
                     </div>
-                    <div className='flex items-center gap-3 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 transition-all duration-300 ease-in-out'>
+                    <div className='flex items-center gap-3 text-[10px] sm:text-[clamp(11px,1.2vw,14px)] text-gray-500 dark:text-gray-400 transition-all duration-300 ease-in-out'>
                         <Mail size={14} className='opacity-70 shrink-0' />
-                        <span className={`truncate ${isSidebarOpen ? 'lg:text-sm' : 'lg:text-xs'} transition-all duration-300 ease-in-out`}>{email || `dr.${full_name.toLowerCase().replace(' ', '.')}@primera.com`}</span>
+                        <span className={`truncate transition-all duration-300 ease-in-out`}>{email || `dr.${full_name.toLowerCase().replace(' ', '.')}@primera.com`}</span>
                     </div>
                 </div>
 
                 {/* Actions (Custom for Admin) */}
                 <div className='mt-auto pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3 transition-all duration-300 ease-in-out'>
-                    <button className={`flex-grow flex items-center justify-center gap-2 py-3 px-4 bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 rounded-xl text-[9px] ${isSidebarOpen ? 'sm:text-[11px]' : 'sm:text-[10px]'} font-bold text-brand-700 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-all active:scale-95 uppercase tracking-widest`}>
+                    <button className={`flex-grow flex items-center justify-center gap-2 py-3 px-4 bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 rounded-xl text-[clamp(9px,1.1vw,11px)] font-bold text-brand-700 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-all active:scale-95 uppercase tracking-widest`}>
                         <Calendar size={14} className='text-brand-500/70 dark:text-brand-400/70' />
                         <span>Schedule</span>
                     </button>
-                    <button className={`py-3 px-6 bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-700 rounded-xl text-[9px] ${isSidebarOpen ? 'sm:text-[11px]' : 'sm:text-[10px]'} font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-all active:scale-95 uppercase tracking-widest`}>
+                    <button className={`py-3 px-6 bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-700 rounded-xl text-[clamp(9px,1.1vw,11px)] font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-all active:scale-95 uppercase tracking-widest`}>
                         Edit
                     </button>
                 </div>
@@ -108,12 +108,12 @@ const DoctorCard = ({ doctor, onClick }) => {
                 </div>
                 <div className='flex-grow min-w-0 flex flex-col'>
                     <div className='flex items-center justify-between'>
-                        <span className='text-[9px] font-black text-brand-600 uppercase tracking-widest'>{tier}</span>
+                        <span className='text-[clamp(9px,1.5vw,10px)] font-black text-brand-600 uppercase tracking-widest'>{tier}</span>
                     </div>
-                    <h3 className='text-base font-black text-gray-900 dark:text-white truncate font-outfit uppercase tracking-tight'>
+                    <h3 className='text-[clamp(14px,3vw,16px)] font-black text-gray-900 dark:text-white truncate font-outfit uppercase tracking-tight transition-all duration-300'>
                         {full_name}
                     </h3>
-                    <p className='text-[9px] text-gray-400 font-bold uppercase tracking-widest'>{specialization}</p>
+                    <p className='text-[clamp(9px,1.5vw,10px)] text-gray-400 font-bold uppercase tracking-widest transition-all duration-300'>{specialization}</p>
                 </div>
                 <div className='text-gray-300 shrink-0'>
                     <ChevronRight size={20} />

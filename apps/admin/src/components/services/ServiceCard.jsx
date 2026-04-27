@@ -40,12 +40,12 @@ const ServiceCard = ({ service }) => {
                 <div className='flex items-start justify-between sm:mb-4 gap-2'>
                     <div className='flex flex-col min-w-0'>
                         {/* Tier */}
-                        <span className={`text-[9px] ${isSidebarOpen ? 'lg:text-[11px]' : 'lg:text-[10px]'} font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-0.5 sm:mb-1.5 transition-all duration-300 ease-in-out`}>
+                        <span className={`text-[clamp(9px,1.2vw,11px)] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-0.5 sm:mb-1.5 transition-all duration-300 ease-in-out`}>
                             {service.tier}
                         </span>
                         
                         {/* Name */}
-                        <h4 className={`text-sm ${isSidebarOpen ? 'sm:text-base lg:text-lg' : 'sm:text-[13px] lg:text-base'} font-black text-gray-900 dark:text-white font-outfit leading-tight group-hover:text-brand-500 transition-colors uppercase tracking-tight truncate sm:whitespace-normal transition-all duration-300 ease-in-out`}>
+                        <h4 className={`text-[clamp(14px,1.8vw,18px)] font-black text-gray-900 dark:text-white font-outfit leading-tight group-hover:text-brand-500 transition-colors uppercase tracking-tight truncate sm:whitespace-normal transition-all duration-300 ease-in-out`}>
                             {service.name}
                         </h4>
 
@@ -63,9 +63,9 @@ const ServiceCard = ({ service }) => {
                 </div>
 
                 {/* Duration (Desktop) */}
-                <div className='hidden sm:flex items-center gap-1.5 mt-auto pt-5 border-t border-gray-200 dark:border-white/5 text-gray-400'>
+                <div className='hidden sm:flex items-center gap-[clamp(4px,0.5vw,6px)] mt-auto pt-5 border-t border-gray-200 dark:border-white/5 text-gray-400'>
                     <Clock size={14} />
-                    <span className={`text-[10px] ${isSidebarOpen ? 'lg:text-[12px]' : 'lg:text-[11px]'} font-bold font-outfit uppercase tracking-widest transition-all duration-300 ease-in-out`}>
+                    <span className={`text-[clamp(10px,1.2vw,12px)] font-bold font-outfit uppercase tracking-widest transition-all duration-300 ease-in-out`}>
                         {service.duration}
                     </span>
                 </div>

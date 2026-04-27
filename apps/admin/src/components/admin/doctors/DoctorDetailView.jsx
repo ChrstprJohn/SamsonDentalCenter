@@ -4,6 +4,8 @@ import DoctorProfileDetail from './profile/DoctorProfileDetail';
 import DoctorScheduleDetail from './schedule/DoctorScheduleDetail';
 import DoctorHistoryDetail from './history/DoctorHistoryDetail';
 import DoctorSecurityDetail from './DoctorSecurityDetail';
+import DoctorServicesDetail from './profile/DoctorServicesDetail';
+import { useSidebar } from '../../../context/SidebarContext';
 import { Button, Modal, Input, Label, Switch } from '../../ui';
 import { useToast } from '../../../context/ToastContext.jsx';
 import { useNavigate } from 'react-router-dom';
@@ -50,6 +52,7 @@ const DoctorDetailView = ({
 
     const tabs = [
         { id: 'profile', label: 'Profile' },
+        { id: 'services', label: 'Services' },
         { id: 'schedule', label: 'Schedule' },
         { id: 'history', label: 'History' },
         { id: 'security', label: 'Security' },
@@ -143,8 +146,11 @@ const DoctorDetailView = ({
         }
     };
 
+    const { isExpanded, isHovered } = useSidebar();
+    const isSidebarOpen = isExpanded || isHovered;
+
     return (
-        <div className='flex flex-col grow min-h-0 bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-100 dark:border-gray-800 overflow-hidden no-scrollbar'>
+        <div className='flex flex-col grow min-h-0 bg-transparent no-scrollbar'>
             {/* Top Navigation */}
             <div className='sticky top-0 z-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800'>
                 <div className='px-4 sm:px-6 py-4 flex items-center justify-between'>
@@ -156,10 +162,10 @@ const DoctorDetailView = ({
                             <ArrowLeft size={20} />
                         </button>
                         <div>
-                            <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                            <h3 className={`text-[clamp(12px,1.2vw,14px)] font-bold text-gray-900 dark:text-white uppercase tracking-tight font-outfit transition-all duration-300 ease-in-out`}>
                                 {doctor.full_name}
                             </h3>
-                            <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1'>
+                            <p className={`text-[clamp(9px,1vw,10px)] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1 transition-all duration-300 ease-in-out`}>
                                 Detail Profile
                             </p>
                         </div>
@@ -172,7 +178,7 @@ const DoctorDetailView = ({
                         <button
                             key={t.id}
                             onClick={() => navigate(`/doctors/${t.id}/${doctor.id}`)}
-                            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${activeTab === t.id
+                            className={`pb-[clamp(8px,1vw,12px)] text-[clamp(9px,1.1vw,11px)] font-bold uppercase tracking-widest transition-all relative ${activeTab === t.id
                                     ? 'text-brand-500'
                                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
                                 }`}
@@ -187,13 +193,14 @@ const DoctorDetailView = ({
             </div>
 
             <div className='grow overflow-y-auto no-scrollbar'>
-                <div className='p-4 sm:p-6 lg:p-8 space-y-6'>
-                    {/* A. Header / Profile Section (Matches UserMetaCard style) */}
-                    <div className='p-6 border border-gray-200 rounded-xl dark:border-gray-800 lg:p-7 bg-white dark:bg-white/[0.03]'>
-                        <div className='flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between'>
-                            <div className='flex flex-col items-center w-full gap-6 xl:flex-row xl:items-center'>
+                <div className='p-4 sm:p-0 space-y-4 sm:space-y-6'>
+                    {/* A. Header / Profile Section - Only visible on Profile Tab */}
+                    {(!activeTab || activeTab === 'profile') && (
+                        <div className='p-[clamp(16px,2.5vw,28px)] border border-gray-200 rounded-[clamp(12px,2vw,16px)] dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+                        <div className='flex flex-col gap-[clamp(16px,2vw,24px)] xl:flex-row xl:items-start xl:justify-between'>
+                            <div className='flex flex-col items-center w-full gap-[clamp(16px,2vw,24px)] xl:flex-row xl:items-center'>
                                 <div className='relative shrink-0'>
-                                    <div className='w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-brand-400 to-brand-600 text-white font-bold text-2xl shadow-inner'>
+                                    <div className='w-[clamp(64px,6vw,80px)] h-[clamp(64px,6vw,80px)] overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-brand-400 to-brand-600 text-white font-bold text-[clamp(20px,2vw,24px)] shadow-inner'>
                                         {doctor.photo_url ? (
                                             <img
                                                 src={doctor.photo_url}
@@ -206,17 +213,17 @@ const DoctorDetailView = ({
                                     </div>
                                 </div>
                                 <div className='order-3 xl:order-2 text-center xl:text-left'>
-                                    <h4 className='mb-1 text-[clamp(18px,2.2vw,22px)] font-bold text-gray-900 dark:text-white font-outfit'>
+                                    <h4 className={`mb-1 text-[clamp(16px,2vw,24px)] font-bold text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out`}>
                                         {doctor.full_name}
                                     </h4>
-                                    <div className='flex flex-col items-center gap-2 text-center xl:flex-row xl:gap-3 xl:text-left'>
-                                        <p className='text-[clamp(13px,1.2vw,14px)] text-brand-600 dark:text-brand-400 font-bold'>
+                                    <div className='flex flex-col items-center gap-[clamp(6px,1vw,8px)] text-center xl:flex-row xl:gap-[clamp(8px,1vw,12px)] xl:text-left'>
+                                        <p className={`text-[clamp(10px,1.2vw,11px)] text-brand-600 dark:text-brand-400 font-bold uppercase tracking-widest transition-all duration-300 ease-in-out`}>
                                             {doctor.tier === 'general'
                                                 ? 'General Dentist'
                                                 : 'Specialized Dentist'}
                                         </p>
                                         <div className='hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block'></div>
-                                        <div className='text-[clamp(13px,1.2vw,14px)] text-gray-500 dark:text-gray-400 font-medium flex items-center gap-2'>
+                                        <div className='text-[clamp(10px,1.1vw,11px)] text-gray-500 dark:text-gray-400 font-medium flex items-center gap-2 transition-all duration-300 ease-in-out'>
                                             <span>
                                                 License:{' '}
                                                 <span className='text-gray-900 dark:text-white font-black'>
@@ -225,7 +232,7 @@ const DoctorDetailView = ({
                                             </span>
                                             <div className='h-3.5 w-px bg-gray-300 dark:bg-gray-700 mx-1'></div>
                                             <span
-                                                className={`px-2 py-0.5 rounded-lg text-[clamp(11px,1vw,12px)] font-bold uppercase tracking-wider ${doctor.is_active
+                                                className={`px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider ${doctor.is_active
                                                         ? 'bg-success-100 text-success-600 dark:bg-success-500/10 dark:text-success-400'
                                                         : 'bg-gray-100 text-gray-500'
                                                     }`}
@@ -235,7 +242,7 @@ const DoctorDetailView = ({
                                         </div>
                                     </div>
                                     {(!activeTab || activeTab === 'profile') && (
-                                        <p className='text-sm text-gray-500 dark:text-gray-400 mt-4 max-w-2xl font-medium leading-relaxed'>
+                                        <p className={`text-[clamp(12px,1.2vw,14px)] text-gray-500 dark:text-gray-400 mt-[clamp(12px,1.5vw,16px)] max-w-2xl font-medium leading-relaxed transition-all duration-300 ease-in-out`}>
                                             {doctor.bio}
                                         </p>
                                     )}
@@ -276,16 +283,16 @@ const DoctorDetailView = ({
                         {(!activeTab || activeTab === 'profile') && (
                             <div className='mt-6 pt-6 border-t border-gray-200 dark:border-gray-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
                                 <div className='flex flex-wrap gap-6'>
-                                    <div className='flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 font-medium'>
+                                    <div className='flex items-center gap-2 text-[13px] sm:text-sm text-gray-600 dark:text-gray-300 font-medium'>
                                         <Mail
-                                            size={16}
+                                            size={14}
                                             className='text-gray-400'
                                         />{' '}
                                         {doctor.email}
                                     </div>
-                                    <div className='flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 font-medium'>
+                                    <div className='flex items-center gap-2 text-[13px] sm:text-sm text-gray-600 dark:text-gray-300 font-medium'>
                                         <Phone
-                                            size={16}
+                                            size={14}
                                             className='text-gray-400'
                                         />{' '}
                                         {doctor.phone}
@@ -304,18 +311,28 @@ const DoctorDetailView = ({
                             </div>
                         )}
                     </div>
+                    )}
 
                     {/* Dynamic Child Content */}
                     <div className='min-h-120 md:min-h-140'>
-                        {(!activeTab || activeTab === 'profile') && (
-                            <DoctorProfileDetail
-                                doctor={doctor}
-                                updateDoctorServices={updateDoctorServices}
-                            />
-                        )}
-                        {activeTab === 'schedule' && <DoctorScheduleDetail doctor={doctor} />}
-                        {activeTab === 'history' && <DoctorHistoryDetail doctor={doctor} />}
-                        {activeTab === 'security' && <DoctorSecurityDetail doctor={doctor} />}
+                        <div className='animate-in fade-in slide-in-from-bottom-2 duration-300'>
+                            {activeTab === 'profile' || !activeTab ? (
+                                <DoctorProfileDetail
+                                    doctor={doctor}
+                                />
+                            ) : activeTab === 'services' ? (
+                                <DoctorServicesDetail
+                                    doctor={doctor}
+                                    updateDoctorServices={updateDoctorServices}
+                                />
+                            ) : activeTab === 'schedule' ? (
+                                <DoctorScheduleDetail doctor={doctor} />
+                            ) : activeTab === 'history' ? (
+                                <DoctorHistoryDetail doctor={doctor} />
+                            ) : activeTab === 'security' ? (
+                                <DoctorSecurityDetail doctor={doctor} />
+                            ) : null}
+                        </div>
                     </div>
                 </div>
             </div>
