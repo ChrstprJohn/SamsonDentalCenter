@@ -1,9 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PhilippinePeso, Clock, ChevronRight } from 'lucide-react';
+import { useSidebar } from '../../context/SidebarContext';
 
 const ServiceCard = ({ service }) => {
     const navigate = useNavigate();
+    const { isExpanded, isHovered } = useSidebar();
+    const isSidebarOpen = isExpanded || isHovered; // Wider cards (2 columns)
 
     const handleNavigate = (e) => {
         e.stopPropagation();
@@ -37,19 +40,19 @@ const ServiceCard = ({ service }) => {
                 <div className='flex items-start justify-between sm:mb-4 gap-2'>
                     <div className='flex flex-col min-w-0'>
                         {/* Tier */}
-                        <span className='text-[10px] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-0.5 sm:mb-1.5'>
+                        <span className={`text-[9px] ${isSidebarOpen ? 'lg:text-[11px]' : 'lg:text-[10px]'} font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-0.5 sm:mb-1.5 transition-all duration-300 ease-in-out`}>
                             {service.tier}
                         </span>
                         
                         {/* Name */}
-                        <h4 className='text-sm sm:text-lg font-black text-gray-900 dark:text-white font-outfit leading-tight group-hover:text-brand-500 transition-colors uppercase tracking-tight truncate sm:whitespace-normal'>
+                        <h4 className={`text-sm ${isSidebarOpen ? 'sm:text-base lg:text-lg' : 'sm:text-[13px] lg:text-base'} font-black text-gray-900 dark:text-white font-outfit leading-tight group-hover:text-brand-500 transition-colors uppercase tracking-tight truncate sm:whitespace-normal transition-all duration-300 ease-in-out`}>
                             {service.name}
                         </h4>
 
                         {/* Mobile Duration */}
                         <div className='sm:hidden flex items-center gap-1.5 mt-1 text-gray-400'>
                             <Clock size={10} />
-                            <span className='text-[10px] font-bold uppercase tracking-widest'>
+                            <span className='text-[9px] font-bold uppercase tracking-widest'>
                                 {service.duration}
                             </span>
                         </div>
@@ -62,7 +65,7 @@ const ServiceCard = ({ service }) => {
                 {/* Duration (Desktop) */}
                 <div className='hidden sm:flex items-center gap-1.5 mt-auto pt-5 border-t border-gray-200 dark:border-white/5 text-gray-400'>
                     <Clock size={14} />
-                    <span className='text-xs font-bold font-outfit uppercase tracking-widest'>
+                    <span className={`text-[10px] ${isSidebarOpen ? 'lg:text-[12px]' : 'lg:text-[11px]'} font-bold font-outfit uppercase tracking-widest transition-all duration-300 ease-in-out`}>
                         {service.duration}
                     </span>
                 </div>
@@ -72,7 +75,7 @@ const ServiceCard = ({ service }) => {
                     {/* Price hidden as requested */}
                 </div>
                 
-                <div className='hidden sm:flex mt-4 items-center justify-end text-[10px] font-black uppercase tracking-widest text-brand-500 hover:text-brand-600 transition-colors'>
+                <div className='hidden sm:flex mt-4 items-center justify-end text-[9px] font-black uppercase tracking-widest text-brand-500 hover:text-brand-600 transition-colors'>
                     View Detail <ChevronRight size={14} />
                 </div>
             </div>

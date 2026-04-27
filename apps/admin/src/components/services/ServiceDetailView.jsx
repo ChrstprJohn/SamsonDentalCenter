@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { PhilippinePeso, Clock, Image as ImageIcon, Plus, Info, Settings, MoreVertical } from 'lucide-react';
+import { PhilippinePeso, Clock, Image as ImageIcon, Plus, Info, Settings, MoreVertical, Pencil, Sliders } from 'lucide-react';
 import { Button, Modal, Input, Label, Switch } from '../ui';
 import { useToast } from '../../context/ToastContext';
+import { useSidebar } from '../../context/SidebarContext';
 
 const ServiceDetailView = ({ service: initialService, onBack }) => {
     const [service, setService] = useState(initialService);
@@ -12,6 +13,8 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
     const [tempImageUrl, setTempImageUrl] = useState(service.image_url || '');
 
     const { showToast } = useToast();
+    const { isExpanded, isHovered } = useSidebar();
+    const isSidebarOpen = isExpanded || isHovered;
 
     if (!service) return null;
 
@@ -66,10 +69,10 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
 
     return (
         <div className='grow overflow-y-auto no-scrollbar'>
-            <div className='space-y-0 sm:space-y-6 w-full'>
+            <div className='p-4 sm:p-0 space-y-4 sm:space-y-6 w-full'>
 
-                {/* A. Header / Hero Section - Fluid and Square on Mobile */}
-                <div className='overflow-hidden border-b sm:border border-gray-200 sm:rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-none sm:shadow-sm relative group/hero'>
+                {/* A. Header / Hero Section - Contained on Mobile */}
+                <div className='overflow-hidden border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm relative group/hero'>
                     <div className='relative h-48 sm:h-64 bg-gray-100 dark:bg-gray-800 overflow-hidden'>
                         {service.image_url ? (
                             <img
@@ -103,7 +106,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                 <span className='text-[8px] sm:text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.2em] mb-1 sm:mb-2'>
                                     {service.tier} Service
                                 </span>
-                                <h1 className='text-xl sm:text-4xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight leading-tight'>
+                                <h1 className={`text-xl ${isSidebarOpen ? 'sm:text-lg lg:text-xl' : 'sm:text-xl lg:text-2xl'} font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight leading-tight transition-all duration-300 ease-in-out`}>
                                     {service.name}
                                 </h1>
                             </div>
@@ -111,16 +114,16 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                     </div>
                 </div>
 
-                <div className='grid grid-cols-1 lg:grid-cols-2 gap-0 sm:gap-6 items-stretch'>
-                    {/* B. Content & Identity Section - Square and Tighter on Mobile */}
-                    <div className='flex flex-col h-full'>
-                        <div className='p-4 sm:p-6 border-b sm:border border-gray-200 sm:rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-none sm:shadow-sm flex flex-col h-full'>
-                            <div className='flex items-center justify-between mb-4 sm:mb-6'>
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-stretch transition-all duration-300 ease-in-out'>
+                    {/* B. Content & Identity Section - Contained on Mobile */}
+                    <div className='flex flex-col h-full transition-all duration-300 ease-in-out'>
+                        <div className='p-4 sm:p-6 border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm flex flex-col h-full transition-all duration-300 ease-in-out'>
+                            <div className='flex items-center justify-between mb-4 sm:mb-6 transition-all duration-300 ease-in-out'>
                                 <div className='flex items-center gap-2 sm:gap-3'>
                                     <div className='w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-500'>
                                         <Info size={16} sm={20} />
                                     </div>
-                                    <h3 className='text-md sm:text-lg font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                                    <h3 className={`text-sm ${isSidebarOpen ? 'sm:text-base' : 'sm:text-lg'} font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out`}>
                                         Service Detail
                                     </h3>
                                 </div>
@@ -128,21 +131,22 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                     <Button
                                         variant='outline'
                                         onClick={() => setIsContentModalOpen(true)}
-                                        className='rounded-lg sm:rounded-xl px-3 sm:px-4 h-8 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500'
+                                        className='flex items-center gap-2 rounded-lg sm:rounded-xl px-3 sm:px-4 h-8 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500'
                                     >
-                                        Edit
+                                        <Pencil size={14} strokeWidth={2.5} />
+                                        <span>Edit</span>
                                     </Button>
                                 </div>
                             </div>
 
-                            <div className='space-y-4 sm:space-y-6 flex-grow'>
-                                <div>
-                                    <Label className='text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 mb-1 sm:mb-2 block'>Display Name</Label>
-                                    <p className='text-xs sm:text-md font-bold text-gray-900 dark:text-white uppercase tracking-tight'>{service.name}</p>
+                            <div className='space-y-4 sm:space-y-6 flex-grow transition-all duration-300 ease-in-out'>
+                                <div className='transition-all duration-300 ease-in-out'>
+                                    <Label className={`text-[8px] ${isSidebarOpen ? 'sm:text-[9px] lg:text-[10px]' : 'sm:text-[10px] lg:text-[11px]'} font-bold uppercase tracking-[0.15em] text-gray-400 mb-1 sm:mb-2 block transition-all duration-300 ease-in-out`}>Display Name</Label>
+                                    <p className={`text-xs ${isSidebarOpen ? 'sm:text-[13px] lg:text-sm' : 'sm:text-sm lg:text-base'} font-bold text-gray-900 dark:text-white uppercase tracking-tight transition-all duration-300 ease-in-out`}>{service.name}</p>
                                 </div>
-                                <div>
-                                    <Label className='text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 mb-1 sm:mb-2 block'>Description</Label>
-                                    <p className='text-[11px] sm:text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-3xl font-medium'>
+                                <div className='transition-all duration-300 ease-in-out'>
+                                    <Label className={`text-[8px] ${isSidebarOpen ? 'sm:text-[9px] lg:text-[10px]' : 'sm:text-[10px] lg:text-[11px]'} font-bold uppercase tracking-[0.15em] text-gray-400 mb-1 sm:mb-2 block transition-all duration-300 ease-in-out`}>Description</Label>
+                                    <p className={`text-[11px] ${isSidebarOpen ? 'sm:text-[13px] lg:text-sm' : 'sm:text-sm lg:text-base'} text-gray-500 dark:text-gray-400 leading-relaxed max-w-3xl font-medium transition-all duration-300 ease-in-out`}>
                                         {service.description || 'No description provided for this service.'}
                                     </p>
                                 </div>
@@ -151,22 +155,23 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                             <Button
                                 variant='outline'
                                 onClick={() => setIsContentModalOpen(true)}
-                                className='flex sm:hidden w-full mt-6 rounded-lg h-9 text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-gray-800 text-gray-500'
+                                className='flex sm:hidden items-center justify-center gap-2 w-full mt-6 rounded-lg h-9 text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-gray-800 text-gray-500 transition-all duration-300 ease-in-out'
                             >
-                                Edit Service Detail
+                                <Pencil size={14} strokeWidth={2.5} />
+                                <span>Edit Details</span>
                             </Button>
                         </div>
                     </div>
 
-                    {/* C. Operational Sidebar - Square and Fluid on Mobile */}
-                    <div className='flex flex-col h-full'>
-                        <div className='p-4 sm:p-6 border-b sm:border border-gray-200 sm:rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-none sm:shadow-sm flex flex-col h-full'>
-                            <div className='flex items-center justify-between mb-4 sm:mb-6'>
-                                <div className='flex items-center gap-2 sm:gap-3'>
+                    {/* C. Operational Sidebar - Contained on Mobile */}
+                    <div className='flex flex-col h-full transition-all duration-300 ease-in-out'>
+                        <div className='p-4 sm:p-6 border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm flex flex-col h-full transition-all duration-300 ease-in-out'>
+                            <div className='flex items-center justify-between mb-4 sm:mb-6 transition-all duration-300 ease-in-out'>
+                                <div className='flex items-center gap-2 sm:gap-3 transition-all duration-300 ease-in-out'>
                                     <div className='w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-500'>
                                         <Settings size={16} sm={20} />
                                     </div>
-                                    <h3 className='text-md sm:text-lg font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                                    <h3 className={`text-sm ${isSidebarOpen ? 'sm:text-base' : 'sm:text-lg'} font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out`}>
                                         Operations
                                     </h3>
                                 </div>
@@ -174,26 +179,27 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                     <Button
                                         variant='outline'
                                         onClick={() => setIsOperationalModalOpen(true)}
-                                        className='rounded-lg sm:rounded-xl px-3 sm:px-4 h-8 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500'
+                                        className='flex items-center gap-2 rounded-lg sm:rounded-xl px-3 sm:px-4 h-8 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all duration-300 ease-in-out'
                                     >
-                                        Modify
+                                        <Sliders size={14} strokeWidth={2.5} />
+                                        <span>Modify</span>
                                     </Button>
                                 </div>
                             </div>
 
-                            <div className='space-y-2 sm:space-y-4 flex-grow'>
-                                <div className='flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800'>
+                            <div className='space-y-2 sm:space-y-4 flex-grow transition-all duration-300 ease-in-out'>
+                                <div className='flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out'>
                                     <div className='flex flex-col'>
-                                        <span className='text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest'>Avg Duration</span>
-                                        <span className='text-sm sm:text-lg font-bold text-gray-900 dark:text-white'>{service.duration}</span>
+                                        <span className={`text-[8px] ${isSidebarOpen ? 'sm:text-[9px] lg:text-[10px]' : 'sm:text-[10px] lg:text-[11px]'} font-bold text-gray-400 uppercase tracking-widest transition-all duration-300 ease-in-out`}>Avg Duration</span>
+                                        <span className={`text-sm ${isSidebarOpen ? 'sm:text-base lg:text-lg' : 'sm:text-lg lg:text-xl'} font-bold text-gray-900 dark:text-white transition-all duration-300 ease-in-out`}>{service.duration}</span>
                                     </div>
-                                    <Clock size={14} sm={20} className='text-gray-300 dark:text-gray-700' />
+                                    <Clock size={14} sm={20} className='text-gray-300 dark:text-gray-700 transition-all duration-300 ease-in-out' />
                                 </div>
 
-                                <div className='flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800'>
+                                <div className='flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out'>
                                     <div className='flex flex-col'>
-                                        <span className='text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest'>Tier</span>
-                                        <span className='text-[9px] sm:text-xs font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.1em]'>{service.tier}</span>
+                                        <span className={`text-[8px] ${isSidebarOpen ? 'sm:text-[9px] lg:text-[10px]' : 'sm:text-[10px] lg:text-[11px]'} font-bold text-gray-400 uppercase tracking-widest transition-all duration-300 ease-in-out`}>Tier</span>
+                                        <span className={`text-[9px] ${isSidebarOpen ? 'sm:text-[10px] lg:text-[11px]' : 'sm:text-[11px] lg:text-xs'} font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.1em] transition-all duration-300 ease-in-out`}>{service.tier}</span>
                                     </div>
                                 </div>
                             </div>
@@ -201,9 +207,10 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                             <Button
                                 variant='outline'
                                 onClick={() => setIsOperationalModalOpen(true)}
-                                className='flex sm:hidden w-full mt-6 rounded-lg h-9 text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-gray-800 text-gray-500'
+                                className='flex sm:hidden items-center justify-center gap-2 w-full mt-6 rounded-lg h-9 text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-gray-800 text-gray-500 transition-all duration-300 ease-in-out'
                             >
-                                Modify Settings
+                                <Sliders size={14} strokeWidth={2.5} />
+                                <span>Modify Settings</span>
                             </Button>
                         </div>
                     </div>

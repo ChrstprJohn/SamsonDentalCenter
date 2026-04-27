@@ -26,12 +26,7 @@ Visible borders are essential for maintaining hierarchy in a data-rich environme
 For card grids and data lists, "Infinite Scroll" or "Load More" buttons are preferred over traditional pagination to maintain the "Dashboard" feel.
 
 ### Load More Pattern
-- **Trigger**: A centered, full-width or large-width button at the bottom of the list.
-- **Styling**:
-  - Border: `border border-gray-200`.
-  - Shape: `rounded-xl`.
-  - Typography: `text-[11px] font-black uppercase tracking-widest`.
-  - Hover: `hover:bg-gray-50 / dark:hover:bg-white/10`.
+- **Batch Size**: Default display and incremental loads should be **6 items** to maintain visual balance and reduce scroll fatigue.
 - **Reasoning**: This pattern (Fitts's Law) provides a larger, more predictable touch target than small pagination numbers, improving mobile speed and desktop flow.
 
 ## 4. Contextual Action Placement
@@ -56,6 +51,17 @@ For primary creation actions (e.g., "Add Service", "New Appointment") on mobile,
 - **Typography**: `text-[10px] font-black uppercase tracking-widest` for high-fidelity clarity.
 - **Layering**: Set to `z-30` to ensure it correctly hides behind the mobile sidebar (`z-50`) when opened.
 - **Feedback**: Apply `active:scale-95` and shadow transitions for tactile response.
+
+## 6. Adaptive Grid Layouts (Dynamic Column Toggling)
+For primary registries (Doctors, Services), the grid density must respond directly to the Sidebar's visibility state to prevent horizontal stretching or overcrowding.
+
+- **State: Sidebar Expanded/Hovered**:
+  - Layout: `lg:grid-cols-2`.
+  - Reasoning: Maximizes clarity and detail for complex entity cards when available horizontal space is reduced.
+- **State: Sidebar Collapsed**:
+  - Layout: `lg:grid-cols-3`.
+  - Reasoning: Optimizes information density when horizontal space is maximized.
+- **Implementation**: Sync grid configuration with `useSidebar` context to ensure instantaneous layout transitions.
 
 ---
 *Note: This layout strategy ensures total design parity across all management modules.*

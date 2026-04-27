@@ -4,6 +4,8 @@ import { Plus, Search, Filter } from 'lucide-react';
 import { ServiceCard } from '../../components/services';
 import { useServicesContext } from '../../context/ServicesContext';
 
+import { useSidebar } from '../../context/SidebarContext';
+
 // Extracted Filters configuration
 const FILTERS = [
     { id: 'all', label: 'All Services' },
@@ -13,9 +15,11 @@ const FILTERS = [
 
 const Services = () => {
     const { services, loading, error } = useServicesContext();
+    const { isExpanded, isHovered } = useSidebar();
+    const isSidebarOpen = isExpanded || isHovered;
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTier, setActiveTier] = useState('all');
-    const [visibleCount, setVisibleCount] = useState(12);
+    const [visibleCount, setVisibleCount] = useState(6);
 
     const filteredServices = useMemo(() => {
         return services.filter((s) => {
@@ -96,7 +100,7 @@ const Services = () => {
                     <main className='grow overflow-y-auto no-scrollbar p-0 sm:p-4 lg:p-6'>
                         {displayedServices.length > 0 ? (
                             <div className='space-y-0 sm:space-y-8'>
-                                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 sm:gap-6'>
+                                <div className={`grid grid-cols-1 sm:grid-cols-2 ${isSidebarOpen ? 'lg:grid-cols-2' : 'lg:grid-cols-3'} gap-0 sm:gap-6`}>
                                     {displayedServices.map((service) => (
                                         <ServiceCard
                                             key={service.id}
@@ -109,7 +113,7 @@ const Services = () => {
                                 {visibleCount < filteredServices.length && (
                                     <div className='mt-8 flex justify-center pb-6'>
                                         <button
-                                            onClick={() => setVisibleCount((prev) => prev + 12)}
+                                            onClick={() => setVisibleCount((prev) => prev + 6)}
                                             className='flex items-center gap-2 px-8 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm active:scale-95'
                                         >
                                             Load More Services

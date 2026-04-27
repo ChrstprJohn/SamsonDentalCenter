@@ -89,14 +89,13 @@ const Doctors = () => {
                         />
                     ) : (
                         <DoctorInbox 
-                            activeTab={activeTab}
                             doctors={filteredDoctors}
                             onDoctorClick={(id) => navigate(`/doctors/${activeTab}/${id}`)}
                             searchQuery={searchQuery}
                             onSearchChange={setSearchQuery}
                             activeFilter={activeFilter}
                             onFilterChange={setActiveFilter}
-                            onAddClick={() => {}} // temporarily disabled
+                            onAddClick={() => setIsAddModalOpen(true)}
                         />
                     )}
                 </div>
@@ -104,7 +103,11 @@ const Doctors = () => {
 
             {/* Floating Action Button - Mobile Only - TEMPORARILY DISABLED */}
 
-            {/* AddDoctorModal temporarily disabled */}
+            <AddDoctorModal 
+                isOpen={isAddModalOpen} 
+                onClose={() => setIsAddModalOpen(false)} 
+                onSubmit={onboardDoctor}
+            />
         </>
     );
 };
