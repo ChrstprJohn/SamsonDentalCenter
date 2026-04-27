@@ -206,7 +206,7 @@ const FrontDeskPage = () => {
                             <div className="flex-1 flex flex-col md:flex-row items-start md:items-center justify-between p-4 sm:p-5 gap-4 md:gap-6 min-w-0 w-full">
                                
                                 {/* Patient Info */}
-                                <div className="flex items-center gap-3 w-full md:w-auto md:min-w-[200px] shrink-0">
+                                <div className="flex items-center gap-3 w-full lg:w-[240px] shrink-0">
                                     <div className="relative shrink-0">
                                         <img src={apt.patientAvatar} alt={apt.patient} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm object-cover" />
                                         <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#111827] rounded-full"></div>
@@ -222,26 +222,37 @@ const FrontDeskPage = () => {
                                 </div>
 
                                 {/* Appointment Details */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-3 gap-x-4 w-full md:flex-1 min-w-0">
-                                    <div className="flex flex-col min-w-0">
-                                        <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Service</span>
-                                        <span className="text-xs sm:text-sm font-semibold text-[#0B1120] dark:text-white truncate" title={apt.service}>{apt.service}</span>
+                                <div className="flex flex-col lg:flex-row lg:items-center gap-y-4 gap-x-4 xl:gap-x-12 w-full lg:flex-1 min-w-0">
+                                    {/* Group 1: Service & Doctor */}
+                                    <div className="flex-[1.5] flex flex-row gap-4 sm:gap-6 min-w-0">
+                                        <div className="flex-[1.2] flex flex-col min-w-0">
+                                            <span className={`text-[10px] font-semibold uppercase tracking-wider mb-0.5 ${
+                                                apt.specialty.includes('Specialized') || apt.specialty === 'Oral Surgery' ? 'text-brand-500' : 'text-gray-400 dark:text-gray-500'
+                                            }`}>
+                                                {apt.specialty.includes('Specialized') || apt.specialty === 'Oral Surgery' ? 'Specialized' : 'General'} Service
+                                            </span>
+                                            <span className="text-xs sm:text-sm font-semibold text-[#0B1120] dark:text-white truncate" title={apt.service}>{apt.service}</span>
+                                        </div>
+                                        <div className="flex-1 flex flex-col min-w-0">
+                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Doctor</span>
+                                            <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate" title={apt.doctor}>{apt.doctor}</span>
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col min-w-0">
-                                        <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Doctor</span>
-                                        <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate" title={apt.doctor}>{apt.doctor}</span>
-                                    </div>
-                                    <div className="flex flex-col sm:col-span-2 lg:col-span-1 min-w-0">
-                                        <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Contact</span>
-                                        <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 flex items-center gap-1.5 truncate" title={apt.phone}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-phone text-emerald-500 shrink-0"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                                            <span className="truncate">{apt.phone}</span>
-                                        </span>
+
+                                    {/* Group 2: Contact */}
+                                    <div className="flex-1 flex flex-row gap-4 sm:gap-6 min-w-0">
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Contact</span>
+                                            <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 flex items-center gap-1.5 truncate" title={apt.phone}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-phone text-emerald-500 shrink-0"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                                <span className="truncate">{apt.phone}</span>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex items-center justify-end w-full md:w-auto mt-1 sm:mt-0 shrink-0 gap-2">
+                                <div className="flex items-center justify-end w-full lg:w-[120px] mt-1 lg:mt-0 shrink-0 gap-2">
                                     {apt.status === 'In Progress' && (
                                         <button 
                                             onClick={() => handleStatusChange(apt.id, 'Upcoming')}
@@ -254,14 +265,14 @@ const FrontDeskPage = () => {
                                     {apt.status === 'Completed' || apt.status === 'No Show' ? (
                                         <button 
                                             onClick={() => handleViewDetails(apt)}
-                                            className="w-full md:w-auto px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-md shadow-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-95"
+                                            className="w-full lg:w-auto px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-md shadow-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-95 whitespace-nowrap"
                                         >
                                             View Details
                                         </button>
                                     ) : (
                                         <button 
                                             onClick={() => handleStatusChange(apt.id, apt.status === 'Upcoming' ? 'In Progress' : 'Completed')}
-                                            className={`w-full md:w-auto px-4 py-2 text-white text-xs sm:text-sm font-medium rounded-md shadow-sm hover:shadow transition-all active:scale-95 ${
+                                            className={`w-full lg:w-auto px-4 py-2 text-white text-xs sm:text-sm font-bold rounded-lg shadow-sm hover:shadow transition-all active:scale-95 whitespace-nowrap ${
                                                 apt.status === 'Upcoming'
                                                     ? 'bg-blue-600 hover:bg-blue-700'
                                                     : 'bg-emerald-600 hover:bg-emerald-700'
