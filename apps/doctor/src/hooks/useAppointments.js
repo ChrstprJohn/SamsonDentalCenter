@@ -20,7 +20,7 @@ import { useAuth } from '../context/AuthContext';
 // --- Utility helpers ---
 
 export const STATUS_LABEL = {
-    CONFIRMED: 'Approved',
+    CONFIRMED: 'Upcoming',
     PENDING: 'Pending',
     CANCELLED: 'Cancelled',
     LATE_CANCEL: 'Cancelled',
@@ -28,16 +28,18 @@ export const STATUS_LABEL = {
     NO_SHOW: 'Missed',
     IN_PROGRESS: 'In Progress',
     WAITLISTED: 'Waitlisted',
+    DISPLACED: 'Displaced',
 };
 
 export const STATUS_COLOR = {
-    Approved: 'success',
+    Upcoming: 'info',
     Pending: 'warning',
     Cancelled: 'error',
-    Completed: 'info',
+    Completed: 'success',
     Missed: 'error',
-    'In Progress': 'primary',
+    'In Progress': 'warning',
     Waitlisted: 'warning',
+    Displaced: 'secondary',
 };
 
 /**
