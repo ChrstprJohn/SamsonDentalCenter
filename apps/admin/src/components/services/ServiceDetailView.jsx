@@ -151,8 +151,8 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                     </div>
 
                     {/* C. Operational Sidebar */}
-                    <div className='space-y-6'>
-                        <div className='p-6 border border-gray-200 rounded-3xl dark:border-gray-800 bg-white dark:bg-white/[0.03] flex flex-col'>
+                    <div className='flex flex-col h-full'>
+                        <div className='p-6 border border-gray-200 rounded-3xl dark:border-gray-800 bg-white dark:bg-white/[0.03] flex flex-col h-full'>
                             <div className='flex items-center justify-between mb-6'>
                                 <div className='flex items-center gap-3'>
                                     <div className='w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-500'>
@@ -320,4 +320,4 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
     );
 };
 
-ex
+export default ServiceDetailView;

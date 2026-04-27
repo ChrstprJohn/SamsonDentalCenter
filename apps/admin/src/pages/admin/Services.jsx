@@ -42,105 +42,95 @@ const Services = () => {
     );
 
     return (
-        <div className='flex flex-col h-full bg-gray-50/50 dark:bg-gray-900'>
-            <div className='mb-4'>
-                <PageBreadcrumb pageTitle='Services Catalog' />
-            </div>
+        <div className='flex flex-col h-full'>
+            <PageBreadcrumb 
+                pageTitle='Services Catalog' 
+                className='mb-4'
+            />
 
-            <div className='flex flex-col grow overflow-hidden bg-white dark:bg-white/[0.02] sm:rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm'>
-                {/* Header Section */}
-                <div className='px-4 py-5 sm:px-6 border-b border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-transparent backdrop-blur-sm sticky top-0 z-10'>
-                    <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-4'>
-                        {/* Title & Stats */}
-                        <div>
-                            <h2 className='text-xl font-black text-gray-900 dark:text-white flex items-center gap-3 font-outfit uppercase tracking-tight'>
-                                Clinic Services
-                                <span className='px-2.5 py-0.5 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[10px] font-black'>
-                                    {filteredServices.length} Total
-                                </span>
-                            </h2>
-                            <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1'>
-                                Manage clinic service offerings and pricing
-                            </p>
-                        </div>
-
-                        {/* Search & Actions */}
-                        <div className='flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto'>
-                            <div className='relative w-full sm:w-72'>
-                                <Search
-                                    className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400'
-                                    size={16}
-                                />
-                                <input
-                                    type='text'
-                                    placeholder='Search services...'
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className='w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-transparent focus:border-brand-500/30 focus:ring-4 focus:ring-brand-500/10 rounded-xl text-sm font-medium transition-all outline-none'
-                                />
-                            </div>
-                            <button className='w-full sm:w-auto h-11 px-6 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-[14px] font-black flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-brand-500/20 uppercase tracking-widest'>
-                                <Plus size={18} strokeWidth={3} />
-                                Add Service
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Filter Tabs */}
-                    <div className='flex items-center gap-2 mt-6 overflow-x-auto no-scrollbar pb-1'>
-                        {FILTERS.map((filter) => (
-                            <button
-                                key={filter.id}
-                                onClick={() => setActiveTier(filter.id)}
-                                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap active:scale-95 ${activeTier === filter.id
-                                        ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 shadow-lg'
-                                        : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'
-                                    }`}
-                            >
-                                {filter.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Grid */}
-                <div className='grow p-4 sm:p-6 bg-gray-50/50 dark:bg-transparent min-h-[500px] overflow-y-auto no-scrollbar'>
-                    {displayedServices.length > 0 ? (
-                        <>
-                            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6'>
-                                {displayedServices.map((service) => (
-                                    <ServiceCard
-                                        key={service.id}
-                                        service={service}
+            <div className='flex flex-col grow'>
+                <div className='flex-grow flex flex-col h-full bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-100 dark:border-gray-800 overflow-hidden'>
+                    <header className='shrink-0'>
+                        {/* Header / Search Area */}
+                        <div className='px-4 sm:px-6 py-5 border-b border-gray-100 dark:border-gray-800 space-y-4'>
+                            <div className='flex items-center justify-between gap-4'>
+                                <div className='relative flex-grow'>
+                                    <span className='absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400'>
+                                        <Search size={18} />
+                                    </span>
+                                    <input
+                                        type='text'
+                                        placeholder='Search services by name or description...'
+                                        className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/[0.03] border-none rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium text-gray-900 dark:text-white'
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
                                     />
+                                </div>
+                                <button 
+                                    className='hidden sm:flex items-center gap-2 px-4 py-3 bg-brand-500 text-white rounded-lg text-xs font-bold hover:bg-brand-600 transition-all active:scale-95 shrink-0 uppercase tracking-widest'
+                                >
+                                    <Plus size={16} />
+                                    <span>Add Service</span>
+                                </button>
+                            </div>
+
+                            {/* Filters */}
+                            <div className='flex items-center gap-2 overflow-x-auto no-scrollbar pb-1'>
+                                {FILTERS.map((filter) => (
+                                    <button
+                                        key={filter.id}
+                                        onClick={() => setActiveTier(filter.id)}
+                                        className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+                                            activeTier === filter.id
+                                                ? 'bg-brand-500 text-white'
+                                                : 'bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
+                                        }`}
+                                    >
+                                        {filter.label}
+                                    </button>
                                 ))}
                             </div>
-
-                            {/* Load More Pagination */}
-                            {visibleCount < filteredServices.length && (
-                                <div className='mt-12 flex justify-center pb-8'>
-                                    <button
-                                        onClick={() => setVisibleCount((prev) => prev + 12)}
-                                        className='flex items-center gap-2 px-8 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm active:scale-95'
-                                    >
-                                        Load More Services
-                                    </button>
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <div className='flex flex-col items-center justify-center py-24 text-center'>
-                            <div className='w-24 h-24 bg-white border border-gray-100 rounded-full flex items-center justify-center text-gray-300 mb-6 shadow-sm'>
-                                <Search size={40} />
-                            </div>
-                            <h3 className='text-lg font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
-                                No Services Found
-                            </h3>
-                            <p className='text-xs text-gray-400 mt-2 max-w-[280px] font-medium leading-relaxed'>
-                                We couldn't find any treatment matches your current filter or search criteria.
-                            </p>
                         </div>
-                    )}
+                    </header>
+
+                    <main className='grow overflow-y-auto no-scrollbar p-6'>
+                        {displayedServices.length > 0 ? (
+                            <div className='space-y-8'>
+                                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+                                    {displayedServices.map((service) => (
+                                        <ServiceCard
+                                            key={service.id}
+                                            service={service}
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Load More Pagination */}
+                                {visibleCount < filteredServices.length && (
+                                    <div className='mt-12 flex justify-center pb-8'>
+                                        <button
+                                            onClick={() => setVisibleCount((prev) => prev + 12)}
+                                            className='flex items-center gap-2 px-8 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm active:scale-95'
+                                        >
+                                            Load More Services
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className='flex flex-col items-center justify-center py-24 text-center'>
+                                <div className='w-24 h-24 bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-full flex items-center justify-center text-gray-300 dark:text-gray-600 mb-6 shadow-sm'>
+                                    <Search size={40} />
+                                </div>
+                                <h4 className='text-lg font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                                    No Services Found
+                                </h4>
+                                <p className='text-xs text-gray-400 mt-2 max-w-[280px] font-medium leading-relaxed'>
+                                    We couldn't find any service matches your current filter or search criteria.
+                                </p>
+                            </div>
+                        )}
+                    </main>
                 </div>
             </div>
         </div>
