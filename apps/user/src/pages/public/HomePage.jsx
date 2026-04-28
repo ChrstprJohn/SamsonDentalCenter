@@ -19,7 +19,7 @@ const HomePage = () => {
       <Hero />
       {/* <Promotions ref={promotionsRef} variant='light' /> */}
       {/*<HomeServices variant='dark' />*/}
-      <AboutShortcut />
+      {/*<AboutShortcut />*/}
       <GalleryV2 showExploreButton={true} />
       {/*<ServicesList />*/}
       {/*<Gallery variant="light" />*/}

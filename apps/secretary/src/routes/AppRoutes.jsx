@@ -1,66 +1,59 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from "react-router-dom";
 
 // Layouts
-import SecretaryPortalLayout from '../layouts/SecretaryPortalLayout';
+import SecretaryPortalLayout from "../layouts/SecretaryPortalLayout";
 
 // Route utils
-import ProtectedRoute from './ProtectedRoute';
-import ScrollToTop from './ScrollToTop';
+import ProtectedRoute from "./ProtectedRoute";
+import ScrollToTop from "./ScrollToTop";
 
 // Auth pages
-import LoginPage from '../pages/auth/LoginPage';
+import LoginPage from "../pages/auth/LoginPage";
 
 // Secretary pages
-import SecretaryDashboard from '../pages/secretary/SecretaryDashboard';
-import FrontDeskPage from '../pages/secretary/FrontDeskPage';
-import CalendarPage from '../pages/secretary/CalendarPage';
-import ApprovalsPage from '../pages/secretary/ApprovalsPage';
-import BookingPage from '../pages/secretary/BookingPage';
-
-import PatientsPage from '../pages/secretary/PatientsPage';
+import SecretaryDashboard from "../pages/secretary/SecretaryDashboard";
+import FrontDeskPage from "../pages/secretary/FrontDeskPage";
+import CalendarPage from "../pages/secretary/CalendarPage";
+import ApprovalsPage from "../pages/secretary/ApprovalsPage";
+import BookingPage from "../pages/secretary/BookingPage";
+import PatientsPage from "../pages/secretary/PatientsPage";
+import DisplacedQueuePage from "../pages/secretary/DisplacedQueuePage";
+import AppointmentsPage from "../pages/secretary/AppointmentsPage";
 
 const AppRoutes = () => {
-    return (
-        <>
-            <ScrollToTop />
-            <Routes>
-                {/* ── Auth ── */}
-                <Route
-                    path='/login'
-                    element={<LoginPage />}
-                />
+  return (
+    <>
+      <ScrollToTop />
+      <Routes>
+        {/* ── Auth ── */}
+        <Route path="/login" element={<LoginPage />} />
 
-                {/* ── Secretary Portal (Sidebar Layout) ── */}
-                <Route
-                    path='/'
-                    element={
-                        <ProtectedRoute allowedRoles={['secretary', 'dentist', 'admin']}>
-                            <SecretaryPortalLayout />
-                        </ProtectedRoute>
-                    }
-                >
-                    <Route index element={<SecretaryDashboard />} />
-                    <Route path='front-desk' element={<FrontDeskPage />} />
-                    <Route path='calendar' element={<CalendarPage />} />
-                    <Route path='approvals' element={<ApprovalsPage />} />
-                    <Route path='booking' element={<BookingPage />} />
+        {/* ── Secretary Portal (Sidebar Layout) ── */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute allowedRoles={["secretary", "dentist", "admin"]}>
+              <SecretaryPortalLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<SecretaryDashboard />} />
+          <Route path="front-desk" element={<FrontDeskPage />} />
+          <Route path="calendar" element={<CalendarPage />} />
+          <Route path="calendar/:tab" element={<CalendarPage />} />
+          <Route path="calendar/:tab/:id" element={<CalendarPage />} />
+          <Route path="approvals" element={<ApprovalsPage />} />
+          <Route path="booking" element={<BookingPage />} />
+          <Route path="patients" element={<PatientsPage />} />
+          <Route path="displaced" element={<DisplacedQueuePage />} />
+          <Route path="appointments" element={<AppointmentsPage />} />
+        </Route>
 
-                    <Route path='patients' element={<PatientsPage />} />
-                </Route>
-
-                {/* ── Catch-all ── */}
-                <Route
-                    path='*'
-                    element={
-                        <Navigate
-                            to='/'
-                            replace
-                        />
-                    }
-                />
-            </Routes>
-        </>
-    );
+        {/* ── Catch-all ── */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
+  );
 };
 
 export default AppRoutes;

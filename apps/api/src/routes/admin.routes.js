@@ -20,6 +20,9 @@ import {
     removeAnnouncement,
     // Schedule Management
     getDentists,
+    getDentistByIdHandler,
+    updateDentistProfileHandler,
+    updateDentistServicesHandler,
     viewDentistSchedule,
     updateDentistSchedule,
     blockDentistAvailability,
@@ -57,6 +60,8 @@ import {
     // Reassignment
     reassignAppointment,
     getAvailableDentistsForReassignment,
+    onboardDoctor,
+    bulkUpdateSchedule,
 } from '../controllers/admin.controller.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 import { requireAdmin, requireAdminOrSecretary } from '../middleware/admin.middleware.js'; // UPDATED
@@ -76,8 +81,20 @@ router.patch('/appointments/:id/noshow', markAsNoShow);
 router.patch('/appointments/:id/complete', markAsComplete);
 router.patch('/appointments/:id/cancel', adminCancel);
 router.patch('/appointments/:id/reassign', reassignAppointment); // NEW
-
-// ── Internal Comments ── (NEW)
+router.patch('/appointments/:id/displaced-handle', async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { supabaseAdmin } = await import('../config/supabase.js');
+        const { error } = await supabaseAdmin
+            .from('appointments')
+            .update({ cancellation_reason: 'SYSTEM_DISPLACED_HANDLED' })
+            .eq('id', id);
+        if (error) throw error;
+        res.json({ message: 'Marked as handled.' });
+    } catch (err) {
+        next(err);
+    }
+});
 router.get('/appointments/:id/comments', getAppointmentCommentsHandler);
 router.post('/appointments/:id/comments', addAppointmentCommentHandler);
 
@@ -109,9 +126,14 @@ router.post('/holidays', createHolidayHandler);
 
 // ── Schedule Management ──
 router.get('/dentists', getDentists);
+router.post('/dentists', requireAdmin, onboardDoctor); // NEW
 router.get('/dentists/available', getAvailableDentistsForReassignment); // NEW
+router.get('/dentists/:id', getDentistByIdHandler); // NEW
+router.patch('/dentists/:id/profile', updateDentistProfileHandler); // NEW
+router.patch('/dentists/:id/services', updateDentistServicesHandler); // NEW
 router.get('/dentists/:id/schedule', viewDentistSchedule);
 router.put('/dentists/:id/schedule', updateDentistSchedule);
+router.post('/dentists/:id/schedule/bulk', bulkUpdateSchedule); // NEW: Bulk update
 router.post('/dentists/:id/block', blockDentistAvailability);
 router.get('/dentists/:id/blocks', viewDentistBlocks);
 router.delete('/dentists/:id/block/:blockId', removeDentistBlock);

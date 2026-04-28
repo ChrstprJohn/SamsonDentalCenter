@@ -1,27 +1,33 @@
 import React from 'react';
-import { Calendar, ClipboardList, Clock } from 'lucide-react';
+import { Calendar, CheckCircle2, Users } from 'lucide-react';
 import StatCard from './StatCard';
 
 const DashboardStats = () => {
     return (
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6'>
+        <div className='flex flex-col lg:grid lg:grid-cols-4 gap-4 sm:gap-5 min-w-0'>
             <StatCard 
-                title='Upcoming Appointment' 
-                value='Oct 24, 2024' 
-                icon={Clock} 
-                color='success' 
-            />
-            <StatCard 
-                title='Total Appointments' 
-                value='12' 
+                title='Appointments Today' 
+                value='5' 
                 icon={Calendar} 
                 color='brand' 
             />
             <StatCard 
-                title='Waitlist Entries' 
-                value='3' 
-                icon={ClipboardList} 
+                title='Checked In' 
+                value='2' 
+                icon={CheckCircle2} 
+                color='success' 
+            />
+            <StatCard 
+                title='Waiting' 
+                value='1' 
+                icon={Users} 
                 color='warning' 
+            />
+            <StatCard 
+                title='Completed' 
+                value='0' 
+                icon={CheckCircle2} 
+                color='gray' 
             />
         </div>
     );

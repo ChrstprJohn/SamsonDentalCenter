@@ -2,23 +2,25 @@
 // ✅ NOTE: Waitlist entries are stored in the WAITLIST table, not as appointments.
 // Appointments only exist when a slot is secured (PENDING or CONFIRMED).
 export const APPOINTMENT_STATUS = {
-    PENDING: 'PENDING', // Awaiting approval (e.g., specialized service)
-    CONFIRMED: 'CONFIRMED', // Approved and ready
-    IN_PROGRESS: 'IN_PROGRESS', // 🪑 Patient seated, treatment in progress
-    LATE_CANCEL: 'LATE_CANCEL', // Cancelled less than 24h before appointment
-    CANCELLED: 'CANCELLED', // Cancelled with ≥24h notice
-    COMPLETED: 'COMPLETED', // Treatment done (dentist marks this)
-    NO_SHOW: 'NO_SHOW', // Patient didn't show up
-    RESCHEDULED: 'RESCHEDULED', // Old slot — superseded by a new appointment
+    PENDING: 'PENDING', // Awaiting to be approve by secretary (e.g., specialized service) [Patient, Secretary and Admin]
+    CONFIRMED: 'CONFIRMED', // Approved and upcoming for the patient [Patient, Secretary and Admin]
+    //Rejected - when booking is rejected by secretary [Patient, Secretary and Admin]
+    IN_PROGRESS: 'IN_PROGRESS', // 🪑 Patient seated, treatment in progress [Secretary and Admin]
+    //Present - once the patient showed up in the clinic
+    LATE_CANCEL: 'LATE_CANCEL', // Cancelled less than 24h before appointment [Patient, Secretary and Admin]
+    CANCELLED: 'CANCELLED', // Cancelled with ≥24h notice [Patient, Secretary and Admin]
+    COMPLETED: 'COMPLETED', // Treatment done (dentist marks this) [Patient, Secretary and Admin]
+    NO_SHOW: 'NO_SHOW', // Patient didn't show up, automatically triggers once the time has passed [Patient, Secretary and Admin]
+    DISPLACED: 'DISPLACED', // Displaced appointment (e.g., due to doctor unavailability)
 };
 
 // Waitlist status values
 export const WAITLIST_STATUS = {
-    WAITING: 'WAITING',
-    NOTIFIED: 'NOTIFIED',
-    CONFIRMED: 'CONFIRMED',
-    EXPIRED: 'EXPIRED',
-    CANCELLED: 'CANCELLED',
+    WAITING: 'WAITING', //Waiting for the slot to open up
+    NOTIFIED: 'NOTIFIED', //The slot opened and ready to be claimed under 25 minutes
+    CONFIRMED: 'CONFIRMED', //You claimed the open slot within 25 minuutes
+    EXPIRED: 'EXPIRED', //You didnt claim the open slot within 25 minutes
+    CANCELLED: 'CANCELLED', //You cancelled your spot on the waitlist
 };
 
 // Appointment source tracking

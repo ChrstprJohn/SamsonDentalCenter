@@ -59,7 +59,7 @@ export const Carousel = ({ className }) => {
                 <div className='space-y-8'>
                     <div className='inline-flex px-4 py-1.5 bg-white/10 border border-white/10 rounded-full backdrop-blur-md shadow-sm'>
                         <span className='text-[11px] font-bold text-blue-200 uppercase tracking-widest'>
-                            Patient Portal
+                            Administrative Portal
                         </span>
                     </div>
 
@@ -67,11 +67,10 @@ export const Carousel = ({ className }) => {
                         <h1 className='text-4xl lg:text-5xl font-bold text-white leading-[1.1] tracking-tight'>
                             Modern Care,
                             <br />
-                            Perfect Smiles.
+                            Efficient Smiles.
                         </h1>
                         <p className='text-slate-300 text-base leading-relaxed font-medium'>
-                            Access your premium dental portal to manage visits and records
-                            effortlessly.
+                            Access the administrative dashboard to manage clinicians, schedules, and clinical operations.
                         </p>
                     </div>
 

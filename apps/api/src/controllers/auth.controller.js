@@ -224,6 +224,81 @@ export const updateProfile = async (req, res, next) => {
 };
 
 /**
+ * POST /api/auth/set-password
+ * Called by the doctor portal after clicking the invitation email link.
+ * Body: { access_token, refresh_token, password }
+ */
+export const setPassword = async (req, res, next) => {
+    try {
+        const { access_token, refresh_token, password } = req.body;
+
+        if (!access_token || !refresh_token || !password) {
+            return res.status(400).json({ error: 'access_token, refresh_token, and password are required.' });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+        }
+
+        // 1. Set the session from the invitation tokens
+        const { data: sessionData, error: sessionErr } = await supabasePublic.auth.setSession({
+            access_token,
+            refresh_token,
+        });
+
+        if (sessionErr || !sessionData?.user) {
+            return res.status(401).json({ error: 'Invalid or expired invitation link.' });
+        }
+
+        // 2. Update the user's password via admin
+        const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(
+            sessionData.user.id,
+            { password }
+        );
+
+        if (updateErr) {
+            return res.status(500).json({ error: updateErr.message });
+        }
+
+        // 3. Get the profile to return
+        const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('*')
+            .eq('id', sessionData.user.id)
+            .single();
+
+        // 4. Sign in with new password to get a fresh session/token
+        const { data: loginData, error: loginErr } = await supabasePublic.auth.signInWithPassword({
+            email: sessionData.user.email,
+            password,
+        });
+
+        if (loginErr) {
+            return res.status(500).json({ error: 'Password set but login failed. Please log in manually.' });
+        }
+
+        res.json({
+            message: 'Password set successfully.',
+            token: loginData.session.access_token,
+            user: {
+                id: profile.id,
+                email: profile.email,
+                full_name: profile.full_name,
+                first_name: profile.first_name,
+                last_name: profile.last_name,
+                middle_name: profile.middle_name,
+                suffix: profile.suffix,
+                role: profile.role,
+                phone: profile.phone,
+                avatar_url: profile.avatar_url,
+            },
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
  * POST /api/auth/logout
  */
 export const logout = async (req, res, next) => {

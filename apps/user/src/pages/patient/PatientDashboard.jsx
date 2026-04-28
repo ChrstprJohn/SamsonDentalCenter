@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
+import DashboardWelcomeBanner from '../../components/patient/dashboard/DashboardWelcomeBanner';
+import ContactClinicModal from '../../components/patient/dashboard/ContactClinicModal';
 import DashboardStats from '../../components/patient/dashboard/DashboardStats';
 import DashboardCalendar from '../../components/patient/dashboard/DashboardCalendar';
 import DashboardNotifications from '../../components/patient/dashboard/DashboardNotifications';
@@ -12,11 +15,13 @@ import ErrorState from '../../components/common/ErrorState';
 
 const PatientDashboard = () => {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const { entries, offers, loading: waitlistLoading, error: waitlistError, confirmOffer } = useWaitlist();
     const { appointments, total: totalAppointments, loading: apptsLoading, error: apptsError } = useAppointmentState();
     const error = waitlistError || apptsError;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState(null);
+    const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
     const handleClaimClick = (slot) => {
         setSelectedSlot(slot);
@@ -54,6 +59,13 @@ const PatientDashboard = () => {
                     />
                 ) : (
                     <>
+                        {/* Row 0: Welcome Banner */}
+                        <DashboardWelcomeBanner 
+                            firstName={user?.first_name || 'Guest'}
+                            onBookAppointment={() => navigate('/patient/book')}
+                            onContactClinic={() => setIsContactModalOpen(true)}
+                        />
+
                         {/* Row 1: Metrics & Latest Appt (4 Cards, 5 Cols) */}
                         <DashboardStats 
                             entries={entries} 
@@ -79,6 +91,11 @@ const PatientDashboard = () => {
                 slot={selectedSlot}
                 onConfirm={handleConfirmClaim}
                 loading={waitlistLoading}
+            />
+
+            <ContactClinicModal 
+                isOpen={isContactModalOpen} 
+                onClose={() => setIsContactModalOpen(false)} 
             />
         </>
     );

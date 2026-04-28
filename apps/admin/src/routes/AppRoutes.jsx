@@ -13,6 +13,11 @@ import LoginPage from '../pages/auth/LoginPage';
 // Admin pages
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import Doctors from '../pages/admin/Doctors';
+import Staff from '../pages/admin/Staff';
+import Patients from '../pages/admin/Patients';
+import Services from '../pages/admin/Services';
+import Settings from '../pages/admin/Settings';
+import AuditLogs from '../pages/admin/AuditLogs';
 import AdminProfile from '../pages/admin/AdminProfile';
 
 const AppRoutes = () => {
@@ -40,6 +45,20 @@ const AppRoutes = () => {
                         <Route index element={<Navigate to="profile" replace />} />
                         <Route path=':tab/:id?' element={<Doctors />} />
                     </Route>
+                    <Route path='staff'>
+                        <Route index element={<Navigate to="profile" replace />} />
+                        <Route path=':tab/:id?' element={<Staff />} />
+                    </Route>
+                    <Route path='patients'>
+                        <Route index element={<Navigate to="profile" replace />} />
+                        <Route path=':tab/:id?' element={<Patients />} />
+                    </Route>
+                    <Route path='services' element={<Services />} />
+                    <Route path='settings'>
+                        <Route index element={<Navigate to="general" replace />} />
+                        <Route path=':tab?' element={<Settings />} />
+                    </Route>
+                    <Route path='audit-logs' element={<AuditLogs />} />
                     <Route path='profile' element={<AdminProfile />} />
                 </Route>
 

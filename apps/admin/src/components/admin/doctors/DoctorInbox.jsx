@@ -17,7 +17,8 @@ const DoctorInbox = ({
     onSearchChange,
     activeFilter,
     onFilterChange,
-    activeTab
+    activeTab,
+    onAddClick
 }) => {
     return (
         <div className='flex-grow flex flex-col h-full bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-100 dark:border-gray-800 overflow-hidden'>
@@ -36,7 +37,10 @@ const DoctorInbox = ({
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </div>
-                    <button className='hidden sm:flex items-center gap-2 px-4 py-3 bg-brand-500 text-white rounded-lg text-xs font-bold hover:bg-brand-600 transition-all active:scale-95 shrink-0'>
+                    <button 
+                        onClick={onAddClick}
+                        className='hidden sm:flex items-center gap-2 px-4 py-3 bg-brand-500 text-white rounded-lg text-xs font-bold hover:bg-brand-600 transition-all active:scale-95 shrink-0'
+                    >
                         <UserPlus size={16} />
                         <span>Add Doctor</span>
                     </button>

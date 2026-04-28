@@ -6,3 +6,4 @@ export { default as Badge } from './Badge';
 export { default as Dropdown } from './Dropdown';
 export { default as DropdownItem } from './DropdownItem';
 export * from './Table';
+export { default as Switch } from './Switch';

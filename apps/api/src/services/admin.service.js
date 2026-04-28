@@ -615,6 +615,28 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
         if (conflict) {
             throw new AppError(`Selected dentist is already booked at ${appointment.start_time} on ${appointment.appointment_date}.`, 409);
         }
+
+        // ── CHECK FOR AVAILABILITY BLOCKS ──
+        const { data: blocks, error: blockErr } = await supabaseAdmin
+            .from('dentist_availability_blocks')
+            .select('start_time, end_time')
+            .eq('dentist_id', assignedDentistId)
+            .eq('block_date', appointment.appointment_date);
+
+        if (blockErr) throw new AppError(blockErr.message, 500);
+
+        const startTime = appointment.start_time.slice(0, 5);
+        const endTime = appointment.end_time.slice(0, 5);
+
+        const hasBlockConflict = (blocks || []).some(b => {
+            const bStart = (b.start_time || '00:00').slice(0, 5);
+            const bEnd = (b.end_time || '23:59').slice(0, 5);
+            return startTime < bEnd && bStart < endTime;
+        });
+
+        if (hasBlockConflict) {
+            throw new AppError(`Selected dentist has an availability block during this time (${appointment.start_time} - ${appointment.end_time}).`, 409);
+        }
     }
 
     // ── 3. Update the appointment ──
@@ -871,24 +893,75 @@ export const setDentistSchedule = async (dentistId, dayOfWeek, schedule) => {
  * Bulk set a dentist's entire weekly schedule.
  *
  * @param {string} dentistId - Dentist UUID
- * @param {Array} schedules - Array of { day_of_week, is_working, start_time, end_time }
+ * @param {Array} schedules - Array of { day_of_week, is_working, start_time, end_time, break_start_time, break_end_time }
  */
-export const setBulkSchedule = async (dentistId, schedules) => {
+export const setBulkSchedule = async (dentistId, schedules, overwrite = false) => {
     const rows = schedules.map((s) => ({
         dentist_id: dentistId,
         day_of_week: s.day_of_week,
         is_working: s.is_working,
         start_time: s.start_time || null,
         end_time: s.end_time || null,
+        break_start_time: s.break_start_time || null,
+        break_end_time: s.break_end_time || null,
     }));
 
-    const { data, error } = await supabaseAdmin
+    const { data: scheduleData, error } = await supabaseAdmin
         .from('dentist_schedule')
         .upsert(rows, { onConflict: 'dentist_id,day_of_week' })
         .select();
 
     if (error) throw new AppError(error.message, 500);
-    return data;
+
+    if (overwrite) {
+        // Query all active future appointments for this dentist
+        const today = new Date().toISOString().split('T')[0];
+        const { data: appointments, error: apptError } = await supabaseAdmin
+            .from('appointments')
+            .select('id, appointment_date, start_time, end_time')
+            .eq('dentist_id', dentistId)
+            .gte('appointment_date', today)
+            .not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.NO_SHOW},${APPOINTMENT_STATUS.RESCHEDULED},${APPOINTMENT_STATUS.COMPLETED})`);
+
+        if (!apptError && appointments && appointments.length > 0) {
+            const idsToCancel = [];
+
+            appointments.forEach(appt => {
+                const [y, m, d] = (appt.appointment_date || '').split('-');
+                const jsDow = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay();
+                const rule = schedules.find(r => r.day_of_week === jsDow);
+
+                if (!rule || !rule.is_working) {
+                    idsToCancel.push(appt.id);
+                } else {
+                    const ast = appt.start_time.substring(0, 5);
+                    const aet = appt.end_time.substring(0, 5);
+                    const rst = rule.start_time;
+                    const ret = rule.end_time;
+                    
+                    if (ast < rst || aet > ret) {
+                        idsToCancel.push(appt.id);
+                    } else if (rule.break_start_time && rule.break_end_time) {
+                        if (ast < rule.break_end_time && aet > rule.break_start_time) {
+                            idsToCancel.push(appt.id);
+                        }
+                    }
+                }
+            });
+
+            if (idsToCancel.length > 0) {
+                await supabaseAdmin
+                    .from('appointments')
+                    .update({ 
+                        status: APPOINTMENT_STATUS.CANCELLED,
+                        cancellation_reason: 'SYSTEM_DISPLACED'
+                    })
+                    .in('id', idsToCancel);
+            }
+        }
+    }
+
+    return scheduleData;
 };
 
 /**
@@ -928,6 +1001,7 @@ export const getBlocks = async (dentistId = null, fromDate = null) => {
  * @param {string} blockDate - 'YYYY-MM-DD'
  * @param {string|null} startTime - Optional: only cancel from this time (e.g., '08:00')
  * @param {string|null} endTime - Optional: only cancel until this time (e.g., '17:00')
+ * @param {boolean} isOverwrite - Optional: flags appointments as SYSTEM_DISPLACED
  * @returns {object} { cancelled_count, appointments }
  */
 export const bulkCancelForBlock = async (
@@ -935,6 +1009,7 @@ export const bulkCancelForBlock = async (
     blockDate,
     startTime = null,
     endTime = null,
+    isOverwrite = false
 ) => {
     // ── Get all appointments for this dentist on this date ──
     const { data: allAppointments, error: fetchErr } = await supabaseAdmin
@@ -968,11 +1043,13 @@ export const bulkCancelForBlock = async (
     const appointmentIds = affectedAppointments.map((a) => a.id);
 
     // ── Cancel all affected appointments ──
+    const updateReason = isOverwrite ? 'SYSTEM_DISPLACED' : 'Dentist unavailable (schedule block)';
+
     const { error: updateErr } = await supabaseAdmin
         .from('appointments')
         .update({
             status: APPOINTMENT_STATUS.CANCELLED,
-            cancellation_reason: 'Dentist unavailable (schedule block)',
+            cancellation_reason: updateReason,
             cancelled_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
         })
@@ -1144,6 +1221,7 @@ export const blockDentistSchedule = async (
     notes = null,
     cancelAppointments = false,
     createdBy,
+    overwrite = false
 ) => {
     // Verify dentist exists
     const { data: dentist, error: dentistErr } = await supabaseAdmin
@@ -1175,8 +1253,8 @@ export const blockDentistSchedule = async (
 
     // Optionally auto-cancel appointments that conflict with this block
     let cancelResult = null;
-    if (cancelAppointments) {
-        cancelResult = await bulkCancelForBlock(dentistId, blockDate, startTime, endTime);
+    if (cancelAppointments || overwrite) {
+        cancelResult = await bulkCancelForBlock(dentistId, blockDate, startTime, endTime, overwrite);
     }
 
     return { block, cancelResult };
@@ -1227,7 +1305,11 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
         .order('start_time', { ascending: true });
 
     // Apply filters
-    if (filters.date) query = query.eq('appointment_date', filters.date);
+    if (filters.date) {
+        query = query.eq('appointment_date', filters.date);
+    } else if (filters.date_from) {
+        query = query.gte('appointment_date', filters.date_from);
+    }
     
     // If a specific status is requested, use it; otherwise, exclude 'zombie' statuses by default
     // to prevent rescheduled/cancelled/missed appointments from cluttering active lists.
@@ -1313,24 +1395,209 @@ export const searchPatients = async (search = null) => {
 };
 
 /**
- * Get all active dentists with their profile info.
+ * Get all dentists (active + inactive) with full profile and services.
  *
- * @returns {Array} List of dentists with profile data
+ * @returns {Array} List of dentists with profile data and authorized services
  */
 export const getDentistsList = async () => {
     const { data, error } = await supabaseAdmin
         .from('dentists')
         .select(
             `
-        *,
-        profile: profiles(full_name, email, phone)
+        id, license_number, specialization, tier, bio, photo_url, is_active, created_at,
+        profile: profiles(id, full_name, first_name, last_name, middle_name, suffix, email, phone),
+        dentist_services(service_id, service:services(id, name, tier))
             `,
         )
-        .eq('is_active', true);
+        .order('created_at', { ascending: true });
 
     if (error) throw new AppError(error.message, 500);
 
     return data;
+};
+
+/**
+ * Get a single dentist by ID with full profile and services.
+ *
+ * @param {string} dentistId - Dentist UUID
+ * @returns {object} Dentist with profile and services
+ */
+export const getDentistById = async (dentistId) => {
+    const { data, error } = await supabaseAdmin
+        .from('dentists')
+        .select(
+            `
+        id, license_number, specialization, tier, bio, photo_url, is_active, created_at,
+        profile: profiles(id, full_name, first_name, last_name, middle_name, suffix, email, phone),
+        dentist_services(service_id, service:services(id, name, tier))
+            `,
+        )
+        .eq('id', dentistId)
+        .single();
+
+    if (error) throw new AppError(error.message, 404);
+    return data;
+};
+
+/**
+ * Onboard a new dentist (Creates auth user + sends invitation + triggers profile).
+ * 
+ * @param {object} dentistData - { email, first_name, last_name, middle_name?, suffix?, phone? }
+ * @returns {object} Invitation result
+ */
+export const onboardDentistProfile = async (dentistData) => {
+    const { email, first_name, last_name, middle_name, suffix, phone } = dentistData;
+    
+    // 1. Validation
+    if (!email || !first_name || !last_name) {
+        throw new AppError('Incomplete doctor identity data (First Name, Last Name, Email).', 400);
+    }
+
+    // 2. Metadata construction - Strictly following trigger expectations
+    // d:\webApp\BLUEPRINT\BACKEND\MIGRATIONS\20260424213800_update_handle_new_user_trigger.sql
+    const metadata = {
+        full_name: `${first_name} ${last_name}`.trim(),
+        first_name: first_name,
+        last_name: last_name,
+        middle_name: middle_name || '',
+        suffix: suffix || '',
+        phone: phone || '',
+        role: 'dentist'
+    };
+
+    // 3. User Invitation — redirect to doctor portal password setup
+    const doctorPortalUrl = process.env.DOCTOR_URL || 'http://localhost:5176';
+    const { data: inviteData, error: inviteErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+        email,
+        {
+            data: metadata,
+            redirectTo: `${doctorPortalUrl}/set-password`
+        }
+    );
+
+    if (inviteErr) {
+        console.error(' [ONBOARD_ERROR] Details:', inviteErr);
+        throw new AppError(`Supabase Invitation Error: ${inviteErr.message}`, 500);
+    }
+
+    return {
+        user: inviteData.user,
+        message: 'A secure registration link has been dispatched to the doctor.'
+    };
+};
+
+/**
+ * Update a dentist's profile fields.
+ * Updates both `dentists` table (bio, photo_url, is_active, license_number)
+ * and `profiles` table (name fields, email, phone).
+ *
+ * @param {string} dentistId - Dentist UUID
+ * @param {object} fields - { bio?, photo_url?, is_active?, license_number?, first_name?, last_name?, middle_name?, suffix?, email?, phone? }
+ * @returns {object} Updated dentist with profile
+ */
+export const updateDentistProfileData = async (dentistId, fields) => {
+    const {
+        bio, photo_url, is_active, license_number,
+        first_name, last_name, middle_name, suffix, email, phone,
+    } = fields;
+
+    // 1. Get current dentist to know profile_id and current name parts
+    const { data: current, error: fetchErr } = await supabaseAdmin
+        .from('dentists')
+        .select(`
+            id, 
+            profile_id, 
+            profile:profiles(first_name, last_name, middle_name, suffix)
+        `)
+        .eq('id', dentistId)
+        .single();
+
+    if (fetchErr || !current) throw new AppError('Dentist not found.', 404);
+
+    // 2. Update dentists table
+    const dentistUpdates = {};
+    if (bio !== undefined) dentistUpdates.bio = bio;
+    if (photo_url !== undefined) dentistUpdates.photo_url = photo_url;
+    if (is_active !== undefined) dentistUpdates.is_active = is_active;
+    if (license_number !== undefined) dentistUpdates.license_number = license_number;
+
+    if (Object.keys(dentistUpdates).length > 0) {
+        dentistUpdates.updated_at = new Date().toISOString();
+        const { error: dentistErr } = await supabaseAdmin
+            .from('dentists')
+            .update(dentistUpdates)
+            .eq('id', dentistId);
+        if (dentistErr) throw new AppError(dentistErr.message, 500);
+    }
+
+    // 3. Update profiles table (name + contact)
+    const profileUpdates = {};
+    if (first_name !== undefined) profileUpdates.first_name = first_name;
+    if (last_name !== undefined) profileUpdates.last_name = last_name;
+    if (middle_name !== undefined) profileUpdates.middle_name = middle_name;
+    if (suffix !== undefined) profileUpdates.suffix = suffix;
+    if (email !== undefined) profileUpdates.email = email;
+    if (phone !== undefined) profileUpdates.phone = phone;
+    if (photo_url !== undefined) profileUpdates.avatar_url = photo_url; // Map photo_url to profiles.avatar_url
+
+    // Rebuild full_name if any name parts changed
+    if (
+        first_name !== undefined ||
+        last_name !== undefined ||
+        middle_name !== undefined ||
+        suffix !== undefined
+    ) {
+        const fn = first_name !== undefined ? first_name : current.profile?.first_name || '';
+        const mn = middle_name !== undefined ? middle_name : current.profile?.middle_name || '';
+        const ln = last_name !== undefined ? last_name : current.profile?.last_name || '';
+        const sf = suffix !== undefined ? suffix : current.profile?.suffix || '';
+
+        profileUpdates.full_name = `Dr. ${fn}${mn ? ' ' + mn : ''} ${ln}${sf ? ' ' + sf : ''}`
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    if (Object.keys(profileUpdates).length > 0) {
+        profileUpdates.updated_at = new Date().toISOString();
+        const { error: profileErr } = await supabaseAdmin
+            .from('profiles')
+            .update(profileUpdates)
+            .eq('id', current.profile_id);
+        if (profileErr) throw new AppError(profileErr.message, 500);
+    }
+
+    // 4. Return fresh data
+    return getDentistById(dentistId);
+};
+
+/**
+ * Replace a dentist's authorized services.
+ * Deletes existing dentist_services rows and inserts the new set.
+ *
+ * @param {string} dentistId - Dentist UUID
+ * @param {string[]} serviceIds - Array of service UUIDs
+ * @returns {object} Updated dentist with new services
+ */
+export const replaceDentistServices = async (dentistId, serviceIds) => {
+    // 1. Delete existing service mappings
+    const { error: deleteErr } = await supabaseAdmin
+        .from('dentist_services')
+        .delete()
+        .eq('dentist_id', dentistId);
+
+    if (deleteErr) throw new AppError(deleteErr.message, 500);
+
+    // 2. Insert new mappings (skip if empty array)
+    if (Array.isArray(serviceIds) && serviceIds.length > 0) {
+        const rows = serviceIds.map((sid) => ({ dentist_id: dentistId, service_id: sid }));
+        const { error: insertErr } = await supabaseAdmin
+            .from('dentist_services')
+            .insert(rows);
+        if (insertErr) throw new AppError(insertErr.message, 500);
+    }
+
+    // 3. Return fresh data
+    return getDentistById(dentistId);
 };
 
 // ═══════════════════════════════════════════════
@@ -1425,13 +1692,21 @@ export const getAvailableDentistsForSlot = async (
     // ── Check for availability blocks ──
     const { data: blocks, error: blockErr } = await supabaseAdmin
         .from('dentist_availability_blocks')
-        .select('dentist_id')
+        .select('dentist_id, start_time, end_time')
         .eq('block_date', appointmentDate)
         .in('dentist_id', dentistIds);
 
     if (blockErr) throw new AppError(blockErr.message, 500);
 
-    const blockedDentistIds = new Set(blocks?.map((b) => b.dentist_id) || []);
+    const blockedDentistIds = new Set();
+    (blocks || []).forEach(b => {
+        const bStart = (b.start_time || '00:00').slice(0, 5);
+        const bEnd = (b.end_time || '23:59').slice(0, 5);
+        // Overlap: appt.start < block.end && block.start < appt.end
+        if (startTime < bEnd && bStart < endTime) {
+            blockedDentistIds.add(b.dentist_id);
+        }
+    });
 
     // ── Check for existing appointments (time conflicts) ──
     const { data: conflicts, error: conflictErr } = await supabaseAdmin
@@ -1520,6 +1795,28 @@ export const reassignAppointmentToDentist = async (appointmentId, newDentistId, 
 
     if (conflict) {
         throw new AppError(`Target dentist is already booked at ${appointment.start_time} on ${appointment.appointment_date}.`, 409);
+    }
+
+    // ── Check for availability blocks ──
+    const { data: blocks, error: blockErr } = await supabaseAdmin
+        .from('dentist_availability_blocks')
+        .select('start_time, end_time')
+        .eq('dentist_id', newDentistId)
+        .eq('block_date', appointment.appointment_date);
+
+    if (blockErr) throw new AppError(blockErr.message, 500);
+
+    const startTime = appointment.start_time.slice(0, 5);
+    const endTime = appointment.end_time.slice(0, 5);
+
+    const hasBlockConflict = (blocks || []).some(b => {
+        const bStart = (b.start_time || '00:00').slice(0, 5);
+        const bEnd = (b.end_time || '23:59').slice(0, 5);
+        return startTime < bEnd && bStart < endTime;
+    });
+
+    if (hasBlockConflict) {
+        throw new AppError(`Target dentist has an availability block during this time (${appointment.start_time} - ${appointment.end_time}).`, 409);
     }
 
     // ── Update the appointment ──
