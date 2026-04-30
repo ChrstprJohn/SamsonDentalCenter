@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, Calendar, AlertCircle, CheckCircle2, User, UserSearch } from 'lucide-react';
+import { Phone, Mail, Calendar, AlertCircle, CheckCircle2, User, UserSearch, ShieldCheck } from 'lucide-react';
 import Button from '../../../ui/Button';
 import Input from '../../../ui/Input';
 
@@ -13,8 +13,11 @@ const DuplicateResolver = ({
     handleSendOtp, 
     handleCreatePatient, 
     loading, 
-    selectedPrimaryId 
+    selectedPrimaryId
 }) => {
+    const hasPhoneConflict = duplicates.some(d => d.phone?.includes(formData.phone.replace(/\D/g, '')));
+    const hasEmailConflict = duplicates.some(d => d.email?.toLowerCase() === formData.email?.toLowerCase());
+
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
             {/* 1. New Entry Reference (Horizontal Banner) */}
@@ -32,18 +35,29 @@ const DuplicateResolver = ({
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-                        <div className="flex items-center gap-2">
-                            <Calendar size={14} className="text-gray-400" />
-                            <span className="text-xs font-bold text-gray-600 dark:text-gray-400">{formData.date_of_birth || 'N/A'}</span>
+                    <div className="flex flex-wrap items-center gap-x-10 gap-y-2">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">DOB</span>
+                            <div className="flex items-center gap-2">
+                                <Calendar size={12} className="text-brand-500/50" />
+                                <span className="text-xs font-bold text-gray-600 dark:text-gray-400">{formData.date_of_birth || 'N/A'}</span>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Phone size={14} className="text-gray-400" />
-                            <span className="text-xs font-bold text-gray-600 dark:text-gray-400">{formData.phone}</span>
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Phone</span>
+                            <div className="flex items-center gap-2">
+                                <Phone size={12} className="text-brand-500/50" />
+                                <span className="text-xs font-bold text-gray-600 dark:text-gray-400">{formData.phone}</span>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Mail size={14} className="text-gray-400" />
-                            <span className="text-xs font-bold text-gray-600 dark:text-gray-400">{formData.email || 'N/A'}</span>
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Email</span>
+                            <div className="flex items-center gap-2">
+                                <Mail size={12} className="text-brand-500/50" />
+                                <span className={`text-xs font-bold ${duplicates.some(d => d.email?.toLowerCase() === formData.email?.toLowerCase()) ? 'text-error-500' : 'text-gray-600 dark:text-gray-400'}`}>
+                                    {formData.email || 'N/A'}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -56,11 +70,18 @@ const DuplicateResolver = ({
                         Similar Patients Found
                         <span className="px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-500 text-[10px] font-black">{duplicates.length}</span>
                     </h5>
-                    {duplicates.some(d => d.email?.toLowerCase() === formData.email?.toLowerCase()) && (
-                        <p className="text-[10px] font-bold text-error-500 uppercase tracking-widest bg-error-500/10 px-2 py-1 rounded-lg border border-error-500/20 flex items-center gap-2">
-                            <AlertCircle size={12} /> Email Conflict
-                        </p>
-                    )}
+                    <div className="flex items-center gap-2">
+                        {hasPhoneConflict && (
+                            <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-500/10 px-2 py-1 rounded-lg border border-amber-500/20 flex items-center gap-2">
+                                <AlertCircle size={12} /> Phone Conflict
+                            </p>
+                        )}
+                        {hasEmailConflict && (
+                            <p className="text-[10px] font-bold text-error-500 uppercase tracking-widest bg-error-500/10 px-2 py-1 rounded-lg border border-error-500/20 flex items-center gap-2">
+                                <AlertCircle size={12} /> Email Conflict
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 <div className="border border-gray-100 dark:border-white/5 rounded-2xl bg-white dark:bg-white/[0.02] shadow-sm overflow-x-auto custom-scrollbar">
@@ -86,7 +107,7 @@ const DuplicateResolver = ({
                                 const isLastNameMatch = formData.last_name?.toLowerCase() === dup.last_name?.toLowerCase();
 
                                 return (
-                                    <tr key={dup.id} className={`group transition-colors ${isEmailMatch ? 'bg-error-500/[0.02]' : 'hover:bg-gray-50/50 dark:hover:bg-white/5'}`}>
+                                    <tr key={dup.id} className={`group transition-colors ${isEmailMatch ? 'bg-error-500/[0.02]' : isPhoneMatch ? 'bg-amber-500/[0.02]' : 'hover:bg-gray-50/50 dark:hover:bg-white/5'}`}>
                                         <td className="px-5 py-4 min-w-[120px]">
                                             <span className={`text-xs font-bold ${isFirstNameMatch ? 'text-brand-600 dark:text-brand-400 bg-brand-500/5 px-1.5 py-0.5 rounded border border-brand-500/10' : 'text-gray-900 dark:text-white'}`}>
                                                 {dup.first_name}
@@ -128,17 +149,6 @@ const DuplicateResolver = ({
                                                 >
                                                     View
                                                 </Button>
-                                                
-                                                {isEmailMatch && dup.is_registered && !otpSent && (
-                                                    <Button 
-                                                        size="xs"
-                                                        onClick={() => handleSendOtp(dup.id)}
-                                                        loading={loading && selectedPrimaryId === dup.id}
-                                                        className="rounded-lg h-8 px-3 text-[10px] font-black uppercase bg-green-600 hover:bg-green-700 shadow-md shadow-green-600/10"
-                                                    >
-                                                        Link
-                                                    </Button>
-                                                )}
                                             </div>
                                         </td>
                                     </tr>

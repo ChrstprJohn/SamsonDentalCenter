@@ -129,7 +129,7 @@ const AdminSidebar = () => {
             </div>
 
             {/* Nav */}
-            <div className='flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar'>
+            <div className='flex flex-col flex-1 min-h-0 overflow-y-auto duration-300 ease-linear no-scrollbar sidebar-scroll-container'>
                 <nav className='mb-6'>
                     <div className='flex flex-col'>
                         <h2 className={`mb-4 text-xs uppercase flex items-center leading-[20px] text-gray-400 pl-[13px] transition-all duration-300`}>

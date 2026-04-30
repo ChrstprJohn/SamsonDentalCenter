@@ -3,6 +3,8 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { assignDentist } from './dentist-assignment.service.js';
 import { APPOINTMENT_STATUS, APPROVAL_STATUS, SERVICE_TIER } from '../utils/constants.js';
 import { voidWaitlistForApprovedAppointment, notifyWaitlist } from './waitlist.service.js';
+import { sendOTPEmail } from './email-confirmation.service.js';
+
 
 // ═══════════════════════════════════════════════
 // APPROVAL WORKFLOW (Two-Tier System)
@@ -1435,14 +1437,14 @@ export const searchPatients = async (search = null) => {
     let query = supabaseAdmin
         .from('profiles')
         .select(
-            'id, full_name, email, phone, no_show_count, cancellation_count, reschedule_count, is_booking_restricted, restriction_reason, deposit_required, created_at',
+            'id, full_name, email, phone, is_registered, primary_profile_id, no_show_count, cancellation_count, reschedule_count, is_booking_restricted, restriction_reason, deposit_required, created_at',
         )
         .eq('role', 'patient')
         .order('created_at', { ascending: false })
         .limit(50);
 
     if (search) {
-        query = query.or(`full_name.ilike.% ${search}%, email.ilike.% ${search}% `);
+        query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
     }
 
     const { data, error } = await query;
@@ -1933,9 +1935,10 @@ export const mergePatientRecords = async (sourceId, targetId, asDependent = fals
 /**
  * Generate and send an OTP for dependency consent
  * @param {string} primaryProfileId - The ID of the owner of the email
+ * @param {string} dependentId - The ID of the stub being linked
  * @returns {object} { message: 'OTP sent' }
  */
-export const sendDependencyConsentOTP = async (primaryProfileId) => {
+export const sendDependencyConsentOTP = async (primaryProfileId, dependentId) => {
     // 1. Get the primary profile email
     const { data: profile, error } = await supabaseAdmin.from('profiles').select('email, full_name').eq('id', primaryProfileId).single();
     if (error || !profile) {
@@ -1970,7 +1973,8 @@ export const sendDependencyConsentOTP = async (primaryProfileId) => {
             primary_profile_id: primaryProfileId,
             token: otp,
             expires_at: expiresAt,
-            status: 'active'
+            status: 'active',
+            dependent_data: { dependent_id: dependentId } // Store the target dependent
         });
 
     if (insertErr) {
@@ -1978,11 +1982,61 @@ export const sendDependencyConsentOTP = async (primaryProfileId) => {
     }
 
     // 5. Trigger email dispatch
-    // In a real implementation, you would call your email service here.
-    // Example: await emailService.sendDependencyConsentEmail(profile.email, profile.full_name, otp);
-    console.log(`[EMAIL MOCK] Dependency Consent OTP for ${profile.email}: ${otp}`);
+    try {
+        await sendOTPEmail(profile.email, profile.full_name, otp);
+    } catch (err) {
+        console.error('Failed to send dependency consent email:', err.message);
+    }
 
     return { message: `Consent OTP sent to ${profile.email}.` };
+};
+
+/**
+ * Verify dependency consent OTP and link the profiles.
+ * 
+ * @param {string} primaryId - The primary profile ID
+ * @param {string} otp - The 6-digit OTP
+ * @returns {object} { success: true }
+ */
+export const verifyDependencyConsent = async (primaryId, otp) => {
+    // 1. Find active token
+    const { data: tokenData, error: tokenErr } = await supabaseAdmin
+        .from('dependency_consent_tokens')
+        .select('*')
+        .eq('primary_profile_id', primaryId)
+        .eq('token', otp)
+        .eq('status', 'active')
+        .maybeSingle();
+
+    if (tokenErr || !tokenData) {
+        throw new AppError('Invalid or expired OTP.', 400);
+    }
+
+    // 2. Check expiry
+    if (new Date(tokenData.expires_at) < new Date()) {
+        await supabaseAdmin.from('dependency_consent_tokens').update({ status: 'expired' }).eq('id', tokenData.id);
+        throw new AppError('OTP has expired.', 400);
+    }
+
+    const dependentId = tokenData.dependent_data?.dependent_id;
+    if (!dependentId) {
+        throw new AppError('Token metadata corrupted: No dependent ID found.', 500);
+    }
+
+    // 3. Perform the link via merge service (asDependent=true)
+    // This migrates data AND sets primary_profile_id
+    const mergeResult = await mergePatientRecords(dependentId, primaryId, true);
+
+    // 4. Mark token as used
+    await supabaseAdmin
+        .from('dependency_consent_tokens')
+        .update({ 
+            status: 'used', 
+            used_at: new Date().toISOString() 
+        })
+        .eq('id', tokenData.id);
+
+    return mergeResult;
 };
 
 

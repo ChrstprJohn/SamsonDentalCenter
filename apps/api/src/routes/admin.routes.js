@@ -37,6 +37,8 @@ import {
     checkDuplicatesHandler, // NEW
     mergePatientsHandler, // NEW
     sendSetupLinkHandler, // NEW
+    requestDependencyConsentHandler, // NEW
+    verifyDependencyConsentHandler, // NEW
     // User Management (Admin Only)
     getUsersHandler,
     createUserHandler,
@@ -114,6 +116,8 @@ router.post('/walk-in/quick', quickRegisterPatientHandler);
 router.get('/patients/check-duplicates', checkDuplicatesHandler); // NEW
 router.post('/patients/merge', mergePatientsHandler); // NEW
 router.post('/patients/:id/send-setup-link', sendSetupLinkHandler); // NEW
+router.post('/patients/:id/request-dependency-consent', requestDependencyConsentHandler); // NEW
+router.post('/patients/:id/verify-dependency-consent', verifyDependencyConsentHandler); // NEW
 router.get('/patients/:id', getPatientHandler); // NEW
 router.patch('/patients/:id', updatePatientHandler); // NEW
 router.get('/patients', getPatients);

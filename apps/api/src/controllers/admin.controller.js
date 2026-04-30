@@ -59,6 +59,8 @@ import {
     onboardDentistProfile,
     getPatientProfile,
     updatePatientProfileData,
+    sendDependencyConsentOTP,
+    verifyDependencyConsent
 } from '../services/admin.service.js';
 
 import {
@@ -1017,6 +1019,52 @@ export const mergePatientsHandler = async (req, res, next) => {
         const result = await mergePatientRecords(source_id, target_id);
         res.json({ message: 'Patients merged successfully.', result });
     } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/admin/patients/:id/request-dependency-consent
+ * Body: { dependent_id }
+ */
+export const requestDependencyConsentHandler = async (req, res, next) => {
+    try {
+        const primary_id = req.params.id;
+        const { dependent_id } = req.body;
+
+        if (!dependent_id) {
+            return res.status(400).json({ error: 'dependent_id is required.' });
+        }
+
+        await sendDependencyConsentOTP(primary_id, dependent_id);
+        res.json({ message: 'Dependency consent OTP sent to primary account email.' });
+    } catch (err) {
+        if (err.status) {
+            return res.status(err.status).json({ error: err.message });
+        }
+        next(err);
+    }
+};
+
+/**
+ * POST /api/admin/patients/:id/verify-dependency-consent
+ * Body: { otp }
+ */
+export const verifyDependencyConsentHandler = async (req, res, next) => {
+    try {
+        const primary_id = req.params.id;
+        const { otp } = req.body;
+
+        if (!otp) {
+            return res.status(400).json({ error: 'OTP is required.' });
+        }
+
+        const result = await verifyDependencyConsent(primary_id, otp);
+        res.json({ message: 'Dependency linked successfully.', result });
+    } catch (err) {
+        if (err.status) {
+            return res.status(err.status).json({ error: err.message });
+        }
         next(err);
     }
 };
