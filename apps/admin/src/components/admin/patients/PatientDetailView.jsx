@@ -165,12 +165,12 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
     };
 
     const tabs = [
-        { id: 'profile', label: 'User Profile' },
-        { id: 'upcoming', label: 'Upcoming Appointments' },
-        { id: 'request', label: 'Pending Request' },
-        { id: 'history', label: 'Past Appointments' },
-        { id: 'family', label: 'Linked Profiles' },
-        { id: 'security', label: 'Account Security' },
+        { id: 'profile', label: 'Demographics' },
+        { id: 'upcoming', label: 'Scheduled Visits' },
+        { id: 'request', label: 'Inbox / Requests' },
+        { id: 'history', label: 'Clinical History' },
+        { id: 'family', label: 'Dependents' },
+        { id: 'security', label: 'Permissions' },
     ];
 
     if (loading) {
@@ -186,7 +186,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
     return (
         <div className='flex flex-col grow min-h-0 bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-100 dark:border-gray-800 overflow-hidden no-scrollbar'>
             {/* Top Navigation */}
-            <div className='sticky top-0 z-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800'>
+            <div className='sticky top-0 z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800'>
                 <div className='px-4 sm:px-6 py-4 flex items-center justify-between'>
                     <div className='flex items-center gap-3'>
                         <button
@@ -196,7 +196,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                             <ArrowLeft size={20} />
                         </button>
                         <div>
-                            <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                            <h3 className='text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
                                 {patient.full_name}
                             </h3>
                             <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1'>
@@ -206,23 +206,26 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                     </div>
                 </div>
 
-                <div className='px-4 sm:px-6 flex items-center gap-6'>
-                    {tabs.map((t) => (
-                        <button
-                            key={t.id}
-                            onClick={() => navigate(`/patients/${t.id}/${patient.id}`)}
-                            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-                                activeTab === t.id 
-                                    ? 'text-brand-500' 
-                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
-                            }`}
-                        >
-                            {t.label}
-                            {activeTab === t.id && (
-                                <div className='absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500 rounded-full' />
-                            )}
-                        </button>
-                    ))}
+                {/* Tab Container with Top and Bottom separation */}
+                <div className='border-t border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-white/[0.01]'>
+                    <div className='px-4 sm:px-6 flex items-center gap-4 sm:gap-8 overflow-x-auto no-scrollbar flex-nowrap'>
+                        {tabs.map((t) => (
+                            <button
+                                key={t.id}
+                                onClick={() => navigate(`/patients/${t.id}/${patient.id}`)}
+                                className={`py-3 text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all relative whitespace-nowrap shrink-0 ${
+                                    activeTab === t.id 
+                                        ? 'text-brand-500' 
+                                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                {t.label}
+                                {activeTab === t.id && (
+                                    <div className='absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500 rounded-full' />
+                                )}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -240,7 +243,8 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                         )}
                         {activeTab === 'request' && <AppointmentsTab patient={patient} token={token} filterMode="request" />}
                         {activeTab === 'upcoming' && <AppointmentsTab patient={patient} token={token} filterMode="attendance" />}
-                        {(activeTab === 'history' || activeTab === 'records') && <RecordsTab patient={patient} token={token} />}
+                        {activeTab === 'history' && <AppointmentsTab patient={patient} token={token} filterMode="history" />}
+                        {activeTab === 'records' && <RecordsTab patient={patient} token={token} />}
                         {activeTab === 'family' && (
                             <FamilyTab 
                                 patient={patient} 

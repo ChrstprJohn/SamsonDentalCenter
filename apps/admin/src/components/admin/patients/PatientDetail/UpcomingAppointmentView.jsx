@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    MessageSquare
-} from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import { api } from '../../../../utils/api';
 
-// Sub-components
+// Sub-components (Reused from RequestReview)
 import ReviewTimeline from './RequestReview/ReviewTimeline';
 import PatientProfileCard from './RequestReview/PatientProfileCard';
 import RecentHistoryList from './RequestReview/RecentHistoryList';
 import RequestDetailsCard from './RequestReview/RequestDetailsCard';
-import ConflictChecker from './RequestReview/ConflictChecker';
-import DecisionActions from './RequestReview/DecisionActions';
+import UpcomingActions from './RequestReview/UpcomingActions';
 
-const RequestReviewView = ({ appointment, token, onActionSuccess, onBack }) => {
+const UpcomingAppointmentView = ({ appointment, token, onActionSuccess, onBack }) => {
     const [loading, setLoading] = useState(true);
-    const [dentistSchedule, setDentistSchedule] = useState(null);
     const [patientHistory, setPatientHistory] = useState([]);
     const [actionLoading, setActionLoading] = useState(false);
 
@@ -27,49 +23,40 @@ const RequestReviewView = ({ appointment, token, onActionSuccess, onBack }) => {
     const fetchReviewData = async () => {
         try {
             setLoading(true);
-            const [historyRes, scheduleRes] = await Promise.all([
-                api.get(`/admin/patients/${appointment.patient_id}/history`, token),
-                appointment.dentist_id 
-                    ? api.get(`/admin/dentists/${appointment.dentist_id}/day-schedule?date=${appointment.appointment_date}`, token)
-                    : Promise.resolve({ base_schedule: null, appointments: [], blocks: [] })
-            ]);
-            
+            const historyRes = await api.get(`/admin/patients/${appointment.patient_id}/history`, token);
             setPatientHistory(historyRes.appointments || []);
-            setDentistSchedule(scheduleRes);
         } catch (err) {
-            console.error('Failed to fetch review data:', err);
+            console.error('Failed to fetch patient history:', err);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleApprove = async (note) => {
+    const handleCheckIn = async () => {
         try {
             setActionLoading(true);
-            await api.patch(`/admin/appointments/${appointment.id}/approve`, {
-                note
+            await api.patch(`/admin/appointments/${appointment.id}/status`, {
+                status: 'CHECKED_IN'
             }, token);
-            onActionSuccess('Appointment approved successfully');
+            onActionSuccess('Patient checked in successfully');
             onBack();
         } catch (err) {
-            alert(err.message || 'Approval failed');
+            alert(err.message || 'Check-in failed');
         } finally {
             setActionLoading(false);
         }
     };
 
-    const handleReject = async (reason) => {
-        if (!reason) return alert('Please provide a reason for rejection');
-
+    const handleNoShow = async () => {
         try {
             setActionLoading(true);
-            await api.patch(`/admin/appointments/${appointment.id}/reject`, {
-                reason
+            await api.patch(`/admin/appointments/${appointment.id}/status`, {
+                status: 'NO_SHOW'
             }, token);
-            onActionSuccess('Appointment rejected');
+            onActionSuccess('Marked as No-Show');
             onBack();
         } catch (err) {
-            alert(err.message || 'Rejection failed');
+            alert(err.message || 'Action failed');
         } finally {
             setActionLoading(false);
         }
@@ -90,10 +77,10 @@ const RequestReviewView = ({ appointment, token, onActionSuccess, onBack }) => {
             <div className='flex items-center justify-between'>
                 <div className='flex flex-col'>
                     <h4 className='text-xs font-black uppercase tracking-[0.2em] text-gray-400'>
-                        Appointment Review
+                        Attendance Management
                     </h4>
                     <p className='text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest'>
-                        Evaluate patient requests and doctor schedule compatibility
+                        Manage check-ins and patient arrival status
                     </p>
                 </div>
             </div>
@@ -118,40 +105,33 @@ const RequestReviewView = ({ appointment, token, onActionSuccess, onBack }) => {
                         appointment={appointment}
                     />
 
-                    {/* Patient Notes (Move here for better space utilization) */}
+                    {/* Patient Notes */}
                     <div className='p-6 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01] space-y-3'>
                         <h4 className='text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2'>
-                            <MessageSquare size={14} /> Patient Request Notes
+                            <MessageSquare size={14} /> Appointment Notes
                         </h4>
                         <p className='text-xs text-gray-600 dark:text-gray-400 italic leading-relaxed'>
-                            {appointment.notes || "The patient did not provide any specific notes for this booking."}
+                            {appointment.notes || "No additional notes for this appointment."}
                         </p>
                     </div>
                 </div>
 
-                {/* Right Side: History List (Takes full height of the row) */}
+                {/* Right Side: History List */}
                 <RecentHistoryList 
                     history={patientHistory}
                     loading={loading}
                 />
             </div>
 
-            {/* Row 3: Full Width Conflict Checker */}
-            <ConflictChecker 
-                schedule={dentistSchedule}
-                requestedSlot={{ start: appointment.start_time, end: appointment.end_time }}
-                loading={loading}
-            />
-
             {/* Row 4: Final Actions */}
-            <DecisionActions 
-                onApprove={handleApprove}
-                onReject={handleReject}
-                onCancel={onBack}
+            <UpcomingActions 
+                onCheckIn={handleCheckIn}
+                onNoShow={handleNoShow}
+                onBack={onBack}
                 actionLoading={actionLoading}
             />
         </div>
     );
 };
 
-export default RequestReviewView;
+export default UpcomingAppointmentView;

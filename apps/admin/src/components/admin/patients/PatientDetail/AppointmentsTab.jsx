@@ -3,6 +3,8 @@ import { Calendar, Plus, Loader2, Clock, User } from 'lucide-react';
 import Button from '../../../ui/Button';
 import { api } from '../../../../utils/api';
 import RequestReviewView from './RequestReviewView';
+import UpcomingAppointmentView from './UpcomingAppointmentView';
+import PastAppointmentView from './PastAppointmentView';
 
 const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
     const [appointments, setAppointments] = useState([]);
@@ -37,7 +39,10 @@ const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
             return status === 'PENDING';
         }
         if (filterMode === 'attendance') {
-            return status === 'CONFIRMED';
+            return status === 'CONFIRMED' || status === 'CHECKED_IN';
+        }
+        if (filterMode === 'history') {
+            return ['COMPLETED', 'CANCELLED', 'LATE_CANCEL', 'NO_SHOW'].includes(status);
         }
         return false;
     });
@@ -46,6 +51,7 @@ const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
         switch (status?.toUpperCase()) {
             case 'CONFIRMED':
             case 'COMPLETED':
+            case 'CHECKED_IN':
                 return 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-400';
             case 'PENDING':
                 return 'bg-warning-50 text-warning-600 dark:bg-warning-500/10 dark:text-warning-400';
@@ -59,24 +65,60 @@ const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
     };
 
     const handleRowClick = (app) => {
-        if (filterMode === 'request') {
-            setSelectedAppointment(app);
-            setView('details');
-        }
+        setSelectedAppointment(app);
+        setView('details');
     };
 
     if (view === 'details' && selectedAppointment) {
+        if (filterMode === 'request') {
+            return (
+                <RequestReviewView
+                    appointment={selectedAppointment}
+                    token={token}
+                    onBack={() => setView('list')}
+                    onActionSuccess={(msg) => {
+                        fetchHistory();
+                    }}
+                />
+            );
+        }
+
+        if (filterMode === 'attendance') {
+            return (
+                <UpcomingAppointmentView
+                    appointment={selectedAppointment}
+                    token={token}
+                    onBack={() => setView('list')}
+                    onActionSuccess={(msg) => {
+                        fetchHistory();
+                    }}
+                />
+            );
+        }
+        
         return (
-            <RequestReviewView
+            <PastAppointmentView
                 appointment={selectedAppointment}
                 token={token}
                 onBack={() => setView('list')}
-                onActionSuccess={(msg) => {
-                    fetchHistory();
-                }}
             />
         );
     }
+
+    const getHeaderContent = () => {
+        switch (filterMode) {
+            case 'request':
+                return { title: 'Pending Requests', subtitle: 'Awaiting administrative approval' };
+            case 'attendance':
+                return { title: 'Approved Attendance', subtitle: 'Confirmed family appointments' };
+            case 'history':
+                return { title: 'Appointment History', subtitle: 'Record of past clinical visits' };
+            default:
+                return { title: 'Appointments', subtitle: 'Manage patient schedule' };
+        }
+    };
+
+    const header = getHeaderContent();
 
     return (
         <div className='space-y-6 animate-in fade-in duration-300'>
@@ -84,10 +126,10 @@ const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
             <div className='flex items-center justify-between'>
                 <div className='flex flex-col'>
                     <h4 className='text-xs font-black uppercase tracking-[0.2em] text-gray-400'>
-                        {filterMode === 'request' ? 'Pending Requests' : 'Approved Attendance'}
+                        {header.title}
                     </h4>
                     <p className='text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest'>
-                        {filterMode === 'request' ? 'Awaiting administrative approval' : 'Confirmed family appointments'}
+                        {header.subtitle}
                     </p>
                 </div>
                 {filterMode === 'attendance' && (
@@ -161,7 +203,7 @@ const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
                                         </td>
                                         <td className='px-6 py-4 text-right'>
                                             <span className={`inline-flex px-2 py-1 text-[9px] font-black rounded-lg uppercase tracking-widest shadow-sm ${getStatusStyle(app.status)}`}>
-                                                {app.approval_status === 'rejected' ? 'REJECTED' : app.status}
+                                                {app.approval_status === 'rejected' ? 'REJECTED' : (app.status === 'CONFIRMED' ? 'APPROVED' : app.status)}
                                             </span>
                                         </td>
                                     </tr>
@@ -176,12 +218,14 @@ const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
                         <Calendar size={32} />
                     </div>
                     <h5 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight'>
-                        {filterMode === 'request' ? 'No Pending Requests' : 'No Approved Appointments'}
+                        {filterMode === 'request' ? 'No Pending Requests' : 
+                         filterMode === 'attendance' ? 'No Approved Appointments' : 
+                         'No Past Appointments'}
                     </h5>
                     <p className='text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs'>
-                        {filterMode === 'request' 
-                            ? 'All appointment requests for this family have been processed.' 
-                            : 'There are no confirmed appointments scheduled for this family.'}
+                        {filterMode === 'request' ? 'All appointment requests for this family have been processed.' : 
+                         filterMode === 'attendance' ? 'There are no confirmed appointments scheduled for this family.' :
+                         'This patient has no historical visits or cancelled appointments on record.'}
                     </p>
                 </div>
             )}
