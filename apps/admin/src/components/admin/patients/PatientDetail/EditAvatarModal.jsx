@@ -1,67 +1,99 @@
 import React, { useState } from 'react';
-import { Modal, Button } from '../../../ui';
+import { Camera, Save, X, Check } from 'lucide-react';
+import { Modal } from '../../../ui/Modal';
+import { Button } from '../../../ui';
 
 const AVATARS = [
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Buddy',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Mittens',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Luna',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver'
+    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&h=120&fit=crop',
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop',
+    'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=120&h=120&fit=crop',
+    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop',
+    'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop',
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop',
+    'https://images.unsplash.com/photo-1554151228-14d9def656e4?w=120&h=120&fit=crop',
 ];
 
 const EditAvatarModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
-    const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar);
-    const [isSaving, setIsSaving] = useState(false);
+    const [selected, setSelected] = useState(currentAvatar);
+    const [loading, setLoading] = useState(false);
 
     const handleSave = async () => {
-        setIsSaving(true);
+        setLoading(true);
         try {
-            await onSave(selectedAvatar);
+            await onSave(selected);
             onClose();
         } catch (err) {
-            alert(err.message);
+            console.error(err);
         } finally {
-            setIsSaving(false);
+            setLoading(false);
         }
     };
 
+    const footer = (
+        <>
+            <Button variant='outline' onClick={onClose} className="px-8" disabled={loading}>
+                Cancel
+            </Button>
+            <Button 
+                onClick={handleSave} 
+                loading={loading}
+                className="px-8 shadow-lg shadow-brand-500/20"
+                disabled={selected === currentAvatar}
+            >
+                <Save size={18} className="mr-2" />
+                Update Avatar
+            </Button>
+        </>
+    );
+
     return (
-        <Modal isOpen={isOpen} onClose={onClose} className='max-w-[450px] w-full m-auto'>
-            <div className='p-8 bg-white dark:bg-gray-900 rounded-xl'>
-                <h4 className='text-xl font-black uppercase tracking-tight mb-6 text-center'>Select Patient Avatar</h4>
-                
-                <div className='grid grid-cols-3 gap-4 mb-8'>
-                    {AVATARS.map((url, i) => (
-                        <div 
-                            key={i}
-                            onClick={() => setSelectedAvatar(url)}
-                            className={`relative cursor-pointer group rounded-2xl border-4 transition-all aspect-square overflow-hidden flex items-center justify-center p-1
-                                ${selectedAvatar === url ? 'border-brand-500 bg-brand-50' : 'border-gray-100 dark:border-white/5 hover:border-brand-500/30'}`}
-                        >
-                            <img src={url} alt={`Avatar ${i}`} className="w-full h-full object-cover rounded-xl" />
-                            {selectedAvatar === url && (
-                                <div className="absolute inset-0 bg-brand-500/10 flex items-center justify-center">
-                                    <div className="bg-brand-500 text-white rounded-full p-1 shadow-lg">
-                                        <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
-                                            <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Profile Photography"
+            subtitle="Choose a visual identity for this patient profile."
+            footer={footer}
+            className="max-w-2xl"
+        >
+            <div className='space-y-8'>
+                <div className='flex flex-col items-center justify-center p-8 bg-gray-50/50 dark:bg-white/5 rounded-3xl border-2 border-dashed border-gray-100 dark:border-gray-800'>
+                    <div className='w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-white dark:border-gray-800 shadow-2xl relative'>
+                        {selected ? (
+                            <img src={selected} alt="Selected" className="w-full h-full object-cover" />
+                        ) : (
+                            <div className='w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-400'>
+                                <Camera size={40} />
+                            </div>
+                        )}
+                    </div>
+                    <p className='mt-4 text-xs font-bold text-gray-400 uppercase tracking-widest'>Current Preview</p>
                 </div>
 
-                <div className='flex gap-3 pt-6 border-t border-gray-100 dark:border-gray-800'>
-                    <Button variant='outline' onClick={onClose} className="grow h-12 font-bold">Cancel</Button>
-                    <Button 
-                        onClick={handleSave} 
-                        disabled={isSaving}
-                        className='grow h-12 bg-brand-500 text-white font-black uppercase shadow-xl shadow-brand-500/20'
-                    >
-                        {isSaving ? 'Updating...' : 'Set Avatar'}
-                    </Button>
+                <div>
+                    <h5 className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 ml-1'>Available Selection</h5>
+                    <div className='grid grid-cols-4 sm:grid-cols-4 gap-4'>
+                        {AVATARS.map((url, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => setSelected(url)}
+                                className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all group ${
+                                    selected === url 
+                                        ? 'border-brand-500 scale-95 ring-4 ring-brand-500/10' 
+                                        : 'border-transparent hover:border-gray-200 dark:hover:border-gray-700'
+                                }`}
+                            >
+                                <img src={url} alt={`Avatar ${idx}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                {selected === url && (
+                                    <div className='absolute inset-0 bg-brand-500/20 flex items-center justify-center'>
+                                        <div className='bg-brand-500 text-white p-1 rounded-full shadow-lg'>
+                                            <Check size={14} strokeWidth={3} />
+                                        </div>
+                                    </div>
+                                )}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
         </Modal>

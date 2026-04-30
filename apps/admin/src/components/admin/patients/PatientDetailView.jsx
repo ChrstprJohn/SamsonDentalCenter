@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Mail, Phone, User, Loader2, Camera } from 'lucide-react';
-import { Button } from '../../../components/ui';
+import { Button } from '../../ui';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../../utils/api';
 import { useAuth } from '../../../context/AuthContext';
@@ -15,8 +15,9 @@ import SecurityTab from './PatientDetail/SecurityTab';
 // Modals
 import EditProfileModal from './PatientDetail/EditProfileModal';
 import EditContactModal from './PatientDetail/EditContactModal';
-import LinkDependentModal from './PatientDetail/LinkDependentModal';
+import AddDependencyModal from './PatientDetail/AddDependencyModal';
 import EditAvatarModal from './PatientDetail/EditAvatarModal';
+import AddPatientModal from './AddPatientModal';
 
 const PatientDetailView = ({ patientId, onBack, activeTab }) => {
     const { token } = useAuth();
@@ -30,7 +31,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
     // Modal States
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isEditContactModalOpen, setIsEditContactModalOpen] = useState(false);
-    const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+    const [isAddDependencyModalOpen, setIsAddDependencyModalOpen] = useState(false);
     const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
     
     // Action States
@@ -193,10 +194,10 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                             <ArrowLeft size={20} />
                         </button>
                         <div>
-                            <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                            <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight font-outfit leading-none'>
                                 {patient.full_name}
                             </h3>
-                            <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1'>
+                            <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1.5'>
                                 Patient Registry
                             </p>
                         </div>
@@ -225,76 +226,12 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
 
             <div className='grow overflow-y-auto no-scrollbar'>
                 <div className='p-4 sm:p-6 lg:p-8 space-y-6'>
-                    {/* Identity Header Card - The SINGLE location for identity actions */}
-                    <div className='p-6 border border-gray-200 rounded-xl dark:border-gray-800 lg:p-7 bg-white dark:bg-white/[0.03]'>
-                        <div className='flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between'>
-                            <div className='flex flex-col items-center w-full gap-6 xl:flex-row xl:items-center'>
-                                <div className='shrink-0'>
-                                    <div 
-                                        onClick={() => setIsAvatarModalOpen(true)}
-                                        className='w-20 h-20 overflow-hidden border border-gray-200 rounded-2xl dark:border-gray-800 flex items-center justify-center bg-gray-50 dark:bg-white/5 relative group cursor-pointer'
-                                    >
-                                        {patient.avatar_url ? (
-                                            <img src={patient.avatar_url} alt={patient.full_name} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-400 to-brand-600 text-white font-bold text-xl'>
-                                                {(patient.first_name?.[0] || 'U') + (patient.last_name?.[0] || '')}
-                                            </div>
-                                        )}
-                                        <div className='absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity'>
-                                            <div className='bg-white/20 backdrop-blur-sm p-1.5 rounded-lg border border-white/30'>
-                                                <Camera size={18} className='text-white' />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className='text-center xl:text-left'>
-                                    <h4 className='mb-1 text-[clamp(18px,2.2vw,22px)] font-bold text-gray-900 dark:text-white font-outfit'>
-                                        {patient.full_name}
-                                    </h4>
-                                    <div className='flex flex-col items-center gap-2 text-center xl:flex-row xl:gap-3 xl:text-left'>
-                                        <p className='text-[clamp(13px,1.2vw,14px)] text-brand-600 dark:text-brand-400 font-bold uppercase tracking-widest'>
-                                            Patient Registry
-                                        </p>
-                                        <div className='hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block'></div>
-                                        <span className={`px-2 py-0.5 rounded-lg text-[clamp(11px,1vw,12px)] font-bold uppercase tracking-wider ${patient.is_registered && patient.is_active !== false ? 'bg-success-100 text-success-600 dark:bg-success-500/10 dark:text-success-400' : patient.email ? 'bg-brand-100 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400' : 'bg-gray-100 text-gray-400 dark:bg-white/5 dark:text-gray-500'}`}>
-                                            {patient.is_registered && patient.is_active !== false ? 'Active Account' : patient.email ? 'Inactive Account' : 'Offline Profile'}
-                                        </span>
-                                        {patient.is_booking_restricted && (
-                                            <span className="px-2 py-0.5 rounded-lg text-[clamp(11px,1vw,12px)] font-bold uppercase tracking-wider bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400">
-                                                Restricted
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                            <Button
-                                variant='outline'
-                                onClick={() => setIsAvatarModalOpen(true)}
-                                className='h-11 px-6 text-[11px] font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0'
-                            >
-                                <Camera size={16} className='mr-2' /> Edit Avatar
-                            </Button>
-                        </div>
-
-                        {/* Contact Meta */}
-                        <div className='mt-6 pt-6 border-t border-gray-200 dark:border-gray-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-                            <div className='flex flex-wrap gap-6'>
-                                <div className='flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 font-medium'>
-                                    <Mail size={16} className='text-gray-400' /> {patient.email || 'No email set'}
-                                </div>
-                                <div className='flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 font-medium'>
-                                    <Phone size={16} className='text-gray-400' /> {patient.phone || 'No phone set'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     {/* Tab Content Router */}
                     <div className='min-h-120 md:min-h-140'>
                         {(!activeTab || activeTab === 'profile') && (
                             <ProfileTab 
                                 patient={patient} 
+                                onEditAvatar={() => setIsAvatarModalOpen(true)}
                                 onEditProfile={() => setIsEditModalOpen(true)}
                                 onEditContact={() => setIsEditContactModalOpen(true)}
                             />
@@ -306,7 +243,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                 patient={patient} 
                                 dependents={dependents} 
                                 navigate={navigate} 
-                                onManageDependents={() => setIsLinkModalOpen(true)} 
+                                onAddDependent={() => setIsAddDependencyModalOpen(true)}
                             />
                         )}
                         {activeTab === 'security' && (
@@ -342,11 +279,10 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                 onSave={handleSaveContact}
             />
 
-            <LinkDependentModal 
-                isOpen={isLinkModalOpen}
-                onClose={() => setIsLinkModalOpen(false)}
-                patientId={patientId}
-                patientEmail={patient.email}
+            <AddDependencyModal 
+                isOpen={isAddDependencyModalOpen}
+                onClose={() => setIsAddDependencyModalOpen(false)}
+                primaryPatient={patient}
                 token={token}
                 onSuccess={fetchPatient}
             />
