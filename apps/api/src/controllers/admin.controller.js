@@ -16,6 +16,7 @@ import {
     updateAnnouncement,
     deleteAnnouncement,
     getDentistSchedule,
+    getDentistDaySchedule,
     setDentistSchedule,
     setBulkSchedule,
     getBlocks,
@@ -683,6 +684,21 @@ export const createDentistHandler = async (req, res, next) => {
  *
  * View a dentist's weekly schedule.
  */
+/**
+ * GET /api/admin/dentists/:id/day-schedule?date=YYYY-MM-DD
+ */
+export const getDentistDayScheduleHandler = async (req, res, next) => {
+    try {
+        const { date } = req.query;
+        if (!date) return res.status(400).json({ error: 'date query parameter is required.' });
+
+        const data = await getDentistDaySchedule(req.params.id, date);
+        res.json(data);
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const viewDentistSchedule = async (req, res, next) => {
     try {
         const schedule = await getDentistSchedule(req.params.id);

@@ -882,6 +882,53 @@ export const getDentistSchedule = async (dentistId) => {
 };
 
 /**
+ * Get a dentist's full schedule for a specific day (Schedule + Appointments + Blocks).
+ * Useful for conflict checking during appointment approval.
+ */
+export const getDentistDaySchedule = async (dentistId, date) => {
+    // 1. Get Day of Week
+    const dayOfWeek = new Date(date).getDay();
+
+    // 2. Fetch all components in parallel
+    const [scheduleRes, appointmentsRes, blocksRes] = await Promise.all([
+        supabaseAdmin
+            .from('dentist_schedule')
+            .select('*')
+            .eq('dentist_id', dentistId)
+            .eq('day_of_week', dayOfWeek)
+            .maybeSingle(),
+        supabaseAdmin
+            .from('appointments')
+            .select(`
+                id, 
+                start_time, 
+                end_time, 
+                status, 
+                patient:profiles!appointments_patient_id_fkey(full_name),
+                service:services(name)
+            `)
+            .eq('dentist_id', dentistId)
+            .eq('appointment_date', date)
+            .neq('status', APPOINTMENT_STATUS.CANCELLED),
+        supabaseAdmin
+            .from('dentist_availability_blocks')
+            .select('*')
+            .eq('dentist_id', dentistId)
+            .eq('block_date', date)
+    ]);
+
+    if (scheduleRes.error) throw new AppError(scheduleRes.error.message, 500);
+    if (appointmentsRes.error) throw new AppError(appointmentsRes.error.message, 500);
+    if (blocksRes.error) throw new AppError(blocksRes.error.message, 500);
+
+    return {
+        base_schedule: scheduleRes.data,
+        appointments: appointmentsRes.data,
+        blocks: blocksRes.data
+    };
+};
+
+/**
  * Set/update a dentist's schedule for a specific day.
  *
  * @param {string} dentistId - Dentist UUID

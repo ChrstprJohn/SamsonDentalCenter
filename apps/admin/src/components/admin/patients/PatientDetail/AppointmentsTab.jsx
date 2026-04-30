@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Plus, Loader2, ChevronRight, Clock, User } from 'lucide-react';
+import { Calendar, Plus, Loader2, Clock, User } from 'lucide-react';
 import Button from '../../../ui/Button';
 import { api } from '../../../../utils/api';
+import RequestReviewView from './RequestReviewView';
 
 const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
+    const [view, setView] = useState('list'); // 'list' or 'details'
 
     const fetchHistory = async () => {
         try {
@@ -55,8 +58,28 @@ const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
         }
     };
 
+    const handleRowClick = (app) => {
+        if (filterMode === 'request') {
+            setSelectedAppointment(app);
+            setView('details');
+        }
+    };
+
+    if (view === 'details' && selectedAppointment) {
+        return (
+            <RequestReviewView
+                appointment={selectedAppointment}
+                token={token}
+                onBack={() => setView('list')}
+                onActionSuccess={(msg) => {
+                    fetchHistory();
+                }}
+            />
+        );
+    }
+
     return (
-        <div className='space-y-6'>
+        <div className='space-y-6 animate-in fade-in duration-300'>
             {/* Header Actions */}
             <div className='flex items-center justify-between'>
                 <div className='flex flex-col'>
@@ -84,7 +107,7 @@ const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
                     <p className='text-xs font-bold text-gray-400 uppercase tracking-widest'>Synchronizing family records...</p>
                 </div>
             ) : filteredAppointments.length > 0 ? (
-                <div className='overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-white/[0.02]'>
+                <div className='overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-white/[0.02] shadow-sm'>
                     <div className='overflow-x-auto'>
                         <table className='w-full text-left border-collapse'>
                             <thead>
@@ -98,7 +121,11 @@ const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
                             </thead>
                             <tbody className='divide-y divide-gray-50 dark:divide-gray-800/50'>
                                 {filteredAppointments.map((app) => (
-                                    <tr key={app.id} className='group hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer'>
+                                    <tr 
+                                        key={app.id} 
+                                        className='group hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer'
+                                        onClick={() => handleRowClick(app)}
+                                    >
                                         <td className='px-6 py-4'>
                                             <div className='flex flex-col'>
                                                 <span className='text-xs font-bold text-gray-900 dark:text-white uppercase tracking-tight'>

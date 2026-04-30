@@ -24,6 +24,7 @@ import {
     updateDentistProfileHandler,
     updateDentistServicesHandler,
     viewDentistSchedule,
+    getDentistDayScheduleHandler,
     updateDentistSchedule,
     blockDentistAvailability,
     viewDentistBlocks,
@@ -151,6 +152,7 @@ router.get('/dentists/:id', getDentistByIdHandler); // NEW
 router.patch('/dentists/:id/profile', updateDentistProfileHandler); // NEW
 router.patch('/dentists/:id/services', updateDentistServicesHandler); // NEW
 router.get('/dentists/:id/schedule', viewDentistSchedule);
+router.get('/dentists/:id/day-schedule', getDentistDayScheduleHandler);
 router.put('/dentists/:id/schedule', updateDentistSchedule);
 router.post('/dentists/:id/schedule/bulk', bulkUpdateSchedule); // NEW: Bulk update
 router.post('/dentists/:id/block', blockDentistAvailability);
