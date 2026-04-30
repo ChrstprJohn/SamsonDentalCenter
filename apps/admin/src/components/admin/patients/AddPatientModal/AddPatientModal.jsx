@@ -158,6 +158,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
         setError(null);
         try {
             const data = { ...formData };
+            console.log(' [DEBUG] Submitting Patient Data:', data);
             
             if (primaryProfileId) {
                 // LINK_DEPENDENT: Adding a new profile to an existing registered email
@@ -229,7 +230,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                         loading={loading}
                         className="px-8 shadow-lg shadow-brand-500/20"
                     >
-                        Verify & Continue
+                        Check for Duplicates
                     </Button>
                 </>
             ) : step === 'duplicates' ? (
@@ -252,21 +253,9 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                                             loading={loading}
                                             className="border-gray-200 text-gray-600 font-black uppercase tracking-tight px-6"
                                         >
-                                            Register Without Email
+                                            Save as Offline Profile
                                         </Button>
-                                        {activeAccount && (
-                                            <Button 
-                                                onClick={() => {
-                                                    setSelectedPrimaryId(activeAccount.id);
-                                                    setConfirmType('LINK_DEPENDENT');
-                                                }}
-                                                loading={loading}
-                                                className="bg-green-600 hover:bg-green-700 shadow-xl shadow-green-500/25 px-8 font-black uppercase tracking-tight"
-                                            >
-                                                Add as Dependent
-                                                <ArrowRight size={18} className="ml-2" />
-                                            </Button>
-                                        )}
+                                        {/* Removed Add as Dependent on email conflict per user request */}
                                     </>
                                 );
                             }
@@ -299,7 +288,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                                     loading={loading}
                                     className="shadow-xl shadow-brand-500/25 px-8 font-black uppercase tracking-tight"
                                 >
-                                    Register as New Patient
+                                    Continue as New Profile
                                     <ArrowRight size={18} className="ml-2" />
                                 </Button>
                             );
@@ -328,8 +317,8 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
         <Modal
             isOpen={isOpen}
             onClose={resetAndClose}
-            title={step === 'form' ? "New Patient Registration" : step === 'duplicates' ? "Possible Duplicate Detected" : "Registration Complete"}
-            subtitle={step === 'form' ? "Complete the details below to create a patient profile." : step === 'duplicates' ? "We found existing patients with similar details. Please review before creating a new record." : "The patient has been successfully added to the system."}
+            title={step === 'form' ? "Create Patient Profile" : step === 'duplicates' ? "Fuzzy Match Intercept" : "Profile Created"}
+            subtitle={step === 'form' ? "Ensure the patient doesn't already have an existing profile before creating a new one." : step === 'duplicates' ? "Possible duplicates found. Please review before proceeding." : "The patient profile has been successfully generated."}
             footer={ModalFooter}
             className={step === 'duplicates' ? "max-w-6xl" : "max-w-2xl"}
         >
@@ -449,8 +438,8 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
             <Modal
                 isOpen={!!confirmType}
                 onClose={() => setConfirmType(null)}
-                title={confirmType === 'FORCE_OFFLINE' ? "Confirm Registration" : "Confirm Dependency Link"}
-                subtitle={confirmType === 'FORCE_OFFLINE' ? "You are registering this patient without an email." : "You are about to link this patient to an existing account."}
+                title={confirmType === 'FORCE_OFFLINE' ? "Confirm Offline Registration" : "Confirm Dependency Link"}
+                subtitle={confirmType === 'FORCE_OFFLINE' ? "You are about to create a profile without an associated email account." : "You are about to link this patient to an existing account."}
                 className="max-w-md"
                 footer={
                     <>
@@ -464,7 +453,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                             loading={loading}
                             className={confirmType === 'FORCE_OFFLINE' ? "bg-brand-600 shadow-lg shadow-brand-500/20" : "bg-green-600 shadow-lg shadow-green-500/20"}
                         >
-                            {confirmType === 'FORCE_OFFLINE' ? "Register Now" : "Send Verification Code"}
+                            {confirmType === 'FORCE_OFFLINE' ? "Create Stub Profile" : "Send Verification Code"}
                         </Button>
                     </>
                 }
@@ -482,7 +471,9 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                         <p className="text-xs text-gray-600 dark:text-gray-300 font-bold leading-relaxed px-4">
                             {confirmType === 'FORCE_OFFLINE' ? (
                                 <>
-                                    The email will be removed. The patient will be created as a <strong>Stub Profile</strong> and will not have access to the Patient Portal until an email is provided later.
+                                    This patient will be created as a <strong>Stub Profile</strong> (Offline). 
+                                    <br/><br/>
+                                    <strong>Impact:</strong> They will NOT have access to the Patient Portal and cannot manage appointments online until an email is linked to their profile in the future.
                                 </>
                             ) : (
                                 <>

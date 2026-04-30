@@ -2,7 +2,7 @@ import React from 'react';
 import { ChevronRight, Calendar, User, Phone, Mail, ShieldAlert, CreditCard } from 'lucide-react';
 
 const PatientRow = ({ patient, onClick, activeTab }) => {
-    const { full_name, email, phone, last_visit, status, avatar_url, balance, is_registered, is_booking_restricted } = patient;
+    const { full_name, email, phone, last_visit, status, avatar_url, balance, is_registered, is_booking_restricted, is_active } = patient;
 
     const renderColumnContent = (isMobile = false) => {
         if (activeTab === 'financial') {
@@ -43,6 +43,16 @@ const PatientRow = ({ patient, onClick, activeTab }) => {
         );
     };
 
+    const getStandardizedStatus = () => {
+        if (is_registered) {
+            return is_active === false ? 'Inactive Account' : 'Active Account';
+        }
+        if (email) return 'Inactive Account';
+        return 'Offline Profile';
+    };
+
+    const displayStatus = getStandardizedStatus();
+
     return (
         <div
             onClick={onClick}
@@ -53,7 +63,7 @@ const PatientRow = ({ patient, onClick, activeTab }) => {
             {/* Desktop View */}
             <div className='hidden sm:flex items-center gap-4 w-full'>
                 <div className='flex items-center gap-3 shrink-0 relative'>
-                     <span className={`w-2.5 h-2.5 rounded-full ${is_booking_restricted ? 'bg-red-500' : is_registered ? 'bg-success-500' : 'bg-amber-400'}`} title={status} />
+                     <span className={`w-2.5 h-2.5 rounded-full ${is_booking_restricted ? 'bg-red-500' : (is_registered && is_active !== false) ? 'bg-success-500' : email ? 'bg-brand-400' : 'bg-gray-300'}`} title={displayStatus} />
                 </div>
 
                 <div className='w-48 lg:w-56 shrink-0 flex items-center gap-3'>
@@ -71,11 +81,11 @@ const PatientRow = ({ patient, onClick, activeTab }) => {
 
                 <div className='w-48 lg:w-56 shrink-0 flex items-center gap-3'>
                     <p className='text-sm sm:text-base truncate'>
-                        <span className={`text-gray-900 dark:text-white font-bold`}>
-                            {status}
+                        <span className={`text-xs font-black uppercase tracking-widest ${is_registered ? 'text-success-600' : email ? 'text-brand-600' : 'text-gray-400'}`}>
+                            {displayStatus}
                         </span>
                         <span className='text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-medium ml-2'>
-                            - {email || 'No email'}
+                            {email && `- ${email}`}
                         </span>
                     </p>
                 </div>
@@ -94,7 +104,7 @@ const PatientRow = ({ patient, onClick, activeTab }) => {
                         ) : (
                             <User size={24} />
                         )}
-                        <span className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border border-white dark:border-gray-900 ${is_booking_restricted ? 'bg-red-500' : is_registered ? 'bg-success-500' : 'bg-amber-500'}`} />
+                        <span className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border border-white dark:border-gray-900 ${is_booking_restricted ? 'bg-red-500' : (is_registered && is_active !== false) ? 'bg-success-500' : email ? 'bg-brand-500' : 'bg-gray-400'}`} />
                     </div>
                 </div>
                 <div className='flex-grow min-w-0 flex flex-col gap-0.5 justify-center'>
@@ -102,7 +112,7 @@ const PatientRow = ({ patient, onClick, activeTab }) => {
                         <span className={`text-sm tracking-tight truncate ${is_booking_restricted ? 'text-red-600 font-bold' : 'text-gray-900 dark:text-white font-bold'}`}>
                             {full_name}
                         </span>
-                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${is_booking_restricted ? 'bg-red-100 text-red-600' : 'bg-gray-100 dark:bg-white/5 text-gray-400'}`}>{status}</span>
+                        <span className={`text-[10px] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${(is_registered && is_active !== false) ? 'bg-success-50 text-success-600' : email ? 'bg-brand-50 text-brand-600' : 'bg-gray-100 text-gray-400'}`}>{displayStatus}</span>
                     </div>
                     <div className='text-xs truncate text-gray-500'>{phone || 'No phone'}</div>
                     <div className='flex justify-between items-end mt-1'>

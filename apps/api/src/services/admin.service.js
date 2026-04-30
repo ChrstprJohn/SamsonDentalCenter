@@ -1158,6 +1158,29 @@ export const updatePatientProfileData = async (patientId, fields) => {
         throw new AppError('No valid fields provided for update.', 400);
     }
 
+    // Automatically sync full_name if any name components were updated
+    const nameFields = ['first_name', 'middle_name', 'last_name', 'suffix'];
+    const isNameUpdated = nameFields.some(field => field in updates);
+    
+    if (isNameUpdated) {
+        // Fetch current values to fill in the gaps for recalculation
+        const { data: current } = await supabaseAdmin
+            .from('profiles')
+            .select('first_name, middle_name, last_name, suffix')
+            .eq('id', patientId)
+            .single();
+
+        const fullFirst = updates.first_name !== undefined ? updates.first_name : current?.first_name;
+        const fullMiddle = updates.middle_name !== undefined ? updates.middle_name : current?.middle_name;
+        const fullLast = updates.last_name !== undefined ? updates.last_name : current?.last_name;
+        const fullSuffix = updates.suffix !== undefined ? updates.suffix : current?.suffix;
+
+        updates.full_name = [fullFirst, fullMiddle, fullLast, fullSuffix]
+            .filter(part => part && part.trim() !== '')
+            .join(' ')
+            .trim();
+    }
+
     const { data, error } = await supabaseAdmin
         .from('profiles')
         .update({
@@ -1437,7 +1460,7 @@ export const searchPatients = async (search = null) => {
     let query = supabaseAdmin
         .from('profiles')
         .select(
-            'id, full_name, email, phone, is_registered, primary_profile_id, no_show_count, cancellation_count, reschedule_count, is_booking_restricted, restriction_reason, deposit_required, created_at',
+            'id, full_name, email, phone, is_registered, primary_profile_id, relationship_to_primary, no_show_count, cancellation_count, reschedule_count, is_booking_restricted, restriction_reason, deposit_required, created_at',
         )
         .eq('role', 'patient')
         .order('created_at', { ascending: false })
@@ -1779,8 +1802,13 @@ export const quickRegisterPatient = async (patientData) => {
         }
     }
 
-    const finalFullName = full_name || `${first_name} ${last_name}`.trim();
-    console.log('Final Full Name:', finalFullName);
+    const finalFullName = full_name || [first_name, middle_name, last_name, suffix]
+        .filter(part => part && part.trim() !== '')
+        .join(' ')
+        .trim();
+    
+    console.log(' [QUICK_REGISTER] Final Full Name:', finalFullName);
+    console.log(' [QUICK_REGISTER] Parts:', { first_name, middle_name, last_name, suffix });
 
     const { data, error } = await supabaseAdmin
         .from('profiles')
@@ -1840,7 +1868,7 @@ export const checkDuplicatePatient = async (criteria) => {
 
     const { data: duplicates, error } = await supabaseAdmin
         .from('profiles')
-        .select('id, full_name, first_name, last_name, date_of_birth, phone, email, is_registered, role')
+        .select('id, full_name, first_name, middle_name, last_name, suffix, date_of_birth, phone, email, is_registered, role')
         .or(conditions.join(','));
 
     if (error) throw new AppError(error.message, 500);
@@ -1936,9 +1964,13 @@ export const mergePatientRecords = async (sourceId, targetId, asDependent = fals
  * Generate and send an OTP for dependency consent
  * @param {string} primaryProfileId - The ID of the owner of the email
  * @param {string} dependentId - The ID of the stub being linked
+ * @param {string} relationship - The relationship (Child, Spouse, etc.)
  * @returns {object} { message: 'OTP sent' }
  */
-export const sendDependencyConsentOTP = async (primaryProfileId, dependentId) => {
+export const sendDependencyConsentOTP = async (primaryProfileId, dependentId, relationship) => {
+    if (!relationship) {
+        throw new AppError('Relationship is required for dependency linking.', 400);
+    }
     // 1. Get the primary profile email
     const { data: profile, error } = await supabaseAdmin.from('profiles').select('email, full_name').eq('id', primaryProfileId).single();
     if (error || !profile) {
@@ -1974,7 +2006,10 @@ export const sendDependencyConsentOTP = async (primaryProfileId, dependentId) =>
             token: otp,
             expires_at: expiresAt,
             status: 'active',
-            dependent_data: { dependent_id: dependentId } // Store the target dependent
+            dependent_data: { 
+                dependent_id: dependentId,
+                relationship: relationship 
+            } // Store the target dependent and relationship
         });
 
     if (insertErr) {
@@ -2027,7 +2062,16 @@ export const verifyDependencyConsent = async (primaryId, otp) => {
     // This migrates data AND sets primary_profile_id
     const mergeResult = await mergePatientRecords(dependentId, primaryId, true);
 
-    // 4. Mark token as used
+    // 4. Update the dependent's profile with the relationship
+    const relationship = tokenData.dependent_data?.relationship;
+    if (relationship) {
+        await supabaseAdmin
+            .from('profiles')
+            .update({ relationship_to_primary: relationship })
+            .eq('id', dependentId);
+    }
+
+    // 5. Mark token as used
     await supabaseAdmin
         .from('dependency_consent_tokens')
         .update({ 

@@ -4,8 +4,8 @@ import PatientRow from './PatientRow';
 
 const FILTERS = [
     { id: 'all', label: 'All Patients' },
-    { id: 'verified', label: 'Verified Accounts' },
-    { id: 'stub', label: 'Stub Profiles' },
+    { id: 'verified', label: 'User Accounts' },
+    { id: 'stub', label: 'Offline Profiles' },
     { id: 'restricted', label: 'Restricted' },
 ];
 
@@ -69,7 +69,7 @@ const PatientInbox = ({
                             className='hidden sm:flex items-center gap-2 px-4 py-3 bg-brand-500 text-white rounded-lg text-xs font-bold hover:bg-brand-600 transition-all active:scale-95 shrink-0'
                         >
                             <UserPlus size={16} />
-                            <span>Register Patient</span>
+                            <span>Create Patient Profile</span>
                         </button>
                     </div>
                 </div>

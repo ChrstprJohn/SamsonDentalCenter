@@ -1030,13 +1030,16 @@ export const mergePatientsHandler = async (req, res, next) => {
 export const requestDependencyConsentHandler = async (req, res, next) => {
     try {
         const primary_id = req.params.id;
-        const { dependent_id } = req.body;
+        const { dependent_id, relationship } = req.body;
 
         if (!dependent_id) {
             return res.status(400).json({ error: 'dependent_id is required.' });
         }
+        if (!relationship) {
+            return res.status(400).json({ error: 'relationship is required.' });
+        }
 
-        await sendDependencyConsentOTP(primary_id, dependent_id);
+        await sendDependencyConsentOTP(primary_id, dependent_id, relationship);
         res.json({ message: 'Dependency consent OTP sent to primary account email.' });
     } catch (err) {
         if (err.status) {

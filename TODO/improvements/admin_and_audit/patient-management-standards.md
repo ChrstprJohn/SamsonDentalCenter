@@ -38,7 +38,35 @@ every entity.
 
 ---
 
-## 2. Core Architectural Rules
+## 2. Staff & Doctor Management Standards
+
+Unlike Patients, internal team members (Doctors, Admins, Receptionists) have strict requirements
+regarding system access and auditing.
+
+### Rule: Distinct Entities, Shared Rules
+
+It is perfectly fine—and often better for user experience—to keep Doctors and Staff on completely
+separate pages with their own "Add" workflows. A Doctor has clinical data (schedules, specialties,
+licenses), while a Staff member has administrative data (access levels, shifts). However, both must
+adhere to the following backend security rules:
+
+1. **Mandatory Work Email:** Every staff member and doctor **must** have a unique email address upon
+   creation. There are no "Offline Staff" accounts. This ensures accountability and auditability for
+   every action taken in the system.
+2. **The "Pending Setup" Invite Flow:**
+    - **Doctors:** Admin clicks **[Add Doctor]** on the Doctors page, inputs clinical details and
+      email.
+    - **Staff:** Admin clicks **[Add Staff]** on the Staff page, inputs administrative details and
+      email.
+    - The record is created in a "Pending" state. The system automatically sends an "Account Setup"
+      email to their work email.
+    - They click the link, set their password, and become **Active**.
+3. **Auditing:** From that point forward, any action they take (Booking an appointment, updating a
+   medical record) is stamped with their unique ID.
+
+---
+
+## 3. Core Architectural Rules
 
 ### Rule #1: Profile First, Appointments Second
 

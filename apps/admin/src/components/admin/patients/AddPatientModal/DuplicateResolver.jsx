@@ -147,7 +147,7 @@ const DuplicateResolver = ({
                                                     onClick={() => window.open(`/patients/profile/${dup.id}`, '_blank')}
                                                     className="rounded-lg h-8 px-3 text-[10px] font-black uppercase border-gray-200 dark:border-white/10 group-hover:border-brand-500 group-hover:text-brand-500 transition-all"
                                                 >
-                                                    View
+                                                    View Existing Profile
                                                 </Button>
                                             </div>
                                         </td>
