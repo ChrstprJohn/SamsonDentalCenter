@@ -168,9 +168,10 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
 
     const tabs = [
         { id: 'profile', label: 'Demographics' },
-        { id: 'upcoming', label: 'Scheduled Visits' },
-        { id: 'request', label: 'Inbox / Requests' },
-        { id: 'history', label: 'Clinical History' },
+        { id: 'upcoming', label: 'Upcoming' },
+        { id: 'attendance', label: 'Attendance' },
+        { id: 'request', label: 'Pending Only' },
+        { id: 'history', label: 'History' },
         { id: 'family', label: 'Dependents' },
         { id: 'account', label: 'Account' },
     ];
@@ -250,7 +251,8 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                             />
                         )}
                         {activeTab === 'request' && <AppointmentsTab patient={patient} dependents={dependents} token={token} filterMode="request" onSubViewChange={setSubLabel} />}
-                        {activeTab === 'upcoming' && <AppointmentsTab patient={patient} dependents={dependents} token={token} filterMode="attendance" onSubViewChange={setSubLabel} />}
+                        {activeTab === 'upcoming' && <AppointmentsTab patient={patient} dependents={dependents} token={token} filterMode="upcoming" onSubViewChange={setSubLabel} />}
+                        {activeTab === 'attendance' && <AppointmentsTab patient={patient} dependents={dependents} token={token} filterMode="attendance" onSubViewChange={setSubLabel} />}
                         {activeTab === 'history' && <AppointmentsTab patient={patient} dependents={dependents} token={token} filterMode="history" onSubViewChange={setSubLabel} />}
                         {activeTab === 'records' && <RecordsTab patient={patient} token={token} />}
                         {activeTab === 'family' && (

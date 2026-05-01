@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Calendar, Clock, User, CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import useAdminBooking from '../../../../hooks/useAdminBooking';
@@ -22,7 +22,9 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
         prevStep,
         submit,
         reset
-    } = useAdminBooking(primaryPatient.id, token);
+    } = useAdminBooking(primaryPatient, token);
+
+    const [showExitConfirm, setShowExitConfirm] = useState(false);
 
     // Auto-reset when opening
     useEffect(() => {
@@ -35,7 +37,16 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
         if (result?.success) {
             onSuccess();
         }
+        setShowExitConfirm(false);
         onClose();
+    };
+
+    const requestClose = () => {
+        if (result?.success) {
+            handleClose();
+        } else {
+            setShowExitConfirm(true);
+        }
     };
 
     const renderStep = () => {
@@ -126,7 +137,6 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
             {/* Backdrop */}
             <div 
                 className='absolute inset-0 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300' 
-                onClick={handleClose}
             />
             
             {/* Modal */}
@@ -148,7 +158,7 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
                     </div>
                     
                     <button 
-                        onClick={handleClose}
+                        onClick={requestClose}
                         className='p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 transition-colors'
                     >
                         <X size={24} />
@@ -234,6 +244,38 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
                     )}
                 </div>
             </div>
+
+            {/* Exit Confirmation Overlay */}
+            {showExitConfirm && (
+                <div className='absolute inset-0 z-[10000] flex items-center justify-center p-4'>
+                    <div className='absolute inset-0 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200' onClick={() => setShowExitConfirm(false)} />
+                    <div className='relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 sm:p-8 animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-800'>
+                        <div className='w-14 h-14 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-6 mx-auto'>
+                            <X size={28} className='text-red-500' />
+                        </div>
+                        <h3 className='text-lg font-black text-center text-gray-900 dark:text-white uppercase tracking-tight mb-2'>
+                            Cancel Booking?
+                        </h3>
+                        <p className='text-sm text-center text-gray-500 dark:text-gray-400 mb-8 leading-relaxed'>
+                            Are you sure you want to exit? Any unsaved progress will be lost.
+                        </p>
+                        <div className='flex gap-3'>
+                            <button 
+                                onClick={() => setShowExitConfirm(false)}
+                                className='flex-1 py-3 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors'
+                            >
+                                Continue Booking
+                            </button>
+                            <button 
+                                onClick={handleClose}
+                                className='flex-1 py-3 rounded-xl bg-red-500 text-white text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20'
+                            >
+                                Yes, Exit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 

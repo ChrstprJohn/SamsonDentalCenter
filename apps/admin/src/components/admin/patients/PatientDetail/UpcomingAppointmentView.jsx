@@ -9,7 +9,7 @@ import RecentHistoryList from './RequestReview/RecentHistoryList';
 import RequestDetailsCard from './RequestReview/RequestDetailsCard';
 import UpcomingActions from './RequestReview/UpcomingActions';
 
-const UpcomingAppointmentView = ({ appointment, token, onActionSuccess, onBack }) => {
+const UpcomingAppointmentView = ({ appointment, token, filterMode, onActionSuccess, onBack }) => {
     const [loading, setLoading] = useState(true);
     const [patientHistory, setPatientHistory] = useState([]);
     const [actionLoading, setActionLoading] = useState(false);
@@ -60,6 +60,25 @@ const UpcomingAppointmentView = ({ appointment, token, onActionSuccess, onBack }
         } finally {
             setActionLoading(false);
         }
+    };
+
+    const handleCancel = async () => {
+        try {
+            setActionLoading(true);
+            await api.patch(`/admin/appointments/${appointment.id}/status`, {
+                status: 'CANCELLED'
+            }, token);
+            onActionSuccess('Appointment cancelled');
+            onBack();
+        } catch (err) {
+            alert(err.message || 'Action failed');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleReschedule = () => {
+        alert("Reschedule feature requires launching the booking wizard with this appointment's context. This will be implemented in the next iteration.");
     };
 
     if (!appointment) return null;
@@ -127,8 +146,11 @@ const UpcomingAppointmentView = ({ appointment, token, onActionSuccess, onBack }
             <UpcomingActions 
                 onCheckIn={handleCheckIn}
                 onNoShow={handleNoShow}
+                onCancel={handleCancel}
+                onReschedule={handleReschedule}
                 onBack={onBack}
                 actionLoading={actionLoading}
+                filterMode={filterMode}
             />
         </div>
     );

@@ -14,10 +14,10 @@ const generateSessionId = () => {
 /**
  * Hook to manage Admin-initiated booking for a patient.
  * 
- * @param {string} patientId - The Primary Patient's ID
+ * @param {Object} primaryPatient - The Primary Patient object
  * @param {string} token - Auth token
  */
-const useAdminBooking = (patientId, token) => {
+const useAdminBooking = (primaryPatient, token) => {
     const [sessionId, setSessionId] = useState(null);
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState({
@@ -28,7 +28,8 @@ const useAdminBooking = (patientId, token) => {
         date: '',
         time: '',
         dentist_id: '',
-        target_patient_id: patientId, // Defaults to the primary patient
+        target_patient_id: primaryPatient.id, // Defaults to the primary patient
+        target_patient_name: primaryPatient.full_name || 'Primary Patient',
     });
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -95,7 +96,8 @@ const useAdminBooking = (patientId, token) => {
             date: '',
             time: '',
             dentist_id: '',
-            target_patient_id: patientId,
+            target_patient_id: primaryPatient.id,
+            target_patient_name: primaryPatient.full_name || 'Primary Patient',
         });
         setError(null);
         setResult(null);

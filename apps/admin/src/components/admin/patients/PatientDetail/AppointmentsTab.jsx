@@ -24,7 +24,17 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
                 const sub = filterMode === 'request' ? 'Review Request' : (filterMode === 'attendance' ? 'Attendance Details' : 'Historical Record');
                 onSubViewChange(sub);
             } else {
-                onSubViewChange(null);
+                if (filterMode === 'attendance') {
+                    onSubViewChange("Only Today's approved visits | Check-In / No-Show");
+                } else if (filterMode === 'upcoming') {
+                    onSubViewChange("All Future approved visits | Reschedule / Cancel");
+                } else if (filterMode === 'request') {
+                    onSubViewChange("Pending Only");
+                } else if (filterMode === 'history') {
+                    onSubViewChange("History");
+                } else {
+                    onSubViewChange(null);
+                }
             }
         }
     }, [view, filterMode, onSubViewChange]);
@@ -58,12 +68,19 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
 
         // Base Type Filtering
         let typeMatches = false;
+        const appDate = new Date(app.appointment_date);
+        appDate.setHours(0,0,0,0);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
         if (filterMode === 'request') {
             typeMatches = status === 'PENDING';
         } else if (filterMode === 'attendance') {
-            typeMatches = status === 'CONFIRMED' || status === 'CHECKED_IN';
+            typeMatches = (status === 'CONFIRMED' || status === 'CHECKED_IN') && appDate.getTime() === today.getTime();
+        } else if (filterMode === 'upcoming') {
+            typeMatches = (status === 'CONFIRMED') && appDate.getTime() > today.getTime();
         } else if (filterMode === 'history') {
-            typeMatches = ['COMPLETED', 'CANCELLED', 'LATE_CANCEL', 'NO_SHOW'].includes(status);
+            typeMatches = ['COMPLETED', 'CANCELLED', 'LATE_CANCEL', 'NO_SHOW'].includes(status) || (status === 'CONFIRMED' && appDate.getTime() < today.getTime());
         }
 
         if (!typeMatches) return false;
@@ -120,11 +137,12 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
             );
         }
 
-        if (filterMode === 'attendance') {
+        if (filterMode === 'attendance' || filterMode === 'upcoming') {
             return (
                 <UpcomingAppointmentView
                     appointment={selectedAppointment}
                     token={token}
+                    filterMode={filterMode}
                     onBack={() => setView('list')}
                     onActionSuccess={(msg) => {
                         fetchHistory();
