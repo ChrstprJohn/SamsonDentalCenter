@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Calendar, ChevronDown, Plus, Phone, ChevronLeft, ChevronRight } from 'lucide-react';
+import ApprovalDetailView from '../../components/secretary/approval_details';
+import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 
 const BOOKINGS_DATA = [
     {
@@ -88,6 +90,7 @@ const BookingPage = () => {
     const [selectedSource, setSelectedSource] = useState('All');
     const [selectedDate, setSelectedDate] = useState('2026-04-27');
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedBooking, setSelectedBooking] = useState(null);
 
     const filteredBookings = useMemo(() => {
         return BOOKINGS_DATA.filter(booking => {
@@ -106,6 +109,53 @@ const BookingPage = () => {
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
+
+    // Transform selected booking to match ApprovalContextView expectations
+    const requestForContext = selectedBooking ? {
+        id: selectedBooking.id,
+        patient: {
+            name: selectedBooking.patient.name,
+            phone: selectedBooking.contact || 'N/A',
+            email: 'N/A', // Mocked
+            noShowCount: 0,
+            cancellationCount: 0,
+            isBookingRestricted: false
+        },
+        service: selectedBooking.service.name,
+        requestedDate: selectedBooking.date,
+        requestedTime: selectedBooking.startTime,
+        dentist: selectedBooking.doctor
+    } : null;
+
+    if (selectedBooking) {
+        return (
+            <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-gray-50/50 dark:bg-[#030712] transition-colors duration-300">
+                <div className="bg-white dark:bg-[#0B1120] px-8 py-4 border-b border-gray-200 dark:border-gray-800">
+                    <PageBreadcrumb pageTitle="Booking Details" parentName="Booking Desk" parentPath="/booking" />
+                </div>
+                <div className="flex-1 p-4 sm:p-8 max-w-[1536px] mx-auto w-full">
+                    <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-theme-sm overflow-hidden h-full">
+                        <ApprovalDetailView 
+                            request={requestForContext}
+                            onBack={() => setSelectedBooking(null)}
+                            onApprove={() => {
+                                console.log('Booking confirmed/approved:', selectedBooking.id);
+                                setSelectedBooking(null);
+                            }}
+                            onReject={(reason) => {
+                                console.log('Booking rejected:', selectedBooking.id, reason);
+                                setSelectedBooking(null);
+                            }}
+                            busySlots={[15, 30, 55]} // Mocked busy slots for design parity
+                            slotPosition={10} // Mocked position
+                            timeStr={selectedBooking.startTime}
+                            completedCount={0}
+                        />
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-gray-50/50 dark:bg-[#030712] transition-colors duration-300">
@@ -178,7 +228,11 @@ const BookingPage = () => {
                     <div className="flex flex-col gap-4 flex-1">
                         {paginatedBookings.length > 0 ? (
                         paginatedBookings.map((booking) => (
-                            <div key={booking.id} className="flex flex-col sm:flex-row bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
+                            <div 
+                                key={booking.id} 
+                                onClick={() => setSelectedBooking(booking)}
+                                className="flex flex-col sm:flex-row bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden group cursor-pointer"
+                            >
                                 {/* Time Sidebar - Reverted Scale */}
                                 <div className="flex flex-row sm:flex-col w-full sm:w-[120px] bg-gray-50/50 dark:bg-gray-800/20 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0">
                                     <div className="flex-1 flex flex-col justify-center px-4 py-2 sm:py-3 border-r sm:border-r-0 sm:border-b border-gray-200 dark:border-gray-800">
@@ -242,10 +296,22 @@ const BookingPage = () => {
 
                                     {/* Actions Area */}
                                     <div className="flex items-center justify-end w-full lg:w-auto mt-2 lg:mt-0 shrink-0 gap-3">
-                                        <button className="flex-1 lg:flex-none px-4 py-2 text-red-500 dark:text-red-400 text-xs sm:text-sm font-bold rounded-lg border border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95 whitespace-nowrap">
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                console.log('Cancel clicked');
+                                            }}
+                                            className="flex-1 lg:flex-none px-4 py-2 text-red-500 dark:text-red-400 text-xs sm:text-sm font-bold rounded-lg border border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95 whitespace-nowrap"
+                                        >
                                             Cancel
                                         </button>
-                                        <button className="flex-1 lg:flex-none px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold rounded-lg shadow-sm hover:shadow transition-all active:scale-95 whitespace-nowrap">
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                console.log('Reschedule clicked');
+                                            }}
+                                            className="flex-1 lg:flex-none px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold rounded-lg shadow-sm hover:shadow transition-all active:scale-95 whitespace-nowrap"
+                                        >
                                             Reschedule
                                         </button>
                                     </div>
