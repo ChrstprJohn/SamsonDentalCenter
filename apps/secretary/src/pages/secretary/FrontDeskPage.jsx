@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import { CheckCircle2, CalendarClock, CalendarDays, UserX, Undo2 } from 'lucide-react';
 import CheckOutModal from '../../components/secretary/frontdesk/CheckOutModal';
+import ApprovalDetailView from '../../components/secretary/approval_details';
+import RealTimeClock from '../../components/common/RealTimeClock';
 
 const mockFrontDeskAppointments = [
     {
@@ -115,6 +117,49 @@ const FrontDeskPage = () => {
     const completedCount = appointments.filter(apt => apt.status === 'Completed').length;
     const noShowCount = appointments.filter(apt => apt.status === 'No Show').length;
 
+    // Transform selected appointment to match ApprovalContextView expectations
+    const requestForContext = selectedApt ? {
+        id: selectedApt.id,
+        patient: {
+            name: selectedApt.patient,
+            phone: selectedApt.phone || 'N/A',
+            email: selectedApt.email || 'N/A',
+            noShowCount: 0, // Mocked or fetched from elsewhere
+            cancellationCount: 0,
+            isBookingRestricted: false
+        },
+        service: selectedApt.service,
+        requestedDate: new Date().toISOString().split('T')[0], // Assuming today for front desk
+        requestedTime: selectedApt.startTime,
+        dentist: selectedApt.doctor
+    } : null;
+
+    if (selectedApt && !isCheckOutModalOpen) {
+        return (
+            <div className="flex flex-col h-full w-full max-w-full overflow-x-hidden pb-8">
+                <PageBreadcrumb pageTitle="Appointment Details" parentName="Front Desk" parentPath="/front-desk" />
+                <div className="mt-6 flex-1 bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-theme-sm overflow-hidden">
+                    <ApprovalDetailView 
+                        request={requestForContext}
+                        onBack={() => setSelectedApt(null)}
+                        onApprove={() => {
+                            handleStatusChange(selectedApt.id, selectedApt.status === 'Upcoming' ? 'In Progress' : 'Completed');
+                            setSelectedApt(null);
+                        }}
+                        onReject={(reason) => {
+                            handleStatusChange(selectedApt.id, 'No Show');
+                            setSelectedApt(null);
+                        }}
+                        busySlots={[10, 25, 40]} // Mocked busy slots for design parity
+                        slotPosition={5} // Mocked position
+                        timeStr={selectedApt.startTime}
+                        completedCount={completedCount}
+                    />
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col h-full w-full max-w-full overflow-x-hidden pb-8">
             <PageBreadcrumb pageTitle="Front Desk" />
@@ -178,9 +223,12 @@ const FrontDeskPage = () => {
                     </button>
                 </div>
 
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800/80 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium text-xs sm:text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mb-3 sm:mb-2 shadow-sm w-fit">
-                    <CalendarDays size={14} className="text-gray-400 dark:text-gray-500 shrink-0" />
-                    <span className="truncate">Today, 25 Apr 2026</span>
+                <div className="flex items-center gap-2">
+                    <RealTimeClock />
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800/80 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium text-xs sm:text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mb-3 sm:mb-2 shadow-sm w-fit">
+                        <CalendarDays size={14} className="text-gray-400 dark:text-gray-500 shrink-0" />
+                        <span className="truncate">Today, 25 Apr 2026</span>
+                    </div>
                 </div>
             </div>
 
@@ -188,7 +236,11 @@ const FrontDeskPage = () => {
             <div className="flex flex-col gap-3 mt-4 sm:mt-6 w-full">
                 {filteredAppointments.length > 0 ? (
                     filteredAppointments.map(apt => (
-                        <div key={apt.id} className="flex flex-col sm:flex-row bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
+                        <div 
+                            key={apt.id} 
+                            onClick={() => setSelectedApt(apt)}
+                            className="flex flex-col sm:flex-row bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden group cursor-pointer"
+                        >
                            
                             {/* Left Time Column */}
                             <div className="flex flex-row sm:flex-col w-full sm:w-[120px] bg-gray-50/50 dark:bg-gray-800/20 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0">
@@ -255,7 +307,10 @@ const FrontDeskPage = () => {
                                 <div className="flex items-center justify-end w-full lg:w-[120px] mt-1 lg:mt-0 shrink-0 gap-2">
                                     {apt.status === 'In Progress' && (
                                         <button 
-                                            onClick={() => handleStatusChange(apt.id, 'Upcoming')}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleStatusChange(apt.id, 'Upcoming');
+                                            }}
                                             className="p-2 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-200 dark:hover:bg-white/10 transition-colors active:scale-95 shadow-sm" 
                                             title="Return to Upcoming"
                                         >
@@ -264,14 +319,20 @@ const FrontDeskPage = () => {
                                     )}
                                     {apt.status === 'Completed' || apt.status === 'No Show' ? (
                                         <button 
-                                            onClick={() => handleViewDetails(apt)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleViewDetails(apt);
+                                            }}
                                             className="w-full lg:w-auto px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-md shadow-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-95 whitespace-nowrap"
                                         >
                                             View Details
                                         </button>
                                     ) : (
                                         <button 
-                                            onClick={() => handleStatusChange(apt.id, apt.status === 'Upcoming' ? 'In Progress' : 'Completed')}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleStatusChange(apt.id, apt.status === 'Upcoming' ? 'In Progress' : 'Completed');
+                                            }}
                                             className={`w-full lg:w-auto px-4 py-2 text-white text-xs sm:text-sm font-bold rounded-lg shadow-sm hover:shadow transition-all active:scale-95 whitespace-nowrap ${
                                                 apt.status === 'Upcoming'
                                                     ? 'bg-blue-600 hover:bg-blue-700'
