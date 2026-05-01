@@ -70,6 +70,7 @@ import {
     onboardDoctor,
     getPatientHandler, // NEW
     updatePatientHandler, // NEW
+    adminReschedule,
     bulkUpdateSchedule,
 } from '../controllers/admin.controller.js';
 
@@ -97,6 +98,7 @@ router.patch('/appointments/:id/noshow', markAsNoShow);
 router.patch('/appointments/:id/complete', markAsComplete);
 router.patch('/appointments/:id/cancel', adminCancel);
 router.patch('/appointments/:id/reassign', reassignAppointment); // NEW
+router.patch('/appointments/:id/reschedule', adminReschedule); // NEW: Admin reschedule
 router.patch('/appointments/:id/displaced-handle', async (req, res, next) => {
     try {
         const { id } = req.params;

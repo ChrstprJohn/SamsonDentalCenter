@@ -14,6 +14,7 @@ import {
     insertConfirmedGuestAppointment,
     rescheduleGuestAppointment,
     bookAppointmentAdmin,
+    rescheduleAppointmentAdmin,
 } from '../services/appointment.service.js';
 import { APPOINTMENT_STATUS } from '../utils/constants.js';
 import { sendBookingSuccessEmail, sendCancellationEmail, sendAccountSetupInviteEmail } from '../services/email-confirmation.service.js';
@@ -265,6 +266,51 @@ export const adminCancel = async (req, res, next) => {
         next(err);
     }
 };
+
+/**
+ * PATCH /api/admin/appointments/:id/reschedule
+ *
+ * Admin/Staff reschedules any confirmed appointment on behalf of a patient.
+ * Bypasses the 1-reschedule-per-booking restriction enforced on the patient side.
+ * Body: { date, time, dentist_id? }
+ */
+export const adminReschedule = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { date, time, dentist_id, user_session_id } = req.body;
+
+        if (!date || !time) {
+            return res.status(400).json({ error: 'date and time are required.' });
+        }
+
+        const result = await rescheduleAppointmentAdmin(
+            id,
+            req.user.id,
+            date,
+            time,
+            dentist_id || null,
+            user_session_id || null,
+        );
+
+        // Free the old slot for waitlist
+        if (result.freed_slot) {
+            try {
+                await notifyWaitlist(result.freed_slot);
+            } catch (e) {
+                // Non-critical
+            }
+        }
+
+        res.json({
+            message: 'Appointment rescheduled successfully.',
+            ...result,
+        });
+    } catch (err) {
+        if (err.status) return res.status(err.status).json({ error: err.message });
+        next(err);
+    }
+};
+
 
 /**
  * POST /api/admin/appointments/:id/no-show

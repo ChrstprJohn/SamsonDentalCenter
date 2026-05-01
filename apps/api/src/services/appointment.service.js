@@ -1499,4 +1499,172 @@ export const bookAppointmentAdmin = async (
     return appointment;
 };
 
+/**
+ * Admin-only reschedule: bypasses patient ownership & reschedule-count limits.
+ *
+ * @param {string} appointmentId  - ID of the appointment to reschedule
+ * @param {string} staffId        - Admin/secretary performing the action
+ * @param {string} newDate        - New date 'YYYY-MM-DD'
+ * @param {string} newTime        - New time 'HH:MM'
+ * @param {string|null} preferredDentistId
+ * @param {string|null} userSessionId
+ */
+export const rescheduleAppointmentAdmin = async (
+    appointmentId,
+    staffId,
+    newDate,
+    newTime,
+    preferredDentistId = null,
+    userSessionId = null,
+) => {
+    // ── 1. Fetch the original appointment (no patient_id constraint) ──
+    const { data: original, error } = await supabaseAdmin
+        .from('appointments')
+        .select(`
+            *,
+            service:services(id, name, duration_minutes),
+            patient:profiles!appointments_patient_id_fkey(id, full_name, first_name, last_name, email)
+        `)
+        .eq('id', appointmentId)
+        .single();
+
+    if (error || !original) {
+        throw new AppError('Appointment not found.', 404);
+    }
+
+    if (original.status !== APPOINTMENT_STATUS.CONFIRMED) {
+        throw new AppError(`Cannot reschedule an appointment with status: ${original.status}`, 400);
+    }
+
+    // ── 2. Check new slot availability ──
+    const serviceId = original.service_id;
+    const availability = await getAvailableSlots(newDate, serviceId, userSessionId);
+    const slotData = availability.all_slots.find((s) => s.time === newTime);
+    const isAvailable = slotData && slotData.available > 0;
+
+    if (!isAvailable) {
+        throw new AppError('The selected slot is no longer available.', 409);
+    }
+
+    // ── 3. Assign dentist ──
+    const durationMinutes = original.service?.duration_minutes || 30;
+    const endTime = addMinutesToTime(newTime, durationMinutes);
+
+    let finalDentistId = preferredDentistId;
+    if (!finalDentistId && userSessionId) {
+        const { data: hold } = await supabaseAdmin
+            .from('slot_holds')
+            .select('dentist_id')
+            .eq('user_session_id', userSessionId)
+            .eq('appointment_date', newDate)
+            .eq('start_time', newTime)
+            .eq('status', 'active')
+            .gt('expires_at', new Date().toISOString())
+            .single();
+        if (hold?.dentist_id) finalDentistId = hold.dentist_id;
+    }
+
+    if (!finalDentistId) {
+        finalDentistId = await assignDentist(newDate, newTime, endTime, original.service_tier, userSessionId);
+    }
+
+    if (!finalDentistId) {
+        throw new AppError('No dentist available for this slot.', 409);
+    }
+
+    // ── 4. Insert the new appointment ──
+    const { data: newAppointment, error: insertError } = await supabaseAdmin
+        .from('appointments')
+        .insert({
+            patient_id: original.patient_id,
+            dentist_id: finalDentistId,
+            service_id: serviceId,
+            appointment_date: newDate,
+            start_time: newTime,
+            end_time: endTime,
+            status: APPOINTMENT_STATUS.CONFIRMED,
+            service_tier: original.service_tier,
+            approval_status: APPROVAL_STATUS.APPROVED,
+            source: APPOINTMENT_SOURCE.WALK_IN,
+            booked_by: staffId,
+            is_walk_in: true,
+            patient_confirmed: true,
+            confirmed_at: new Date().toISOString(),
+            approved_by: staffId,
+            approved_at: new Date().toISOString(),
+            reschedule_count: (original.reschedule_count || 0) + 1,
+            first_name: original.first_name,
+            last_name: original.last_name,
+            middle_name: original.middle_name,
+            suffix: original.suffix,
+        })
+        .select(`
+            *,
+            service:services(name, duration_minutes, price),
+            dentist:dentists(id, profile:profiles(full_name, last_name, first_name))
+        `)
+        .single();
+
+    if (insertError) {
+        if (insertError.code === '23505') {
+            throw new AppError('This slot was just taken. Please try another time.', 409);
+        }
+        throw new AppError(insertError.message, 500);
+    }
+
+    // ── 5. Mark the old appointment as RESCHEDULED ──
+    const { error: updateError } = await supabaseAdmin
+        .from('appointments')
+        .update({
+            status: APPOINTMENT_STATUS.RESCHEDULED,
+            cancellation_reason: `Admin rescheduled to ${newDate} ${newTime}`,
+            cancelled_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        })
+        .eq('id', appointmentId);
+
+    if (updateError) {
+        // Rollback new appointment
+        await supabaseAdmin.from('appointments').delete().eq('id', newAppointment.id);
+        throw new AppError('Failed to complete rescheduling. Please try again.', 500);
+    }
+
+    // ── 6. Send notification email to patient ──
+    const patient = original.patient;
+    if (patient?.email) {
+        try {
+            const { sendRescheduleEmail } = await import('./email-confirmation.service.js');
+            const displayName = patient.first_name
+                ? `${patient.first_name} ${patient.last_name}`.trim()
+                : patient.full_name;
+            await sendRescheduleEmail(patient.email, displayName, {
+                oldDate: original.appointment_date,
+                oldTime: original.start_time,
+                newDate,
+                newTime,
+                service: original.service?.name || 'Dental appointment',
+            });
+        } catch (emailErr) {
+            console.warn('[Email] Reschedule email failed (non-critical):', emailErr.message);
+        }
+    }
+
+    return {
+        rescheduled: true,
+        new_appointment: newAppointment,
+        old_appointment: {
+            id: original.id,
+            date: original.appointment_date,
+            time: original.start_time,
+        },
+        freed_slot: {
+            date: original.appointment_date,
+            start_time: original.start_time,
+            end_time: original.end_time,
+            service_id: original.service_id,
+            dentist_id: original.dentist_id,
+        },
+    };
+};
+
 // ── End of Service ──

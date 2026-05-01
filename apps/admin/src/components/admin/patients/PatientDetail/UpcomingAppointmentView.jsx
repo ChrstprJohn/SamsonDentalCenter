@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { api } from '../../../../utils/api';
+import AdminRescheduleWizard from './AdminRescheduleWizard';
 
 // Sub-components (Reused from RequestReview)
 import ReviewTimeline from './RequestReview/ReviewTimeline';
@@ -13,6 +14,7 @@ const UpcomingAppointmentView = ({ appointment, token, filterMode, onActionSucce
     const [loading, setLoading] = useState(true);
     const [patientHistory, setPatientHistory] = useState([]);
     const [actionLoading, setActionLoading] = useState(false);
+    const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
 
     useEffect(() => {
         if (appointment) {
@@ -78,7 +80,7 @@ const UpcomingAppointmentView = ({ appointment, token, filterMode, onActionSucce
     };
 
     const handleReschedule = () => {
-        alert("Reschedule feature requires launching the booking wizard with this appointment's context. This will be implemented in the next iteration.");
+        setIsRescheduleOpen(true);
     };
 
     if (!appointment) return null;
@@ -151,6 +153,18 @@ const UpcomingAppointmentView = ({ appointment, token, filterMode, onActionSucce
                 onBack={onBack}
                 actionLoading={actionLoading}
                 filterMode={filterMode}
+            />
+            {/* Reschedule Wizard Portal */}
+            <AdminRescheduleWizard
+                isOpen={isRescheduleOpen}
+                onClose={() => setIsRescheduleOpen(false)}
+                appointment={appointment}
+                token={token}
+                onSuccess={() => {
+                    setIsRescheduleOpen(false);
+                    onActionSuccess('Appointment rescheduled successfully');
+                    onBack();
+                }}
             />
         </div>
     );
