@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, User, Timer, Check, Phone, Mail, X, ChevronLeft, Shield } from 'lucide-react';
+import { Calendar, Clock, User, Timer, Check, Phone, Mail, X, ChevronLeft, Shield, CircleDot } from 'lucide-react';
 import PenaltyBadges from '../approvals/PenaltyBadges';
 import { formatTime } from '../../../hooks/useAppointments';
 
@@ -19,7 +19,7 @@ const AppointmentDetailView = ({
 
     if (!request) return null;
 
-    const { patient, service, requestedDate, requestedTime, dentist, serviceTier, dentistPhone, dentistEmail } = request;
+    const { patient, service, requestedDate, requestedTime, dentist, serviceTier, dentistPhone, dentistEmail, createdAt } = request;
     const timeStr = initialTimeStr || requestedTime.split(' ')[0];
     const isGuest = patient.source === 'GUEST_BOOKING';
     const isConflict = busySlots.some(pos => Math.abs(pos - slotPosition) < 8);
@@ -40,9 +40,9 @@ const AppointmentDetailView = ({
 
     // Format History Items
     const formattedHistory = history
-        .filter(apt => apt.id !== request.id) // Don't show current request in history
+        .filter(apt => apt.id !== request.id) 
         .sort((a, b) => new Date(b.appointment_date + ' ' + b.start_time) - new Date(a.appointment_date + ' ' + a.start_time))
-        .slice(0, 15) // Allow more items for scrolling
+        .slice(0, 15) 
         .map(apt => ({
             id: apt.id,
             startTime: formatTime(apt.start_time),
@@ -55,7 +55,6 @@ const AppointmentDetailView = ({
             status: apt.status
         }));
 
-    // Realistic Filler items for visualization
     const fillerItems = [
         { id: 'f1', startTime: '9:00 AM', endTime: '10:00 AM', date: 'Apr 12, 2026', service: 'Routine Cleaning', type: 'General', doctor: 'Dr. James Thompson', source: 'Walk-in' },
         { id: 'f2', startTime: '11:00 AM', endTime: '12:00 PM', date: 'Mar 28, 2026', service: 'Tooth Extraction', type: 'General', doctor: 'Dr. Emily Chen', source: 'Account' },
@@ -68,6 +67,35 @@ const AppointmentDetailView = ({
     ];
 
     const displayHistory = formattedHistory.length > 0 ? formattedHistory : fillerItems;
+
+    // Timeline Steps (based on AppointmentDetailStatus design)
+    const steps = [
+        { 
+            id: 'requested', 
+            title: 'Request Submitted', 
+            desc: 'User initiated booking request', 
+            time: createdAt ? new Date(createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' }) : null,
+            status: 'completed' 
+        },
+        { 
+            id: 'review', 
+            title: 'Under Review', 
+            desc: 'Awaiting clinical approval', 
+            status: 'active' 
+        },
+        { 
+            id: 'visit', 
+            title: 'Visit Scheduled', 
+            desc: 'Marked complete after visit', 
+            status: 'pending' 
+        }
+    ];
+
+    const getStepIcon = (status) => {
+        if (status === 'completed') return <Check size={18} strokeWidth={3} />;
+        if (status === 'active') return <CircleDot size={18} strokeWidth={3} />;
+        return <div className="w-2 h-2 rounded-full bg-current opacity-30" />;
+    };
 
     return (
         <div className="flex-grow flex flex-col bg-white dark:bg-gray-900 sm:rounded-3xl border-t sm:border border-gray-100 dark:border-gray-800 sm:shadow-theme-sm overflow-hidden h-full relative font-outfit">
@@ -88,39 +116,54 @@ const AppointmentDetailView = ({
             <div className="flex-1 overflow-y-auto no-scrollbar relative z-10 p-4 md:p-8">
                 <div className="max-w-7xl mx-auto flex flex-col gap-6">
                     
-                    {/* 1 - Timeline (Full Width) */}
-                    <div className="bg-gray-50/50 dark:bg-gray-900/30 border border-gray-100 dark:border-gray-800 rounded-3xl p-6 relative overflow-hidden shrink-0">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                                <Calendar className="size-4" />
-                                Schedule Timeline
-                            </h3>
-                        </div>
-                        <div className="relative h-16 bg-white dark:bg-gray-950 rounded-2xl flex items-center overflow-visible border border-gray-200 dark:border-gray-700 shadow-inner px-6 mx-2 mb-6">
-                            {busySlots.map((pos, idx) => (
-                                <div 
-                                    key={`busy-${idx}`}
-                                    className="absolute h-full top-0 w-[10%] bg-gray-200/40 dark:bg-gray-800/60 border-x border-white/10 dark:border-gray-700/30 flex items-center justify-center grayscale"
-                                    style={{ left: `${pos}%` }}
-                                >
-                                    <span className="text-[8px] text-gray-400 font-black uppercase tracking-widest">Busy</span>
-                                </div>
-                            ))}
-                            {slotPosition >= 0 && slotPosition <= 95 && (
-                                <div 
-                                    className="absolute h-[130%] top-[-15%] w-[12%] bg-brand-50 dark:bg-brand-900 border-2 border-brand-500 rounded-xl flex flex-col items-center justify-center shadow-lg z-20"
-                                    style={{ left: `${slotPosition}%` }}
-                                >
-                                    <span className="text-[9px] text-brand-600 dark:text-brand-400 font-bold uppercase tracking-tighter">Req</span>
-                                    <span className="text-xs font-black text-brand-700 dark:text-brand-300 mt-0.5 tabular-nums">{timeStr}</span>
-                                </div>
-                            )}
-                            <div className="absolute -bottom-6 left-0 w-full flex justify-between px-2">
-                                {[9,11,1,3,5].map(h => (
-                                    <span key={h} className="text-[10px] font-bold text-gray-400 tracking-tighter tabular-nums">
-                                        {h}:00{h > 8 && h < 12 ? 'AM' : 'PM'}
-                                    </span>
-                                ))}
+                    {/* 1 - Timeline (Status Flow Design) */}
+                    <div className="bg-gray-50/50 dark:bg-gray-900/30 border border-gray-100 dark:border-gray-800 rounded-3xl p-8 relative overflow-hidden shrink-0">
+                        <div className="flex items-start justify-center">
+                            <div className="flex items-start justify-between w-full max-w-4xl px-4">
+                                {steps.map((step, index) => {
+                                    const isLast = index === steps.length - 1;
+                                    const isCompleted = step.status === 'completed';
+                                    const isActive = step.status === 'active';
+                                    
+                                    return (
+                                        <div key={step.id} className="relative flex flex-col items-center text-center flex-1">
+                                            {/* Connector Line */}
+                                            {!isLast && (
+                                                <div className="absolute top-6 left-1/2 w-full h-[2px] bg-gray-200 dark:bg-white/5">
+                                                    <div className={`h-full transition-all duration-700 ${isCompleted ? 'bg-brand-500 w-full' : 'w-0'}`} />
+                                                </div>
+                                            )}
+
+                                            {/* Step Icon */}
+                                            <div className="relative z-10 mb-6">
+                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ${
+                                                    isCompleted 
+                                                        ? 'bg-brand-500 text-white' 
+                                                        : isActive
+                                                            ? 'bg-white dark:bg-gray-800 border-2 border-brand-500 text-brand-500'
+                                                            : 'bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 text-gray-300'
+                                                }`}>
+                                                    {getStepIcon(step.status)}
+                                                </div>
+                                            </div>
+
+                                            {/* Step Info */}
+                                            <div className="px-2">
+                                                <h4 className="text-[13px] font-black text-gray-900 dark:text-white mb-1 tracking-tight">
+                                                    {step.title}
+                                                </h4>
+                                                <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 leading-tight max-w-[140px] mx-auto">
+                                                    {step.desc}
+                                                </p>
+                                                {step.time && (
+                                                    <div className="mt-2 text-[9px] font-bold text-brand-500/60 uppercase tracking-widest font-mono">
+                                                        {step.time}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -284,8 +327,17 @@ const AppointmentDetailView = ({
                         </div>
                     </div>
 
-                    {/* 6 - Conflict Checking */}
-                    <div className="shrink-0">
+                    {/* 6 - Conflict Checking & Timeline Toggle */}
+                    <div className="shrink-0 flex flex-col gap-3">
+                        <div className="flex items-center justify-between px-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Scheduling Verification</span>
+                            <div className="flex items-center gap-1">
+                                <div className={`w-1.5 h-1.5 rounded-full ${isConflict ? 'bg-error-500 animate-pulse' : 'bg-success-500'}`} />
+                                <span className={`text-[10px] font-bold uppercase ${isConflict ? 'text-error-500' : 'text-success-500'}`}>
+                                    {isConflict ? 'Conflict Found' : 'Clear Slot'}
+                                </span>
+                            </div>
+                        </div>
                         {isConflict ? (
                             <div className="flex items-center justify-center gap-3 p-4 bg-error-50 dark:bg-error-500/10 border border-error-100 dark:border-error-500/20 rounded-2xl animate-pulse">
                                 <X className="size-5 text-error-600" /><span className="text-sm font-bold text-error-700 dark:text-error-400">Conflict detected! Dentist is busy at this time.</span>
@@ -295,6 +347,34 @@ const AppointmentDetailView = ({
                                 <Check className="size-5 text-success-600" /><span className="text-sm font-bold text-success-700 dark:text-success-400">No scheduling conflict detected. Ready for approval.</span>
                             </div>
                         )}
+
+                        {/* Minimal Schedule Bar (Moved here to make room for status timeline) */}
+                        <div className="relative h-12 bg-white dark:bg-gray-950 rounded-2xl flex items-center overflow-visible border border-gray-200 dark:border-gray-700 shadow-inner px-6 mt-2">
+                            {busySlots.map((pos, idx) => (
+                                <div 
+                                    key={`busy-${idx}`}
+                                    className="absolute h-full top-0 w-[8%] bg-gray-100/50 dark:bg-gray-800/40 border-x border-white/5 dark:border-gray-700/20 flex items-center justify-center grayscale"
+                                    style={{ left: `${pos}%` }}
+                                >
+                                    <span className="text-[6px] text-gray-300 font-black uppercase tracking-tighter">Busy</span>
+                                </div>
+                            ))}
+                            {slotPosition >= 0 && slotPosition <= 95 && (
+                                <div 
+                                    className="absolute h-[110%] top-[-5%] w-[10%] bg-brand-500 text-white rounded-lg flex flex-col items-center justify-center shadow-md z-20"
+                                    style={{ left: `${slotPosition}%` }}
+                                >
+                                    <span className="text-[8px] font-black tabular-nums">{timeStr}</span>
+                                </div>
+                            )}
+                            <div className="absolute -bottom-4 left-0 w-full flex justify-between px-2">
+                                {[9,11,1,3,5].map(h => (
+                                    <span key={h} className="text-[8px] font-bold text-gray-300 tracking-tighter tabular-nums">
+                                        {h}{h > 8 && h < 12 ? 'am' : 'pm'}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Bottom Action Buttons */}
