@@ -238,7 +238,8 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 - [x] **Rules Settings:** Toggle `waitlist_enabled` off. Change `slot_duration_minutes`. Save and
       refresh to verify persistence.
 - [x] **Automated Notifications Settings:** Toggle the SMS and Email gateways off and on. Verify the strict warning messages appear. Update the 24h/48h reminders and send time. Save and verify persistence.
-- [ ] **Message Activity Tab:** Navigate to the new Message Activity tab in Settings. Verify the data table renders correctly with the mock data and status badges.
+- [x] **Message Activity Navigation:** Verified "Message Activity" has been promoted to the main sidebar.
+- [ ] **Real-Time Communication Logging:** Trigger an OTP email. Verify it appears at the top of the Message Activity list with real data from the database.
 - [x] **Legal Settings:** Paste markdown into the Privacy Policy editor. Save and verify formatting
       is retained.
 - [x] **Holidays Table:** Add a new Holiday. Verify it appears in the list. Delete the Holiday,
