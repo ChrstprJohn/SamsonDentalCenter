@@ -8,9 +8,9 @@ const ClinicGeneralSettings = () => {
     const { settings, loading, error, updating, updateSettings } = useSettings();
     const [formData, setFormData] = useState({
         clinic_name: '',
-        email: '',
-        phone: '',
-        address: '',
+        email_official: '',
+        phone_primary: '',
+        physical_address: '',
         announcement: ''
     });
 
@@ -18,9 +18,9 @@ const ClinicGeneralSettings = () => {
         if (settings) {
             setFormData({
                 clinic_name: settings.clinic_name || '',
-                email: settings.email || '',
-                phone: settings.phone || '',
-                address: settings.address || '',
+                email_official: settings.email_official || settings.email || '',
+                phone_primary: settings.phone_primary || settings.phone || '',
+                physical_address: settings.physical_address || settings.address || '',
                 announcement: settings.announcement || ''
             });
         }
@@ -90,9 +90,9 @@ const ClinicGeneralSettings = () => {
                                 Contact Email
                             </Label>
                             <Input 
-                                name="email"
+                                name="email_official"
                                 type="email"
-                                value={formData.email}
+                                value={formData.email_official}
                                 onChange={handleChange}
                                 className="h-12"
                                 placeholder="hello@clinic.com"
@@ -103,8 +103,8 @@ const ClinicGeneralSettings = () => {
                                 Hotline / Phone
                             </Label>
                             <Input 
-                                name="phone"
-                                value={formData.phone}
+                                name="phone_primary"
+                                value={formData.phone_primary}
                                 onChange={handleChange}
                                 className="h-12 font-medium"
                                 placeholder="+63 9XX XXX XXXX"
@@ -118,8 +118,8 @@ const ClinicGeneralSettings = () => {
                         Physical Address
                     </Label>
                     <textarea 
-                        name="address"
-                        value={formData.address}
+                        name="physical_address"
+                        value={formData.physical_address}
                         onChange={handleChange}
                         className="w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition-all resize-none shadow-inner"
                         rows={3}

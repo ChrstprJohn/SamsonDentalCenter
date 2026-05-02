@@ -1,51 +1,73 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, ShieldCheck, Calendar, Hourglass } from 'lucide-react';
+import { Clock, ShieldCheck, Calendar, Hourglass, Coffee, Moon, Sun } from 'lucide-react';
 import { Button, Label, Switch, Input } from '../../ui';
 import { useSettings } from '../../../hooks/useSettings';
 import { FormSkeleton } from '../../ui/Skeletons';
 
 const ClinicRulesSettings = () => {
-    const { settings, loading, error, updating, updateSettings } = useSettings();
-    const [formData, setFormData] = useState({
+    const { settings, schedule, loading, updating, updateSettings, updateSchedule } = useSettings();
+    const [rulesData, setRulesData] = useState({
         booking_lead_time_hours: 24,
         booking_max_horizon_days: 60,
         slot_duration_minutes: 30,
         waitlist_enabled: true
     });
 
+    const [scheduleData, setScheduleData] = useState([]);
+
     useEffect(() => {
         if (settings) {
-            setFormData({
+            setRulesData({
                 booking_lead_time_hours: settings.booking_lead_time_hours || 24,
                 booking_max_horizon_days: settings.booking_max_horizon_days || 60,
                 slot_duration_minutes: settings.slot_duration_minutes || 30,
                 waitlist_enabled: settings.waitlist_enabled ?? true
             });
         }
-    }, [settings]);
+        if (schedule) {
+            setScheduleData(schedule.sort((a, b) => a.day_of_week - b.day_of_week));
+        }
+    }, [settings, schedule]);
 
-    const handleChange = (e) => {
+    const handleRuleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
+        setRulesData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : parseInt(value) || 0
         }));
     };
 
-    const handleSubmit = async () => {
+    const handleScheduleChange = (index, field, value) => {
+        const newSchedule = [...scheduleData];
+        newSchedule[index] = { ...newSchedule[index], [field]: value };
+        setScheduleData(newSchedule);
+    };
+
+    const handleSaveRules = async () => {
         try {
-            await updateSettings(formData);
-            alert('Settings updated successfully!');
+            await updateSettings(rulesData);
+            alert('Booking rules updated successfully!');
         } catch (err) {
-            alert('Failed to update settings: ' + err.message);
+            alert('Failed to update rules: ' + err.message);
         }
     };
 
+    const handleSaveSchedule = async () => {
+        try {
+            await updateSchedule(scheduleData);
+            alert('Weekly schedule updated successfully!');
+        } catch (err) {
+            alert('Failed to update schedule: ' + err.message);
+        }
+    };
+
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
     if (loading) return <FormSkeleton />;
-    if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
 
     return (
-        <div className='space-y-6'>
+        <div className='space-y-10 pb-20'>
+            {/* 1. GLOBAL RULES SECTION */}
             <div className='p-6 border border-gray-200 rounded-xl dark:border-gray-800 lg:p-7 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex items-center justify-between mb-8'>
                     <div>
@@ -58,101 +80,204 @@ const ClinicRulesSettings = () => {
                     </div>
                 </div>
 
-                <div className='space-y-8'>
-                    {/* Booking Lead Time */}
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-center p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]'>
-                        <div className='flex items-start gap-4'>
-                            <div className='p-2.5 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 shadow-sm'>
-                                <Hourglass size={20} />
+                <div className='space-y-6'>
+                    {/* Lead Time */}
+                    <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]'>
+                        <div className='flex items-center gap-4'>
+                            <div className='p-2 rounded-lg bg-blue-100 dark:bg-blue-500/10 text-blue-600'>
+                                <Hourglass size={18} />
                             </div>
                             <div>
-                                <h5 className='text-sm font-bold text-gray-900 dark:text-white'>Booking Lead Time</h5>
-                                <p className='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>Minimum hours required before a patient can book.</p>
+                                <h5 className='text-xs font-bold text-gray-900 dark:text-white uppercase'>Booking Lead Time</h5>
+                                <p className='text-[10px] text-gray-500 dark:text-gray-400'>Min. hours required before booking</p>
                             </div>
                         </div>
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center gap-3">
                             <Input 
                                 type="number" 
                                 name="booking_lead_time_hours"
-                                value={formData.booking_lead_time_hours}
-                                onChange={handleChange}
-                                className="w-24 h-10 text-center font-bold"
+                                value={rulesData.booking_lead_time_hours}
+                                onChange={handleRuleChange}
+                                className="w-20 h-9 text-center font-black"
                             />
-                            <span className="text-xs font-medium text-gray-500">Hours</span>
+                            <span className="text-[10px] font-black uppercase text-gray-400">Hours</span>
                         </div>
                     </div>
 
-                    {/* Booking Horizon */}
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-center p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]'>
-                        <div className='flex items-start gap-4'>
-                            <div className='p-2.5 rounded-xl bg-purple-100 dark:bg-purple-500/10 text-purple-600 shadow-sm'>
-                                <Calendar size={20} />
+                    {/* Horizon */}
+                    <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]'>
+                        <div className='flex items-center gap-4'>
+                            <div className='p-2 rounded-lg bg-purple-100 dark:bg-purple-500/10 text-purple-600'>
+                                <Calendar size={18} />
                             </div>
                             <div>
-                                <h5 className='text-sm font-bold text-gray-900 dark:text-white'>Booking Horizon</h5>
-                                <p className='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>How many days in advance patients can see availability.</p>
+                                <h5 className='text-xs font-bold text-gray-900 dark:text-white uppercase'>Booking Horizon</h5>
+                                <p className='text-[10px] text-gray-500 dark:text-gray-400'>Max days ahead a patient can book</p>
                             </div>
                         </div>
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center gap-3">
                             <Input 
                                 type="number" 
                                 name="booking_max_horizon_days"
-                                value={formData.booking_max_horizon_days}
-                                onChange={handleChange}
-                                className="w-24 h-10 text-center font-bold"
+                                value={rulesData.booking_max_horizon_days}
+                                onChange={handleRuleChange}
+                                className="w-20 h-9 text-center font-black"
                             />
-                            <span className="text-xs font-medium text-gray-500">Days</span>
+                            <span className="text-[10px] font-black uppercase text-gray-400">Days</span>
                         </div>
                     </div>
 
                     {/* Slot Duration */}
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-center p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]'>
-                        <div className='flex items-start gap-4'>
-                            <div className='p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 shadow-sm'>
-                                <Clock size={20} />
+                    <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]'>
+                        <div className='flex items-center gap-4'>
+                            <div className='p-2 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600'>
+                                <Clock size={18} />
                             </div>
                             <div>
-                                <h5 className='text-sm font-bold text-gray-900 dark:text-white'>Slot Duration</h5>
-                                <p className='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>Standard duration for each appointment time-slot.</p>
+                                <h5 className='text-xs font-bold text-gray-900 dark:text-white uppercase'>Slot Duration</h5>
+                                <p className='text-[10px] text-gray-500 dark:text-gray-400'>Default time per appointment</p>
                             </div>
                         </div>
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center gap-3">
                             <Input 
                                 type="number" 
                                 name="slot_duration_minutes"
-                                value={formData.slot_duration_minutes}
-                                onChange={handleChange}
-                                className="w-24 h-10 text-center font-bold"
+                                value={rulesData.slot_duration_minutes}
+                                onChange={handleRuleChange}
+                                className="w-20 h-9 text-center font-black"
                             />
-                            <span className="text-xs font-medium text-gray-500">Minutes</span>
+                            <span className="text-[10px] font-black uppercase text-gray-400">Mins</span>
                         </div>
                     </div>
 
                     {/* Waitlist Toggle */}
-                    <div className='flex items-center justify-between p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]'>
-                        <div className='flex items-start gap-4'>
-                            <div className='p-2.5 rounded-xl bg-amber-100 dark:bg-amber-500/10 text-amber-600 shadow-sm'>
-                                <ShieldCheck size={20} />
+                    <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]'>
+                        <div className='flex items-center gap-4'>
+                            <div className='p-2 rounded-lg bg-amber-100 dark:bg-amber-500/10 text-amber-600'>
+                                <ShieldCheck size={18} />
                             </div>
                             <div>
-                                <h5 className='text-sm font-bold text-gray-900 dark:text-white'>Waitlist System</h5>
-                                <p className='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>Enable waitlist for fully booked days.</p>
+                                <h5 className='text-xs font-bold text-gray-900 dark:text-white uppercase'>Waitlist System</h5>
+                                <p className='text-[10px] text-gray-500 dark:text-gray-400'>Enable waitlist for fully booked days</p>
                             </div>
                         </div>
                         <Switch 
-                            checked={formData.waitlist_enabled} 
-                            onCheckedChange={(checked) => setFormData(p => ({ ...p, waitlist_enabled: checked }))}
+                            checked={rulesData.waitlist_enabled} 
+                            onChange={(checked) => setRulesData(p => ({ ...p, waitlist_enabled: checked }))}
                         />
                     </div>
                 </div>
 
+                <div className='mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-end'>
+                    <Button 
+                        onClick={handleSaveRules}
+                        disabled={updating}
+                        className='px-8 h-11 rounded-xl text-[11px] font-black uppercase tracking-widest bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/20'
+                    >
+                        Save Booking Rules
+                    </Button>
+                </div>
+            </div>
+
+            {/* 2. OPERATING HOURS SECTION */}
+            <div className='p-6 border border-gray-200 rounded-xl dark:border-gray-800 lg:p-7 bg-white dark:bg-white/[0.03] shadow-sm'>
+                <div className='flex items-center justify-between mb-8'>
+                    <div>
+                        <h4 className='text-lg font-bold text-gray-900 dark:text-white'>
+                            Weekly Operating Hours
+                        </h4>
+                        <p className='text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1 font-bold'>
+                            Define when the clinic is open and lunch breaks
+                        </p>
+                    </div>
+                    <div className='flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10'>
+                        <Clock size={12} className='text-blue-500' />
+                        <span className='text-[10px] font-black text-blue-600 uppercase tracking-tighter'>24h Format</span>
+                    </div>
+                </div>
+
+                <div className='space-y-4'>
+                    {scheduleData.map((day, idx) => (
+                        <div key={day.day_of_week} className={`p-4 rounded-xl border ${day.is_open ? 'border-gray-100 dark:border-gray-800 bg-white dark:bg-white/[0.01]' : 'border-gray-100 bg-gray-50/50 dark:bg-white/[0.01] opacity-60'}`}>
+                            <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
+                                {/* Day Name & Toggle */}
+                                <div className='flex items-center justify-between lg:justify-start lg:gap-6 lg:w-48'>
+                                    <h5 className={`text-sm font-black uppercase tracking-tight ${day.is_open ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
+                                        {days[day.day_of_week]}
+                                    </h5>
+                                    <Switch 
+                                        checked={day.is_open}
+                                        onChange={(checked) => handleScheduleChange(idx, 'is_open', checked)}
+                                    />
+                                </div>
+
+                                {day.is_open ? (
+                                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow'>
+                                        {/* Shift Hours */}
+                                        <div className='flex items-center gap-4 bg-gray-50/50 dark:bg-white/[0.02] p-3 rounded-xl border border-gray-100 dark:border-gray-800'>
+                                            <div className='p-2 rounded-lg bg-orange-100 dark:bg-orange-500/10 text-orange-600'>
+                                                <Sun size={14} />
+                                            </div>
+                                            <div className='flex items-center gap-2'>
+                                                <Input 
+                                                    type="text"
+                                                    value={day.open_time?.substring(0, 5) || '08:00'}
+                                                    onChange={(e) => handleScheduleChange(idx, 'open_time', e.target.value)}
+                                                    className="w-16 h-8 text-xs font-bold p-0 text-center border-none bg-transparent"
+                                                />
+                                                <span className='text-gray-300'>—</span>
+                                                <Input 
+                                                    type="text"
+                                                    value={day.close_time?.substring(0, 5) || '17:00'}
+                                                    onChange={(e) => handleScheduleChange(idx, 'close_time', e.target.value)}
+                                                    className="w-16 h-8 text-xs font-bold p-0 text-center border-none bg-transparent"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Lunch Break */}
+                                        <div className='flex items-center gap-4 bg-gray-50/50 dark:bg-white/[0.02] p-3 rounded-xl border border-gray-100 dark:border-gray-800'>
+                                            <div className='p-2 rounded-lg bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600'>
+                                                <Coffee size={14} />
+                                            </div>
+                                            <div className='flex items-center gap-2'>
+                                                <Input 
+                                                    type="text"
+                                                    value={day.lunch_start_time?.substring(0, 5) || ''}
+                                                    onChange={(e) => handleScheduleChange(idx, 'lunch_start_time', e.target.value || null)}
+                                                    placeholder="12:00"
+                                                    className="w-16 h-8 text-xs font-bold p-0 text-center border-none bg-transparent"
+                                                />
+                                                <span className='text-gray-300'>—</span>
+                                                <Input 
+                                                    type="text"
+                                                    value={day.lunch_end_time?.substring(0, 5) || ''}
+                                                    onChange={(e) => handleScheduleChange(idx, 'lunch_end_time', e.target.value || null)}
+                                                    placeholder="13:00"
+                                                    className="w-16 h-8 text-xs font-bold p-0 text-center border-none bg-transparent"
+                                                />
+                                            </div>
+                                            <p className='text-[9px] font-black uppercase text-gray-400 tracking-tighter leading-none'>Lunch Break</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className='flex items-center gap-3 py-3'>
+                                        <Moon size={14} className='text-gray-300' />
+                                        <span className='text-[10px] font-black uppercase text-gray-300 tracking-widest'>Clinic Closed</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
                 <div className='mt-10 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-end'>
                     <Button 
-                        onClick={handleSubmit}
+                        onClick={handleSaveSchedule}
                         disabled={updating}
-                        className='px-10 h-12 rounded-xl text-sm font-black bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-md shadow-brand-500/20 disabled:opacity-50'
+                        className='px-10 h-12 rounded-xl text-sm font-black bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-black dark:hover:bg-gray-100 transition-all shadow-xl shadow-black/10'
                     >
-                        {updating ? 'Updating...' : 'Save Rule Changes'}
+                        {updating ? 'Updating...' : 'Save Weekly Schedule'}
                     </Button>
                 </div>
             </div>

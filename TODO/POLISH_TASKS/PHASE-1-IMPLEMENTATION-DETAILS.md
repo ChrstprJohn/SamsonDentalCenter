@@ -128,21 +128,17 @@ We need to ensure the `clinic_settings` table matches the planned features.
 - [x] Setup basic Admin Settings Pages (`SettingsPage.jsx`).
 - [x] Build Base `Skeletons.jsx` (Dashboard, Table, List, Form).
 - [x] Implement `ConfirmationModal` component.
-- [~] Build Settings Forms (Rules, Holidays, General, System Health).
-    - _Note:_ `ClinicGeneralSettings` is missing hero banner toggle, privacy policy, and terms text
-      editors.
-    - _Note:_ Notifications Settings (SMS/Email toggles) component is missing.
-    - _Note:_ Operating Hours setup in `ClinicRulesSettings` is incomplete (needs exact open/close
-      times mapping per day + lunch breaks).
-- [ ] **Missing:** Implement a global `ErrorBoundary` to catch React rendering failures gracefully.
-- [ ] **Missing:** Implement a standardized `PageError` component for failed API loads (404/500).
-- [ ] **Missing:** Add "Session Timeout" warning mechanism in Admin Layout.
+- [x] Build Settings Forms (Rules, Holidays, General, System Health).
+    - _Note:_ Settings UI is now fully split into General, Website, Rules, Notifications, Legal,
+      Health, and Holidays.
+- [x] Implement a global `ErrorBoundary` to catch React rendering failures gracefully.
+- [x] Implement a standardized `PageError` component for failed API loads (404/500).
+- [x] Add "Session Timeout" warning mechanism in Admin Layout.
 
 **User App Integration:**
 
-- [ ] **Missing:** Synchronize the User App Calendar to actually fetch and respect
-      `booking_lead_time_hours` and `clinic_holidays` from the new Settings API instead of hardcoded
-      constants.
+- [x] Synchronize the User App Calendar to actually fetch and respect `booking_lead_time_hours` and
+      `clinic_holidays` from the new Settings API instead of hardcoded constants.
 
 ## 🚀 Upcoming: Conflict & Displacement Management
 
@@ -170,3 +166,71 @@ following safety mechanisms:
 3. [x] Scaffold Backend Settings API.
 4. [x] Build the Admin Settings UI.
 5. [x] Implement Audit Logging for all configuration changes.
+6. [x] Implement Global Error Handling & Session Management.
+7. [x] Synchronize operational rules with Patient Application.
+
+---
+
+## FUTURE IMPROVEMENTS & SYNC (POST-PHASE 1 EXTENSION)
+
+> [!IMPORTANT] The following items are identified as critical polish tasks to be addressed after the
+> core Phase 1 Extension is verified.
+
+- **High-Fidelity Action Alerts**: Implement a unified, premium alert system (Toasts/Modals) for all
+  critical actions:
+    - Success feedback for Saving/Updating settings.
+    - Warning/Confirmation modals for Deleting or Removing items (e.g., Holidays, Schedule shifts).
+    - Error notifications with retry logic.
+- **Cross-App Configuration Sync**: While the Clinic Settings (Contact, Website, Notifications,
+  Legal) are now persisted in the database, they must be incrementally hooked up to all parts of the
+  ecosystem:
+    - **Patient Portal**: Use `about_text`, `privacy_policy_text`, and `terms_of_service_text` on
+      the respective public pages.
+    - **Email/SMS Templates**: Use `email_official` and `phone_primary` as the sender identity and
+      contact fallback.
+    - **SEO & Meta**: Use the `clinic_name` and `hero_banner_text` for dynamic meta tag generation.
+
+---
+
+## 🧪 MANUAL TESTING CHECKLIST (Verification)
+
+Run through this checklist manually in the browser to ensure Phase 1 is fully operational and safe.
+
+### 1. Database & Backend Validation
+
+- [ ] **Data Persistence:** Update a setting (e.g., `booking_lead_time_hours`) in the Admin UI.
+      Verify the change is reflected in the Supabase `clinic_settings` table.
+- [ ] **Audit Trigger Logs:** Change a setting. Verify that exactly one new record appears in the
+      Supabase `audit_log` table showing who did it and what changed.
+- [ ] **RBAC Protection:** Use a non-admin token (e.g., Patient JWT) and attempt to send a
+      `PATCH /api/v1/settings` request via Postman/cURL. Expect a `403 Forbidden`.
+
+### 2. Frontend Settings UI (Admin)
+
+- [ ] **General / Website Settings:** Change `clinic_name` and `hero_banner_text`. Save, refresh the
+      page, and ensure the state persists.
+- [ ] **Rules Settings:** Toggle `waitlist_enabled` off. Change `slot_duration_minutes`. Save and
+      refresh to verify persistence.
+- [ ] **Notifications Settings:** Toggle the SMS and Email gateways off. Verify the API successfully
+      updates the boolean values.
+- [ ] **Legal Settings:** Paste markdown into the Privacy Policy editor. Save and verify formatting
+      is retained.
+- [ ] **Holidays Table:** Add a new Holiday. Verify it appears in the list. Delete the Holiday,
+      confirm via the `ConfirmationModal`, and verify it disappears.
+
+### 3. Shell / Global Components (Admin)
+
+- [ ] **ErrorBoundary:** Temporarily throw a manual error inside a standard component (e.g.,
+      `throw new Error('Test')` inside `SettingsPage`). Verify the global ErrorBoundary UI catches
+      it instead of showing a blank white screen.
+- [ ] **PageError:** Navigate to a fake Admin route (e.g., `/admin/does-not-exist`). Verify the
+      custom 404 PageError component renders.
+- [ ] **Session Timeout:** Remain idle on the Admin dashboard for the timeout duration (temporarily
+      set to 1 minute for testing). Verify the warning popup appears and logs you out.
+
+### 4. Integration Verification
+
+- [ ] **User App Sync:** Go to the User Booking calendar. Ensure the slots blocked out match the
+      newly added `clinic_holidays`.
+- [ ] **Lead Time Sync:** Set Admin Lead Time to 48 hours. Go to User Booking. Ensure today and
+      tomorrow are un-clickable.

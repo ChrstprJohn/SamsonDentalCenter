@@ -75,3 +75,19 @@ accidentally wiping out appointment histories while building Phase 4._
 3. **Legal / Templates:** Connect the editable Clinic Settings (emails/SMS/legal) to the Live User
    App.
 4. **Final QA Check:** Ensure ALL destructive actions have the proper warning pop-ups.
+
+---
+
+## FUTURE IMPROVEMENTS & SYNC (POST-PHASE 1 EXTENSION)
+
+> [!IMPORTANT]
+> The following items are identified as critical polish tasks to be addressed after the core Phase 1 Extension is verified.
+
+- **High-Fidelity Action Alerts**: Implement a unified, premium alert system (Toasts/Modals) for all critical actions:
+    - Success feedback for Saving/Updating settings.
+    - Warning/Confirmation modals for Deleting or Removing items (e.g., Holidays, Schedule shifts).
+    - Error notifications with retry logic.
+- **Cross-App Configuration Sync**: While the Clinic Settings (Contact, Website, Notifications, Legal) are now persisted in the database, they must be incrementally hooked up to all parts of the ecosystem:
+    - **Patient Portal**: Use `about_text`, `privacy_policy_text`, and `terms_of_service_text` on the respective public pages.
+    - **Email/SMS Templates**: Use `email_official` and `phone_primary` as the sender identity and contact fallback.
+    - **SEO & Meta**: Use the `clinic_name` and `hero_banner_text` for dynamic meta tag generation.

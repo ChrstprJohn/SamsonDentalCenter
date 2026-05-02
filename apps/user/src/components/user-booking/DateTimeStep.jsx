@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronDown, ChevronRight, Lock, X, AlertCircle, RefreshCw, Clock, Plus, ArrowRight, Hourglass, Calendar, MousePointer2, Loader2, CheckCircle2, CalendarDays, Check, Users, CalendarX } from 'lucide-react';
 import { api } from '../../utils/api';
 import useSlots from '../../hooks/useSlots';
+import { useClinicSettings } from '../../hooks/useClinicSettings';
 import ErrorState from '../common/ErrorState';
 import JoinWaitlistModal from './JoinWaitlistModal';
 import WaitlistOnlyWarningModal from './WaitlistOnlyWarningModal';
@@ -36,6 +37,12 @@ const DateTimeStep = ({
     const [isDoctorDropdownOpen, setIsDoctorDropdownOpen] = useState(false);
     const [pendingDate, setPendingDate] = useState(null);
 
+    // ✅ NEW: Fetch dynamic clinic settings (lead time, horizon, holidays)
+    const { settings, holidays, schedule, loading: settingsLoading } = useClinicSettings();
+
+    // ✅ Ref for coordinating requests and debouncing
+    const fetchTimeoutRef = useRef(null);
+
     // ✅ Slot holding for user booking (passed from parent)
     const { activeHold, holdSlot, releaseHold, formattedTime, holdLoading, holdError, timeRemaining } = slotHold;
 
@@ -50,12 +57,22 @@ const DateTimeStep = ({
         return d;
     }, []);
 
-    // Max booking days ahead (90 days is reasonable, adjust as needed)
-    const MAX_BOOKING_DAYS_AHEAD = 90;
-    const maxDate = useMemo(
-        () => new Date(today.getTime() + MAX_BOOKING_DAYS_AHEAD * 24 * 60 * 60 * 1000),
-        [today],
-    );
+    // ✅ Min booking date based on lead time
+    const minDate = useMemo(() => {
+        const d = new Date();
+        const leadTime = settings?.booking_lead_time_hours || 24;
+        d.setHours(d.getHours() + leadTime);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }, [settings]);
+
+    // Max booking days ahead
+    const maxDate = useMemo(() => {
+        const horizon = settings?.booking_max_horizon_days || 90;
+        const d = new Date(today);
+        d.setDate(d.getDate() + horizon);
+        return d;
+    }, [today, settings]);
 
     const [viewDate, setViewDate] = useState(() => {
         if (selectedDate) return new Date(selectedDate);
@@ -504,7 +521,7 @@ const DateTimeStep = ({
     const showNoAppointments = hasNoSpecialists || hasNoSlots;
 
     // ✅ Initial Loading State: Prevent flicker by showing a high-fidelity pulse skeleton
-    if ((specialistsLoading || statusLoading) && (specialists.length === 0 || !availabilityStatus)) {
+    if ((specialistsLoading || statusLoading || settingsLoading) && (specialists.length === 0 || !availabilityStatus || !settings)) {
         return (
             <div className="flex flex-col gap-10 animate-pulse py-2">
                 {/* Header Skeleton */}
@@ -671,22 +688,19 @@ const DateTimeStep = ({
                         {calendarDays.map((date, idx) => {
                             const key = formatDateKey(date);
                             const isCurrentMonth = date.getMonth() === viewDate.getMonth();
-                            const isPast = date < today;
+                            const isPast = date < minDate;
                             const isToday = date.getTime() === today.getTime();
                             const isSelected = key === selectedDate;
                             
-                            // ✅ Disable dates outside of the 90 day limit or in the past
-                            let isDisabled = isPast || isToday || date > maxDate || isProcessing;
-                            
-                            // ✅ Disable dates that are not in the working days array
-                            if (availabilityStatus?.working_days?.length > 0) {
-                                if (!availabilityStatus.working_days.includes(date.getDay())) {
-                                    isDisabled = true;
-                                }
-                            } else {
-                                // Fallback check if working_days isn't loaded: disable Sunday
-                                if (date.getDay() === 0) isDisabled = true;
-                            }
+                            // ✅ Check if date is a holiday
+                            const isHoliday = holidays?.some(h => h.date === key && h.is_closed);
+
+                            // ✅ Check if day of week is open in schedule
+                            const daySchedule = schedule?.find(s => s.day_of_week === date.getDay());
+                            const isClosedDay = daySchedule ? !daySchedule.is_open : (date.getDay() === 0);
+
+                            // ✅ Combine disabling rules
+                            let isDisabled = isPast || date > maxDate || isHoliday || isClosedDay || isProcessing;
 
                             if (!isCurrentMonth) return <div key={idx} className="aspect-square" />;
                             return (
