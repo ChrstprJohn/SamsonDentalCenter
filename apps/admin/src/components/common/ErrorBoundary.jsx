@@ -19,42 +19,46 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50 dark:bg-gray-900">
-          <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-2xl shadow-brand-500/10 border border-gray-100 dark:border-gray-700 text-center">
-            <div className="w-20 h-20 bg-red-100 dark:bg-red-500/10 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
-              <ShieldAlert size={40} />
+        <div className="min-h-screen flex items-center justify-center p-6 bg-white dark:bg-gray-900 animate-in fade-in zoom-in duration-300">
+          <div className="max-w-md w-full text-center">
+            <div className="w-24 h-24 bg-red-100 dark:bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+              <ShieldAlert size={48} />
             </div>
             
-            <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-4">
-              Something went wrong.
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
+              Something went wrong
             </h1>
             
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-8 leading-relaxed">
-              An unexpected error occurred in the application. We've been notified and are looking into it.
+            <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-10 text-sm leading-relaxed font-medium">
+              The application encountered an unexpected error. We've been notified and are working to resolve it.
             </p>
 
-            <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs mx-auto">
               <Button 
                 onClick={() => window.location.reload()}
-                className="w-full h-12 bg-brand-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-brand-600 transition-all"
+                className="flex-1 h-12 bg-brand-500 text-white rounded-xl font-black shadow-lg shadow-brand-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
               >
                 <RefreshCcw size={18} />
-                Reload Application
+                Reload
               </Button>
               
               <Button 
                 onClick={() => window.location.href = '/'}
-                className="w-full h-12 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
+                variant="outline"
+                className="flex-1 h-12 rounded-xl font-black shadow-sm flex items-center justify-center gap-2"
               >
                 <Home size={18} />
-                Back to Dashboard
+                Home
               </Button>
             </div>
 
             {process.env.NODE_ENV === 'development' && (
-              <div className="mt-8 p-4 bg-gray-50 dark:bg-black/20 rounded-xl text-left overflow-auto max-h-40 border border-gray-100 dark:border-gray-800">
-                <p className="text-[10px] font-mono text-red-500 font-bold uppercase mb-2">Debug Info:</p>
-                <p className="text-[10px] font-mono text-gray-400 break-all">
+              <div className="mt-12 p-5 bg-gray-50 dark:bg-black/20 rounded-2xl text-left overflow-auto max-h-48 border border-gray-100 dark:border-gray-800 animate-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                  <p className="text-[10px] font-black font-mono text-red-500 uppercase tracking-widest">Debug Info</p>
+                </div>
+                <p className="text-[11px] font-mono text-gray-400 break-words leading-relaxed">
                   {this.state.error?.toString()}
                 </p>
               </div>

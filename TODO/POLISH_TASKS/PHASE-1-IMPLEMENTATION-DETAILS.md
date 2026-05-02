@@ -220,11 +220,11 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 
 ### 3. Shell / Global Components (Admin)
 
-- [ ] **ErrorBoundary:** Temporarily throw a manual error inside a standard component (e.g.,
+- [x] **ErrorBoundary:** Temporarily throw a manual error inside a standard component (e.g.,
       `throw new Error('Test')` inside `SettingsPage`). Verify the global ErrorBoundary UI catches
-      it instead of showing a blank white screen.
-- [ ] **PageError:** Navigate to a fake Admin route (e.g., `/admin/does-not-exist`). Verify the
-      custom 404 PageError component renders.
+      it instead of showing a blank white screen. (Fixed: Styled to match PageError and fixed light mode font).
+- [x] **PageError:** Navigate to a fake Admin route (e.g., `/admin/does-not-exist`). Verify the
+      custom 404 PageError component renders (Fixed: replaced redirect with PageError).
 - [ ] **Session Timeout:** Remain idle on the Admin dashboard for the timeout duration (temporarily
       set to 1 minute for testing). Verify the warning popup appears and logs you out.
 

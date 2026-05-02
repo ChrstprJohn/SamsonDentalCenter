@@ -19,6 +19,7 @@ import Services from '../pages/admin/Services';
 import ServiceDetail from '../pages/admin/ServiceDetail';
 import Settings from '../pages/admin/Settings';
 import AuditLogs from '../pages/admin/AuditLogs';
+import PageError from '../components/common/PageError';
 import AdminProfile from '../pages/admin/AdminProfile';
 
 const AppRoutes = () => {
@@ -26,13 +27,13 @@ const AppRoutes = () => {
         <>
             <ScrollToTop />
             <Routes>
-                {/* Ã¢â€ â‚¬Ã¢â€ â‚¬ Auth Ã¢â€ â‚¬Ã¢â€ â‚¬ */}
+                {/* ── Auth ── */}
                 <Route
                     path='/login'
                     element={<LoginPage />}
                 />
 
-                {/* Ã¢â€ â‚¬Ã¢â€ â‚¬ Admin Portal (Sidebar Layout) Ã¢â€ â‚¬Ã¢â€ â‚¬ */}
+                {/* ── Admin Portal (Sidebar Layout) ── */}
                 <Route
                     path='/'
                     element={
@@ -66,23 +67,10 @@ const AppRoutes = () => {
                     <Route path='profile' element={<AdminProfile />} />
                 </Route>
 
-                {/* Ã¢â€â‚¬Ã¢â€â‚¬ Catch-all Ã¢â€â‚¬Ã¢â€â‚¬ */}
-                <Route
-                    path='*'
-                    element={
-                        <Navigate
-                            to='/'
-                            replace
-                        />
-                    }
-                />
+                {/* Global Catch-all (Outside layout) */}
+                <Route path='*' element={<PageError type="404" fullPage />} />
             </Routes>
         </>
     );
 };
-
 export default AppRoutes;
-
-
-
-

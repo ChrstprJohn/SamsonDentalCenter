@@ -2,7 +2,7 @@ import React from 'react';
 import { AlertCircle, WifiOff, ServerCrash, Search } from 'lucide-react';
 import { Button } from '../ui';
 
-const PageError = ({ type = '500', message, onRetry }) => {
+const PageError = ({ type = '500', message, onRetry, fullPage = false }) => {
     const errorConfigs = {
         '404': {
             icon: <Search className="text-amber-500" size={48} />,
@@ -27,7 +27,7 @@ const PageError = ({ type = '500', message, onRetry }) => {
     const config = errorConfigs[type] || errorConfigs['500'];
 
     return (
-        <div className="flex flex-col items-center justify-center py-20 px-6 text-center animate-in fade-in zoom-in duration-300">
+        <div className={`flex flex-col items-center justify-center ${fullPage ? 'min-h-screen bg-white dark:bg-gray-900' : 'py-20'} px-6 text-center animate-in fade-in zoom-in duration-300`}>
             <div className={`w-24 h-24 ${config.bgColor} rounded-full flex items-center justify-center mb-8 shadow-inner`}>
                 {config.icon}
             </div>
@@ -51,7 +51,8 @@ const PageError = ({ type = '500', message, onRetry }) => {
                 )}
                 <Button 
                     onClick={() => window.location.href = '/'}
-                    className="flex-1 h-12 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl font-black hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                    variant="outline"
+                    className="flex-1 h-12 rounded-xl font-black shadow-sm"
                 >
                     Go Home
                 </Button>
