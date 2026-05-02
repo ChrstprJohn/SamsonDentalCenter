@@ -1,3 +1,3 @@
 # DOCTOR APP: POLISH & TO-DO LIST
 
-*(Pending tasks to be dictated)*
+_(Pending tasks to be dictated)_

@@ -5,18 +5,20 @@ import ClinicGeneralSettings from '../../components/admin/settings/ClinicGeneral
 import ClinicRulesSettings from '../../components/admin/settings/ClinicRulesSettings';
 import ClinicHolidaysSettings from '../../components/admin/settings/ClinicHolidaysSettings';
 import SystemHealthSettings from '../../components/admin/settings/SystemHealthSettings';
+import { useAuth } from '../../context/AuthContext';
 
 const Settings = () => {
     const { tab } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const activeTab = tab || 'general';
 
     const tabs = [
-        { id: 'general', label: 'General Details' },
-        { id: 'rules', label: 'Global Rules' },
-        { id: 'holidays', label: 'Clinic Holidays' },
-        { id: 'health', label: 'System Health' }
-    ];
+        { id: 'general', label: 'General Details', allowedRoles: ['admin', 'secretary', 'receptionist'] },
+        { id: 'rules', label: 'Global Rules', allowedRoles: ['admin'] },
+        { id: 'holidays', label: 'Clinic Holidays', allowedRoles: ['admin', 'secretary'] },
+        { id: 'health', label: 'System Health', allowedRoles: ['admin'] }
+    ].filter(t => t.allowedRoles.includes(user?.role));
 
     return (
         <div className='flex flex-col h-full'>

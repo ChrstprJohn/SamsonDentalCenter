@@ -39,22 +39,53 @@ export const getAvailableSlots = async (
     dentistId = null,
     excludeAppointmentId = null,
 ) => {
-    // ✅ NEW: Check if date is today (same-day booking prevention)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const requestedDate = new Date(date);
-    requestedDate.setHours(0, 0, 0, 0);
+    // ── 0. Get Clinic Global Settings ──
+    const { data: settings } = await supabaseAdmin
+        .from('clinic_settings')
+        .select('booking_lead_time_hours, booking_max_horizon_days, waitlist_enabled')
+        .single();
 
-    if (requestedDate.getTime() === today.getTime()) {
-        // Same day booking not allowed
+    const leadTimeHours = settings?.booking_lead_time_hours || 24;
+    const horizonDays = settings?.booking_max_horizon_days || 60;
+
+    // ── 0b. Check lead time and horizon ──
+    const now = new Date();
+    const requestedDate = new Date(date);
+    const horizonDate = new Date();
+    horizonDate.setDate(horizonDate.getDate() + horizonDays);
+
+    if (requestedDate > horizonDate) {
         return handleNoSlots(
             date,
             'N/A',
             0,
-            'Same-day bookings are not allowed. Please select a future date.',
+            `Bookings are only available up to ${horizonDays} days in advance.`,
             serviceId,
             filterSessionId,
             skipNextSearch,
+            dentistId,
+            excludeAppointmentId
+        );
+    }
+
+    // ── 0c. Check for Holidays ──
+    const { data: holiday } = await supabaseAdmin
+        .from('clinic_holidays')
+        .select('name')
+        .eq('date', date)
+        .maybeSingle();
+
+    if (holiday) {
+        return handleNoSlots(
+            date,
+            'N/A',
+            0,
+            `Clinic is closed: ${holiday.name}`,
+            serviceId,
+            filterSessionId,
+            skipNextSearch,
+            dentistId,
+            excludeAppointmentId
         );
     }
 
@@ -89,6 +120,8 @@ export const getAvailableSlots = async (
             serviceId,
             filterSessionId,
             skipNextSearch,
+            dentistId,
+            excludeAppointmentId
         );
     }
 
@@ -96,7 +129,7 @@ export const getAvailableSlots = async (
     // Strategy: 
     // - If dentist has entry in dentist_services, they MUST match the serviceId.
     // - If dentist has NO entry in dentist_services, fall back to tier-based check.
-    
+
     // First, get all active dentists
     const { data: allDentists } = await supabaseAdmin
         .from('dentists')
@@ -104,7 +137,17 @@ export const getAvailableSlots = async (
         .eq('is_active', true);
 
     if (!allDentists || allDentists.length === 0) {
-        return handleNoSlots(date, service.name, durationMinutes, 'No active dentists.', serviceId, filterSessionId, skipNextSearch);
+        return handleNoSlots(
+            date,
+            service.name,
+            durationMinutes,
+            'No active dentists.',
+            serviceId,
+            filterSessionId,
+            skipNextSearch,
+            dentistId,
+            excludeAppointmentId
+        );
     }
 
     // Get dentists who have ANY explicit skills listed
@@ -140,6 +183,8 @@ export const getAvailableSlots = async (
             serviceId,
             filterSessionId,
             skipNextSearch,
+            dentistId,
+            excludeAppointmentId
         );
     }
 
@@ -162,6 +207,8 @@ export const getAvailableSlots = async (
             serviceId,
             filterSessionId,
             skipNextSearch,
+            dentistId,
+            excludeAppointmentId
         );
     }
 
@@ -189,6 +236,8 @@ export const getAvailableSlots = async (
             serviceId,
             filterSessionId,
             skipNextSearch,
+            dentistId,
+            excludeAppointmentId
         );
     }
 
@@ -209,7 +258,6 @@ export const getAvailableSlots = async (
     const { data: existingAppointments } = await apptQuery;
 
     // ── 5b. Get active slot holds on that date (GLOBAL capacity check) ──
-    const now = new Date();
     let holdQuery = supabaseAdmin
         .from('slot_holds')
         .select('start_time, service:services(duration_minutes), user_session_id')
@@ -275,6 +323,18 @@ export const getAvailableSlots = async (
             );
             if (hasAppointmentConflict) return false;
 
+            // Check if this slot violates the booking lead time
+            const slotDateTime = new Date(`${date}T${slot}:00`);
+            const leadTimeLimit = new Date(Date.now() + leadTimeHours * 60 * 60 * 1000);
+            if (slotDateTime < leadTimeLimit) return false;
+
+            // Check if this slot overlaps with the clinic-wide lunch break
+            if (clinicDay.lunch_start_time && clinicDay.lunch_end_time) {
+                if (timesOverlap(slot, slotEnd, clinicDay.lunch_start_time, clinicDay.lunch_end_time)) {
+                    return false;
+                }
+            }
+
             // Check if this slot overlaps with any partial day block (leave/training)
             const hasBlockConflict = dentistBlocks.some((block) => {
                 const bStart = block.start_time || '00:00';
@@ -337,9 +397,11 @@ export const getAvailableSlots = async (
     // ✅ If no slots available, find the next available date (unless we are already searching)
     if (totalAvailable === 0 && !skipNextSearch) {
         response.next_available_date = await findNextAvailableDate(
+            date,
+            serviceId,
             filterSessionId,
             dentistId,
-            excludeAppointmentId,
+            excludeAppointmentId
         );
     }
 
@@ -357,6 +419,8 @@ async function handleNoSlots(
     serviceId,
     filterSessionId,
     skipNextSearch,
+    dentistId = null,
+    excludeAppointmentId = null,
 ) {
     const response = {
         all_slots: [],
@@ -369,7 +433,13 @@ async function handleNoSlots(
     };
 
     if (!skipNextSearch) {
-        response.next_available_date = await findNextAvailableDate(date, serviceId, filterSessionId);
+        response.next_available_date = await findNextAvailableDate(
+            date,
+            serviceId,
+            filterSessionId,
+            dentistId,
+            excludeAppointmentId
+        );
     }
 
     return response;
@@ -396,13 +466,21 @@ export const findNextAvailableDate = async (
         if (!service) return null;
         const durationMinutes = service.duration_minutes;
 
-        // 2. Get clinic open days
-        const { data: clinicSchedule } = await supabaseAdmin
-            .from('clinic_schedule')
-            .select('day_of_week')
-            .eq('is_open', true);
-        const openClinicDays = new Set((clinicSchedule || []).map((d) => d.day_of_week));
+        // 2. Get clinic open days and settings
+        const [scheduleRes, settingsRes, holidaysRes] = await Promise.all([
+            supabaseAdmin.from('clinic_schedule').select('*').eq('is_open', true),
+            supabaseAdmin.from('clinic_settings').select('booking_max_horizon_days, booking_lead_time_hours').single(),
+            supabaseAdmin.from('clinic_holidays').select('date')
+        ]);
+
+        const clinicSchedule = scheduleRes.data || [];
+        const openClinicDays = new Map(clinicSchedule.map((d) => [d.day_of_week, d]));
         if (openClinicDays.size === 0) return null;
+
+        const settings = settingsRes.data;
+        const horizonDays = settings?.booking_max_horizon_days || 60;
+        const leadTimeHours = settings?.booking_lead_time_hours || 24;
+        const holidays = new Set((holidaysRes.data || []).map(h => h.date));
 
         // 3. Get QUALIFIED active dentists
         const { data: allDentists } = await supabaseAdmin
@@ -438,10 +516,10 @@ export const findNextAvailableDate = async (
 
         if (!workSchedules || workSchedules.length === 0) return null;
 
-        // 5. BATCH FETCH for next 90 days
+        // 5. BATCH FETCH for next horizon
         const start = new Date(startDate);
         const end = new Date(start);
-        end.setDate(end.getDate() + 90);
+        end.setDate(end.getDate() + horizonDays);
         const endDateStr = end.toISOString().split('T')[0];
 
         const [blocksRes, apptsRes, holdsRes] = await Promise.all([
@@ -471,15 +549,17 @@ export const findNextAvailableDate = async (
         const appts = apptsRes.data || [];
         const holds = holdsRes.data || [];
 
-        // 6. Search forward
-        for (let i = 1; i <= 90; i++) {
+        // 6. Search forward (including start date)
+        for (let i = 0; i <= horizonDays; i++) {
             const nextDate = new Date(start);
             nextDate.setDate(nextDate.getDate() + i);
+            const dateStr = nextDate.toISOString().split('T')[0];
             const dayOfWeek = nextDate.getDay();
 
             if (!openClinicDays.has(dayOfWeek)) continue;
+            if (holidays.has(dateStr)) continue;
 
-            const dateStr = nextDate.toISOString().split('T')[0];
+            const clinicDay = openClinicDays.get(dayOfWeek);
 
             // Check each qualified dentist who works this day
             const dailyDentists = workSchedules.filter((s) => s.day_of_week === dayOfWeek);
@@ -498,7 +578,7 @@ export const findNextAvailableDate = async (
                     (b) => b.dentist_id === dId && b.block_date === dateStr && b.start_time,
                 );
                 const dailyAppts = appts.filter(
-                    (a) => a.dentist_id === dId && (a.appointment_date === dateStr || a.date === dateStr),
+                    (a) => a.dentist_id === dId && a.appointment_date === dateStr,
                 );
                 const dailyHolds = holds.filter((h) => h.appointment_date === dateStr);
 
@@ -517,6 +597,18 @@ export const findNextAvailableDate = async (
                         dailyAppts.some((a) => timesOverlap(slot, slotEnd, a.start_time, a.end_time))
                     )
                         return false;
+
+                    // Lead time conflict
+                    const slotDateTime = new Date(`${dateStr}T${slot}:00`);
+                    const leadTimeLimit = new Date(Date.now() + leadTimeHours * 60 * 60 * 1000);
+                    if (slotDateTime < leadTimeLimit) return false;
+
+                    // Clinic Lunch break conflict
+                    if (clinicDay.lunch_start_time && clinicDay.lunch_end_time) {
+                        if (timesOverlap(slot, slotEnd, clinicDay.lunch_start_time, clinicDay.lunch_end_time)) {
+                            return false;
+                        }
+                    }
 
                     // Block conflict
                     if (
@@ -553,7 +645,7 @@ export const findNextAvailableDate = async (
                     // But for findNextAvailableDate, we just need to know if ONE slot is free.
                     // So we check if (available_doctors_for_this_slot - total_holds_for_this_slot) > 0.
                     // This is slightly complex in-memory without rebuilding the whole map.
-                    
+
                     // Simple heuristic: if there's no hold, it's free. If there's a hold, skip for now.
                     if (holdCount > 0) return false;
 
@@ -662,7 +754,7 @@ export const getServiceAvailabilityStatus = async (serviceId, dentistId = null) 
             .select('service_id')
             .eq('dentist_id', dentistId)
             .eq('service_id', serviceId);
-        
+
         if (offers && offers.length > 0) {
             matchIds = [dentistId];
         }
