@@ -106,3 +106,7 @@
 
 - [ ] **Legal Footer Links:** Fix "Privacy Policy" and "Terms & Conditions" links in the Patient Portal footer to correctly redirect to their respective pages.
 - [ ] **Notification Toggle Test:** Verify that Admin toggles for SMS/Email notifications correctly enable/disable communications during the booking flow.
+
+BUG ON BOOKING FLOW OF GUEST IF THE DOCTOR IS AVAILABLE BUT THE SLOT IS NOT OR VICE VERSA IT SHOULD NOT BE SHOWN IN THE DOCTOR LIST SINCE TECHINACLLY IT IS NOT AVAILABLE AT ALL
+
+OTP MAKE IT CAN ONLY TRY 5 times if it failed then it will send the OTP again but it should be delay for 2mins to send again to prevent spam and abuse

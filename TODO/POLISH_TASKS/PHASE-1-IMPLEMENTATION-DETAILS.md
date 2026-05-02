@@ -155,7 +155,7 @@ We need to ensure the `clinic_settings` table matches the planned features.
       `clinic_holidays` from the Settings API instead of hardcoded constants.
 - [x] **General Details Sync:** Update the User App footer and contact pages to use the dynamic
       `phone_primary`, `email_official`, and `physical_address`.
-- x] **Website (Banner) Sync:** Fetch and display the `hero_banner_text` on the User App homepage
+- [] **Website (Banner) Sync:** Fetch and display the `hero_banner_text` on the User App homepage
       if `hero_banner_enabled` is true.
 - [x] **Notifications Sync:** Update the backend booking controllers to check if
       `sms_notifications_enabled` or `email_notifications_enabled` are true before firing Resend/SMS
@@ -279,4 +279,22 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 - [x] **Guest Booking Fallback (Test 1):** Go to Admin Settings -> Automated Notifications. Turn Email Notifications **OFF**. Go to the Guest Booking page. Verify the "Booking Unavailable" fallback message is shown and the wizard is hidden.
 - [x] **Guest Booking Fallback (Test 2):** Go back to Admin Settings. Turn Email Notifications **ON**. Go to the Guest Booking page. Verify the booking wizard is functional again.
 
+### 5. Message Activity & Webhooks
+- [x] **Provider ID Visibility:** Verified that the `provider_id` is now visible in the Admin Message Activity table for easier debugging and testing.
+- [ ] **Real-Time Status Update (Simulation):** 
+    - **How it works:** This test simulates a "Ping" from Resend to your server. It mimics the behavior where a patient opens an email, triggering a webhook that updates the database status.
+    - **Test Action:** Copy an ID from the Message Activity table (starts with `re_`) and run this command in your terminal:
+    ```bash
+    curl -X POST http://localhost:5000/api/v1/webhooks/resend `
+    -H "Content-Type: application/json" `
+    -d '{
+      "type": "email.opened",
+      "data": {
+        "email_id": "131dd04f-d888-4e21-942c-72f5951a20a4"
+      }
+    }'
+    ```
+    - **Expected Result:** After refreshing the Admin page, the status for that specific email should change from `Sent` to `Opened` (with a blue badge).
+
 ---
+

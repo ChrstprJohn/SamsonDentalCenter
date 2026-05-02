@@ -7,12 +7,12 @@ import PageBreadcrumb from '../../../components/common/PageBreadcrumb';
 
 // Mock data kept as fallback/demonstration as requested by user
 const MOCK_LOGS = [
-    { id: 'm1', channel: 'email', recipient: 'john@example.com', purpose: 'OTP', status: 'delivered', created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString() },
-    { id: 'm2', channel: 'email', recipient: 'jane@example.com', purpose: 'CONFIRMATION', status: 'opened', created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
-    { id: 'm3', channel: 'sms', recipient: '+639123456789', purpose: 'REMINDER_24H', status: 'sent', created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString() },
-    { id: 'm4', channel: 'email', recipient: 'bounced@example.com', purpose: 'OTP', status: 'bounced', error_details: 'Invalid email address', created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString() },
-    { id: 'm5', channel: 'email', recipient: 'spam@example.com', purpose: 'REMINDER_48H', status: 'complained', created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() },
-    { id: 'm6', channel: 'sms', recipient: '+639000000000', purpose: 'OTP', status: 'failed', error_details: 'Number inactive', created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString() },
+    { id: 'm1', channel: 'email', recipient: 'john@example.com', provider_id: 're_demo_m1', purpose: 'OTP', status: 'delivered', created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString() },
+    { id: 'm2', channel: 'email', recipient: 'jane@example.com', provider_id: 're_demo_m2', purpose: 'CONFIRMATION', status: 'opened', created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
+    { id: 'm3', channel: 'sms', recipient: '+639123456789', provider_id: 'sms_demo_m3', purpose: 'REMINDER_24H', status: 'sent', created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString() },
+    { id: 'm4', channel: 'email', recipient: 'bounced@example.com', provider_id: 're_demo_m4', purpose: 'OTP', status: 'bounced', error_details: 'Invalid email address', created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString() },
+    { id: 'm5', channel: 'email', recipient: 'spam@example.com', provider_id: 're_demo_m5', purpose: 'REMINDER_48H', status: 'complained', created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() },
+    { id: 'm6', channel: 'sms', recipient: '+639000000000', provider_id: 'sms_demo_m6', purpose: 'OTP', status: 'failed', error_details: 'Number inactive', created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString() },
 ];
 
 const MessageActivityPage = () => {
@@ -149,9 +149,16 @@ const MessageActivityPage = () => {
                                                     </div>
                                                 </td>
                                                 <td className='p-5'>
-                                                    <span className='text-sm font-black text-gray-900 dark:text-white font-outfit'>
-                                                        {log.recipient}
-                                                    </span>
+                                                    <div className="flex flex-col">
+                                                        <span className='text-sm font-black text-gray-900 dark:text-white font-outfit'>
+                                                            {log.recipient}
+                                                        </span>
+                                                        {log.provider_id && (
+                                                            <span className="text-[9px] font-mono text-gray-400 mt-0.5 select-all" title="Copy Provider ID">
+                                                                ID: {log.provider_id}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className='p-5 whitespace-nowrap'>
                                                     <span className='text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-2 py-1 rounded-md'>
@@ -173,6 +180,17 @@ const MessageActivityPage = () => {
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                    
+                    <div className='mt-8 pt-6 border-t border-gray-100 dark:border-gray-800'>
+                        <h5 className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4'>Status Legend</h5>
+                        <div className='flex flex-wrap gap-4'>
+                            {['queued', 'sent', 'delivered', 'opened', 'clicked', 'bounced', 'complained', 'failed'].map(status => (
+                                <div key={status} className='flex items-center gap-2'>
+                                    {getStatusBadge(status)}
+                                </div>
+                            ))}
                         </div>
                     </div>
                     

@@ -20,6 +20,7 @@ import doctorRoutes from './routes/doctor.routes.js';
 import smartSlotsRoutes from './routes/smart-slots.routes.js';
 import profilesRoutes from './routes/profiles.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
+import webhookRoutes from './routes/webhook.routes.js';
 
 const app = express();
 
@@ -144,6 +145,7 @@ v1Router.use('/admin/analytics', analyticsRoutes);
 v1Router.use('/doctor', doctorRoutes);
 v1Router.use('/profiles', profilesRoutes);
 v1Router.use('/settings', settingsRoutes);
+v1Router.use('/webhooks', webhookRoutes);
 
 // Apply rate limiting to hold routes
 v1Router.use('/appointments/slots/hold', holdLimiter);
