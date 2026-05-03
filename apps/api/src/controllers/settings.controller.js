@@ -33,9 +33,13 @@ export const getClinicSchedule = async (req, res, next) => {
 
 export const updateClinicSchedule = async (req, res, next) => {
     try {
+        const forceQuery = req.query.force === true || req.query.force === 'true';
+        const forceBody = req.body?.force === true || req.body?.force === 'true';
+        const force = forceQuery || forceBody;
+
         const schedule = await settingsService.updateSchedule(
             req.body,
-            req.query.force === 'true',
+            force,
             req.user.id,
             req.user.role
         );
@@ -56,11 +60,15 @@ export const listHolidays = async (req, res, next) => {
 
 export const createHoliday = async (req, res, next) => {
     try {
+        const forceQuery = req.query.force === true || req.query.force === 'true';
+        const forceBody = req.body?.force === true || req.body?.force === 'true';
+        const force = forceQuery || forceBody;
+
         const holiday = await settingsService.addHoliday(
             req.body,
             req.user.id,
             req.user.role,
-            req.query.force === 'true'
+            force
         );
         res.status(201).json({ message: 'Holiday added successfully.', holiday });
     } catch (err) {

@@ -247,7 +247,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
         showToast('Clinic hours cloned into doctor schedule.', 'success');
     }, [clinicSchedule, draftSchedule, showToast]);
 
-    const saveWeekly = async (overwrite = false) => {
+    const saveWeekly = async (force = false) => {
         if (!doctor?.id) return;
         setIsSaving(true);
         try {
@@ -264,44 +264,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                 };
             });
 
-            if (!overwrite) {
-                // ── Conflict detection (same logic, no window.confirm) ──
-                const allAppointments = await fetchDoctorAppointments(doctor.id);
-                const conflicts = [];
-
-                allAppointments.forEach(appt => {
-                    if (['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'RESCHEDULED', 'DISPLACED'].includes((appt.status || '').toUpperCase())) return;
-
-                    const [y, m, d] = (appt.date || '').split('-');
-                    const jsDow = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay();
-                    const draftDay = payload.find(p => p.day_of_week === jsDow);
-
-                    if (!draftDay || !draftDay.is_working) {
-                        conflicts.push(appt);
-                    } else {
-                        const ast = (appt.start_time || '').substring(0, 5);
-                        const aet = (appt.end_time || '').substring(0, 5);
-                        if (ast < draftDay.start_time || aet > draftDay.end_time) {
-                            conflicts.push(appt);
-                        } else if (draftDay.break_start_time && draftDay.break_end_time) {
-                            if (ast < draftDay.break_end_time && aet > draftDay.break_start_time) {
-                                conflicts.push(appt);
-                            }
-                        }
-                    }
-                });
-
-                if (conflicts.length > 0) {
-                    setConflictingCount(conflicts.length);
-                    setConflictingAppointments(conflicts);
-                    setPendingPayload(payload);
-                    setIsSaving(false);
-                    setConflictModalOpen(true);
-                    return;
-                }
-            }
-
-            await updateDoctorScheduleBulk(doctor.id, { schedules: payload, overwrite });
+            await updateDoctorScheduleBulk(doctor.id, payload, force);
             setIsUsingGlobal(draftIsUsingGlobal);
             await loadData();
             if (onScheduleUpdate) onScheduleUpdate();
@@ -311,6 +274,14 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             setConflictingAppointments([]);
             showToast('Weekly routine updated and saved.', 'success');
         } catch (err) {
+            if (err.status === 409) {
+                setConflictingCount(err.data.conflicts?.length || 0);
+                setConflictingAppointments(err.data.conflicts || []);
+                setIsSaving(false);
+                setConflictModalOpen(true);
+                return;
+            }
+            console.error('Failed to save weekly routine:', err);
             showToast('Failed to save weekly routine.', 'error');
         } finally {
             setIsSaving(false);
@@ -337,41 +308,27 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
         }
     };
 
-    const saveBlocks = async (overwrite = false) => {
+    const saveBlocks = async (force = false) => {
         if (!doctor?.id) return;
         setIsSaving(true);
         try {
-            const allAppointments = await fetchDoctorAppointments(doctor.id);
-            const newBlockDates = Array.from(draftBlockedDates);
-            const conflicts = [];
-
-            if (!overwrite) {
-                allAppointments.forEach(appt => {
-                    if (newBlockDates.includes(appt.date)) {
-                        if (!['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'RESCHEDULED', 'DISPLACED'].includes((appt.status || '').toUpperCase())) {
-                            conflicts.push(appt);
-                        }
-                    }
-                });
-
-                if (conflicts.length > 0) {
-                    setBlockConflictCount(conflicts.length);
-                    setConflictingAppointments(conflicts);
-                    setBlockConflictModalOpen(true);
-                    setIsSaving(false);
-                    return;
-                }
-            }
-
-            await performBlockSave(overwrite);
+            // Backend now handles conflict detection
+            await performBlockSave(force);
         } catch (err) {
+            if (err.status === 409) {
+                setBlockConflictCount(err.data.conflicts?.length || 0);
+                setConflictingAppointments(err.data.conflicts || []);
+                setBlockConflictModalOpen(true);
+                setIsSaving(false);
+                return;
+            }
             console.error('Save blocks error:', err);
             showToast('Error updating blocked dates.', 'error');
             setIsSaving(false);
         }
     };
 
-    const performBlockSave = async (overwrite) => {
+    const performBlockSave = async (force) => {
         setIsSaving(true);
         try {
             // 1. Process Deletions (Unblocks)
@@ -390,7 +347,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     reason: blockReason,
                     notes: blockReason === 'other' ? otherReason : '',
                     cancel_appointments: false,
-                    overwrite: overwrite
+                    overwrite: force // Using 'overwrite' as backend expected
                 });
             });
 
@@ -405,6 +362,9 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             setConflictingAppointments([]);
             showToast('Blocked dates successfully updated.', 'success');
         } catch (err) {
+            // If it's a conflict, rethrow so saveBlocks can handle it
+            if (err.status === 409) throw err;
+            
             console.error('Perform block save error:', err);
             showToast('Error saving blocks.', 'error');
             setIsSaving(false);
@@ -832,7 +792,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         </Button>
                         <Button
                             variant='primary'
-                            onClick={saveBlocks}
+                            onClick={() => saveBlocks(false)}
                             disabled={isSaving || (draftBlockedDates.size === 0 && draftUnblockedDates.size === 0)}
                             className='flex-[1.5] sm:flex-none h-11 font-bold min-w-[150px] px-8'
                         >
@@ -1058,7 +1018,9 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                     
                                     const initials = getInitials(patientName);
                                     const formattedDate = (appt.date || appt.appointment_date) ? (() => {
-                                        const d = new Date(appt.date || appt.appointment_date);
+                                        const dateStr = appt.date || appt.appointment_date;
+                                        // Append T00:00:00 to ensure local time parsing
+                                        const d = new Date(dateStr + 'T00:00:00');
                                         return isNaN(d.getTime()) ? 'Invalid Date' : format(d, 'MMM dd yyyy').toUpperCase();
                                     })() : 'N/A';
 
@@ -1098,7 +1060,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                                         </div>
                                                         <div className="flex items-center gap-3">
                                                             <p className="text-[11px] font-medium text-gray-500 flex items-center gap-2">
-                                                                <Phone size={10} className="text-green-500" />
+                                                                 <Phone size={10} className="text-green-500" />
                                                                 <span className="text-gray-800 dark:text-gray-200">{contactInfo}</span>
                                                             </p>
                                                         </div>
@@ -1168,7 +1130,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                 Cancel & Adjust
                             </Button>
                             <Button 
-                                onClick={() => performBlockSave(true)}
+                                onClick={() => saveBlocks(true)}
                                 disabled={isSaving}
                                 className="flex-1 sm:flex-none bg-amber-500 hover:bg-amber-600 text-white border-0 font-bold"
                             >
@@ -1204,7 +1166,9 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                     
                                     const initials = getInitials(patientName);
                                     const formattedDate = (appt.date || appt.appointment_date) ? (() => {
-                                        const d = new Date(appt.date || appt.appointment_date);
+                                        const dateStr = appt.date || appt.appointment_date;
+                                        // Append T00:00:00 to ensure local time parsing
+                                        const d = new Date(dateStr + 'T00:00:00');
                                         return isNaN(d.getTime()) ? 'Invalid Date' : format(d, 'MMM dd yyyy').toUpperCase();
                                     })() : 'N/A';
 

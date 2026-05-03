@@ -956,12 +956,96 @@ export const setDentistSchedule = async (dentistId, dayOfWeek, schedule) => {
 };
 
 /**
- * Bulk set a dentist's entire weekly schedule.
- *
+ * Bulk set a dentist's entire weekly schedule with Conflict Gatekeeper.
+ * 
+ * If any future appointment for this dentist falls outside the new routine hours,
+ * this throws a 409 with the conflicting appointments if force=false.
+ * 
  * @param {string} dentistId - Dentist UUID
- * @param {Array} schedules - Array of { day_of_week, is_working, start_time, end_time, break_start_time, break_end_time }
+ * @param {Array} schedules - Array of { day_of_week, is_working, start_time, end_time, break_start_time, break_end_time, is_using_global }
+ * @param {boolean} force - If true, displace conflicting appointments
  */
-export const setBulkSchedule = async (dentistId, schedules, overwrite = false) => {
+export const setBulkSchedule = async (dentistId, schedules, force = false) => {
+    const today = new Date().toISOString().split('T')[0];
+
+    // ── 1. Conflict Detection: Find appointments that fall outside new hours ──
+    const conflictingAppointments = [];
+
+    // Fetch future active appointments for this specific dentist
+    const { data: futureAppts, error: fetchError } = await supabaseAdmin
+        .from('appointments')
+        .select(`
+            id, appointment_date, start_time, end_time, status, source,
+            profiles:patient_id (first_name, last_name, full_name, phone),
+            guest_name, guest_first_name, guest_last_name, guest_phone,
+            services:service_id (name),
+            dentists:dentist_id (profiles:profile_id (first_name, last_name, full_name))
+        `)
+        .eq('dentist_id', dentistId)
+        .gte('appointment_date', today)
+        .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
+
+    if (fetchError) throw new AppError(fetchError.message, 500);
+
+    if (futureAppts && futureAppts.length > 0) {
+        for (const appt of futureAppts) {
+            // Robust date parsing (T00:00:00 to avoid UTC/Local drift)
+            const apptDate = new Date(appt.appointment_date + 'T00:00:00');
+            const jsDow = apptDate.getDay(); 
+            const rule = schedules.find(r => r.day_of_week === jsDow);
+
+            // Case A: The dentist is now CLOSED on this day
+            if (!rule || !rule.is_working) {
+                conflictingAppointments.push(appt);
+                continue;
+            }
+
+            // Case B: The dentist is WORKING but times shifted or break added
+            const ast = appt.start_time.substring(0, 5);
+            const aet = appt.end_time.substring(0, 5);
+            const rst = rule.start_time?.substring(0, 5);
+            const ret = rule.end_time?.substring(0, 5);
+
+            // Conflict: appointment starts before shift OR ends after shift
+            if (ast < rst || aet > ret) {
+                conflictingAppointments.push(appt);
+                continue;
+            }
+
+            // Case C: Break overlap
+            if (rule.break_start_time && rule.break_end_time) {
+                const bst = rule.break_start_time.substring(0, 5);
+                const bet = rule.break_end_time.substring(0, 5);
+                if (ast < bet && aet > bst) {
+                    conflictingAppointments.push(appt);
+                }
+            }
+        }
+    }
+
+    // ── 2. Handle Conflicts ──
+    if (conflictingAppointments.length > 0 && !force) {
+        const error = new Error('Schedule conflicts detected');
+        error.status = 409;
+        error.conflicts = conflictingAppointments;
+        throw error;
+    }
+
+    // ── 3. Displace Appointments (if forced) ──
+    if (conflictingAppointments.length > 0 && force) {
+        const conflictIds = conflictingAppointments.map(c => c.id);
+        const { error: displaceError } = await supabaseAdmin
+            .from('appointments')
+            .update({
+                status: 'DISPLACED',
+                cancellation_reason: 'SYSTEM_DISPLACED: DOCTOR_SCHEDULE_CHANGE'
+            })
+            .in('id', conflictIds);
+
+        if (displaceError) throw new AppError(`Failed to displace appointments: ${displaceError.message}`, 500);
+    }
+
+    // ── 4. Upsert Schedule ──
     const rows = schedules.map((s) => ({
         dentist_id: dentistId,
         day_of_week: s.day_of_week,
@@ -973,60 +1057,12 @@ export const setBulkSchedule = async (dentistId, schedules, overwrite = false) =
         is_using_global: s.is_using_global ?? true,
     }));
 
-    const { data: scheduleData, error } = await supabaseAdmin
+    const { data: scheduleData, error: upsertError } = await supabaseAdmin
         .from('dentist_schedule')
         .upsert(rows, { onConflict: 'dentist_id,day_of_week' })
         .select();
 
-    if (error) throw new AppError(error.message, 500);
-
-    if (overwrite) {
-        // Query all active future appointments for this dentist
-        const today = new Date().toISOString().split('T')[0];
-        const { data: appointments, error: apptError } = await supabaseAdmin
-            .from('appointments')
-            .select('id, appointment_date, start_time, end_time')
-            .eq('dentist_id', dentistId)
-            .gte('appointment_date', today)
-            .not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.NO_SHOW},${APPOINTMENT_STATUS.RESCHEDULED},${APPOINTMENT_STATUS.COMPLETED})`);
-
-        if (!apptError && appointments && appointments.length > 0) {
-            const idsToCancel = [];
-
-            appointments.forEach(appt => {
-                const [y, m, d] = (appt.appointment_date || '').split('-');
-                const jsDow = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay();
-                const rule = schedules.find(r => r.day_of_week === jsDow);
-
-                if (!rule || !rule.is_working) {
-                    idsToCancel.push(appt.id);
-                } else {
-                    const ast = appt.start_time.substring(0, 5);
-                    const aet = appt.end_time.substring(0, 5);
-                    const rst = rule.start_time;
-                    const ret = rule.end_time;
-                    
-                    if (ast < rst || aet > ret) {
-                        idsToCancel.push(appt.id);
-                    } else if (rule.break_start_time && rule.break_end_time) {
-                        if (ast < rule.break_end_time && aet > rule.break_start_time) {
-                            idsToCancel.push(appt.id);
-                        }
-                    }
-                }
-            });
-
-            if (idsToCancel.length > 0) {
-                await supabaseAdmin
-                    .from('appointments')
-                    .update({ 
-                        status: APPOINTMENT_STATUS.CANCELLED,
-                        cancellation_reason: 'SYSTEM_DISPLACED'
-                    })
-                    .in('id', idsToCancel);
-            }
-        }
-    }
+    if (upsertError) throw new AppError(upsertError.message, 500);
 
     return scheduleData;
 };
@@ -1109,15 +1145,12 @@ export const bulkCancelForBlock = async (
 
     const appointmentIds = affectedAppointments.map((a) => a.id);
 
-    // ── Cancel all affected appointments ──
-    const updateReason = isOverwrite ? 'SYSTEM_DISPLACED' : 'Dentist unavailable (schedule block)';
-
+    // ── 3. Displacement Logic ──
     const { error: updateErr } = await supabaseAdmin
         .from('appointments')
         .update({
-            status: APPOINTMENT_STATUS.CANCELLED,
-            cancellation_reason: updateReason,
-            cancelled_at: new Date().toISOString(),
+            status: 'DISPLACED',
+            cancellation_reason: 'SYSTEM_DISPLACED: DOCTOR_BLOCK',
             updated_at: new Date().toISOString(),
         })
         .in('id', appointmentIds);
@@ -1375,7 +1408,42 @@ export const blockDentistSchedule = async (
         throw { status: 404, message: 'Dentist not found.' };
     }
 
-    // Create the availability block
+    // 1. Conflict Check (Pre-save)
+    const { data: conflicts, error: conflictErr } = await supabaseAdmin
+        .from('appointments')
+        .select(`
+            *,
+            profiles:patient_id (full_name, phone),
+            services:service_id (name),
+            dentists:dentist_id (profiles:profile_id (full_name))
+        `)
+        .eq('dentist_id', dentistId)
+        .eq('appointment_date', blockDate)
+        .in('status', ['PENDING', 'CONFIRMED']);
+
+    if (conflictErr) throw { status: 500, message: conflictErr.message };
+
+    const blockStart = startTime || '00:00';
+    const blockEnd = endTime || '23:59';
+
+    const affected = (conflicts || []).filter(appt => 
+        appt.start_time < blockEnd && appt.end_time > blockStart
+    );
+
+    if (affected.length > 0 && !overwrite) {
+        throw { 
+            status: 409, 
+            message: 'Conflicts detected', 
+            conflicts: affected 
+        };
+    }
+
+    // 2. Auto-displacement (if force/overwrite)
+    if (affected.length > 0 && overwrite) {
+        await bulkCancelForBlock(dentistId, blockDate, startTime, endTime, true);
+    }
+
+    // 3. Create the availability block
     const { data: block, error: blockErr } = await supabaseAdmin
         .from('dentist_availability_blocks')
         .insert({
@@ -1392,13 +1460,7 @@ export const blockDentistSchedule = async (
 
     if (blockErr) throw { status: 500, message: blockErr.message };
 
-    // Optionally auto-cancel appointments that conflict with this block
-    let cancelResult = null;
-    if (cancelAppointments || overwrite) {
-        cancelResult = await bulkCancelForBlock(dentistId, blockDate, startTime, endTime, overwrite);
-    }
-
-    return { block, cancelResult };
+    return { block };
 };
 
 /**

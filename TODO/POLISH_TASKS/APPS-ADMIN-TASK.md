@@ -193,17 +193,17 @@ website content aren't hardcoded.
 
 ### General & Operations
 
-- [ ] **Clinic Operating Hours:** Configurable open/close times and lunch breaks per day.
+- [x] **Clinic Operating Hours:** Configurable open/close times and lunch breaks per day.
 - [x] **Global Block-out Dates (Holidays):** Add dates (holidays, emergencies) that are completely closed/disabled on the User booking calendar.
 - [ ] **Booking Rules:**
     - Configuration for Slot Duration, Lead Time (e.g., must book 24h ahead), and Max Horizon (e.g.,
       book up to 2 months out).
     - Waitlist Toggle: Global ON/OFF switch.
-- [/] **Conflict Impact Review (The Ripple Effect):**
+- [x] **Conflict Impact Review (The Ripple Effect):**
     - [x] Build a "Review Changes" modal for Holidays.
     - [x] Implement Displacement status logic.
     - [x] Automated Displacement Reason tracking.
-    - [ ] Apply same logic to Clinic Hour Shifting.
+    - [x] Apply same logic to Clinic Hour Shifting and Day-toggles.
 
 ### Website Details (Headless Data Pivot)
 

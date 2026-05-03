@@ -476,3 +476,34 @@ ALTER TABLE guest_otp_codes ADD COLUMN IF NOT EXISTS attempt_count INTEGER DEFAU
 - [ ] **SMS Notification Test (24h Reminder):** Book an appointment for the next day. Check that a 24-hour reminder SMS is sent at the configured reminder time.
 - [ ] **SMS Notification Test (48h Reminder):** Book an appointment 2 days out. Check that a 48-hour reminder SMS is sent at the configured reminder time.
 - [ ] **SMS Failure Graceful Handling:** Simulate an SMS API failure (e.g., bad token). Expected: Email is still sent; the failure is logged but does not crash the booking flow.
+
+
+## ?? MANUAL TESTING: Global Schedule Conflict Resolution
+
+Follow these steps to verify that changing clinic hours or adding holidays correctly protects existing appointments.
+
+### 1. Holiday Displacement Test
+1. **Setup**: Ensure there is an active appointment on a future date (e.g., Next Friday).
+2. **Action**: Go to **Settings -> Holidays** and add a holiday for that same date.
+3. **Expectation**: The 'Conflicts Detected' modal appears, listing the patient's name and details.
+4. **Action**: Click 'Force Save & Displace'.
+5. **Verification**: The holiday is saved. Check the patient's profile; the appointment status should now be 'DISPLACED'.
+
+### 2. Operating Day Toggle Test
+1. **Setup**: Ensure there are appointments booked for 'Mondays' in the coming weeks.
+2. **Action**: Go to **Settings -> Rules** and toggle **Monday** to 'Closed'. Click 'Save Weekly Schedule'.
+3. **Expectation**: The 'Conflicts Detected' modal appears, listing all future appointments on all affected Mondays.
+4. **Action**: Click 'Force Save & Displace'.
+5. **Verification**: All affected Monday appointments are now 'DISPLACED'.
+
+### 3. Operating Time Narrowing Test
+1. **Setup**: Find an appointment booked at 4:00 PM on a future Wednesday.
+2. **Action**: Go to **Settings -> Rules**. Change Wednesday's **Close Time** from 5:00 PM to 3:00 PM. Save.
+3. **Expectation**: The modal appears showing the 4:00 PM appointment as a conflict.
+4. **Action**: Click 'Force Save & Displace'.
+5. **Verification**: The appointment is 'DISPLACED'.
+
+### 4. Displacement UI Integrity (No 'Invalid Date')
+1. **Action**: Trigger any of the conflict modals above.
+2. **Verification**: Verify that the 'Date' column in the modal shows a proper date (e.g., 'MAY 15, 2026') and NOT 'Invalid Date'.
+3. **Verification**: Verify the 'Doctor' name correctly shows 'Dr. [Name]' or 'No Doctor Assigned' instead of blank.

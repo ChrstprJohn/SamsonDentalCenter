@@ -834,7 +834,7 @@ export const updateDentistSchedule = async (req, res, next) => {
         }
 
         const schedule = await setDentistSchedule(req.params.id, day_of_week, {
-            is_available,
+            is_working: is_available, // Map is_available (UI) to is_working (DB/Service)
             start_time,
             end_time,
         });
@@ -853,43 +853,49 @@ export const updateDentistSchedule = async (req, res, next) => {
 export const bulkUpdateSchedule = async (req, res, next) => {
     try {
         let schedules = [];
-        let overwrite = false;
+        // Support both 'force' and 'overwrite' for backward compatibility
+        const force = req.query.force === 'true' || req.body.force === true || req.body.overwrite === true;
 
         if (Array.isArray(req.body)) {
             schedules = req.body;
         } else {
             schedules = req.body.schedules || [];
-            overwrite = req.body.overwrite || false;
         }
 
-        // Fetch old values
+        // Fetch old values for audit
         const { data: oldSchedule } = await supabaseAdmin
             .from('dentist_schedule')
             .select('*')
             .eq('dentist_id', req.params.id)
             .order('day_of_week', { ascending: true });
 
-        await setBulkSchedule(req.params.id, schedules, overwrite);
+        await setBulkSchedule(req.params.id, schedules, force);
 
-        // Audit Log: UPDATE_GLOBAL_SCHEDULE
+        // Audit Log: UPDATE_DOCTOR_SCHEDULE
         try {
             await supabaseAdmin.from('audit_log').insert({
                 actor_id: req.user.id,
                 actor_role: req.user.role,
-                action: 'UPDATE_GLOBAL_SCHEDULE',
+                action: 'UPDATE_DOCTOR_SCHEDULE',
                 target_type: 'dentists',
                 target_id: req.params.id,
                 resource_type: 'dentist_schedule',
                 resource_id: req.params.id,
                 old_values: oldSchedule,
-                new_values: { schedules, overwrite }
+                new_values: { schedules, force }
             });
         } catch (auditErr) {
             console.error('Audit Log failed (bulkUpdateSchedule):', auditErr.message);
         }
 
-        res.json({ message: 'Dentist schedule updated for the week.' });
+        res.json({ message: 'Doctor schedule updated successfully.' });
     } catch (err) {
+        if (err.status === 409) {
+            return res.status(409).json({
+                error: 'Conflicts detected',
+                conflicts: err.conflicts,
+            });
+        }
         next(err);
     }
 };

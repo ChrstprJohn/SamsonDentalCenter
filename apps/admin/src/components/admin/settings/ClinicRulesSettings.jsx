@@ -344,10 +344,12 @@ const ClinicRulesSettings = () => {
                                             <div className="px-4 py-3">
                                                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</p>
                                                 <p className="text-[11px] font-black text-gray-900 dark:text-white leading-none whitespace-nowrap">
-                                                    {(appt.date || appt.appointment_date) ? (() => {
-                                                        const d = new Date(appt.date || appt.appointment_date);
+                                                    {(() => {
+                                                        const dateStr = appt.date || appt.appointment_date;
+                                                        if (!dateStr) return 'N/A';
+                                                        const d = new Date(dateStr + 'T00:00:00');
                                                         return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
-                                                    })() : 'N/A'}
+                                                    })()}
                                                 </p>
                                             </div>
                                             <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />

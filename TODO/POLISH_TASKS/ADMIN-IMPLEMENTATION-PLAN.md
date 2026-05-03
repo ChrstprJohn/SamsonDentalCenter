@@ -116,8 +116,8 @@ _These tasks do not affect major UI logic or existing bookings. They lay the gro
 3. **Clinic Settings (Database/Config First)**
     - Build the backend models/API for the new "Clinic Settings".
     - [x] Implement the Settings UI (Operating Hours, Lead Time (Days), Block-out Dates).
+    - [x] **NEW**: Implement "Global Schedule Conflict Resolution" (Day-toggles & Time-shifts now trigger displacement modals).
     - [x] Pivot "Website Configuration" into "Website Details" (Headless Data model), removing layout-specific texts and adding Core Data (Logos, Short Description, Business Hours, Maps).
-    - [x] **NEW**: Implement "Automated Notifications" Tab (Email/SMS toggles, 24h/48h reminders, warnings).
     - [x] **NEW**: Implement "Message Activity" View (Tracking webhook delivery logs - Promoted to Sidebar).
     - _Why first? Your booking front-end and doctor schedules will need to read these settings
       later._

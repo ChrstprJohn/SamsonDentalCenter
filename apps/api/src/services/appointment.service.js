@@ -155,6 +155,10 @@ export const bookAppointmentGuest = async (
 
     if (insertError) {
         console.error('Insert Error:', insertError);
+        // This catches the unique index violation (double booking)
+        if (insertError.code === '23505') {
+            throw new AppError('This slot was just taken. Please try another time.', 409);
+        }
         throw new AppError(insertError.message, 500);
     }
 
