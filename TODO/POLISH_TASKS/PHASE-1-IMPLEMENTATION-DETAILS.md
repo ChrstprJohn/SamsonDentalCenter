@@ -323,12 +323,18 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 
 - [ ] **Holiday Block Test:** In Admin Settings, add a holiday on a date that has at least 1 active future appointment. Expected: System shows a modal listing the affected patients and blocks the save until resolved.
 
-the when i block holiday date with active appoinemnt it just says alert and dont show the modal affected patients.
+the when i block holiday date with active appoinemnt it just says alert and dont show the modal affected patients. ✅ **SOLVED** (Standardized Modal implemented)
 
 alert modays says success on title even if the action is failed, to do later
 
 - [x] **Clean Holiday Test:** Add a holiday on a date with zero appointments. Expected: Holiday saves successfully with no warning.
-- [ ] **Hour Shift Test:** Narrow the clinic's closing time from 5:00 PM to 3:00 PM while a future appointment exists at 4:00 PM. Expected: That appointment is flagged as Displaced.
+
+ the bugg i see is like this for examplei have a date jan 1 now i add a date and block it for example 1am now i block it now i remove the block i can see that it got displace and now its avaialbe again on the timeslots, the only problem is i think the holding of slot i cant hold it maybe it still think that its on someone. ✅ **SOLVED** (Updated `dentist-assignment.service.js` and others to ignore `DISPLACED` status).
+
+- [x] **Ghost Slot Recovery Test:** Displace an appointment via Holiday, then delete the holiday. Expected: The timeslot should be immediately available for a NEW booking (System now ignores `DISPLACED` appointments in the availability engine).
+ 
+- [] **Hour Shift Test:** Narrow the clinic's closing time from 5:00 PM to 3:00 PM while a future appointment exists at 4:00 PM. Expected: That appointment is flagged as Displaced.
+
 - [ ] **User App Block Test:** After a holiday is saved, open the User Booking Calendar. Expected: That date is visually disabled and cannot be selected.
 
 this is already done 

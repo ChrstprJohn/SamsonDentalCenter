@@ -92,7 +92,7 @@ accidentally wiping out appointment histories while building Phase 4._
 - [ ] **PhilSMS Gateway:** Integration exists but is not yet tested in a live environment. Focus remains on Resend (Email) stability first.
 
 ### Ripple Effect & Conflict Management (Phase 2/3)
-- [ ] **Holiday Displacements:** Does blocking a date in Admin Settings correctly flag or prevent bookings on that day in the User App?
+- [x] **Holiday Displacements:** System correctly identifies conflicts, shows the Polished Modal, and displaces appointments with automated reason tracking.
 - [ ] **Hour Shifting:** If clinic hours are changed, are existing appointments in the removed slots correctly identified as "Displaced"?
 
 ### Doctor Schedule Inheritance

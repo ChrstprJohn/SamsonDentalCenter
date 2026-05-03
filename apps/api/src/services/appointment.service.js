@@ -644,12 +644,12 @@ export const getPatientAppointments = async (
         // Upcoming = confirmed/approved future appointments, explicitly excluding any cancelled or rescheduled status
         query = query
             .or(`status.eq.${APPOINTMENT_STATUS.CONFIRMED},approval_status.eq.approved`)
-            .not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.RESCHEDULED})`)
+            .not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.RESCHEDULED},${APPOINTMENT_STATUS.DISPLACED})`)
             .gte('appointment_date', today);
     } else if (status === 'confirmed') {
         query = query
             .or(`status.eq.${APPOINTMENT_STATUS.CONFIRMED},approval_status.eq.approved`)
-            .not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.RESCHEDULED})`)
+            .not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.RESCHEDULED},${APPOINTMENT_STATUS.DISPLACED})`)
             .gte('appointment_date', today);
     } else if (status === 'pending') {
         // Pending = status is PENDING AND it hasn't been approved yet
@@ -730,7 +730,7 @@ export const getPatientAppointmentStats = async (patientId) => {
             .select('id', { count: 'exact', head: true })
             .in('patient_id', familyIds)
             .or(`status.eq.${APPOINTMENT_STATUS.CONFIRMED},approval_status.eq.approved`)
-            .not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.NO_SHOW},${APPOINTMENT_STATUS.RESCHEDULED})`)
+            .not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.NO_SHOW},${APPOINTMENT_STATUS.RESCHEDULED},${APPOINTMENT_STATUS.DISPLACED})`)
             .gte('appointment_date', today),
         
         // Pending: Pending and future

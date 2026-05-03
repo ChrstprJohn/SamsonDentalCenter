@@ -154,7 +154,10 @@ export const addHoliday = async (holidayData, actorId, actorRole, force = false)
             const appointmentIds = conflictingAppointments.map(a => a.id);
             const { error: updateError } = await supabaseAdmin
                 .from('appointments')
-                .update({ status: APPOINTMENT_STATUS.DISPLACED })
+                .update({ 
+                    status: APPOINTMENT_STATUS.DISPLACED,
+                    displacement_reason: `Holiday: ${holidayData.name}`
+                })
                 .in('id', appointmentIds);
 
             if (updateError) throw new AppError('Error displacing appointments', 500);
