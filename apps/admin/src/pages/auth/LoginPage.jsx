@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AuthLayout from '../../layouts/AuthLayout';
 import LoginContainer from '../../components/auth/Login/LoginContainer';
+import SessionExpiredModal from '../../components/common/SessionExpiredModal';
 
 const LoginPage = () => {
     const { login } = useAuth();
@@ -10,10 +11,11 @@ const LoginPage = () => {
     const location = useLocation();
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [isExpiredModalOpen, setIsExpiredModalOpen] = useState(false);
 
     useEffect(() => {
         if (sessionStorage.getItem('session_timeout') === 'true') {
-            setError('Your session has expired due to inactivity. Please log in again.');
+            setIsExpiredModalOpen(true);
             sessionStorage.removeItem('session_timeout');
         }
     }, []);
@@ -47,6 +49,11 @@ const LoginPage = () => {
                 error={error}
                 showSignUpLink={false}
                 showGuestLink={false}
+            />
+
+            <SessionExpiredModal 
+                isOpen={isExpiredModalOpen}
+                onClose={() => setIsExpiredModalOpen(false)}
             />
         </AuthLayout>
     );

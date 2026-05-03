@@ -566,3 +566,21 @@ The doctor's weekly routine and date blocks now follow the same "Conflict Gateke
 - [ ] **UI Integrity (Local Time & Labels):**
     - **Verification**: Ensure the Displacement Modal correctly shows the patient's full name, the specific service, and the time slot.
     - **Verification**: Confirm dates are formatted correctly (e.g., "JUN 12, 2026") and no "Invalid Date" errors occur.
+
+---
+
+## 🏁 Phase 1: Final Exit Criteria & Verification
+
+### 🔍 Manual Verification Checklist (Core Foundation)
+- [ ] **Bulk Date Blocking**: Select 3 dates with conflicts. Verify one single modal aggregates all affected appointments correctly.
+- [ ] **Granular Time Blocking UI**: Verify "Manage Blocked Times" modal follows the standard header/footer layout.
+- [ ] **Displacement Integrity**: Verify that force-saving a block displaces appointments and removes them from the "Upcoming Schedule" timeline.
+- [ ] **Clinic Inheritance**: Verify doctor schedule locks and mirrors Global Settings when "Inherit" is ON.
+- [ ] **User App Sync**: Verify blocked dates/times are correctly disabled in the Guest Booking calendar.
+
+### ⏳ Remaining Phase 1 Foundation Tasks
+- [ ] **Session Timeout**: Implement the 15-minute idle warning popup.
+- [ ] **OTP Hardening**: Implement the 5-try limit and 2-minute cooldown for Guest OTPs.
+- [ ] **Skeleton Loaders**: Replace spinners with inline skeletons for Routine and Timeline views.
+- [ ] **Standardized Error Pages**: Implement brand-consistent 404 and 500 pages.
+- [ ] **Auth Polish**: Refine login page styling and error messaging.

@@ -128,8 +128,8 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                             start_time: start24,
                             end_time: end24,
                             reason: reasonText,
-                            cancel_appointments: false,
-                            overwrite: force || false
+                            cancel_appointments: force,
+                            overwrite: force
                         });
                     }));
                 } catch (err) {
@@ -207,21 +207,34 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
         return `${h12}:${m} ${ampm}`;
     };
 
+    const footer = (
+        <div className="flex items-center gap-3 w-full">
+            <Button variant="outline" type="button" onClick={onClose} disabled={isSaving} className="flex-1 h-11 font-bold">Cancel</Button>
+            <Button
+                variant='primary'
+                onClick={() => handleSave()}
+                disabled={isSaving || (draftBlockedSlots.size === 0 && draftUnblockedSlots.size === 0)}
+                className="flex-[1.5] h-11 font-bold min-w-[130px]"
+            >
+                {isSaving ? 'Saving...' : 'Apply Changes'}
+            </Button>
+        </div>
+    );
+
     return (
         <>
-        <Modal isOpen={isOpen} onClose={() => !isSaving && onClose()} className="max-w-[1000px] w-[95%] sm:w-full m-auto">
-            <div className="no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white dark:bg-gray-900 p-6 sm:p-8 max-h-[90vh] flex flex-col shadow-2xl">
+        <Modal
+            isOpen={isOpen}
+            onClose={() => !isSaving && onClose()}
+            title="Manage Blocked Times"
+            subtitle={`Manage granular availability for ${format(new Date(selectedDate + 'T00:00:00'), 'MMMM d, yyyy')}.`}
+            footer={footer}
+            className="max-w-[1000px] w-[95%] sm:w-full"
+            noPadding={false}
+        >
+            <div className="flex flex-col md:flex-row gap-8">
                 
-                <div className='mb-6 shrink-0'>
-                    <h4 className='text-[clamp(18px,2.5vw,22px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
-                        Manage Blocked Times
-                    </h4>
-                    <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
-                        Manage granular availability for {format(new Date(selectedDate), 'MMMM d, yyyy')}.
-                    </p>
-                </div>
 
-                <div className="flex flex-col md:flex-row gap-8 flex-grow">
                     
                     {/* LEFT COLUMN: Selector & Grid */}
                     <div className="flex-grow md:w-[60%] flex flex-col">
@@ -405,29 +418,13 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                             )}
                         </div>
 
-                        <div className="mt-auto shrink-0">
+                        <div className="mt-4 shrink-0">
                             <span className="text-[11px] uppercase tracking-widest font-black text-gray-400 mb-3 block text-right">
                                 {(draftBlockedSlots.size > 0 || draftUnblockedSlots.size > 0) ? `${draftBlockedSlots.size > 0 ? `+${draftBlockedSlots.size} To Block` : ''} ${draftUnblockedSlots.size > 0 ? `-${draftUnblockedSlots.size} To Remove` : ''}` : 'No Pending Changes'}
                             </span>
-                            <div className="flex items-center gap-3 w-full">
-                                <Button variant="outline" type="button" onClick={onClose} disabled={isSaving} className="flex-1 h-11 font-bold">Cancel</Button>
-                                <Button 
-                                    variant='primary'
-                                    onClick={handleSave} 
-                                    disabled={isSaving || (draftBlockedSlots.size === 0 && draftUnblockedSlots.size === 0)}
-                                    className="flex-[1.5] h-11 font-bold min-w-[130px]"
-                                >
-                                    {isSaving ? 'Saving...' : 'Apply Changes'}
-                                </Button>
-                            </div>
                         </div>
                     </div>
                 </div>
-
-                <div className="absolute top-4 right-4 md:hidden">
-                    <button onClick={onClose} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full"><X size={16} className="text-gray-500" /></button>
-                </div>
-            </div>
         </Modal>
 
             {conflictModalOpen && (
