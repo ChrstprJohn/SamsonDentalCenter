@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 export const Modal = ({
@@ -52,7 +53,7 @@ export const Modal = ({
         ? 'w-full h-full'
         : `relative w-full sm:rounded-3xl rounded-t-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-theme-lg min-h-[500px] max-h-[90vh] flex flex-col overflow-hidden ${className}`;
 
-    return (
+    return createPortal(
         <div className='fixed inset-0 flex sm:items-center items-end justify-center sm:p-4 p-0 modal z-[999999]'>
             {!isFullscreen && (
                 <div
@@ -66,7 +67,7 @@ export const Modal = ({
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Grab handle for mobile bottom sheet */}
-                <div className='flex sm:hidden items-center justify-center pt-3 pb-1'>
+                <div className='flex sm:hidden items-center justify-center pt-3 pb-1 shrink-0'>
                     <div className='w-12 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full' />
                 </div>
 
@@ -122,7 +123,8 @@ export const Modal = ({
                     </div>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

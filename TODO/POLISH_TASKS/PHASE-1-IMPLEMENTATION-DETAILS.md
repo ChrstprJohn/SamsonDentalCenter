@@ -240,8 +240,15 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 - [x] **Automated Notifications Settings:** Toggle the SMS and Email gateways off and on. Verify the strict warning messages appear. Update the 24h/48h reminders and send time. Save and verify persistence.
 - [x] **Message Activity Navigation:** Verified "Message Activity" has been promoted to the main sidebar as a dedicated module.
 - [x] **Real-Time Communication Logging:** Successfully implemented backend hooks to log OTP and confirmation emails to the database. Verified live logs appear at the top of the Message Activity list.
-- [x] **Legal Settings:** Paste markdown into the Privacy Policy editor. Save and verify formatting
-      is retained.
+- [x] **Legal Settings:** Paste markdown into the Privacy Policy editor. Save and verify formatting is retained.
+- [x] **History Tab:** Improve the data table (sorting, filters). Clicking a row shows read-only
+      details. No actions required.
+- [x] **Weekly Schedule UX Polish:**
+    - [x] **Inheritance UI:** Implemented a segmented control for "Clinic Sync" vs "Custom Mode".
+    - [x] **Safety Logic:** Hardened the Break Toggle to disable automatically if no working days are selected.
+    - [x] **Efficiency Tools:** Added "Clear All" and "Sync with Clinic" buttons for faster configuration.
+- [ ] **Doctor Audit Log:** Dedicated tab inside the Doctor Profile tracking all administrative and
+      clinical actions related to this doctor.
 - [x] **Holidays Table:** Add a new Holiday. Verify it appears in the list. Delete the Holiday,
       confirm via the `ConfirmationModal`, and verify it disappears.
 
@@ -321,7 +328,7 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 
 #### Test Checklist (Run When Implemented)
 
-- [ ] **Holiday Block Test:** In Admin Settings, add a holiday on a date that has at least 1 active future appointment. Expected: System shows a modal listing the affected patients and blocks the save until resolved.
+- [x ] **Holiday Block Test:** In Admin Settings, add a holiday on a date that has at least 1 active future appointment. Expected: System shows a modal listing the affected patients and blocks the save until resolved.
 
 the when i block holiday date with active appoinemnt it just says alert and dont show the modal affected patients. ✅ **SOLVED** (Standardized Modal implemented)
 
@@ -335,53 +342,97 @@ alert modays says success on title even if the action is failed, to do later
  
 - [] **Hour Shift Test:** Narrow the clinic's closing time from 5:00 PM to 3:00 PM while a future appointment exists at 4:00 PM. Expected: That appointment is flagged as Displaced.
 
-- [ ] **User App Block Test:** After a holiday is saved, open the User Booking Calendar. Expected: That date is visually disabled and cannot be selected.
+- [x] **User App Block Test:** After a holiday is saved, open the User Booking Calendar. Expected: That date is visually disabled and cannot be selected.
+
+---
+
+### Phase 1.5: Doctor Onboarding & Visibility Verification (User Testing Required)
+
+- [x] **New Doctor "Global" Test:** 
+    - Create a new doctor in the Admin portal.
+    - Map them to a General Service (e.g., Oral Prophylaxis).
+    - **Expected:** They should immediately appear in the Guest Booking dropdown and inherit the Clinic's global hours without needing a manual schedule save.
+
+- [x] **Part-Time Visibility Test:**
+    - Set a doctor to "Custom Mode".
+    - Mark them as working **Only on Friday**.
+    - **Expected:** They should still be visible in the Guest Booking dropdown (because they have at least one working day).
+
+- [x] **Total Off-Duty Hiding Test:**
+    - Set a doctor to "Custom Mode".
+    - Mark **All 7 Days** as "Closed/Not Working".
+    - **Expected:** The doctor should automatically disappear from the Guest Booking dropdown entirely.
+
+- [ ] **Strict Skillset Check:**
+    - Unassign a specific service from a doctor in the Admin panel.
+    - **Expected:** The doctor should disappear from the dropdown for that specific service, even if they have available slots.
+
+- [ ] **Schedule Break Hardening Test:**
+    - Open the "Edit Weekly Sched" modal for a doctor.
+    - Turn OFF all working days (or use "Clear All").
+    - **Expected:** The "Daily Break" toggle should be disabled/grayed out and show a warning message.
+    - Turn ON one working day.
+    - **Expected:** The "Daily Break" toggle should become interactive again.
+
+- [ ] **Inheritance Sync Test:**
+    - Set a doctor to "Custom Mode".
+    - Change their hours.
+    - Click "Global" in the segmented control.
+    - **Expected:** The schedule should immediately revert to matching the Clinic's global hours and lock the inputs.
+    - Click "Custom" again.
+    - **Expected:** Inputs should unlock, allowing for manual overrides.
 
 this is already done 
 i test example i im on date and time on guest booking now i see the dates on calendar right now i add a holiday and the day will only be gone if i refressh the page, i want it to be gone right away or add a refresh button for that so it will reload the calendar like how its done in the timeslot. but the blocking works well. ALREADY DONE
 
 ---
 
-### 7. Doctor Schedule Inheritance
+## 📅 STATUS: PHASE 1 PENDING TASKS
 
-#### Implementation Plan
+...
 
-**State Machine (Source of Truth � DB Column: is_using_global):**
+- [] **Clone-on-Switch Test:** Switch a doctor from Global to Custom. Expected: The custom day checkboxes are pre-populated with the current Global days (no days are unchecked by default).
+- [x] **Narrowing Guard Test:** On a doctor with a custom schedule, uncheck a day that has a future patient booked. Click Save. Expected: Save is blocked. A modal shows the list of affected patients for that day.
+- [x] **Clean Narrowing Test:** Uncheck a day with no future appointments. Expected: Saves successfully.
+- [x] **Switch-Back Conflict Test:** A doctor has a custom schedule including Sunday. The Global schedule is closed on Sunday. Toggle the doctor back to "Inherit Global". Expected: Switch is blocked. Modal lists the Sunday patients that need to be rescheduled.
+- [x] **Clean Switch-Back Test:** Resolve all orphan-day appointments, then toggle back to Global. Expected: Switches successfully. Doctor now follows Global schedule.
+- [x] **Doctor Schedule Integrations:**
+    - [x] **Inheritance UI:** Replaced basic switch with a premium Segmented Control.
+    - [x] **Break Hardening:** Implemented strict dependency (Break requires at least 1 working day).
+    - [x] **Reset Logic:** Added "Clear All" to quickly wipe a custom routine.
+- [ ] **Doctor Profile Tabs Structure** (Contact vs. Identity).
+- [ ] **Strictly Closed Test:** Set a doctor's schedule to Custom with all days unchecked (empty). Expected: That doctor does not appear as available in the booking flow — they are NOT inheriting Global as a fallback.
 
-| State | is_using_global | weekly_days | Result |
-|---|---|---|---|
-| Inheriting | 	rue | (Ignored) | Doctor follows Global Clinic Settings |
-| Customized | alse | ['Mon','Wed'] | Doctor follows specific days only |
-| Strictly Closed | alse | [] (Empty array) | Doctor unavailable � NOT a global fallback |
+---
 
-**Scenario A � First-Time Customization ("Clone" Logic):**
-- Trigger: Admin toggles "Inherit Clinic Schedule" to OFF for the first time.
-- Action: Frontend fetches Global Settings and pre-fills the doctor's day checkboxes with those days before any editing occurs.
-- Why: Prevents an accidental "Blackout" where the doctor's schedule instantly becomes empty.
+### 7.5 Doctor Schedule Inheritance: Manual Verification Checklist
 
-**Scenario B � Narrowing Guard (Removing a Day):**
-- Trigger: Admin unchecks a day (e.g., Tuesday) from a doctor's custom schedule and clicks Save.
-- Backend check: SELECT count(*) FROM appointments WHERE doctor_id = ? AND day_of_week = 'Tuesday' AND appointment_date >= NOW() AND status IN ('pending','confirmed')
-- If count > 0: Reject save. Return list of affected patients.
-- Modal: "Cannot remove Tuesday. [N] patients are booked. [View List]"
+Since the automated slot engine is complex, perform these manual checks to verify the fix:
 
-**Scenario C � Switch-Back Guard (Returning to Global):**
-- Trigger: Admin toggles "Inherit Clinic Schedule" back to ON for a doctor with a custom schedule.
-- Backend check: Compute the set difference (doctor's custom days - Global active days) to find "orphan days".
-- For each orphan day: Query future appointments. If any exist, block the switch.
-- Modal: "Cannot switch to Global. Doctor has Sunday appointments not covered by clinic hours."
+#### Test 1: New Doctor "Plug & Play"
+1. Create a brand new doctor in the Admin app. Do **not** touch their schedule settings.
+2. Go to the User/Guest Booking page.
+3. Select a service that the new doctor provides.
+4. **Expected Result:** The calendar should show available slots based on the **Clinic Global Schedule**. The doctor should appear in the specialist list.
 
-> ?? **Critical Rule:** ALL conflict queries above MUST include ppointment_date >= NOW(). Only future appointments matter � historical records should never block a schedule change.
+#### Test 2: The "Strict Custom" Guard
+1. Select a doctor and toggle "Inherit Global" to **OFF**.
+2. Uncheck **all** days of the week (empty schedule). Save.
+3. Go to the Booking page.
+4. **Expected Result:** That doctor should **not** have any available slots on any day. They should NOT "fallback" to global hours.
 
-#### Test Checklist (Run When Implemented)
+#### Test 3: Global Override (Clinic Closed)
+1. Set a doctor to **Inherit Global**.
+2. In Clinic Settings -> Rules, set **Tuesday** to "Closed". Save.
+3. Go to the Booking page for that doctor.
+4. **Expected Result:** Tuesday should be greyed out/unavailable for that doctor.
 
-- [ ] **Global Inheritance Test:** Add a new doctor. Do not set a custom schedule. Trigger a booking for that doctor. Expected: Available days match the Global Clinic schedule exactly.
-- [ ] **Clone-on-Switch Test:** Switch a doctor from Global to Custom. Expected: The custom day checkboxes are pre-populated with the current Global days (no days are unchecked by default).
-- [ ] **Narrowing Guard Test:** On a doctor with a custom schedule, uncheck a day that has a future patient booked. Click Save. Expected: Save is blocked. A modal shows the list of affected patients for that day.
-- [ ] **Clean Narrowing Test:** Uncheck a day with no future appointments. Expected: Saves successfully.
-- [ ] **Switch-Back Conflict Test:** A doctor has a custom schedule including Sunday. The Global schedule is closed on Sunday. Toggle the doctor back to "Inherit Global". Expected: Switch is blocked. Modal lists the Sunday patients that need to be rescheduled.
-- [ ] **Clean Switch-Back Test:** Resolve all orphan-day appointments, then toggle back to Global. Expected: Switches successfully. Doctor now follows Global schedule.
-- [ ] **Strictly Closed Test:** Set a doctor's schedule to Custom with all days unchecked (empty). Expected: That doctor does not appear as available in the booking flow � they are NOT inheriting Global as a fallback.
+#### Test 4: Custom Override (Clinic Open)
+1. Clinic is **Open** on Sunday.
+2. Set a doctor to **Custom** and ensure Sunday is **Unchecked** (Closed). Save.
+3. Go to the Booking page for that doctor.
+4. **Expected Result:** Sunday should be greyed out/unavailable for that doctor, even though the clinic itself is open.
+
 
 ---
 

@@ -970,6 +970,7 @@ export const setBulkSchedule = async (dentistId, schedules, overwrite = false) =
         end_time: s.end_time || null,
         break_start_time: s.break_start_time || null,
         break_end_time: s.break_end_time || null,
+        is_using_global: s.is_using_global ?? true,
     }));
 
     const { data: scheduleData, error } = await supabaseAdmin

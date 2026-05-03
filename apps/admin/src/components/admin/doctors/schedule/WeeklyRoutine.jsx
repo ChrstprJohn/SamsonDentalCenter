@@ -80,32 +80,60 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             ]);
 
             // Map Schedule
-            if (fetchedSchedule && fetchedSchedule.length > 0) {
-                // Ensure we start with a fresh DEEP copy of initialDays
-                const newSchedule = initialDays.map(day => ({ ...day }));
+            const hasExistingSchedule = fetchedSchedule && fetchedSchedule.length > 0;
+            const newSchedule = initialDays.map(day => ({ ...day }));
+            
+            // Determine if the doctor is in "Custom Mode" (any row is not using global)
+            const isCustomMode = hasExistingSchedule && fetchedSchedule.some(r => r.is_using_global === false);
+            
+            // Re-sync global/draft flags
+            setIsUsingGlobal(!isCustomMode);
+            setDraftIsUsingGlobal(!isCustomMode);
 
-                // Read is_using_global from first row (same for all rows of a doctor)
-                const globalFlag = fetchedSchedule[0]?.is_using_global ?? true;
-                setIsUsingGlobal(globalFlag);
-                setDraftIsUsingGlobal(globalFlag);
+            // Build effective schedule for UI
+            initialDays.forEach((day, idx) => {
+                const dow = idx === 6 ? 0 : idx + 1; // Mon=0..Sun=6 -> Sun=0..Sat=6
+                const clinicDay = (clinicSchedule || []).find(c => c.day_of_week === dow);
+                const doctorRow = (fetchedSchedule || []).find(s => s.day_of_week === dow);
 
-                fetchedSchedule.forEach(item => {
-                    // Map 0 (Sun) -> 6, 1 (Mon) -> 0, etc.
-                    const idx = item.day_of_week === 0 ? 6 : item.day_of_week - 1;
-                    if (newSchedule[idx]) {
-                        newSchedule[idx] = {
-                            ...newSchedule[idx],
-                            isWorking: item.is_working ?? item.is_available ?? newSchedule[idx].isWorking,
-                            start: (item.start_time || item.start)?.substring(0, 5) || newSchedule[idx].start,
-                            end: (item.end_time || item.end)?.substring(0, 5) || newSchedule[idx].end,
-                            break_start_time: item.break_start_time?.substring(0, 5) || null,
-                            break_end_time: item.break_end_time?.substring(0, 5) || null
-                        };
-                    }
-                });
-                setSchedule(newSchedule);
-                setDraftSchedule(newSchedule);
-            }
+                // Inheritance Logic (Matches slot.service.js):
+                // 1. If row exists and is_using_global is true -> Inherit.
+                // 2. If row exists and is_using_global is false -> Custom.
+                // 3. If no row exists:
+                //    - If isCustomMode is false (Global) -> Inherit.
+                //    - If isCustomMode is true (Custom) -> Closed (not Inheriting).
+                
+                const shouldInherit = doctorRow ? (doctorRow.is_using_global !== false) : !isCustomMode;
+
+                if (shouldInherit && clinicDay) {
+                    newSchedule[idx] = {
+                        ...newSchedule[idx],
+                        isWorking: clinicDay.is_open,
+                        start: clinicDay.open_time?.substring(0, 5) || '09:00',
+                        end: clinicDay.close_time?.substring(0, 5) || '17:00',
+                        break_start_time: clinicDay.lunch_start_time?.substring(0, 5) || null,
+                        break_end_time: clinicDay.lunch_end_time?.substring(0, 5) || null
+                    };
+                } else if (doctorRow) {
+                    newSchedule[idx] = {
+                        ...newSchedule[idx],
+                        isWorking: doctorRow.is_working,
+                        start: (doctorRow.start_time || doctorRow.start)?.substring(0, 5) || '09:00',
+                        end: (doctorRow.end_time || doctorRow.end)?.substring(0, 5) || '17:00',
+                        break_start_time: doctorRow.break_start_time?.substring(0, 5) || null,
+                        break_end_time: doctorRow.break_end_time?.substring(0, 5) || null
+                    };
+                } else {
+                    // Custom mode but no row for this day -> Off Duty
+                    newSchedule[idx] = {
+                        ...newSchedule[idx],
+                        isWorking: false
+                    };
+                }
+            });
+            
+            setSchedule(newSchedule);
+            setDraftSchedule(newSchedule);
 
             // Map Blocks
             const blockSet = new Set();
@@ -124,7 +152,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
         } finally {
             setIsLoading(false);
         }
-    }, [doctor?.id, fetchDoctorSchedule, fetchDoctorBlocks]);
+    }, [doctor?.id, fetchDoctorSchedule, fetchDoctorBlocks, clinicSchedule]);
 
     useEffect(() => {
         loadData();
@@ -578,326 +606,372 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             </div>
 
             {/* 1. Edit Weekly Schedule Modal */}
-            <Modal isOpen={isEditModalOpen} onClose={() => !isSaving && setIsEditModalOpen(false)} className='max-w-5xl w-[95%] sm:w-full m-auto'>
-                <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-5 dark:bg-gray-900 sm:p-10 max-h-[90vh] flex flex-col'>
-                    <div className='mb-6 flex flex-col gap-4'>
-                        <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-                            <div>
-                                <h4 className='text-[clamp(18px,2.5vw,22px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
-                                    Edit Weekly Schedule
-                                </h4>
-                                <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                                    Set default availability and working hours.
-                                </p>
-                            </div>
-                            <Button variant="outline" onClick={applyToAll} type="button" className="text-xs font-bold h-9 px-3 flex items-center gap-2 whitespace-nowrap">
-                                <Clock size={14} /> Apply Monday's Hours to All
-                            </Button>
-                        </div>
-
-                        {/* ── Inheritance Toggle Row ── */}
-                        <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.02]'>
+            <Modal 
+                isOpen={isEditModalOpen} 
+                onClose={() => !isSaving && setIsEditModalOpen(false)} 
+                className='max-w-5xl w-[95%] sm:w-full m-auto'
+                title="Edit Weekly Schedule"
+                subtitle="Set default availability and working hours."
+                footer={(
+                    <div className='flex items-center gap-3 sm:justify-end w-full sm:w-auto'>
+                        <Button 
+                            variant='outline' 
+                            type="button" 
+                            onClick={() => setIsEditModalOpen(false)} 
+                            disabled={isSaving} 
+                            className='flex-1 sm:flex-none px-6 h-11 rounded-lg text-[14px] font-black'
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            onClick={() => saveWeekly(false)} 
+                            disabled={isSaving} 
+                            className='flex-1 sm:flex-none px-8 h-11 rounded-lg text-[14px] font-black bg-gray-900 text-white min-w-[170px] dark:bg-white dark:text-gray-900 shadow-theme-xs hover:bg-gray-800 active:scale-95 transition-all'
+                        >
+                            {isSaving ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                    </div>
+                )}
+            >
+                <div className='flex flex-col gap-6'>
+                    {/* ── Inheritance Toggle Row (Premium Segmented Control) ── */}
+                    <div className='flex flex-col gap-4 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.02]'>
+                        <div className='flex items-center justify-between'>
                             <div className='flex items-center gap-3'>
-                                {draftIsUsingGlobal
-                                    ? <Link2 size={16} className='text-brand-500' />
-                                    : <Settings2 size={16} className='text-amber-500' />
-                                }
+                                <div className={`p-2 rounded-xl ${draftIsUsingGlobal ? 'bg-brand-500/10 text-brand-600 dark:text-brand-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'}`}>
+                                    {draftIsUsingGlobal ? <Link2 size={18} /> : <Settings2 size={18} />}
+                                </div>
                                 <div>
-                                    <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-wide'>
-                                        {draftIsUsingGlobal ? 'Synced to Clinic Hours' : 'Custom Schedule'}
+                                    <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider'>
+                                        {draftIsUsingGlobal ? 'Automatic Inheritance' : 'Manual Override'}
                                     </p>
-                                    <p className='text-[10px] text-gray-400'>
-                                        {draftIsUsingGlobal
-                                            ? 'Doctor inherits global clinic operating hours'
-                                            : 'Doctor uses their own independent schedule'}
+                                    <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5'>
+                                        {draftIsUsingGlobal ? 'Following Clinic Schedule' : 'Individual Doctor Routine'}
                                     </p>
                                 </div>
                             </div>
-                            <div className='flex items-center gap-3'>
-                                {!draftIsUsingGlobal && (
+
+                            <div className="flex bg-gray-200/50 dark:bg-gray-800 p-1 rounded-xl">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setDraftIsUsingGlobal(true);
+                                        cloneFromClinic();
+                                    }}
+                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${draftIsUsingGlobal ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-theme-xs' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
+                                >
+                                    Global
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setDraftIsUsingGlobal(false)}
+                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${!draftIsUsingGlobal ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-theme-xs' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
+                                >
+                                    Custom
+                                </button>
+                            </div>
+                        </div>
+
+                        {!draftIsUsingGlobal && (
+                            <div className='pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3'>
+                                <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden sm:block'>
+                                    Tip: You can clone the clinic's hours and then edit them.
+                                </p>
+                                <div className='flex items-center gap-2 ml-auto'>
+                                    <Button 
+                                        variant="outline" 
+                                        onClick={() => {
+                                            setDraftSchedule(prev => prev.map(day => ({ ...day, isWorking: false })));
+                                            showToast('All days set to OFF.', 'notice', 'Cleared');
+                                        }}
+                                        type="button" 
+                                        className="text-[10px] font-black h-8 px-3 flex items-center gap-1.5 uppercase tracking-widest border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+                                    >
+                                        <X size={12} /> Clear All
+                                    </Button>
                                     <Button
                                         variant='outline'
                                         type='button'
                                         onClick={cloneFromClinic}
-                                        className='text-[10px] font-black h-8 px-3 whitespace-nowrap flex items-center gap-1.5 border-brand-200 dark:border-brand-800 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10'
+                                        className='text-[10px] font-black h-8 px-4 whitespace-nowrap flex items-center gap-2 border-brand-200 dark:border-brand-800 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-all rounded-lg active:scale-95'
                                     >
-                                        <Link2 size={12} /> Clone from Clinic
+                                        <Link2 size={12} /> Sync with Clinic Config
                                     </Button>
-                                )}
-                                <div className='flex items-center gap-2'>
-                                    <span className='text-[10px] font-bold uppercase tracking-widest text-gray-400'>Inherit</span>
-                                    <Switch
-                                        checked={draftIsUsingGlobal}
-                                        onChange={(checked) => setDraftIsUsingGlobal(checked)}
-                                    />
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </div>
 
                     {/* Card Grid Layout for Days + Break */}
-                    <div className='overflow-y-auto no-scrollbar flex-grow mb-6 max-h-[60vh] pr-1'>
-                        <div className='grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3'>
-                            {/* 1. Master Break Config Card */}
-                            <div className='p-2 sm:p-3 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/20 rounded-xl flex flex-col transition-all shadow-sm'>
-                                <div className='flex items-center justify-between mb-2'>
-                                    <span className="text-[10px] sm:text-[12px] font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                                        <Clock size={12} className="text-gray-400" />
-                                        Daily Break
-                                    </span>
-                                    <Switch checked={globalBreakEnabled} onChange={() => setGlobalBreakEnabled(!globalBreakEnabled)} className="scale-75 sm:scale-90" />
-                                </div>
-                                
-                                {globalBreakEnabled ? (
-                                    <div className="flex flex-col gap-1.5 mt-auto">
-                                        <div className="flex items-center justify-between gap-1.5">
-                                            <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">Start</span>
-                                            <Input type="time" value={globalBreakStart} onChange={(e) => setGlobalBreakStart(e.target.value)} className="w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500" />
-                                        </div>
-                                        <div className="flex items-center justify-between gap-1.5">
-                                            <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">End</span>
-                                            <Input type="time" value={globalBreakEnd} onChange={(e) => setGlobalBreakEnd(e.target.value)} className="w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500" />
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className='flex-grow flex flex-col items-center justify-center py-2 bg-white/40 dark:bg-gray-900/40 rounded-lg mt-auto border border-dashed border-gray-200 dark:border-gray-800'>
-                                        <CalendarOff size={10} className="text-gray-300 mb-1" />
-                                        <span className='text-[7.5px] font-bold text-gray-400 uppercase tracking-widest'>No Break</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* 2. Days Cards */}
-                            {draftSchedule.map((day, index) => (
-                                <div key={day.id} className={`p-2 sm:p-3 border rounded-xl flex flex-col transition-all duration-200 shadow-sm ${day.isWorking ? 'border-brand-500/30 bg-brand-50/20 dark:bg-brand-900/10' : 'border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 opacity-80 hover:opacity-100'}`}>
+                    <div className='grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3'>
+                        {/* 1. Master Break Config Card */}
+                        {(() => {
+                            const hasAnyWorkingDay = draftSchedule.some(d => d.isWorking);
+                            const isBreakDisabled = draftIsUsingGlobal || !hasAnyWorkingDay;
+                            
+                            return (
+                                <div className={`p-2 sm:p-3 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/20 rounded-xl flex flex-col transition-all shadow-sm ${isBreakDisabled ? 'opacity-50 grayscale-[0.5]' : ''}`}>
                                     <div className='flex items-center justify-between mb-2'>
-                                        <span className={`text-[10px] sm:text-[12px] font-black uppercase tracking-widest ${day.isWorking ? 'text-brand-600 dark:text-brand-400' : 'text-gray-500'}`}>
-                                            {day.id}
-                                        </span>
-                                        <Switch checked={day.isWorking} onChange={() => handleToggle(index)} className="scale-75 sm:scale-90" />
+                                        <div className='flex flex-col'>
+                                            <span className="text-[10px] sm:text-[12px] font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                                <Clock size={12} className="text-gray-400" />
+                                                Daily Break
+                                            </span>
+                                            {!hasAnyWorkingDay && !draftIsUsingGlobal && (
+                                                <span className='text-[7px] font-bold text-red-500 uppercase tracking-tighter'>Pick a working day first</span>
+                                            )}
+                                        </div>
+                                        <Switch 
+                                            checked={globalBreakEnabled} 
+                                            disabled={isBreakDisabled} 
+                                            onChange={() => setGlobalBreakEnabled(!globalBreakEnabled)} 
+                                            className="scale-75 sm:scale-90" 
+                                        />
                                     </div>
                                     
-                                    {day.isWorking ? (
-                                        <div className='flex flex-col gap-1.5 mt-auto'>
+                                    {globalBreakEnabled && hasAnyWorkingDay ? (
+                                        <div className="flex flex-col gap-1.5 mt-auto">
                                             <div className="flex items-center justify-between gap-1.5">
                                                 <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">Start</span>
-                                                <Input type="time" value={day.start} onChange={(e) => handleTimeChange(index, 'start', e.target.value)} className="w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500" />
+                                                <Input type="time" value={globalBreakStart} disabled={draftIsUsingGlobal} onChange={(e) => setGlobalBreakStart(e.target.value)} className={`w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500 ${draftIsUsingGlobal ? 'opacity-60 cursor-not-allowed text-gray-500' : ''}`} />
                                             </div>
                                             <div className="flex items-center justify-between gap-1.5">
                                                 <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">End</span>
-                                                <Input type="time" value={day.end} onChange={(e) => handleTimeChange(index, 'end', e.target.value)} className="w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500" />
+                                                <Input type="time" value={globalBreakEnd} disabled={draftIsUsingGlobal} onChange={(e) => setGlobalBreakEnd(e.target.value)} className={`w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500 ${draftIsUsingGlobal ? 'opacity-60 cursor-not-allowed text-gray-500' : ''}`} />
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className='flex-grow flex flex-col items-center justify-center py-2 bg-white/50 dark:bg-gray-900/50 rounded-lg mt-auto border border-dashed border-gray-200 dark:border-gray-800 transition-all'>
+                                        <div className='flex-grow flex flex-col items-center justify-center py-2 bg-white/40 dark:bg-gray-900/40 rounded-lg mt-auto border border-dashed border-gray-200 dark:border-gray-800'>
                                             <CalendarOff size={10} className="text-gray-300 mb-1" />
-                                            <span className='text-[7.5px] font-bold text-gray-400 uppercase tracking-widest text-center'>
-                                                Off Duty
-                                            </span>
+                                            <span className='text-[7.5px] font-bold text-gray-400 uppercase tracking-widest'>No Break</span>
                                         </div>
                                     )}
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                            );
+                        })()}
 
-                    <div className='flex items-center gap-3 pt-6 border-t border-gray-200 dark:border-gray-800 sm:justify-end'>
-                        <Button variant='outline' type="button" onClick={() => setIsEditModalOpen(false)} disabled={isSaving} className='flex-1 sm:flex-none px-6 py-3.5 h-11 rounded-lg text-[14px] font-black'>Cancel</Button>
-                        <Button onClick={saveWeekly} disabled={isSaving} className='flex-1 sm:flex-none px-8 py-3.5 h-11 rounded-lg text-[14px] font-black bg-gray-900 text-white min-w-[170px] dark:bg-white dark:text-gray-900 shadow-theme-xs hover:bg-gray-800 active:scale-95 transition-all'>
-                            {isSaving ? 'Saving...' : 'Save Changes'}
-                        </Button>
+                        {/* 2. Days Cards */}
+                        {draftSchedule.map((day, index) => (
+                            <div key={day.id} className={`p-2 sm:p-3 border rounded-xl flex flex-col transition-all duration-200 shadow-sm ${day.isWorking ? 'border-brand-500/30 bg-brand-50/20 dark:bg-brand-900/10' : 'border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 opacity-80 hover:opacity-100'} ${draftIsUsingGlobal ? 'opacity-80' : ''}`}>
+                                <div className='flex items-center justify-between mb-2'>
+                                    <span className={`text-[10px] sm:text-[12px] font-black uppercase tracking-widest ${day.isWorking ? 'text-brand-600 dark:text-brand-400' : 'text-gray-500'}`}>
+                                        {day.id}
+                                    </span>
+                                    <Switch checked={day.isWorking} disabled={draftIsUsingGlobal} onChange={() => handleToggle(index)} className="scale-75 sm:scale-90" />
+                                </div>
+                                
+                                {day.isWorking ? (
+                                    <div className='flex flex-col gap-1.5 mt-auto'>
+                                        <div className="flex items-center justify-between gap-1.5">
+                                            <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">Start</span>
+                                            <Input type="time" value={day.start} disabled={draftIsUsingGlobal} onChange={(e) => handleTimeChange(index, 'start', e.target.value)} className={`w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500 ${draftIsUsingGlobal ? 'opacity-60 cursor-not-allowed text-gray-500' : ''}`} />
+                                        </div>
+                                        <div className="flex items-center justify-between gap-1.5">
+                                            <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">End</span>
+                                            <Input type="time" value={day.end} disabled={draftIsUsingGlobal} onChange={(e) => handleTimeChange(index, 'end', e.target.value)} className={`w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500 ${draftIsUsingGlobal ? 'opacity-60 cursor-not-allowed text-gray-500' : ''}`} />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className='flex-grow flex flex-col items-center justify-center py-2 bg-white/50 dark:bg-gray-900/50 rounded-lg mt-auto border border-dashed border-gray-200 dark:border-gray-800 transition-all'>
+                                        <CalendarOff size={10} className="text-gray-300 mb-1" />
+                                        <span className='text-[7.5px] font-bold text-gray-400 uppercase tracking-widest text-center'>
+                                            Off Duty
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 </div>
             </Modal>
 
             {/* 2. Block Date Multi-Select Modal */}
-            <Modal isOpen={isBlockModalOpen} onClose={() => !isSaving && setIsBlockModalOpen(false)} className='max-w-[760px] w-[95%] sm:w-full m-auto'>
-                <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white dark:bg-gray-900 p-6 sm:p-8 max-h-[90vh] flex flex-col min-h-[540px]'>
-                    <div className='mb-6 shrink-0'>
-                        <h4 className='text-[clamp(18px,2.5vw,22px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
-                            Manage Blocked Dates
-                        </h4>
-                        <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
-                            View current overrides, add new blocks, or remove existing ones.
-                        </p>
+            <Modal 
+                isOpen={isBlockModalOpen} 
+                onClose={() => !isSaving && setIsBlockModalOpen(false)} 
+                className='max-w-[760px] w-[95%] sm:w-full m-auto'
+                title="Manage Blocked Dates"
+                subtitle="View current overrides, add new blocks, or remove existing ones."
+                footer={(
+                    <div className='flex items-center gap-3 w-full sm:w-auto sm:justify-end'>
+                        <Button 
+                            variant='outline' 
+                            type="button" 
+                            onClick={() => setIsBlockModalOpen(false)} 
+                            disabled={isSaving} 
+                            className='flex-1 sm:flex-none h-11 font-bold px-6'
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            variant='primary' 
+                            onClick={saveBlocks} 
+                            disabled={isSaving || (draftBlockedDates.size === 0 && draftUnblockedDates.size === 0)} 
+                            className='flex-[1.5] sm:flex-none h-11 font-bold min-w-[150px] px-8'
+                        >
+                            {isSaving ? 'Saving...' : 'Apply Changes'}
+                        </Button>
                     </div>
-
-                    <div className='flex flex-col md:flex-row gap-8 flex-grow'>
-                        {/* LEFT PANE: Calendar */}
-                        <div className='flex-grow md:w-[60%] flex flex-col'>
-                            <div className='-mx-5 sm:mx-0 border-y sm:border border-gray-200 dark:border-gray-800 sm:rounded-xl overflow-hidden bg-gray-50/50 dark:bg-white/[0.01]'>
-                                <div className='flex items-center justify-between px-5 sm:px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'>
-                                    <h3 className='text-base font-bold text-gray-900 dark:text-white'>{blockMonthName} {blockYear}</h3>
-                                    <div className='flex items-center gap-1'>
-                                        <button onClick={() => navMonth(setBlockCalDate, blockCalDate, -1)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500'><ChevronLeft size={16} /></button>
-                                        <button onClick={() => navMonth(setBlockCalDate, blockCalDate, 1)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500'><ChevronRight size={16} /></button>
-                                    </div>
+                )}
+            >
+                <div className='flex flex-col md:flex-row gap-8 min-h-[400px]'>
+                    {/* LEFT PANE: Calendar */}
+                    <div className='flex-grow md:w-[60%] flex flex-col'>
+                        <div className='border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-gray-50/50 dark:bg-white/[0.01]'>
+                            <div className='flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'>
+                                <h3 className='text-base font-bold text-gray-900 dark:text-white'>{blockMonthName} {blockYear}</h3>
+                                <div className='flex items-center gap-1'>
+                                    <button onClick={() => navMonth(setBlockCalDate, blockCalDate, -1)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500'><ChevronLeft size={16} /></button>
+                                    <button onClick={() => navMonth(setBlockCalDate, blockCalDate, 1)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500'><ChevronRight size={16} /></button>
                                 </div>
-                                
-                                <div className='grid grid-cols-7 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'>
-                                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
-                                        <div key={idx} className='py-2 text-center text-[10px] font-bold uppercase text-gray-400'>{day}</div>
-                                    ))}
-                                </div>
+                            </div>
+                            
+                            <div className='grid grid-cols-7 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'>
+                                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
+                                    <div key={idx} className='py-2 text-center text-[10px] font-bold uppercase text-gray-400'>{day}</div>
+                                ))}
+                            </div>
 
-                                <div className='max-h-[40vh] sm:max-h-[340px] overflow-y-auto no-scrollbar bg-gray-200 dark:bg-gray-800'>
-                                    <div className='grid grid-cols-7 gap-[1px]'>
-                                        {Array.from({ length: blockStartingDay }).map((_, i) => <div key={`bem-${i}`} className='bg-white dark:bg-gray-900 aspect-square' />)}
+                            <div className='max-h-[340px] overflow-y-auto no-scrollbar bg-gray-200 dark:bg-gray-800'>
+                                <div className='grid grid-cols-7 gap-[1px]'>
+                                    {Array.from({ length: blockStartingDay }).map((_, i) => <div key={`bem-${i}`} className='bg-white dark:bg-gray-900 aspect-square' />)}
+                                    
+                                    {Array.from({ length: blockDaysInMonth }).map((_, i) => {
+                                        const d = i + 1;
+                                        const dKey = formatDateKey(blockYear, blockMonth, d);
+                                        const isPendingUnblock = draftUnblockedDates.has(dKey);
+                                        const isSavedBlocked = blockedDates.has(dKey);
+                                        const isPendingBlock = draftBlockedDates.has(dKey);
+                                        const jsDow = (blockStartingDay + i) % 7;
                                         
-                                        {Array.from({ length: blockDaysInMonth }).map((_, i) => {
-                                            const d = i + 1;
-                                            const dKey = formatDateKey(blockYear, blockMonth, d);
-                                            const isPendingUnblock = draftUnblockedDates.has(dKey);
-                                            const isSavedBlocked = blockedDates.has(dKey);
-                                            const isPendingBlock = draftBlockedDates.has(dKey);
-                                            const jsDow = (blockStartingDay + i) % 7;
-                                            
-                                            // Check if the day is closed based on standard weekly routine
-                                            const scheduleIdx = jsDayToScheduleIndex(jsDow);
-                                            const isRoutineClosed = !schedule[scheduleIdx]?.isWorking;
-                                            
-                                            let cellClass = 'bg-white dark:bg-gray-900 border-transparent text-gray-700 dark:text-gray-300';
-                                            let isDisabled = true;
-                                            let renderCheck = null;
+                                        const scheduleIdx = jsDayToScheduleIndex(jsDow);
+                                        const isRoutineClosed = !schedule[scheduleIdx]?.isWorking;
+                                        
+                                        let cellClass = 'bg-white dark:bg-gray-900 border-transparent text-gray-700 dark:text-gray-300';
+                                        let isDisabled = true;
+                                        let renderCheck = null;
 
-                                            if (blockModalMode === 'block') {
-                                                if (isRoutineClosed) {
-                                                    cellClass = 'bg-gray-50 dark:bg-gray-800/20 border-transparent opacity-40 cursor-not-allowed text-gray-400';
-                                                } else if (isSavedBlocked) {
-                                                    cellClass = 'bg-red-50 dark:bg-red-500/10 border-red-500 text-red-700 dark:text-red-400 opacity-90 cursor-not-allowed';
-                                                    renderCheck = <span className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-tight sm:tracking-widest text-red-500 opacity-80 mix-blend-multiply dark:mix-blend-lighten">Blocked</span>;
-                                                } else {
-                                                    isDisabled = false;
-                                                    if (isPendingBlock) {
-                                                        cellClass = 'bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 shadow-sm z-10';
-                                                        renderCheck = <input type="checkbox" readOnly checked className="w-3.5 h-3.5 accent-brand-500 cursor-pointer pointer-events-none" />;
-                                                    } else {
-                                                        cellClass = 'hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer';
-                                                        renderCheck = <input type="checkbox" readOnly checked={false} className="w-3.5 h-3.5 accent-brand-500 cursor-pointer pointer-events-none opacity-20" />;
-                                                    }
-                                                }
-                                            } else if (blockModalMode === 'unblock') {
-                                                if (isSavedBlocked) {
-                                                    isDisabled = false;
-                                                    if (isPendingUnblock) {
-                                                        cellClass = 'bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 opacity-80 cursor-pointer border border-dashed border-gray-300 dark:border-gray-700'; 
-                                                        renderCheck = <input type="checkbox" readOnly checked={false} className="w-3.5 h-3.5 cursor-pointer pointer-events-none opacity-20" />;
-                                                    } else {
-                                                        cellClass = 'bg-red-50 dark:bg-red-500/10 border-red-500 text-red-700 cursor-pointer shadow-theme-xs z-10';
-                                                        renderCheck = <input type="checkbox" readOnly checked className="w-3.5 h-3.5 accent-red-500 cursor-pointer pointer-events-none opacity-90" />;
-                                                    }
-                                                } else {
-                                                    cellClass = 'bg-gray-50 dark:bg-gray-800 border-transparent opacity-40 cursor-not-allowed text-gray-400';
-                                                }
+                                        if (blockModalMode === 'block') {
+                                            if (isRoutineClosed) {
+                                                cellClass = 'bg-gray-50 dark:bg-gray-800/20 border-transparent opacity-40 cursor-not-allowed text-gray-400';
+                                            } else if (isSavedBlocked) {
+                                                cellClass = 'bg-red-50 dark:bg-red-500/10 border-red-500 text-red-700 dark:text-red-400 opacity-90 cursor-not-allowed';
+                                                renderCheck = <span className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-tight sm:tracking-widest text-red-500 opacity-80 mix-blend-multiply dark:mix-blend-lighten">Blocked</span>;
                                             } else {
-                                                // VIEW MODE
-                                                if (isRoutineClosed) {
-                                                    cellClass = 'bg-gray-50 dark:bg-gray-800/20 border-transparent opacity-40 cursor-not-allowed text-gray-400';
-                                                } else if (isSavedBlocked) {
-                                                    cellClass = 'bg-red-50 dark:bg-red-500/10 border-red-500 text-red-700 dark:text-red-400 opacity-90 cursor-not-allowed shadow-theme-xs';
-                                                    renderCheck = <span className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-tight sm:tracking-widest text-red-500 opacity-80 mix-blend-multiply dark:mix-blend-lighten">Blocked</span>;
+                                                isDisabled = false;
+                                                if (isPendingBlock) {
+                                                    cellClass = 'bg-brand-50 dark:bg-brand-500/10 border-brand-500 text-brand-700 dark:text-brand-400 shadow-sm z-10';
+                                                    renderCheck = <input type="checkbox" readOnly checked className="w-3.5 h-3.5 accent-brand-500 cursor-pointer pointer-events-none" />;
                                                 } else {
-                                                    cellClass = 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 cursor-not-allowed opacity-60';
+                                                    cellClass = 'hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer';
+                                                    renderCheck = <input type="checkbox" readOnly checked={false} className="w-3.5 h-3.5 accent-brand-500 cursor-pointer pointer-events-none opacity-20" />;
                                                 }
                                             }
+                                        } else if (blockModalMode === 'unblock') {
+                                            if (isSavedBlocked) {
+                                                isDisabled = false;
+                                                if (isPendingUnblock) {
+                                                    cellClass = 'bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 opacity-80 cursor-pointer border border-dashed border-gray-300 dark:border-gray-700'; 
+                                                    renderCheck = <input type="checkbox" readOnly checked={false} className="w-3.5 h-3.5 cursor-pointer pointer-events-none opacity-20" />;
+                                                } else {
+                                                    cellClass = 'bg-red-50 dark:bg-red-500/10 border-red-500 text-red-700 cursor-pointer shadow-theme-xs z-10';
+                                                    renderCheck = <input type="checkbox" readOnly checked className="w-3.5 h-3.5 accent-red-500 cursor-pointer pointer-events-none opacity-90" />;
+                                                }
+                                            } else {
+                                                cellClass = 'bg-gray-50 dark:bg-gray-800 border-transparent opacity-40 cursor-not-allowed text-gray-400';
+                                            }
+                                        } else {
+                                            if (isRoutineClosed) {
+                                                cellClass = 'bg-gray-50 dark:bg-gray-800/20 border-transparent opacity-40 cursor-not-allowed text-gray-400';
+                                            } else if (isSavedBlocked) {
+                                                cellClass = 'bg-red-50 dark:bg-red-500/10 border-red-500 text-red-700 dark:text-red-400 opacity-90 cursor-not-allowed shadow-theme-xs';
+                                                renderCheck = <span className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-tight sm:tracking-widest text-red-500 opacity-80 mix-blend-multiply dark:mix-blend-lighten">Blocked</span>;
+                                            } else {
+                                                cellClass = 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 cursor-not-allowed opacity-60';
+                                            }
+                                        }
 
-                                            return (
-                                                <button 
-                                                    key={d} 
-                                                    onClick={() => !isDisabled && toggleBlockDate(dKey)}
-                                                    disabled={isDisabled}
-                                                    className={`aspect-square p-1 flex flex-col items-center justify-center transition-all border rounded ${cellClass}`}
-                                                >
-                                                    <div className='flex-grow flex items-center justify-center w-full'>
-                                                        <span className='text-sm font-bold'>{d}</span>
-                                                    </div>
-                                                    <div className='h-4 flex items-center justify-center pb-1'>
-                                                        {renderCheck}
-                                                    </div>
-                                                </button>
-                                            );
-                                        })}
+                                        return (
+                                            <button 
+                                                key={d} 
+                                                onClick={() => !isDisabled && toggleBlockDate(dKey)}
+                                                disabled={isDisabled}
+                                                className={`aspect-square p-1 flex flex-col items-center justify-center transition-all border rounded ${cellClass}`}
+                                            >
+                                                <div className='flex-grow flex items-center justify-center w-full'>
+                                                    <span className='text-sm font-bold'>{d}</span>
+                                                </div>
+                                                <div className='h-4 flex items-center justify-center pb-1'>
+                                                    {renderCheck}
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
 
-                                        {Array.from({ length: (7 - ((blockStartingDay + blockDaysInMonth) % 7)) % 7 }).map((_, i) => <div key={`bee-${i}`} className='bg-white dark:bg-gray-900 aspect-square' />)}
-                                    </div>
+                                    {Array.from({ length: (7 - ((blockStartingDay + blockDaysInMonth) % 7)) % 7 }).map((_, i) => <div key={`bee-${i}`} className='bg-white dark:bg-gray-900 aspect-square' />)}
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* RIGHT PANE: Actions */}
-                        <div className='md:w-[40%] flex flex-col gap-6 md:pl-2 bg-white dark:bg-gray-900'>
-                            <div className='shrink-0'>
-                                <label className='text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest'>Action Mode</label>
-                                <div className='flex flex-col gap-2'>
-                                    <Button 
-                                        variant={blockModalMode === 'block' ? 'primary' : 'outline'} 
-                                        className="justify-between w-full h-11 font-bold font-outfit"
-                                        onClick={() => {
-                                            if (blockModalMode === 'block') setBlockModalMode('view');
-                                            else {
-                                                setBlockModalMode('block');
-                                                setDraftUnblockedDates(new Set()); // Reset conflicting state
-                                                showToast('Edit mode active. Click dates to block them.', 'notice', 'Notice');
-                                            }
-                                        }}
-                                    >
-                                        <span>Add Blocked Date</span>
-                                        {blockModalMode === 'block' && <CheckSquare size={16} />}
-                                    </Button>
-                                    <Button 
-                                        variant={blockModalMode === 'unblock' ? 'primary' : 'outline'} 
-                                        className={`justify-between w-full h-11 font-bold font-outfit ${blockModalMode === 'unblock' ? '!bg-red-500 hover:!bg-red-600' : ''}`}
-                                        onClick={() => {
-                                            if (blockModalMode === 'unblock') setBlockModalMode('view');
-                                            else {
-                                                setBlockModalMode('unblock');
-                                                setDraftBlockedDates(new Set()); // Reset conflicting state
-                                                showToast('Edit mode active. Click blocked dates to remove them.', 'notice', 'Notice');
-                                            }
-                                        }}
-                                    >
-                                        <span>Remove Blocked Date</span>
-                                        {blockModalMode === 'unblock' && <CheckSquare size={16} />}
-                                    </Button>
-                                </div>
-                            </div>
-
-                            {/* Reason details only when actively blocking */}
-                            <div className={`transition-all duration-300 flex-grow flex flex-col ${blockModalMode === 'block' ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
-                                <label className='text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest shrink-0'>Block Reason</label>
-                                <select 
-                                    value={blockReason}
-                                    onChange={(e) => setBlockReason(e.target.value)}
-                                    className='w-full h-11 shrink-0 px-3 rounded-lg border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white'
+                    {/* RIGHT PANE: Actions */}
+                    <div className='md:w-[40%] flex flex-col gap-6'>
+                        <div className='shrink-0'>
+                            <label className='text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest'>Action Mode</label>
+                            <div className='flex flex-col gap-2'>
+                                <Button 
+                                    variant={blockModalMode === 'block' ? 'primary' : 'outline'} 
+                                    className="justify-between w-full h-11 font-bold font-outfit"
+                                    onClick={() => {
+                                        if (blockModalMode === 'block') setBlockModalMode('view');
+                                        else {
+                                            setBlockModalMode('block');
+                                            setDraftUnblockedDates(new Set());
+                                            showToast('Edit mode active. Click dates to block them.', 'notice', 'Notice');
+                                        }
+                                    }}
                                 >
-                                    <option value="leave">Vacation / Leave</option>
-                                    <option value="emergency">Emergency Closure</option>
-                                    <option value="personal">Personal Reasons</option>
-                                    <option value="other">Other (Specify)</option>
-                                </select>
-                                
-                                {blockReason === 'other' && (
-                                    <div className="mt-2 animate-fade-in flex-grow flex flex-col min-h-[60px]">
-                                        <textarea 
-                                            placeholder="Type custom reason..." 
-                                            value={otherReason}
-                                            onChange={(e) => setOtherReason(e.target.value)}
-                                            className="w-full h-full flex-grow text-sm font-bold bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 rounded-lg px-3 py-2 text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all resize-none" 
-                                        />
-                                    </div>
-                                )}
+                                    <span>Add Blocked Date</span>
+                                    {blockModalMode === 'block' && <CheckSquare size={16} />}
+                                </Button>
+                                <Button 
+                                    variant={blockModalMode === 'unblock' ? 'primary' : 'outline'} 
+                                    className={`justify-between w-full h-11 font-bold font-outfit ${blockModalMode === 'unblock' ? '!bg-red-500 hover:!bg-red-600' : ''}`}
+                                    onClick={() => {
+                                        if (blockModalMode === 'unblock') setBlockModalMode('view');
+                                        else {
+                                            setBlockModalMode('unblock');
+                                            setDraftBlockedDates(new Set());
+                                            showToast('Removal mode active. Click red dates to unblock.', 'notice', 'Notice');
+                                        }
+                                    }}
+                                >
+                                    <span>Remove Blocked Date</span>
+                                    {blockModalMode === 'unblock' && <CheckSquare size={16} />}
+                                </Button>
                             </div>
+                        </div>
 
-                            <div className='mt-auto shrink-0'>
-                                <span className='text-[11px] uppercase tracking-widest font-black text-gray-400 mb-3 block text-right'>
+                        {/* Reason details only when actively blocking */}
+                        <div className={`transition-all duration-300 flex-grow flex flex-col ${blockModalMode === 'block' ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
+                            <label className='text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest shrink-0'>Block Reason</label>
+                            <select 
+                                value={blockReason}
+                                onChange={(e) => setBlockReason(e.target.value)}
+                                className='w-full h-11 shrink-0 px-3 rounded-lg border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white'
+                            >
+                                <option value="leave">Vacation / Leave</option>
+                                <option value="emergency">Emergency</option>
+                                <option value="personal">Personal Reasons</option>
+                                <option value="training">Training / Seminar</option>
+                                <option value="maintenance">Clinic Maintenance</option>
+                            </select>
+                            
+                            <div className='mt-6 p-4 rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 flex-grow'>
+                                <h5 className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Selection Summary</h5>
+                                <span className='text-[11px] font-bold text-gray-600 dark:text-gray-300'>
                                     {(draftBlockedDates.size > 0 || draftUnblockedDates.size > 0) ? `${draftBlockedDates.size > 0 ? `+${draftBlockedDates.size} To Block` : ''} ${draftUnblockedDates.size > 0 ? `-${draftUnblockedDates.size} To Remove` : ''}` : 'No Pending Changes'}
                                 </span>
-                                <div className='flex items-center gap-3 w-full'>
-                                    <Button variant='outline' type="button" onClick={() => setIsBlockModalOpen(false)} disabled={isSaving} className='flex-1 h-11 font-bold'>Cancel</Button>
-                                    <Button variant='primary' onClick={saveBlocks} disabled={isSaving || (draftBlockedDates.size === 0 && draftUnblockedDates.size === 0)} className='flex-[1.5] h-11 font-bold min-w-[130px]'>
-                                        {isSaving ? 'Saving...' : 'Apply Changes'}
-                                    </Button>
-                                </div>
                             </div>
                         </div>
                     </div>

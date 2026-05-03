@@ -58,9 +58,18 @@
       Polish the "Block Date/Time" popup for better UX and validation.
 - [ ] **History Tab:** Improve the data table (sorting, filters). Clicking a row shows read-only
       details. No actions required.
+- [x] **Weekly Schedule UX Polish:**
+    - [x] **Inheritance UI:** Implemented a segmented control for "Clinic Sync" vs "Custom Mode".
+    - [x] **Safety Logic:** Hardened the Break Toggle to disable automatically if no working days are selected.
+    - [x] **Efficiency Tools:** Added "Clear All" and "Sync with Clinic" buttons for faster configuration.
 - [ ] **Doctor Audit Log:** Dedicated tab inside the Doctor Profile tracking all administrative and
       clinical actions related to this doctor.
-- [ ] **Schedule Inheritance Logic (Full Implementation Plan):**
+- [x] **Doctor Schedule Automation (Stabilization Phase):**
+    - [x] **DB-Level Initialization:** Created `tr_initialize_dentist_schedule` trigger to automatically generate 7 default "Global" rows for every new doctor.
+    - [x] **Virtual Inheritance:** Hardened `slot.service.js` to provide fallback availability even if DB rows are missing.
+    - [x] **Strict Skillset Mapping:** Reverted to explicit mapping in `dentist_services` to ensure clinical safety (as per user request).
+    - [x] **Availability Filtering:** Specialists are now automatically hidden from the Guest Booking dropdown if they have 0 working days in their weekly routine.
+- [x] **Schedule Inheritance Logic (Full Implementation Plan):**
 
     **State Machine (Source of Truth):**
 
