@@ -155,7 +155,7 @@ Reusable components and utilities that span multiple frontends belong in `apps/c
 ### 3.3 Code Quality Rules
 
 - **No magic strings.** Use constants from `utils/constants.js` for statuses, roles, tiers, config values.
-- **No magic numbers.** Clinic hours, thresholds, timeouts — all belong in `CLINIC_CONFIG`.
+- **No magic numbers.** Clinic hours, thresholds, and timeouts belong in the `clinic_settings` table (database). Use the Settings Service to fetch these dynamically; avoid hardcoding in `CLINIC_CONFIG`.
 - **No `console.log` in production code.** Use the `logger` (Pino) instance from `utils/logger.js` on the backend. On the frontend, `console.error` for caught errors only.
 - **No `any` types or `.passthrough()` on new schemas.** Existing schemas use `.passthrough()` for backward compatibility — new schemas must be strict.
 - **No dead code.** Remove commented-out blocks, unused imports, and orphaned files.

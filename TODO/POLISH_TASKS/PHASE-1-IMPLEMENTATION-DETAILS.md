@@ -579,7 +579,7 @@ The doctor's weekly routine and date blocks now follow the same "Conflict Gateke
 - [x] **User App Sync**: Verify blocked dates/times are correctly disabled in the Guest Booking calendar.
 
 ### ⏳ Remaining Phase 1 Foundation Tasks
-- [ ] **Session Timeout**: Implement the 15-minute idle warning popup.
+- [x ] **Session Timeout**: Implement the 15-minute idle warning popup.
 - [ ] **OTP Hardening**: Implement the 5-try limit and 2-minute cooldown for Guest OTPs.
 - [ ] **Skeleton Loaders**: Replace spinners with inline skeletons for Routine and Timeline views.
 - [ ] **Standardized Error Pages**: Implement brand-consistent 404 and 500 pages.
