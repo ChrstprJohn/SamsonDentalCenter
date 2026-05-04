@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, FileText, ExternalLink } from 'lucide-react';
+import { Shield, FileText, ExternalLink, AlertTriangle } from 'lucide-react';
 import { Button, Label } from '../../ui';
 import { useSettings } from '../../../hooks/useSettings';
 import { useToast } from '../../../context/ToastContext';
@@ -45,7 +45,7 @@ const ClinicLegalSettings = () => {
     return (
         <div className='space-y-6 sm:space-y-8 pb-20 w-full'>
             {/* LEGAL CONTENT SECTION */}
-            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-200 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10'>
                     <div>
                         <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
@@ -57,7 +57,10 @@ const ClinicLegalSettings = () => {
                     </div>
                     {!isEditing ? (
                         <Button 
-                            onClick={() => setIsEditing(true)}
+                            onClick={() => {
+                                setIsEditing(true);
+                                showToast('Entering Legal Edit Mode', 'info');
+                            }}
                             className="bg-brand-500 hover:bg-brand-600 text-white rounded-xl px-4 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95"
                         >
                             <Shield size={12} className="sm:w-3.5 sm:h-3.5" />
@@ -75,10 +78,11 @@ const ClinicLegalSettings = () => {
                                             terms_of_service_text: settings.terms_of_service_text || ''
                                         });
                                     }
+                                    showToast('Legal changes discarded', 'info');
                                 }}
                                 className="rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest border-gray-200 dark:border-white/10 dark:text-gray-400"
                             >
-                                Cancel
+                                Discard Changes
                             </Button>
                             <Button 
                                 onClick={handleSubmit}
@@ -90,6 +94,14 @@ const ClinicLegalSettings = () => {
                         </div>
                     )}
                 </div>
+                {isEditing && (
+                    <div className="mb-10 p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <AlertTriangle size={18} className="text-amber-500 shrink-0" />
+                        <p className="text-[10px] sm:text-xs font-black text-amber-800 dark:text-amber-200 uppercase tracking-wide">
+                            You are in edit mode. Changes will be saved globally for all patients.
+                        </p>
+                    </div>
+                )}
 
                 <div className='space-y-12'>
                     {/* Privacy Policy */}
@@ -103,7 +115,7 @@ const ClinicLegalSettings = () => {
                                 Preview <ExternalLink size={10} />
                             </button>
                         </div>
-                        <div className={`p-1 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
+                        <div className={`p-1 rounded-2xl border transition-all ${!isEditing ? 'border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
                             <textarea 
                                 name="privacy_policy_text"
                                 disabled={!isEditing}
@@ -126,7 +138,7 @@ const ClinicLegalSettings = () => {
                                 Preview <ExternalLink size={10} />
                             </button>
                         </div>
-                        <div className={`p-1 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
+                        <div className={`p-1 rounded-2xl border transition-all ${!isEditing ? 'border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
                             <textarea 
                                 name="terms_of_service_text"
                                 disabled={!isEditing}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, MapPin, Phone, Mail, Image as ImageIcon, Share2, AlignLeft, Clock } from 'lucide-react';
+import { Building2, MapPin, Phone, Mail, Image as ImageIcon, Share2, AlignLeft, Clock, AlertTriangle } from 'lucide-react';
 import { Button, Input, Label } from '../../ui';
 import { useSettings } from '../../../hooks/useSettings';
 import { useToast } from '../../../context/ToastContext';
@@ -79,7 +79,7 @@ const ClinicWebsiteSettings = () => {
     return (
         <div className='space-y-6 sm:space-y-8 pb-20 w-full'>
             {/* 1. IDENTITY & CONTACT SECTION */}
-            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-200 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10'>
                     <div>
                         <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
@@ -91,7 +91,10 @@ const ClinicWebsiteSettings = () => {
                     </div>
                     {!isEditing ? (
                         <Button 
-                            onClick={() => setIsEditing(true)}
+                            onClick={() => {
+                                setIsEditing(true);
+                                showToast('Entering Global Edit Mode', 'info');
+                            }}
                             className="bg-brand-500 hover:bg-brand-600 text-white rounded-xl px-4 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95"
                         >
                             <Building2 size={12} className="sm:w-3.5 sm:h-3.5" />
@@ -123,10 +126,11 @@ const ClinicWebsiteSettings = () => {
                                             youtube_url: settings.youtube_url || ''
                                         });
                                     }
+                                    showToast('Changes discarded', 'info');
                                 }}
                                 className="rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest border-gray-200 dark:border-white/10 dark:text-gray-400"
                             >
-                                Cancel
+                                Discard Changes
                             </Button>
                             <Button 
                                 onClick={handleSubmit}
@@ -138,6 +142,14 @@ const ClinicWebsiteSettings = () => {
                         </div>
                     )}
                 </div>
+                {isEditing && (
+                    <div className="mb-10 p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <AlertTriangle size={18} className="text-amber-500 shrink-0" />
+                        <p className="text-[10px] sm:text-xs font-black text-amber-800 dark:text-amber-200 uppercase tracking-wide">
+                            You are in edit mode. Changes will be saved globally for all patients.
+                        </p>
+                    </div>
+                )}
 
                 <div className='space-y-12'>
                     {/* Identity Details */}
@@ -153,7 +165,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.clinic_name}
                                     onChange={(e) => setFormData(p => ({ ...p, clinic_name: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="e.g. Primera Dental Clinic"
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -162,7 +175,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.short_description}
                                     onChange={(e) => setFormData(p => ({ ...p, short_description: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 rounded-xl p-3 text-sm font-medium focus:ring-0 focus:outline-none min-h-[80px]"
+                                    placeholder="A brief summary for search engines and patient portal..."
+                                    className="bg-transparent border-gray-200 dark:border-white/10 rounded-xl p-3 text-sm font-medium focus:ring-0 focus:outline-none min-h-[80px] disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                         </div>
@@ -181,7 +195,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.email_official}
                                     onChange={(e) => setFormData(p => ({ ...p, email_official: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="e.g. hello@clinic.com"
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -190,7 +205,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.phone_primary}
                                     onChange={(e) => setFormData(p => ({ ...p, phone_primary: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="e.g. +1 (555) 000-0000"
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                             <div className={`col-span-2 lg:col-span-1 flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -199,7 +215,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.physical_address}
                                     onChange={(e) => setFormData(p => ({ ...p, physical_address: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="Full street address, city, and state"
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                         </div>
@@ -207,8 +224,8 @@ const ClinicWebsiteSettings = () => {
                 </div>
             </div>
 
-            {/* 2. LOCATION & ASSETS SECTION */}
-            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-200 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+            {/* 2. OPERATING HOURS SECTION */}
+            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='space-y-12'>
                     {/* Location & Maps */}
                     <div className="space-y-6">
@@ -223,7 +240,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.business_hours_text}
                                     onChange={(e) => setFormData(p => ({ ...p, business_hours_text: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="e.g. Mon-Fri 8am-5pm"
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -232,7 +250,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.closed_time_text}
                                     onChange={(e) => setFormData(p => ({ ...p, closed_time_text: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="e.g. Sat-Sun Closed"
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                             <div className={`col-span-2 lg:col-span-1 flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -241,7 +260,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.google_maps_link}
                                     onChange={(e) => setFormData(p => ({ ...p, google_maps_link: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="https://goo.gl/maps/..."
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                         </div>
@@ -260,7 +280,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.logo_primary_url}
                                     onChange={(e) => setFormData(p => ({ ...p, logo_primary_url: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="https://cdn.example.com/logo.png"
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -269,7 +290,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.logo_light_url}
                                     onChange={(e) => setFormData(p => ({ ...p, logo_light_url: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="White/Transparent logo for dark mode..."
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                             <div className={`col-span-2 lg:col-span-1 flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -278,7 +300,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.favicon_url}
                                     onChange={(e) => setFormData(p => ({ ...p, favicon_url: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="Browser tab icon URL..."
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                         </div>
@@ -297,7 +320,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.facebook_url}
                                     onChange={(e) => setFormData(p => ({ ...p, facebook_url: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="facebook.com/yourpage"
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -306,7 +330,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.instagram_url}
                                     onChange={(e) => setFormData(p => ({ ...p, instagram_url: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="@yourclinic"
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -315,7 +340,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.twitter_url}
                                     onChange={(e) => setFormData(p => ({ ...p, twitter_url: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="twitter.com/youraccount"
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -324,7 +350,8 @@ const ClinicWebsiteSettings = () => {
                                     disabled={!isEditing}
                                     value={formData.youtube_url}
                                     onChange={(e) => setFormData(p => ({ ...p, youtube_url: e.target.value }))}
-                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold"
+                                    placeholder="youtube.com/c/yourchannel"
+                                    className="bg-transparent border-gray-200 dark:border-white/10 font-bold disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors"
                                 />
                             </div>
                         </div>
