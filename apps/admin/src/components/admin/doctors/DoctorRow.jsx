@@ -82,7 +82,7 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
                         )}
                     </div>
                     <span
-                        className={`text-sm sm:text-base truncate ${!is_active ? 'text-gray-500 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}
+                        className={`text-sm sm:text-lg uppercase tracking-tight truncate font-outfit ${!is_active ? 'text-gray-500 font-black' : 'text-gray-900 dark:text-white font-black'}`}
                     >
                         {full_name}
                     </span>
