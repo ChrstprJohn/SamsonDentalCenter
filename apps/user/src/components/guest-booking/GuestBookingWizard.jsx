@@ -127,17 +127,21 @@ const GuestBookingWizard = ({ booking }) => {
     // ✅ Phase 2: Recovery Interceptor
     useEffect(() => {
         const verifySession = async () => {
-            // Only check ONCE at the very beginning of Step 1 (DateTime)
-            if (step === 1 && !result && !hasCheckedRecovery) {
+            // Check recovery on ANY active step (>= 1) if we haven't checked yet
+            if (step >= 1 && !result && !hasCheckedRecovery) {
                 setIsCheckingRecovery(true);
                 try {
                     // checkActiveHold will update slotHold.activeHold state internally
-                    // IMPORTANT: We only care about holds that existed BEFORE the user picked one in this session
-                    if (!formData.time) {
-                        const hold = await slotHold.checkActiveHold();
-                        if (hold) {
-                            setWasRecovered(true);
-                        }
+                    const hold = await slotHold.checkActiveHold();
+                    
+                    if (hold) {
+                        // Only show the "Continue Booking?" modal if we are at the START of the session
+                        // (meaning the user just loaded the page and we found a hold)
+                        setWasRecovered(true);
+                    } else if (step > 1) {
+                        // If we are on a later step but the hold is gone, we MUST reset
+                        handleReset();
+                        toast.error('Session expired. Please start again.');
                     }
                 } catch (err) {
                     console.error('Recovery check failed:', err);
@@ -145,16 +149,23 @@ const GuestBookingWizard = ({ booking }) => {
                     setIsCheckingRecovery(false);
                     setHasCheckedRecovery(true);
                 }
-            } else if (step === 0) {
-                // If they are on Service step, they haven't reached the recovery point yet
-                // but we keep hasCheckedRecovery false so it runs when they hit Step 1
-            } else {
-                setHasCheckedRecovery(true);
+            } else if (step === 0 && !hasCheckedRecovery) {
+                // If they are on Service step, we can check early or wait. 
+                // Let's wait until they hit Step 1 to keep it clean, but mark as checked if they are at the start
+                // Actually, if they are on Step 0, we should still check if there's a hold to offer recovery
+                setIsCheckingRecovery(true);
+                try {
+                    const hold = await slotHold.checkActiveHold();
+                    if (hold) setWasRecovered(true);
+                } finally {
+                    setIsCheckingRecovery(false);
+                    setHasCheckedRecovery(true);
+                }
             }
         };
 
         verifySession();
-    }, [step, result, hasCheckedRecovery, slotHold.checkActiveHold, formData.time]);
+    }, [step, result, hasCheckedRecovery, slotHold.checkActiveHold]);
 
     // ✅ Phase 2: Handle Expired Holds during session
     useEffect(() => {

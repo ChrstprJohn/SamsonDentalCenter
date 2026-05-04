@@ -143,22 +143,6 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-10 sm:pb-6">
             {/* Header Section */}
-            {/* Appointment Summary Badge */}
-            <div className="flex flex-wrap items-center gap-3 mb-6 sm:mb-8 animate-in fade-in slide-in-from-left-4 duration-700">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-theme-xs">
-                    <Calendar size={14} className="text-brand-500" />
-                    <span className="text-[11px] sm:text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-tight">
-                        {new Date(formData.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-theme-xs">
-                    <Clock size={14} className="text-brand-500" />
-                    <span className="text-[11px] sm:text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-tight">
-                        {formatTimeRange(formData.time, formData.service_duration)}
-                    </span>
-                </div>
-            </div>
-
             <div className='mb-6 sm:mb-8'>
                 <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
                     Patient Information
