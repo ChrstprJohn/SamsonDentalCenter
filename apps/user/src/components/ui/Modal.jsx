@@ -7,6 +7,7 @@ export const Modal = ({
     className = '',
     showCloseButton = true,
     isFullscreen = false,
+    closeOnOverlayClick = true,
 }) => {
     const modalRef = useRef(null);
 
@@ -49,7 +50,7 @@ export const Modal = ({
             {!isFullscreen && (
                 <div
                     className='fixed inset-0 h-full w-full bg-gray-900/60'
-                    onClick={onClose}
+                    onClick={closeOnOverlayClick ? onClose : undefined}
                 ></div>
             )}
             <div

@@ -218,3 +218,39 @@ export const cleanupExpiredHolds = async () => {
 
     return { cleaned_up: data?.length || 0 };
 };
+
+/**
+ * Check if a session has an active hold.
+ * 
+ * @param {string} userSessionId 
+ * @returns {object|null} The active hold or null
+ */
+export const getActiveHoldBySession = async (userSessionId) => {
+    const now = new Date();
+    const { data: existingHolds } = await supabaseAdmin
+        .from('slot_holds')
+        .select('id, start_time, appointment_date, expires_at, service_id, dentist_id')
+        .eq('user_session_id', userSessionId)
+        .eq('status', 'active')
+        .gt('expires_at', now.toISOString())
+        .order('created_at', { ascending: false });
+
+    if (existingHolds && existingHolds.length > 0) {
+        const hold = existingHolds[0];
+        const expiresAt = new Date(hold.expires_at);
+        const diffMs = expiresAt - now;
+        const diffMins = Math.max(0, Math.ceil(diffMs / 60000));
+
+        return {
+            hold_id: hold.id,
+            service_id: hold.service_id,
+            date: hold.appointment_date,
+            time: hold.start_time,
+            expires_at: hold.expires_at,
+            expires_in_minutes: diffMins,
+            dentist_id: hold.dentist_id
+        };
+    }
+
+    return null;
+};

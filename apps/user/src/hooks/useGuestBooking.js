@@ -6,6 +6,7 @@ const STEPS = ['service', 'datetime', 'info', 'review', 'verification'];
 
 // Session ID management (use sessionStorage so it clears when tab closes)
 const STORAGE_KEY = 'guest_session_id';
+const GUEST_BOOKING_STATE_KEY = 'guest_booking_state';
 
 const generateSessionId = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -16,10 +17,10 @@ const generateSessionId = () => {
 };
 
 const getOrCreateSessionId = () => {
-    let sessionId = sessionStorage.getItem(STORAGE_KEY);
+    let sessionId = localStorage.getItem(STORAGE_KEY);
     if (!sessionId) {
         sessionId = generateSessionId();
-        sessionStorage.setItem(STORAGE_KEY, sessionId);
+        localStorage.setItem(STORAGE_KEY, sessionId);
     }
     return sessionId;
 };
@@ -38,47 +39,96 @@ const getOrCreateSessionId = () => {
  * @param {string} initialServiceName - Pre-select service name
  * @returns {object} booking state and actions
  */
+const DEFAULT_FORM_DATA = {
+    service_id: '',
+    service_name: '',
+    service_duration: '',
+    date: '',
+    time: '',
+    first_name: '',
+    last_name: '',
+    middle_name: '',
+    suffix_name: '',
+    email: '',
+    phone: '',
+    dentist_id: '',
+    service_tier: '',
+};
+
+/**
+ * Manages guest booking wizard state and submission.
+ *
+ * Features:
+ * - Session ID generation/persistence in sessionStorage
+ * - Step navigation with validation
+ * - Form data management with field updates
+ * - API submission with timeout handling
+ * - Error clearing on user interaction
+ * - Persistence across refreshes via sessionStorage
+ *
+ * @param {string} initialServiceId - Pre-select service from ?service=uuid
+ * @param {string} initialServiceName - Pre-select service name
+ * @returns {object} booking state and actions
+ */
 const useGuestBooking = (initialServiceId = null, initialServiceName = null) => {
-    const [sessionId, setSessionId] = useState(null);
-    const [step, setStep] = useState(0);
-    const [formData, setFormData] = useState({
-        service_id: initialServiceId || '',
-        service_name: initialServiceName || '',
-        service_duration: '',
-        date: '',
-        time: '',
-        first_name: '',
-        last_name: '',
-        middle_name: '',
-        suffix_name: '',
-        email: '',
-        phone: '',
-        dentist_id: '',
-        service_tier: '',
+    // ── Hydration ──
+    const getSavedState = () => {
+        const saved = localStorage.getItem(GUEST_BOOKING_STATE_KEY);
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error('Failed to parse guest booking state:', e);
+                return null;
+            }
+        }
+        return null;
+    };
+
+    const savedState = getSavedState();
+
+    const [sessionId, setSessionId] = useState(() => getOrCreateSessionId());
+    const [step, setStep] = useState(savedState?.step || 0);
+    const [formData, setFormData] = useState(() => {
+        const initial = { ...DEFAULT_FORM_DATA };
+        if (initialServiceId) initial.service_id = initialServiceId;
+        if (initialServiceName) initial.service_name = initialServiceName;
+
+        if (savedState?.formData) {
+            return { ...initial, ...savedState.formData };
+        }
+        return initial;
     });
+
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [result, setResult] = useState(null);
-    const [verificationToken, setVerificationToken] = useState(null);
+    const [verificationToken, setVerificationToken] = useState(savedState?.verificationToken || null);
     const [isVerifying, setIsVerifying] = useState(false);
 
     // ✅ Initialize slot hold hook at the wizard level to survive step changes
     const slotHold = useSlotHold(sessionId);
 
-    // ✅ Generate session ID on component mount
+    // ── Persistence ──
+    // Mirror state to localStorage whenever it changes
     useEffect(() => {
-        const id = getOrCreateSessionId();
-        setSessionId(id);
-    }, []);
+        const stateToSave = {
+            step,
+            formData,
+            verificationToken,
+            sessionId,
+        };
+        localStorage.setItem(GUEST_BOOKING_STATE_KEY, JSON.stringify(stateToSave));
+    }, [step, formData, verificationToken, sessionId]);
 
     // ✅ Auto-release hold if user goes back and changes the service
     // This handles the case where a user already picked a time, then goes back to Step 1
     useEffect(() => {
-        if (slotHold.activeHold && slotHold.activeHold.service_id !== formData.service_id) {
+        if (slotHold.activeHold && formData.service_id && slotHold.activeHold.service_id !== formData.service_id) {
             console.log('Service changed, releasing previous hold...');
             slotHold.releaseHold();
         }
-    }, [formData.service_id, slotHold]);
+    }, [formData.service_id, slotHold.activeHold]);
 
     const currentStep = STEPS[step];
 
@@ -281,7 +331,12 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
         }
     };
 
-    const reset = () => {
+    const reset = async () => {
+        // ✅ Release the hold on the backend first
+        if (slotHold.activeHold) {
+            await slotHold.releaseHold();
+        }
+
         setStep(0);
         setFormData({
             service_id: '',
@@ -298,12 +353,12 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
             service_tier: '', // Total reset
         });
         setError(null);
-        setSubmitting(false); // ✅ Safety reset
+        setSubmitting(false);
         setResult(null);
 
-        // ✅ Rotate session ID to ensure "Book Another" starts fresh
         const newId = generateSessionId();
-        sessionStorage.setItem(STORAGE_KEY, newId);
+        localStorage.setItem(STORAGE_KEY, newId);
+        localStorage.removeItem(GUEST_BOOKING_STATE_KEY);
         setSessionId(newId);
 
         slotHold.clearHold();

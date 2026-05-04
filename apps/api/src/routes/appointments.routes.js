@@ -15,6 +15,7 @@ import {
     guestRescheduleConfirm,
     holdSlotHandler,
     releaseSlotHold,
+    getActiveHoldHandler,
 } from '../controllers/appointments.controller.js';
 import { requireAuth, optionalAuth } from '../middleware/auth.middleware.js';
 import { validate } from '../utils/validate.js';
@@ -63,6 +64,7 @@ router.patch('/:id/reschedule', validate(rescheduleSchema), requireAuth, resched
 
 // ── Slot holding (RACE CONDITION FIX) ──
 router.post('/slots/hold', validate(holdSlotSchema), optionalAuth, holdSlotHandler); // Hold a slot for 5 min
+router.get('/slots/active-hold', optionalAuth, getActiveHoldHandler); // Check for existing hold
 router.post('/slots/release-hold', validate(releaseHoldSchema), optionalAuth, releaseSlotHold); // Release a held slot
 
 export default router;

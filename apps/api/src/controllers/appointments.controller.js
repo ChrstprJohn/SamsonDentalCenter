@@ -21,7 +21,7 @@ import {
 import { notifyWaitlist, joinWaitlist } from '../services/waitlist.service.js';
 import { getAvailableSlots } from '../services/slot.service.js';
 import { assignDentist } from '../services/dentist-assignment.service.js';
-import { holdSlot, releaseHold } from '../services/slot-hold.service.js';
+import { holdSlot, releaseHold, getActiveHoldBySession } from '../services/slot-hold.service.js';
 import * as guestAuthService from '../services/guest-auth.service.js';
 import { getTodayPH } from '../utils/timezone.js';
 import { addMinutesToTime } from '../utils/time.js';
@@ -561,5 +561,23 @@ export const releaseSlotHold = async (req, res) => {
     } catch (err) {
         console.error('Release hold error:', err);
         return res.status(err.status || 500).json({ error: err.message });
+    }
+};
+
+/**
+ * GET /api/appointments/slots/active-hold
+ * Query: ?session_id=xxx
+ */
+export const getActiveHoldHandler = async (req, res, next) => {
+    try {
+        const { session_id } = req.query;
+        if (!session_id) {
+            return res.status(400).json({ error: 'Session ID is required.' });
+        }
+
+        const hold = await getActiveHoldBySession(session_id);
+        return res.status(200).json(hold || { hold_id: null });
+    } catch (err) {
+        next(err);
     }
 };
