@@ -10,6 +10,7 @@ import LocationHours from "../../components/home/LocationHours";
 import ContactMap from "../../components/contact/ContactMap";
 import ServicesList from "../../components/services/ServicesList";
 import AboutShortcut from "../../components/home/AboutShortcut";
+import BookingSteps from "../../components/home/BookingSteps";
 import GalleryV2 from "../../components/services/GalleryV2";
 const HomePage = () => {
   const promotionsRef = useRef(null);
@@ -18,14 +19,11 @@ const HomePage = () => {
     <>
       <Hero />
       {/* <Promotions ref={promotionsRef} variant='light' /> */}
-      {/*<HomeServices variant='dark' />*/}
-      {/*<AboutShortcut />*/}
-      <GalleryV2 showExploreButton={true} />
-      {/*<ServicesList />*/}
-      {/*<Gallery variant="light" />*/}
-      {/*<Portfolio variant='light' />*/}
-      {/*<Testimonials variant="light" />*/}
-      <AIChatbotPromo variant="dark" />
+      {/* <HomeServices variant='light' /> */}
+      <BookingSteps />
+      <GalleryV2 variant="light" showExploreButton={true} />
+      {/* <Testimonials variant="light" /> */}
+      <AIChatbotPromo variant="light" />
       {/* <LocationHours variant='light' /> */}
       <ContactMap />
     </>

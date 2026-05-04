@@ -55,7 +55,7 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
   const scrollWrapperRef = useRef(null);
   const trackRef = useRef(null);
   const titleCharsRef = useRef([]);
-  const isDark = variant === "dark";
+  const isDark = false; // forced light mode
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -81,9 +81,13 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
       // 2. Horizontal Scroll
       // We want to move the track left by its scrollable width
       const getScrollAmount = () => {
-        let trackWidth = trackRef.current.scrollWidth;
-        let viewportWidth = window.innerWidth;
-        return -(trackWidth - viewportWidth);
+        const cards = trackRef.current.querySelectorAll(".gallery-v2-card");
+        if (cards.length === 0) return 0;
+        const lastCard = cards[cards.length - 1];
+        const viewportWidth = window.innerWidth;
+        // Calculate stop point based only on gallery cards + 20vw padding
+        const scrollStopRange = lastCard.offsetLeft + lastCard.offsetWidth + (viewportWidth * 0.2);
+        return -(scrollStopRange - viewportWidth);
       };
 
       // Timeline for horizontal scroll with buffer zones
@@ -138,7 +142,7 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
   return (
     <section
       ref={containerRef}
-      className={`relative overflow-hidden ${isDark ? "bg-[#0B1120]" : "bg-white"}`}
+      className={`relative overflow-hidden ${isDark ? "bg-red-950" : "bg-white"}`}
     >
       <div className="h-[200px]" />{" "}
       {/* Spacer to allow scrolling to reach the pin naturally */}
@@ -149,38 +153,38 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
       >
         {/* Absolute Background Blur Decoration */}
         <div
-          className={`absolute top-1/2 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] opacity-20 -translate-y-1/2 pointer-events-none ${isDark ? "bg-sky-600" : "bg-sky-400"}`}
+          className={`absolute top-1/2 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] opacity-20 -translate-y-1/2 pointer-events-none ${isDark ? "bg-red-600" : "bg-red-400"}`}
         ></div>
 
         {/* Text overlaid / stacked */}
         <div className="w-full relative lg:absolute px-6 sm:px-8 lg:px-0 lg:left-16 z-20 lg:top-1/2 lg:-translate-y-1/2 pointer-events-none">
           <div className="flex items-center gap-3 mb-4">
             <span
-              className={`h-px w-8 ${isDark ? "bg-sky-400" : "bg-sky-400"}`}
+              className={`h-px w-8 ${isDark ? "bg-red-400" : "bg-red-400"}`}
             ></span>
             <span
-              className={`${isDark ? "text-sky-400" : "text-sky-400"} font-bold uppercase tracking-widest text-xs`}
+              className={`${isDark ? "text-red-400" : "text-red-400"} font-bold uppercase tracking-widest text-xs`}
             >
               Dental Gallery
             </span>
           </div>
-          <h2 className="text-[clamp(1.5rem,7vw,4.5rem)] font-extrabold leading-[1.1] tracking-tight text-white m-0 max-w-[90vw] lg:max-w-[40vw]">
+          <h2 className={`text-[clamp(1.5rem,7vw,4.5rem)] font-extrabold leading-[1.1] tracking-tight ${isDark ? "text-white" : "text-stone-900"} m-0 max-w-[90vw] lg:max-w-[40vw]`}>
             <div className="overflow-hidden py-2 -my-2 whitespace-nowrap">
-              <span className="block text-white title-reveal-line">
+              <span className={`block ${isDark ? "text-white" : "text-stone-900"} title-reveal-line`}>
                 Intelligent Care.
               </span>
             </div>
             <div className="overflow-hidden py-2 -my-2 whitespace-nowrap">
-              <span className="block text-sky-400 title-reveal-line">
+              <span className="block text-red-400 title-reveal-line">
                 Beautiful Smiles.
               </span>
             </div>
           </h2>
           {showExploreButton && (
             <div className="pt-8 overflow-hidden pointer-events-auto">
-              <button 
+              <button
                 onClick={() => navigate('/services')}
-                className="inline-flex items-center space-x-2 text-white font-bold uppercase tracking-widest text-xs hover:text-sky-400 transition-colors title-reveal-line"
+                className={`inline-flex items-center space-x-2 ${isDark ? "text-white" : "text-stone-900"} font-bold uppercase tracking-widest text-xs hover:text-red-400 transition-colors title-reveal-line`}
               >
                 <span>Explore Our Services</span>
                 <svg className="w-4 h-4 translate-y-[-1px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
@@ -220,6 +224,15 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
                 </div>
               </div>
             ))}
+
+            {/* Extra Decorative Image (Outside of scroll stop calculation) */}
+            <div className="flex-shrink-0 relative rounded-2xl overflow-hidden w-[260px] h-[380px] md:w-[320px] md:h-[480px] lg:w-[400px] lg:h-[600px] opacity-20 blur-[2px] grayscale">
+              <img
+                src="/images/services/gallery-chairs-row.jpg"
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </div>
