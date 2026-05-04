@@ -244,11 +244,23 @@ its working, ### 3. The "Conflict Resolver" Modal
     - All date/time fields should be **cleared**.
     - Clicking **"PICK NEW TIME"** in the modal closes it and allows you to select a fresh slot immediately.
 
-- **Action:** Select a time. Wait for the 5-minute timer to run out (0:00). **Refresh the page.**
-- **Expected:** The app should detect the hold is dead. You should be automatically redirected to
-  **Step 2 (Date/Time)** with a toast notification: _"Your previous session expired. Please select a
-  new time."_
+### 4. The "Recovery & Persistence" Flow
 
+- **Action:** Select a time. Wait for the 30-second timer to run out (0:00). **Refresh the page or return to Homepage and re-enter.**
+- **Expected:** 
+    - **Quiet Reset:** If the hold is already expired, the app should quietly reset you to **Step 1 (Service)** or **Step 2 (DateTime)** with all time fields cleared. There is **no alert spam** or redundant toasts.
+    - **Fresh Start:** You can immediately select the same service and proceed without interference.
+
+- **Action:** Select a time. Close the tab immediately (while the timer is still active). **Re-open the app.**
+- **Expected:**
+    - **Recovery Modal:** A professional modal appears asking: _"Would you like to continue your booking?"_
+    - **Choice:**
+        - **"Continue":** Resumes exactly where you left off (Step 3, 4, or 5) with the timer perfectly synced.
+        - **"Start Fresh":** Releases the old hold on the server and takes you back to the very beginning.
+
+- **Technical Note:**
+    - **Reference Stability:** The `useSlotHold` hook uses `useMemo` to prevent infinite re-render loops and alert spam.
+    - **Backend Cleanup:** Every hold attempt now performs a "Just-In-Time" cleanup of stale records for that specific slot/dentist.
 ### 5. The "Global Urgency" (Timer Sync)
 
 - **Action:** Progress from Step 3 to Step 4 to Step 5.

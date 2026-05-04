@@ -6,7 +6,7 @@ import { Check } from 'lucide-react';
  * - Uses brand-500 palette
  * - Mobile-responsive: Hide labels on small screens
  */
-const StepIndicator = ({ currentStep, onStepClick, labels }) => {
+const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) => {
     const defaultLabels = ['Service', 'Date & Time', 'Your Info', 'Review', 'Confirm'];
     const stepLabels = labels || defaultLabels;
 
@@ -15,14 +15,15 @@ const StepIndicator = ({ currentStep, onStepClick, labels }) => {
             {stepLabels.map((label, index) => {
                 const isCompleted = index + 1 < currentStep;
                 const isActive = index + 1 === currentStep;
+                const isDisabled = isLocked || index + 1 > currentStep;
 
                 return (
                     <div key={label} className='flex items-center'>
                         <button
-                            onClick={() => onStepClick(index)}
-                            disabled={index + 1 > currentStep}
+                            onClick={() => !isLocked && onStepClick(index)}
+                            disabled={isDisabled}
                             className={`flex flex-col sm:flex-row items-center gap-1.5 sm:gap-3 group transition-all ${
-                                index + 1 <= currentStep ? 'cursor-pointer' : 'cursor-default opacity-50'
+                                !isDisabled ? 'cursor-pointer' : 'cursor-default opacity-50'
                             }`}
                         >
                             {/* Circle */}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { api } from '../utils/api';
 
 /**
@@ -191,12 +191,12 @@ const useSlotHold = (sessionId) => {
      * Format time remaining as human-readable string
      * E.g., "4:32" or "1:05"
      */
-    const formatTimeRemaining = () => {
+    const formatTimeRemaining = useCallback(() => {
         if (timeRemaining === null) return '';
         const minutes = Math.floor(timeRemaining / 60);
         const seconds = timeRemaining % 60;
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    };
+    }, [timeRemaining]);
 
     /**
      * Re-verify active hold from server (used for manual Refresh)
@@ -243,12 +243,13 @@ const useSlotHold = (sessionId) => {
         }
     }, []);
 
-    return {
+    return useMemo(() => ({
         // State
         activeHold,
         previousHoldId,
         holdLoading,
         holdError,
+        setHoldError, // Added for UI control
         isCheckingHold,
         timeRemaining,
         formattedTime: formatTimeRemaining(),
@@ -258,7 +259,19 @@ const useSlotHold = (sessionId) => {
         releaseHold,
         clearHold,
         checkActiveHold,
-    };
+    }), [
+        activeHold, 
+        previousHoldId, 
+        holdLoading, 
+        holdError, 
+        isCheckingHold, 
+        timeRemaining, 
+        formatTimeRemaining,
+        holdSlot, 
+        releaseHold, 
+        clearHold, 
+        checkActiveHold
+    ]);
 };
 
 export default useSlotHold;

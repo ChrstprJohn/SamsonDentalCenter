@@ -109,10 +109,10 @@ const GuestBookingWizard = ({ booking }) => {
                     if (hold) {
                         setWasRecovered(true);
                     } else {
-                        // Handle initial expiry/invalid session
+                        // Handle initial expiry/invalid session - Reset to Date/Time selection
                         goToStep(1);
                         updateFields({ date: '', time: '' });
-                        showToast('Your previous booking session expired. Please select a new time.', 'info', 'Session Expired');
+                        // Removed redundant toast to prevent alert spam
                     }
                 } catch (err) {
                     console.error('Recovery check failed:', err);
@@ -129,13 +129,13 @@ const GuestBookingWizard = ({ booking }) => {
         };
 
         verifySession();
-    }, [step, result, hasCheckedRecovery, slotHold]);
+    }, [step, result, hasCheckedRecovery, slotHold.checkActiveHold, updateFields, goToStep]);
 
     // ✅ Phase 2: Handle Expired Holds during session
     useEffect(() => {
         // If we HAD a hold and now it's null (and we aren't currently checking/loading)
         if (hasCheckedRecovery && !slotHold.isCheckingHold && !isCheckingRecovery && !slotHold.holdLoading && step >= 1 && hadHoldRef.current && !slotHold.activeHold && !result) {
-            // Auto-redirect to Step 2 (DateTime) if hold expires
+            // Auto-redirect to Step 1 (DateTime) if hold expires
             hadHoldRef.current = false;
             goToStep(1);
             
@@ -143,8 +143,9 @@ const GuestBookingWizard = ({ booking }) => {
             slotHold.clearHold();
             updateFields({ date: '', time: '' });
             setShowExpiryModal(true);
+            setShowRecoveryModal(false); // ✅ Prevent double modal conflict
         }
-    }, [slotHold.activeHold, slotHold.isCheckingHold, slotHold.holdLoading, step, result, hasCheckedRecovery, isCheckingRecovery, goToStep, updateFields, showToast]);
+    }, [slotHold.activeHold, slotHold.isCheckingHold, slotHold.holdLoading, slotHold.clearHold, step, result, hasCheckedRecovery, isCheckingRecovery, goToStep, updateFields, showRecoveryModal]);
 
     // ✅ Phase 2: Show Recovery Modal once we know the hold status
     useEffect(() => {
@@ -158,9 +159,16 @@ const GuestBookingWizard = ({ booking }) => {
 
     const breadcrumbLabels = ['Service', 'Date & Time', 'Your Info', 'Review', 'Verify'];
 
+    const handleReset = () => {
+        setWasRecovered(false);
+        setHasDismissedRecovery(true);
+        hadHoldRef.current = false;
+        reset();
+    };
+
     const handleExit = () => {
         if (window.confirm('Are you sure you want to exit? Your progress will be lost.')) {
-            reset();
+            handleReset();
             navigate('/');
         }
     };
@@ -211,6 +219,7 @@ const GuestBookingWizard = ({ booking }) => {
                         currentStep={step + 1}
                         labels={breadcrumbLabels}
                         onStepClick={(index) => goToStep(index)}
+                        isLocked={step >= 3}
                     />
 
                     {/* ✅ Phase 3: Global Timer */}
@@ -308,8 +317,7 @@ const GuestBookingWizard = ({ booking }) => {
                             fullWidth 
                             onClick={() => {
                                 setShowRecoveryModal(false);
-                                setHasDismissedRecovery(true);
-                                reset();
+                                handleReset();
                             }}
                             className="h-12 text-sm font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300"
                         >
@@ -360,7 +368,7 @@ const GuestBookingWizard = ({ booking }) => {
                             fullWidth 
                             onClick={() => {
                                 setShowResetModal(false);
-                                reset();
+                                handleReset();
                             }}
                             className="h-13 text-base font-black bg-red-500 hover:bg-red-600 border-red-500 shadow-lg shadow-red-500/20"
                         >
@@ -421,6 +429,17 @@ const GuestBookingWizard = ({ booking }) => {
                             className="h-13 text-base font-black shadow-lg shadow-primary-500/20"
                         >
                             PICK NEW TIME
+                        </Button>
+                        <Button 
+                            variant="ghost" 
+                            fullWidth 
+                            onClick={() => {
+                                setShowExpiryModal(false);
+                                handleReset();
+                            }}
+                            className="h-12 text-sm font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300"
+                        >
+                            No thanks, start fresh
                         </Button>
                     </div>
                 </div>
