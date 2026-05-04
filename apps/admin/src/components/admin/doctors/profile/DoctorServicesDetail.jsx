@@ -102,13 +102,13 @@ const DoctorServicesDetail = ({ doctor, updateDoctorServices }) => {
     };
 
     return (
-        <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
-            <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 sm:mb-10'>
+        <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+            <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
                 <div>
-                    <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
-                        Authorized Services & Skills
+                    <h4 className='text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        Authorized Services
                     </h4>
-                    <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
+                    <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
                         {selectedServices.length} Clinical Tasks currently authorized
                     </p>
                 </div>
@@ -117,70 +117,70 @@ const DoctorServicesDetail = ({ doctor, updateDoctorServices }) => {
                     <Button 
                         variant='outline'
                         onClick={() => setIsEditing(true)}
-                        className='h-11 sm:h-12 px-6 text-[10px] font-black uppercase tracking-widest shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
+                        className='h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
                     >
                         Edit Registry
                     </Button>
                 ) : (
                     <div className='flex items-center gap-2 text-brand-500 bg-brand-500/10 px-3 py-1.5 rounded-lg'>
-                        <Info size={14} strokeWidth={3} />
+                        <Info size={12} strokeWidth={3} />
                         <span className='text-[10px] font-black uppercase tracking-widest'>Edit Mode Active</span>
                     </div>
                 )}
             </div>
 
             {isEditing ? (
-                <div className='space-y-10 animate-in fade-in duration-300'>
+                <div className='space-y-8 animate-in fade-in duration-300'>
                     {categorizedServices.authorized.length > 0 && (
-                        <div className='space-y-4'>
-                            <h5 className='text-[10px] font-black uppercase tracking-widest text-brand-500 flex items-center gap-2'>
-                                <CheckCircle2 size={12} strokeWidth={3} />
+                        <div className='space-y-3'>
+                            <h5 className='text-[9px] font-black uppercase tracking-widest text-brand-500 flex items-center gap-2'>
+                                <CheckCircle2 size={10} strokeWidth={3} />
                                 Currently Authorized
                             </h5>
-                            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'>
                                 {categorizedServices.authorized.map(renderServiceCheckbox)}
                             </div>
                         </div>
                     )}
                     
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'>
                         {categorizedServices.general.map(renderServiceCheckbox)}
                         {categorizedServices.specialized.map(renderServiceCheckbox)}
                     </div>
                     
-                    <div className='flex items-center justify-end gap-3 pt-8 border-t border-gray-200 dark:border-gray-800'>
+                    <div className='flex items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-800'>
                         <Button 
                             variant='outline' 
                             onClick={handleCancel}
-                            className='h-11 px-6 text-[10px] font-black uppercase tracking-widest rounded-xl'
+                            className='h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl'
                         >
                             Cancel
                         </Button>
                         <Button 
                             onClick={handleSave} 
                             disabled={isSaving}
-                            className='h-11 px-8 text-[10px] font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
+                            className='h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
                         >
                             {isSaving ? 'Saving...' : 'Save Registry'}
                         </Button>
                     </div>
                 </div>
             ) : (
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'>
                     {selectedServices.length > 0 ? selectedServices.map((service, i) => (
-                        <div key={i} className='p-4 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01] flex items-center gap-4'>
-                            <div className='w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white shrink-0'>
-                                <CheckCircle2 size={14} strokeWidth={3} />
+                        <div key={i} className='p-3 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01] flex items-center gap-3'>
+                            <div className='w-7 h-7 rounded-lg bg-brand-500 flex items-center justify-center text-white shrink-0'>
+                                <CheckCircle2 size={12} strokeWidth={3} />
                             </div>
                             <div className="min-w-0">
-                                <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight truncate'>{service}</p>
-                                <span className='text-[8px] font-black uppercase tracking-widest text-brand-500/70'>Authorized Task</span>
+                                <p className='text-[11px] sm:text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-tight truncate'>{service}</p>
+                                <span className='text-[7px] font-black uppercase tracking-widest text-brand-500/70'>Authorized Task</span>
                             </div>
                         </div>
                     )) : (
-                        <div className='col-span-full py-16 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl'>
-                            <AlertCircle size={32} className='text-gray-300 mb-4' />
-                            <p className='text-xs font-black text-gray-400 uppercase tracking-widest'>No services configured</p>
+                        <div className='col-span-full py-12 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl'>
+                            <AlertCircle size={24} className='text-gray-300 mb-3' />
+                            <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest'>No services configured</p>
                         </div>
                     )}
                 </div>
