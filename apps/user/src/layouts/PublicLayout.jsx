@@ -22,7 +22,7 @@ const PublicLayout = () => {
                 <Outlet />
             </main>
             {!isBookPage && <ChatBot />}
-            <Footer />
+            {!isBookPage && <Footer />}
         </div>
     );
 };

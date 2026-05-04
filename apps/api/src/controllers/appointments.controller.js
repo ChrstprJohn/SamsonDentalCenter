@@ -10,6 +10,7 @@ import {
     insertConfirmedGuestAppointment,
     rescheduleGuestAppointment,
 } from '../services/appointment.service.js';
+import { validateGuestBooking } from '../services/appointment-validation.service.js';
 import {
     confirmAppointmentByToken,
     resendConfirmationEmail,
@@ -21,7 +22,7 @@ import {
 import { notifyWaitlist, joinWaitlist } from '../services/waitlist.service.js';
 import { getAvailableSlots } from '../services/slot.service.js';
 import { assignDentist } from '../services/dentist-assignment.service.js';
-import { holdSlot, releaseHold } from '../services/slot-hold.service.js';
+import { holdSlot, releaseHold, getActiveHoldBySession } from '../services/slot-hold.service.js';
 import * as guestAuthService from '../services/guest-auth.service.js';
 import { getTodayPH } from '../utils/timezone.js';
 import { addMinutesToTime } from '../utils/time.js';
@@ -42,7 +43,20 @@ import { APPOINTMENT_SOURCE } from '../utils/constants.js';
  */
 export const bookGuest = async (req, res, next) => {
     try {
-        const { service_id, date, time, email, phone, guestNameParts, user_session_id, verification_token } = req.body;
+        const { 
+            service_id, 
+            date, 
+            time, 
+            email, 
+            phone, 
+            guestNameParts, 
+            user_session_id, 
+            verification_token,
+            notes,
+            birthday, // ✅ Extract birthday
+            accepted_terms,
+            terms_accepted_at
+        } = req.body;
 
         if (!verification_token) {
             return res.status(403).json({ error: 'Email verification required to book as a guest.' });
@@ -62,8 +76,32 @@ export const bookGuest = async (req, res, next) => {
             phone,
             guestNameParts,
             user_session_id,
+            0, // rescheduleCount
+            notes,
+            birthday, // ✅ Pass birthday
+            accepted_terms,
+            terms_accepted_at
         );
         return res.status(result.booked ? 201 : 409).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/appointments/guest-validate
+ * Pre-flight validation before OTP for guest bookings.
+ */
+export const guestValidate = async (req, res, next) => {
+    try {
+        const { email, date, time, service_id, duration } = req.body;
+        
+        await validateGuestBooking(email, date, time, service_id, duration);
+        
+        return res.status(200).json({ 
+            success: true, 
+            message: 'Booking request is valid.' 
+        });
     } catch (err) {
         next(err);
     }
@@ -561,5 +599,23 @@ export const releaseSlotHold = async (req, res) => {
     } catch (err) {
         console.error('Release hold error:', err);
         return res.status(err.status || 500).json({ error: err.message });
+    }
+};
+
+/**
+ * GET /api/appointments/slots/active-hold
+ * Query: ?session_id=xxx
+ */
+export const getActiveHoldHandler = async (req, res, next) => {
+    try {
+        const { session_id } = req.query;
+        if (!session_id) {
+            return res.status(400).json({ error: 'Session ID is required.' });
+        }
+
+        const hold = await getActiveHoldBySession(session_id);
+        return res.status(200).json(hold || { hold_id: null });
+    } catch (err) {
+        next(err);
     }
 };

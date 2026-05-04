@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { api } from '../utils/api';
 
 /**
@@ -19,53 +19,23 @@ const useSlotHold = (sessionId) => {
     const [holdLoading, setHoldLoading] = useState(false);
     const [holdError, setHoldError] = useState(null);
     const [timeRemaining, setTimeRemaining] = useState(null); // seconds
+    const [isCheckingHold, setIsCheckingHold] = useState(false);
     const holdIntervalRef = useRef(null);
     const countdownIntervalRef = useRef(null);
 
-    // Cleanup function: release hold when component unmounts or page exits
+    // ✅ Persistence Logic: We NO LONGER release the hold on unmount or refresh.
+    // This allows the "Recovery Interceptor" to find the hold after the page reloads.
+    // The hold will naturally expire on the server after 5 minutes if the user never returns.
     useEffect(() => {
-        const handleUnload = () => {
-            if (activeHold?.hold_id) {
-                // Use keepalive: true to ensure the request finishes even if the tab is closing
-                api.post('/appointments/slots/release-hold', {
-                    hold_id: activeHold.hold_id,
-                }, null, true).catch(() => {
-                    // Silently fail - hold will auto-expire anyway
-                });
-            }
-        };
-
-        // Standard unmount cleanup
         return () => {
-            handleUnload();
-
             // Clear all intervals
             if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
             if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
 
-            // ✅ Clear localStorage on unmount - this ensures if they leave the booking it's cleared
-            if (typeof window !== 'undefined') {
-                localStorage.removeItem('activeSlotHold');
-            }
+            // ✅ Note: We do NOT clear localStorage 'activeSlotHold' here anymore
+            // as it might be needed for hydration if we were using it (though we use localStorage state now).
         };
-    }, [activeHold?.hold_id]);
-
-    // Handle Page Refresh/Tab Close/Navigate away from site
-    useEffect(() => {
-        const handlePageHide = () => {
-            if (activeHold?.hold_id) {
-                // pagehide is more reliable than beforeunload for cleanup
-                api.post('/appointments/slots/release-hold', {
-                    hold_id: activeHold.hold_id,
-                }, null, true).catch(() => {});
-            }
-        };
-
-        if (typeof window !== 'undefined') {
-            window.addEventListener('pagehide', handlePageHide);
-            return () => window.removeEventListener('pagehide', handlePageHide);
-        }
-    }, [activeHold?.hold_id]);
+    }, []);
 
     // ✅ Removed localStorage persistence effect — holds now live in memory only
     // This allows a fresh start when the user reloads the page
@@ -97,6 +67,8 @@ const useSlotHold = (sessionId) => {
 
             // Auto-clear when expired
             if (secondsLeft === 0) {
+                // Explicitly call release on server just in case, then clear local state
+                releaseHold(); 
                 setActiveHold(null);
                 if (countdownIntervalRef.current) {
                     clearInterval(countdownIntervalRef.current);
@@ -219,34 +191,41 @@ const useSlotHold = (sessionId) => {
      * Format time remaining as human-readable string
      * E.g., "4:32" or "1:05"
      */
-    const formatTimeRemaining = () => {
+    const formatTimeRemaining = useCallback(() => {
         if (timeRemaining === null) return '';
         const minutes = Math.floor(timeRemaining / 60);
         const seconds = timeRemaining % 60;
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    };
+    }, [timeRemaining]);
 
     /**
      * Re-verify active hold from server (used for manual Refresh)
      */
     const checkActiveHold = useCallback(async () => {
-        if (!sessionId) return;
+        if (!sessionId) return null;
+        setIsCheckingHold(true);
         try {
             const response = await api.get(`/appointments/slots/active-hold?session_id=${sessionId}`);
             if (response && response.hold_id) {
-                setActiveHold({
+                const hold = {
                     hold_id: response.hold_id,
                     service_id: response.service_id,
                     date: response.date,
                     time: response.time,
                     expires_at: response.expires_at,
                     expires_in_minutes: response.expires_in_minutes,
-                });
+                };
+                setActiveHold(hold);
+                return hold;
             } else {
                 setActiveHold(null);
+                return null;
             }
         } catch (err) {
             setActiveHold(null);
+            return null;
+        } finally {
+            setIsCheckingHold(false);
         }
     }, [sessionId]);
 
@@ -264,12 +243,14 @@ const useSlotHold = (sessionId) => {
         }
     }, []);
 
-    return {
+    return useMemo(() => ({
         // State
         activeHold,
         previousHoldId,
         holdLoading,
         holdError,
+        setHoldError, // Added for UI control
+        isCheckingHold,
         timeRemaining,
         formattedTime: formatTimeRemaining(),
 
@@ -278,7 +259,19 @@ const useSlotHold = (sessionId) => {
         releaseHold,
         clearHold,
         checkActiveHold,
-    };
+    }), [
+        activeHold, 
+        previousHoldId, 
+        holdLoading, 
+        holdError, 
+        isCheckingHold, 
+        timeRemaining, 
+        formatTimeRemaining,
+        holdSlot, 
+        releaseHold, 
+        clearHold, 
+        checkActiveHold
+    ]);
 };
 
 export default useSlotHold;

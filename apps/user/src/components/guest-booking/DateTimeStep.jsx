@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Lock, Calendar as CalendarIcon, Clock as ClockIcon, Info, ArrowRight, MousePointer2, Loader2, Hourglass, Plus, Check, Users, CalendarX, AlertCircle, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Lock, Calendar as CalendarIcon, Clock as ClockIcon, Info, ArrowRight, MousePointer2, Loader2, Plus, Check, Users, CalendarX, AlertCircle, X } from 'lucide-react';
 import useSlots from '../../hooks/useSlots';
 import { useClinicSettings } from '../../hooks/useClinicSettings';
 import { api } from '../../utils/api';
+import { useToast } from '../../context/ToastContext';
 import ErrorState from '../common/ErrorState';
 
 const DateTimeStep = ({
@@ -203,6 +204,8 @@ const DateTimeStep = ({
         setVisibleCount(INITIAL_VISIBLE_COUNT); // RESET visibility when date changes or toggles
     };
 
+    const toast = useToast();
+
     const handleTimeClick = async (slotData) => {
         if (!serviceId || !selectedDate) return;
         
@@ -219,6 +222,7 @@ const DateTimeStep = ({
                 const holdResult = await holdSlot(serviceId, selectedDate, slotData.rawTime, dentistId);
                 if (holdResult?.success) {
                     onUpdate({ time: slotData.rawTime });
+                    toast.success('Slot hold success! You have 10 minutes to finish your booking.');
                 } else if (holdResult?.error === 'SLOT_TAKEN') {
                     refetchSlots();
                     return;
@@ -501,6 +505,16 @@ const DateTimeStep = ({
                 </div>
             ) : (
                 <>
+                    {/* Header Section */}
+                    <div className='mb-8 sm:mb-10'>
+                        <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
+                            Select Date & Time
+                        </h2>
+                        <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed font-medium'>
+                            Pick a date and time slot. Choose a specific dentist or "Any Available Dentist" for more flexibility.
+                        </p>
+                    </div>
+
                     {showNoAppointments ? (
                         <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in slide-in-from-bottom-4 duration-700 bg-white dark:bg-white/[0.02] border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[40px] shadow-theme-sm my-10">
                             <div className="w-24 h-24 bg-brand-50 dark:bg-brand-500/10 rounded-full flex items-center justify-center mb-8">
@@ -558,7 +572,7 @@ const DateTimeStep = ({
                                         <div className='grid grid-cols-7 gap-1 mb-2'>
                                             {dayNames.map(day => (<div key={day} className='text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center py-2'>{day}</div>))}
                                         </div>
-                                        <div className='grid grid-cols-7 gap-1.5'>
+                                        <div className='grid grid-cols-7 border-t border-l border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden'>
                                             {calendarDays.map((date, idx) => {
                                                 const key = formatDateKey(date);
                                                 const isCurrentMonth = date.getMonth() === viewDate.getMonth();
@@ -571,11 +585,11 @@ const DateTimeStep = ({
                                                     const hDate = typeof h.date === 'string' ? h.date.split('T')[0] : h.date;
                                                     return hDate === key && h.is_closed;
                                                 });
-
+ 
                                                 // ✅ Check if day of week is open in clinic schedule
                                                 const daySchedule = schedule?.find(s => s.day_of_week === date.getDay());
                                                 const isClosedDay = daySchedule ? !daySchedule.is_open : (date.getDay() === 0);
-
+ 
                                                 // ✅ Combine disabling rules
                                                 let isDisabled = 
                                                     date < minDate || 
@@ -592,21 +606,76 @@ const DateTimeStep = ({
                                                         isDisabled = true;
                                                     }
                                                 }
-
-                                                if (!isCurrentMonth) return <div key={idx} className="aspect-square" />;
+ 
+                                                if (!isCurrentMonth) return <div key={idx} className="aspect-square border-r border-b border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-transparent" />;
                                                 return (
-                                                    <button key={idx} onClick={() => !isDisabled && handleDateClick(date)} disabled={isDisabled} className={`relative flex flex-col items-center justify-center aspect-square rounded-xl transition-all duration-300 ${isSelected ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 scale-105 z-10' : isDisabled ? 'text-gray-300 dark:text-gray-600/50 cursor-not-allowed opacity-30 shadow-none bg-transparent' : 'bg-gray-50/50 dark:bg-gray-800/30 hover:bg-white dark:hover:bg-gray-800 border-2 border-transparent hover:border-brand-200 dark:hover:border-brand-500/50 text-gray-700 dark:text-gray-300 shadow-theme-xs'}`}>
-                                                        <span className={`text-[13px] sm:text-sm font-bold ${isSelected ? 'text-white' : ''}`}>
+                                                    <button 
+                                                        key={idx} 
+                                                        onClick={() => !isDisabled && handleDateClick(date)} 
+                                                        disabled={isDisabled} 
+                                                        className={`relative flex flex-col items-center justify-center aspect-square transition-all duration-300 border-r border-b border-gray-100 dark:border-gray-800 ${
+                                                            isSelected 
+                                                                ? 'z-10' 
+                                                                : isDisabled 
+                                                                    ? 'text-gray-300 dark:text-gray-600/50 cursor-not-allowed bg-gray-50/30 dark:bg-transparent' 
+                                                                    : 'bg-white dark:bg-white/[0.01] hover:bg-brand-50 dark:hover:bg-brand-500/10 text-gray-700 dark:text-gray-300 group'
+                                                        }`}
+                                                    >
+                                                        {/* Selected Background (Rounded Inset) */}
+                                                        {isSelected && (
+                                                            <div className="absolute inset-[2px] bg-brand-500 rounded-lg shadow-md z-0" />
+                                                        )}
+
+                                                        <span className={`relative z-10 text-[13px] sm:text-sm font-bold ${
+                                                            isSelected 
+                                                                ? 'text-white' 
+                                                                : isToday && !isDisabled 
+                                                                    ? 'text-brand-600' 
+                                                                    : isDisabled 
+                                                                        ? 'text-gray-300 dark:text-gray-600/50' 
+                                                                        : ''
+                                                        }`}>
                                                             {pendingDate === key ? (
                                                                 <Loader2 size={16} className={`animate-spin ${isSelected ? 'text-white' : 'text-brand-500'}`} />
                                                             ) : (
                                                                 date.getDate()
                                                             )}
                                                         </span>
-                                                        {isToday && !isSelected && <div className="absolute bottom-1 sm:bottom-1.5 w-1 h-1 rounded-full bg-brand-500" />}
+                                                        
+                                                        {/* Today's Border Indicator (Red border instead of dot) */}
+                                                        {isToday && !isSelected && (
+                                                            <div className="absolute inset-[2px] border-2 border-brand-500 rounded-lg pointer-events-none" />
+                                                        )}
+                                                        
+                                                        {/* Subtle hover indicator for enabled dates (Rounded Inset) */}
+                                                        {!isDisabled && !isSelected && (
+                                                            <div className="absolute inset-[2px] border-2 border-transparent group-hover:border-brand-500/20 group-hover:bg-brand-500/5 rounded-lg transition-all pointer-events-none" />
+                                                        )}
                                                     </button>
                                                 );
                                             })}
+                                        </div>
+
+                                        {/* CALENDAR LEGEND - Optimized for Mobile */}
+                                        <div className="mt-6 p-3 sm:p-5 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-xl sm:rounded-2xl">
+                                            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-between gap-y-3 sm:gap-y-4 gap-x-4 sm:gap-x-6">
+                                                <div className="flex items-center gap-2 sm:gap-3">
+                                                    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-md bg-brand-500 shadow-md ring-1 ring-white/20" />
+                                                    <span className="text-[9px] sm:text-[12px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Selected</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 sm:gap-3">
+                                                    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-md bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 shadow-sm" />
+                                                    <span className="text-[9px] sm:text-[12px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Available</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 sm:gap-3">
+                                                    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-md border-2 sm:border-[2.5px] border-brand-500 bg-white dark:bg-transparent" />
+                                                    <span className="text-[9px] sm:text-[12px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Today</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 sm:gap-3">
+                                                    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-md bg-gray-200 dark:bg-gray-800 opacity-60 border border-transparent" />
+                                                    <span className="text-[9px] sm:text-[12px] font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest">Blocked</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -651,7 +720,7 @@ const DateTimeStep = ({
                                                                         onClick={() => isAvailable && handleTimeClick(slot)} 
                                                                         disabled={holdLoading || (!isAvailable && !isHeldByMe)} 
                                                                         title={isAvailable ? `${slot.available} slots available` : 'Fully booked'} 
-                                                                        className={`py-3 rounded-xl text-[12px] font-bold transition-all relative flex items-center justify-center ${
+                                                                        className={`py-2 sm:py-3 rounded-xl text-[10px] sm:text-[12px] font-bold transition-all relative flex items-center justify-center ${
                                                                             isSelected ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20 ring-4 ring-brand-500/10' 
                                                                             : isHeldByMe ? 'bg-brand-50 dark:bg-brand-500/10 border-2 border-brand-200 text-brand-700 dark:text-brand-400' 
                                                                             : isAvailable ? 'bg-white dark:bg-white/[0.03] border-2 border-transparent hover:border-brand-200 dark:hover:border-brand-500/50 hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-theme-sm'
@@ -692,28 +761,7 @@ const DateTimeStep = ({
                                                 )}
                                             </div>
 
-                                            {/* DYNAMIC HOLD Status Indicator */}
-                                            {activeHold && selectedDate === activeHold.date && (
-                                                <div className='mt-auto p-4 bg-brand-50/50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 rounded-2xl animate-in slide-in-from-bottom duration-500'>
-                                                    <div className='flex items-start gap-4'>
-                                                        <div className='w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-theme-xs shrink-0'><Hourglass size={18} className='text-brand-500 animate-pulse' /></div>
-                                                        <div className='grow'>
-                                                            <p className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>Hold Active</p>
-                                                            <p className='text-[12px] text-gray-600 dark:text-gray-400 font-bold mt-0.5 leading-snug'>
-                                                                We're holding <span className="text-gray-900 dark:text-white">{formatHoldDetail()}</span> for you. Please complete in <span className="text-brand-600 dark:text-brand-400">{formattedTime}</span>.
-                                                            </p>
-                                                            <div className='flex items-center gap-2 mt-2.5'>
-                                                                <div className='h-1.5 flex-1 bg-gray-200 dark:bg-gray-700/50 rounded-full overflow-hidden'>
-                                                                    <div className='h-full bg-brand-500 transition-all duration-1000 ease-linear' style={{ width: `${holdProgress}%` }} />
-                                                                </div>
-                                                                <span className='text-[10px] font-black text-brand-500 whitespace-nowrap uppercase italic'>
-                                                                    {Math.ceil(holdProgress)}%
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
+                                            {/* DYNAMIC HOLD Status Indicator moved to StepIndicator */}
                                         </div>
                                     )}
                                 </div>
@@ -721,8 +769,21 @@ const DateTimeStep = ({
 
                             <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-6 sm:pt-2 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
                                 <div className='flex items-center gap-3 w-full sm:justify-between'>
-                                    <button onClick={onBack} disabled={isProcessing} className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-6 py-3.5 sm:px-8 transition-colors uppercase tracking-widest bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl sm:rounded-2xl border border-transparent shadow-theme-xs disabled:opacity-30'>Back</button>
-                                    <button onClick={onNext} disabled={!selectedDate || !selectedTime || isProcessing} className='flex-[2] sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-2.5 text-[12px] sm:text-base uppercase tracking-widest'>Continue to Your Info<ArrowRight size={20} className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                                    <button 
+                                        onClick={onBack} 
+                                        disabled={isProcessing} 
+                                        className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[9px] sm:text-sm px-2 py-3.5 sm:px-8 transition-colors uppercase tracking-widest bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs disabled:opacity-30'
+                                    >
+                                        Back to Service
+                                    </button>
+                                    <button 
+                                        onClick={onNext} 
+                                        disabled={!selectedDate || !selectedTime || isProcessing} 
+                                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1 sm:gap-2.5 text-[9px] sm:text-base uppercase tracking-widest'
+                                    >
+                                        Continue to Info
+                                        <ArrowRight size={16} className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+                                    </button>
                                 </div>
                             </div>
                         </>
