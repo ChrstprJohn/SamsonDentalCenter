@@ -58,7 +58,7 @@ const GuestBookingPage = () => {
     }
 
     return (
-        <GuestBookingWizard booking={booking} />
+        <GuestBookingWizard booking={booking} settings={settings} />
     );
 };
 

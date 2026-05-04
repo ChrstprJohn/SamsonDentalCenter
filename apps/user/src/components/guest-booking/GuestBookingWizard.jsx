@@ -62,7 +62,7 @@ const formatTimeRange = (startTime, durationMinutes) => {
     }
 };
 
-const GuestBookingWizard = ({ booking }) => {
+const GuestBookingWizard = ({ booking, settings }) => {
     const navigate = useNavigate();
     const {
         sessionId,
@@ -605,7 +605,10 @@ const GuestBookingWizard = ({ booking }) => {
                                     onSubmit={async () => {
                                         // 1. Run Pre-validation (Overlap, Volume Cap, Service Lock)
                                         const isValid = await booking.validateBooking();
-                                        if (!isValid.success) return; // Error is already set in state
+                                        if (!isValid.success) {
+                                            toast.error('Booking failed. Please check the details above.');
+                                            return;
+                                        }
 
                                         // 2. If valid, proceed to OTP
                                         const success = await booking.sendGuestOTP();
@@ -619,6 +622,7 @@ const GuestBookingWizard = ({ booking }) => {
                                     onReset={() => setShowResetModal(true)}
                                     submitting={booking.isVerifying}
                                     error={error}
+                                    clinicPhone={settings?.phone_primary || '(02) 8123-4567'}
                                 />
                             )}
 

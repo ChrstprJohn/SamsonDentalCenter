@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Mail, Phone, Stethoscope, ShieldCheck, MailWarning, Edit2, ArrowRight, Info } from 'lucide-react';
 
-const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, error }) => {
+const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, error, clinicPhone }) => {
     // ✅ Phase 1: Robust Auto-scroll to top on error
     useEffect(() => {
         if (error) {
@@ -110,18 +110,37 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                         <div className="flex-1 text-center sm:text-left">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                                 <h3 className="text-lg font-black text-red-600 dark:text-red-400 uppercase tracking-tight">
-                                    Booking Blocked
+                                    {error.includes('limited to 3 active bookings') ? 'Booking Limit Reached' : 'Booking Blocked'}
                                 </h3>
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 uppercase tracking-widest border border-red-200 dark:border-red-800/50 w-fit mx-auto sm:mx-0">
                                     Security Notice
                                 </span>
                             </div>
-                            <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-bold">
-                                {error}
-                            </p>
-                            <p className="mt-3 text-[12px] text-gray-500 dark:text-gray-400 font-medium">
-                                To protect our scheduling system, we enforce strict limits on guest accounts. If you believe this is an error, please reach out to us directly.
-                            </p>
+                            
+                            {error.includes('limited to 3 active bookings') ? (
+                                <>
+                                    <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-bold">
+                                        To maintain a fair scheduling system, each email is limited to 3 active bookings (Pending or Confirmed).
+                                    </p>
+                                    <div className="mt-4 space-y-3">
+                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                            Our records show that <span className="text-brand-600 dark:text-brand-400 font-bold underline">{formData.email}</span> already has 3 upcoming appointments.
+                                        </p>
+                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                            If you need to schedule additional family members, or if you believe this is an error, please contact the clinic directly at <span className="text-gray-900 dark:text-white font-black">{clinicPhone}</span> so our staff can assist you manually.
+                                        </p>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-bold">
+                                        {error}
+                                    </p>
+                                    <p className="mt-3 text-[12px] text-gray-500 dark:text-gray-400 font-medium">
+                                        To protect our scheduling system, we enforce strict limits on guest accounts. If you believe this is an error, please reach out to us directly.
+                                    </p>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

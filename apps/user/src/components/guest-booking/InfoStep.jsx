@@ -54,7 +54,11 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
             newErrors.phone = 'Phone number is required.';
         } else {
             const sanitizedPhone = formData.phone.replace(/\D/g, '');
-            if (sanitizedPhone.length < 10) {
+            const countryCode = formData.country_code || '+63';
+            
+            if (countryCode === '+63' && sanitizedPhone.length !== 10) {
+                newErrors.phone = 'PH numbers must be exactly 10 digits.';
+            } else if (sanitizedPhone.length < 7) {
                 newErrors.phone = 'Phone number is too short.';
             }
         }
@@ -89,7 +93,18 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         // Limit notes
         if (field === 'patient_note' && value.length > 100) return;
 
-        onUpdate(field, value);
+        // Phone specific logic: Limit to 10 digits for PH (+63)
+        if (field === 'phone') {
+            const sanitized = value.replace(/\D/g, '');
+            const countryCode = formData.country_code || '+63';
+            
+            if (countryCode === '+63' && sanitized.length > 10) return;
+            // For other countries, we can allow more, but PH is strictly 10
+            onUpdate(field, sanitized);
+        } else {
+            onUpdate(field, value);
+        }
+
         if (errors[field]) {
             setErrors((prev) => ({ ...prev, [field]: undefined }));
         }
