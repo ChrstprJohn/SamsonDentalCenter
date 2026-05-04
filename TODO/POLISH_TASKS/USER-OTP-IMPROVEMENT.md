@@ -116,3 +116,10 @@ The system intelligently distinguishes between "Starting Over" for convenience v
 ### 5. The "Global Urgency" (Timer Sync)
 - **Action:** Move from Info → Review → OTP.
 - **Expected:** Timer remains visible and perfectly synchronized in the header across all steps.
+
+### 6. Post-Success Stability
+- **Action:** Complete a booking successfully. On the **Success Screen**, click **"Book Another"**.
+- **Expected:** 
+    - The wizard returns to **Step 0 (Service Selection)**.
+    - No "Session Expired" or "Recovery" modals appear.
+    - All fields are fresh for a new appointment.

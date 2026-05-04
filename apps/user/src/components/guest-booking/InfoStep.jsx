@@ -188,6 +188,17 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             </div>
                         </div>
 
+                        {/* Section: Additional Notes */}
+                        <div className="pt-4">
+                            <label className={labelClasses}>Note for the clinic <span className="opacity-40 font-normal italic">(optional)</span></label>
+                            <textarea
+                                value={formData.patient_note || ''}
+                                onChange={(e) => handleFieldChange('patient_note', e.target.value)}
+                                placeholder="Any special requests or details we should know?"
+                                className={`${getInputClasses()} min-h-[100px] py-3 resize-none`}
+                            />
+                        </div>
+
                         {/* Information Banner (Exclusive Guest Communication) */}
                         <div className="mt-8 bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100/50 dark:border-brand-500/10 rounded-2xl p-6 sm:p-8 animate-in zoom-in-95 duration-500 overflow-hidden">
                             <div className="flex flex-col gap-4">

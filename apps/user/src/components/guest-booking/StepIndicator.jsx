@@ -11,7 +11,7 @@ const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) =
     const stepLabels = labels || defaultLabels;
 
     return (
-        <nav className='flex items-center justify-center gap-2 sm:gap-6'>
+        <nav className='flex items-center justify-center gap-1.5 sm:gap-4'>
             {stepLabels.map((label, index) => {
                 const isCompleted = index + 1 < currentStep;
                 const isActive = index + 1 === currentStep;
@@ -22,26 +22,26 @@ const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) =
                         <button
                             onClick={() => !isLocked && onStepClick(index)}
                             disabled={isDisabled}
-                            className={`flex flex-col sm:flex-row items-center gap-1.5 sm:gap-3 group transition-all ${
+                            className={`flex flex-col sm:flex-row items-center gap-1.5 sm:gap-2.5 group transition-all ${
                                 !isDisabled ? 'cursor-pointer' : 'cursor-default opacity-50'
                             }`}
                         >
                             {/* Circle */}
                             <div
-                                className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold transition-all duration-300 ${
+                                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold transition-all duration-300 ${
                                     isCompleted
                                         ? 'bg-brand-500 text-white shadow-theme-xs'
                                         : isActive
-                                          ? 'bg-brand-500 text-white ring-4 ring-brand-500/10 shadow-theme-xs scale-110'
+                                          ? 'bg-brand-500 text-white ring-4 ring-brand-500/10 shadow-theme-xs scale-105'
                                           : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 group-hover:bg-gray-200 dark:group-hover:bg-gray-700 shadow-theme-xs'
                                 }`}
                             >
-                                {isCompleted ? <Check size={14} strokeWidth={3} /> : index + 1}
+                                {isCompleted ? <Check size={12} strokeWidth={3} /> : index + 1}
                             </div>
 
                             {/* Label: Under on Mobile, Right on Desktop */}
                             <span
-                                className={`text-[9px] sm:text-sm font-bold tracking-tight whitespace-nowrap transition-colors text-center sm:text-left ${
+                                className={`text-[8px] sm:text-[13px] font-bold tracking-tight whitespace-nowrap transition-colors text-center sm:text-left ${
                                     isActive
                                         ? 'text-gray-900 dark:text-white'
                                         : isCompleted
@@ -53,13 +53,12 @@ const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) =
                             </span>
                         </button>
 
-                        {/* Connector line - Visible on all devices, adjusted for mobile positioning */}
+                        {/* Connector line */}
                         {index < stepLabels.length - 1 && (
-                            <div className={`w-3 sm:w-8 h-[1.5px] ml-2 sm:ml-4 sm:mr-1 ${
+                            <div className={`w-2 sm:w-4 h-[1px] ml-1.5 sm:ml-3 sm:mr-0.5 ${
                                 index + 1 < currentStep ? 'bg-brand-500' : 'bg-gray-200 dark:bg-gray-800'
                             } ${
-                                // On mobile, we need to shift the line up a bit to align with the circle center (not the whole flex-col block)
-                                '-mt-4 sm:mt-0'
+                                '-mt-3 sm:mt-0'
                             }`} />
                         )}
                     </div>

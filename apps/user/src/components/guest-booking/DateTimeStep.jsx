@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Lock, Calendar as CalendarIcon, Clock as ClockIcon, Info, ArrowRight, MousePointer2, Loader2, Hourglass, Plus, Check, Users, CalendarX, AlertCircle, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Lock, Calendar as CalendarIcon, Clock as ClockIcon, Info, ArrowRight, MousePointer2, Loader2, Plus, Check, Users, CalendarX, AlertCircle, X } from 'lucide-react';
 import useSlots from '../../hooks/useSlots';
 import { useClinicSettings } from '../../hooks/useClinicSettings';
 import { api } from '../../utils/api';
@@ -692,28 +692,7 @@ const DateTimeStep = ({
                                                 )}
                                             </div>
 
-                                            {/* DYNAMIC HOLD Status Indicator */}
-                                            {activeHold && selectedDate === activeHold.date && (
-                                                <div className='mt-auto p-4 bg-brand-50/50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 rounded-2xl animate-in slide-in-from-bottom duration-500'>
-                                                    <div className='flex items-start gap-4'>
-                                                        <div className='w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-theme-xs shrink-0'><Hourglass size={18} className='text-brand-500 animate-pulse' /></div>
-                                                        <div className='grow'>
-                                                            <p className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>Hold Active</p>
-                                                            <p className='text-[12px] text-gray-600 dark:text-gray-400 font-bold mt-0.5 leading-snug'>
-                                                                We're holding <span className="text-gray-900 dark:text-white">{formatHoldDetail()}</span> for you. Please complete in <span className="text-brand-600 dark:text-brand-400">{formattedTime}</span>.
-                                                            </p>
-                                                            <div className='flex items-center gap-2 mt-2.5'>
-                                                                <div className='h-1.5 flex-1 bg-gray-200 dark:bg-gray-700/50 rounded-full overflow-hidden'>
-                                                                    <div className='h-full bg-brand-500 transition-all duration-1000 ease-linear' style={{ width: `${holdProgress}%` }} />
-                                                                </div>
-                                                                <span className='text-[10px] font-black text-brand-500 whitespace-nowrap uppercase italic'>
-                                                                    {Math.ceil(holdProgress)}%
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
+                                            {/* DYNAMIC HOLD Status Indicator moved to StepIndicator */}
                                         </div>
                                     )}
                                 </div>

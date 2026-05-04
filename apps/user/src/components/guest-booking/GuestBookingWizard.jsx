@@ -134,7 +134,8 @@ const GuestBookingWizard = ({ booking }) => {
     // ✅ Phase 2: Handle Expired Holds during session
     useEffect(() => {
         // If we HAD a hold and now it's null (and we aren't currently checking/loading)
-        if (hasCheckedRecovery && !slotHold.isCheckingHold && !isCheckingRecovery && !slotHold.holdLoading && step >= 1 && hadHoldRef.current && !slotHold.activeHold && !result) {
+        // AND we still have a time selection in our form (meaning it didn't get cleared intentionally)
+        if (hasCheckedRecovery && !slotHold.isCheckingHold && !isCheckingRecovery && !slotHold.holdLoading && step >= 1 && hadHoldRef.current && !slotHold.activeHold && formData.time && !result) {
             // Auto-redirect to Step 1 (DateTime) if hold expires
             hadHoldRef.current = false;
             goToStep(1);
@@ -145,7 +146,7 @@ const GuestBookingWizard = ({ booking }) => {
             setShowExpiryModal(true);
             setShowRecoveryModal(false); // ✅ Prevent double modal conflict
         }
-    }, [slotHold.activeHold, slotHold.isCheckingHold, slotHold.holdLoading, slotHold.clearHold, step, result, hasCheckedRecovery, isCheckingRecovery, goToStep, updateFields, showRecoveryModal]);
+    }, [slotHold.activeHold, slotHold.isCheckingHold, slotHold.holdLoading, slotHold.clearHold, step, result, hasCheckedRecovery, isCheckingRecovery, goToStep, updateFields, showRecoveryModal, formData.time]);
 
     // ✅ Phase 2: Show Recovery Modal once we know the hold status
     useEffect(() => {
@@ -201,7 +202,7 @@ const GuestBookingWizard = ({ booking }) => {
                 <div className="max-w-3xl mx-auto px-4 py-8 md:py-16">
                     <GuestBookingSuccess
                         result={result}
-                        onReset={reset}
+                        onReset={handleReset}
                         booking={booking}
                     />
                 </div>
@@ -233,15 +234,13 @@ const GuestBookingWizard = ({ booking }) => {
                         isLocked={step >= 3}
                     />
 
-                    {/* ✅ Phase 3: Global Timer */}
+                    {/* ✅ Phase 3: Global Timer (Right Side) */}
                     {slotHold.activeHold && (
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-3 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl">
-                            <div className="relative w-5 h-5">
-                                <Clock className="text-amber-600 dark:text-amber-400 animate-pulse" size={18} />
-                            </div>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-3 px-4 py-2 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl animate-in slide-in-from-right-10 duration-500">
+                            <Clock className="text-amber-600 dark:text-amber-400 animate-pulse" size={18} />
                             <div className="flex flex-col">
-                                <span className="text-[10px] uppercase tracking-wider font-bold text-amber-600/70 dark:text-amber-400/50 leading-none mb-1">Hold Active</span>
-                                <span className="text-sm font-mono font-bold text-amber-700 dark:text-amber-300 leading-none">
+                                <span className="text-[9px] uppercase tracking-wider font-black text-amber-600/60 dark:text-amber-400/50 leading-none mb-1">Hold Active</span>
+                                <span className="text-[13px] font-mono font-black text-amber-700 dark:text-amber-300 leading-none">
                                     {slotHold.formattedTime}
                                 </span>
                             </div>
@@ -249,13 +248,13 @@ const GuestBookingWizard = ({ booking }) => {
                     )}
                 </div>
 
-                {/* ✅ Global Timer Progress Bar (Mobile & Tablet) */}
+                {/* ✅ Global Timer Progress Bar (Full Width Bottom) */}
                 {slotHold.activeHold && (
-                    <div className="h-1 w-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                    <div className="absolute bottom-0 left-0 w-full h-[3px] bg-gray-100 dark:bg-gray-800/50 overflow-hidden">
                         <div 
-                            className="h-full bg-amber-500 transition-all duration-1000 ease-linear"
+                            className="h-full bg-amber-500 transition-all duration-1000 ease-linear shadow-[0_0_10px_rgba(245,158,11,0.5)]"
                             style={{ 
-                                width: `${(slotHold.timeRemaining / 300) * 100}%`,
+                                width: `${(slotHold.timeRemaining / 600) * 100}%`,
                                 backgroundColor: slotHold.timeRemaining < 60 ? '#ef4444' : '#f59e0b'
                             }}
                         />

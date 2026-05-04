@@ -53,6 +53,7 @@ const DEFAULT_FORM_DATA = {
     phone: '',
     dentist_id: '',
     service_tier: '',
+    patient_note: '',
 };
 
 /**
@@ -277,6 +278,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                 },
                 user_session_id: sessionId,
                 verification_token: tokenToUse,
+                notes: formData.patient_note,
             };
 
             const data = await api.post('/appointments/book-guest', body);
@@ -287,6 +289,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                 setResult(data);
                 setSubmitting(false);
                 slotHold.clearHold();
+                localStorage.removeItem(GUEST_BOOKING_STATE_KEY);
             } else {
                 setSubmitting(false);
                 setError(data.error || 'Booking failed. Slot may no longer be available.');
@@ -358,6 +361,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
             email: '',
             phone: '',
             service_tier: '', // Total reset
+            patient_note: '',
         });
         setError(null);
         setSubmitting(false);
