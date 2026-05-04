@@ -166,6 +166,17 @@ const GuestBookingWizard = ({ booking }) => {
         reset();
     };
 
+    const handlePartialReset = async () => {
+        // Release hold but keep personal info (Step 2 data)
+        if (slotHold.activeHold) {
+            await slotHold.releaseHold();
+        }
+        updateFields({ date: '', time: '' });
+        hadHoldRef.current = false;
+        setWasRecovered(false);
+        goToStep(1); // Go back to DateTime
+    };
+
     const handleExit = () => {
         if (window.confirm('Are you sure you want to exit? Your progress will be lost.')) {
             handleReset();
@@ -409,7 +420,7 @@ const GuestBookingWizard = ({ booking }) => {
                     <div className="px-6 py-8 flex-1 overflow-y-auto text-center">
                         <div className="space-y-4">
                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                For security and fairness, we can only hold a time slot for 5 minutes. Your previous selection has expired.
+                                For security and fairness, we can only hold a time slot for 10 minutes. Your previous selection has expired.
                             </p>
                             <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30 flex items-center justify-center gap-3 mx-auto">
                                 <Info size={18} className="text-amber-600 dark:text-amber-400 shrink-0" />
@@ -440,6 +451,60 @@ const GuestBookingWizard = ({ booking }) => {
                             className="h-12 text-sm font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300"
                         >
                             No thanks, start fresh
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* ✅ OTP Hard Block Modal */}
+            <Modal
+                isOpen={booking.failedOtpAttempts >= 5}
+                onClose={() => {}} // Mandatory action required
+                showCloseButton={false}
+                closeOnOverlayClick={false}
+                className="max-w-md"
+            >
+                <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
+                            <AlertCircle className="text-red-600 dark:text-red-400" size={22} />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Too Many Attempts</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Security protection active</p>
+                        </div>
+                    </div>
+
+                    {/* Body */}
+                    <div className="px-6 py-8 flex-1 overflow-y-auto text-center">
+                        <div className="space-y-4">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                You have entered the wrong code 5 times. For security, this booking session has been blocked. 
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-600 italic">
+                                Please start a new booking or return to the homepage.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="px-6 py-6 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
+                        <Button 
+                            variant="primary" 
+                            fullWidth 
+                            onClick={handleReset}
+                            className="h-13 text-base font-black bg-red-500 hover:bg-red-600 border-red-500"
+                        >
+                            RESTART BOOKING
+                        </Button>
+                        <Button 
+                            variant="ghost" 
+                            fullWidth 
+                            onClick={() => navigate('/')}
+                            className="h-12 text-sm font-bold text-gray-400 hover:text-gray-900"
+                        >
+                            Return to Home
                         </Button>
                     </div>
                 </div>
@@ -512,7 +577,9 @@ const GuestBookingWizard = ({ booking }) => {
                             onResend={booking.sendGuestOTP}
                             isVerifying={submitting || booking.isVerifying}
                             error={error}
-                            onReset={() => setShowResetModal(true)}
+                            onReset={handlePartialReset}
+                            resendCount={booking.otpResendCount}
+                            failedAttempts={booking.failedOtpAttempts}
                         />
                     )}
                 </div>

@@ -104,6 +104,8 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
     const [error, setError] = useState(null);
     const [result, setResult] = useState(null);
     const [verificationToken, setVerificationToken] = useState(savedState?.verificationToken || null);
+    const [failedOtpAttempts, setFailedOtpAttempts] = useState(savedState?.failedOtpAttempts || 0);
+    const [otpResendCount, setOtpResendCount] = useState(savedState?.otpResendCount || 0);
     const [isVerifying, setIsVerifying] = useState(false);
 
     // ✅ Initialize slot hold hook at the wizard level to survive step changes
@@ -117,9 +119,11 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
             formData,
             verificationToken,
             sessionId,
+            failedOtpAttempts,
+            otpResendCount,
         };
         localStorage.setItem(GUEST_BOOKING_STATE_KEY, JSON.stringify(stateToSave));
-    }, [step, formData, verificationToken, sessionId]);
+    }, [step, formData, verificationToken, sessionId, failedOtpAttempts, otpResendCount]);
 
     // ✅ Auto-release hold if user goes back and changes the service
     // This handles the case where a user already picked a time, then goes back to Step 1
@@ -206,6 +210,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                 email: formData.email,
                 name: formData.first_name || formData.email,
             });
+            setOtpResendCount(prev => prev + 1);
             return { success: true };
         } catch (err) {
             setError(err.message || 'Failed to send verification code.');
@@ -228,10 +233,12 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
             });
             if (data.verification_token) {
                 setVerificationToken(data.verification_token);
+                setFailedOtpAttempts(0); // Reset on success
                 return { success: true, token: data.verification_token };
             }
             throw new Error('Verification failed.');
         } catch (err) {
+            setFailedOtpAttempts(prev => prev + 1);
             setError(err.message || 'Invalid code. Please check your email and try again.');
             return { success: false };
         } finally {
@@ -355,6 +362,8 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
         setError(null);
         setSubmitting(false);
         setResult(null);
+        setFailedOtpAttempts(0);
+        setOtpResendCount(0);
 
         const newId = generateSessionId();
         localStorage.setItem(STORAGE_KEY, newId);
@@ -377,6 +386,8 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
         slotHold,
         verificationToken,
         isVerifying,
+        failedOtpAttempts,
+        otpResendCount,
         // Actions
         updateField,
         updateFields,

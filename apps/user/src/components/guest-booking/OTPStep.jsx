@@ -1,9 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Mail, ShieldCheck, ArrowRight, RotateCw, AlertCircle } from 'lucide-react';
 
-const OTPStep = ({ email, onVerify, onResend, isVerifying, error, onReset }) => {
+const OTPStep = ({ email, onVerify, onResend, isVerifying, error, onReset, resendCount = 0, failedAttempts = 0 }) => {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
-    const [timer, setTimer] = useState(60);
+    
+    // Cooldown sequence: 30s, 60s, 60s, 120s, 180s, 300s...
+    const getCooldown = (count) => {
+        const sequence = [30, 60, 60, 120, 180, 300];
+        return sequence[Math.min(count, sequence.length - 1)];
+    };
+
+    const [timer, setTimer] = useState(getCooldown(resendCount));
     const [canResend, setCanResend] = useState(false);
     const inputRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
 
@@ -16,6 +23,14 @@ const OTPStep = ({ email, onVerify, onResend, isVerifying, error, onReset }) => 
         }
         return () => clearInterval(interval);
     }, [timer]);
+
+    // Update timer if resendCount changes (when onResend is called)
+    useEffect(() => {
+        if (resendCount > 0) {
+            setTimer(getCooldown(resendCount));
+            setCanResend(false);
+        }
+    }, [resendCount]);
 
     useEffect(() => {
         // Focus first input on mount
@@ -67,8 +82,6 @@ const OTPStep = ({ email, onVerify, onResend, isVerifying, error, onReset }) => 
 
     const handleResend = () => {
         if (canResend) {
-            setTimer(60);
-            setCanResend(false);
             setOtp(['', '', '', '', '', '']);
             onResend();
             inputRefs[0].current.focus();
@@ -92,7 +105,12 @@ const OTPStep = ({ email, onVerify, onResend, isVerifying, error, onReset }) => 
                 {error && (
                     <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 text-red-700 dark:text-red-400 px-4 py-3.5 rounded-2xl text-sm font-bold mb-8 flex gap-3 items-center animate-in shake duration-500">
                         <AlertCircle size={18} className="shrink-0" />
-                        {error}
+                        <div>
+                            <p>{error}</p>
+                            <p className="text-[11px] opacity-70 uppercase tracking-wider mt-1">
+                                {5 - failedAttempts} attempts remaining before session lock
+                            </p>
+                        </div>
                     </div>
                 )}
 
