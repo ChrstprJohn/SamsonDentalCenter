@@ -114,7 +114,7 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
                 <div className="mt-10 pt-8 border-t border-gray-100 dark:border-gray-800">
                     <button
                         onClick={onReset}
-                        className='w-full bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black py-5 rounded-2xl transition-all shadow-lg shadow-brand-500/20 text-base uppercase tracking-widest flex items-center justify-center gap-3'
+                        className='w-full bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black py-5 rounded-2xl transition-all shadow-lg shadow-brand-500/20 text-[10px] sm:text-base uppercase tracking-widest flex items-center justify-center gap-3'
                     >
                         <CalendarPlus size={20} />
                         Book Another Appointment

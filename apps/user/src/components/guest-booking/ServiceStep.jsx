@@ -41,7 +41,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
                     <button
                         key={cat}
                         onClick={() => setCategory(cat)}
-                        className={`px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl text-[13px] sm:text-sm font-bold transition-all duration-300 ${category === cat
+                        className={`px-3 py-1.5 sm:px-6 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all duration-300 ${category === cat
                             ? 'bg-white dark:bg-gray-800 text-brand-600 dark:text-brand-400 shadow-theme-sm ring-1 ring-black/5 dark:ring-white/5'
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                             }`}
@@ -95,9 +95,9 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
                                         {service.duration_minutes}m
                                     </div>
                                     {service.tier?.toLowerCase() === 'specialized' && !allowSpecialized && (
-                                        <div className='flex items-center gap-1.5 text-[9px] sm:text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest'>
-                                            <ShieldCheck size={12} />
-                                            Specialized
+                                        <div className='flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest'>
+                                            <ShieldCheck size={12} className="shrink-0" />
+                                            <span className="hidden sm:inline">Specialized</span>
                                         </div>
                                     )}
                                 </div>
@@ -125,10 +125,10 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
                     <button
                         onClick={onNext}
                         disabled={!selectedServiceId}
-                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-[12px] sm:text-base uppercase tracking-widest'
+                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-4 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-[10px] sm:text-base uppercase tracking-widest'
                     >
                         Continue to Date & Time
-                        <ArrowRight size={20} className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <ArrowRight size={18} className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                 </div>
             </div>

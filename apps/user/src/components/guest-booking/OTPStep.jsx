@@ -155,7 +155,7 @@ const OTPStep = ({ email, onVerify, onResend, isVerifying, error, onReset, resen
                     <button
                         onClick={() => onVerify(otp.join(''))}
                         disabled={isVerifying || otp.some(d => d === '')}
-                        className="w-full bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-widest text-sm"
+                        className="w-full bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-widest text-[10px] sm:text-sm"
                     >
                         {isVerifying ? (
                             <>

@@ -45,7 +45,7 @@ const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) =
                                     isActive
                                         ? 'text-gray-900 dark:text-white'
                                         : isCompleted
-                                          ? 'text-gray-600 dark:text-gray-300'
+                                          ? 'text-brand-600 dark:text-brand-400'
                                           : 'text-gray-400 dark:text-gray-500'
                                 }`}
                             >
@@ -55,7 +55,7 @@ const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) =
 
                         {/* Connector line */}
                         {index < stepLabels.length - 1 && (
-                            <div className={`w-2 sm:w-4 h-[1px] ml-1.5 sm:ml-3 sm:mr-0.5 ${
+                            <div className={`w-2 sm:w-4 h-[1.5px] ml-1.5 sm:ml-3 sm:mr-0.5 ${
                                 index + 1 < currentStep ? 'bg-brand-500' : 'bg-gray-200 dark:bg-gray-800'
                             } ${
                                 '-mt-3 sm:mt-0'
