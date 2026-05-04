@@ -10,80 +10,80 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
     };
 
     return (
-        <div className='space-y-6 sm:space-y-8'>
+        <div className='space-y-4 sm:space-y-6 animate-in fade-in duration-300'>
             {/* Card 1: Identity & Registry Summary */}
-            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
-                <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 sm:mb-10'>
+            <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
                     <div>
-                        <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        <h4 className='text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
                             Patient Demographics
                         </h4>
-                        <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
+                        <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
                             Core identity and registry management
                         </p>
                     </div>
                     <Button
                         variant='outline'
                         onClick={onEditAvatar}
-                        className='h-9 sm:h-11 px-4 sm:px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
+                        className='h-9 sm:h-10 px-4 sm:px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
                     >
-                        <Camera size={14} className="sm:w-[18px] sm:h-[18px]" />
+                        <Camera size={14} className="sm:w-4 sm:h-4" />
                         <span>Update Avatar</span>
                     </Button>
                 </div>
 
-                <div className='flex flex-col xl:flex-row gap-8 items-center xl:items-start'>
+                <div className='flex flex-col xl:flex-row gap-6 items-center xl:items-start'>
                     {/* Avatar Display */}
                     <div 
                         onClick={onEditAvatar}
-                        className='w-24 h-24 sm:w-32 sm:h-32 overflow-hidden border-4 border-white dark:border-gray-800 rounded-2xl shadow-xl flex items-center justify-center bg-gray-50 dark:bg-white/5 relative group cursor-pointer shrink-0'
+                        className='w-20 h-20 sm:w-24 sm:h-24 overflow-hidden border-2 border-white dark:border-gray-800 rounded-2xl shadow-lg flex items-center justify-center bg-gray-50 dark:bg-white/5 relative group cursor-pointer shrink-0'
                     >
                         {patient.avatar_url ? (
                             <img src={patient.avatar_url} alt={patient.full_name} className="w-full h-full object-cover" />
                         ) : (
-                            <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-400 to-brand-600 text-white font-bold text-2xl sm:text-3xl'>
+                            <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-400 to-brand-600 text-white font-bold text-xl sm:text-2xl'>
                                 {getInitials()}
                             </div>
                         )}
                         <div className='absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm'>
-                            <Camera size={24} className='text-white scale-75 group-hover:scale-100 transition-transform' />
+                            <Camera size={20} className='text-white scale-75 group-hover:scale-100 transition-transform' />
                         </div>
                     </div>
-
+ 
                     {/* Quick Metadata Grid */}
-                    <div className='flex-grow w-full space-y-6'>
+                    <div className='flex-grow w-full space-y-4'>
                         <div className='text-center xl:text-left'>
-                            <h3 className='text-xl sm:text-3xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight mb-2'>
+                            <h3 className='text-lg sm:text-xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight mb-1'>
                                 {patient.full_name}
                             </h3>
-                            <div className='flex flex-wrap items-center justify-center xl:justify-start gap-3'>
-                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${patient.is_registered && patient.is_active !== false ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400'}`}>
-                                    {patient.is_registered && patient.is_active !== false ? 'Verified Account' : 'Guest Profile'}
+                            <div className='flex flex-wrap items-center justify-center xl:justify-start gap-2'>
+                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${patient.is_registered && patient.is_active !== false ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400'}`}>
+                                    {patient.is_registered && patient.is_active !== false ? 'Verified' : 'Guest'}
                                 </span>
                                 <span className="text-gray-300 dark:text-gray-700 hidden sm:block">•</span>
-                                <p className='text-[10px] text-brand-600 dark:text-brand-400 font-black uppercase tracking-widest'>
+                                <p className='text-[9px] text-brand-600 dark:text-brand-400 font-black uppercase tracking-widest'>
                                     ID: {patient.id?.slice(0, 8).toUpperCase()}
                                 </p>
                             </div>
                         </div>
 
-                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                            <div className='flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]'>
-                                <div className='p-2.5 rounded-lg bg-blue-100 dark:bg-blue-500/10 text-blue-600 shrink-0'>
-                                    <Mail size={16} />
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                            <div className='flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]'>
+                                <div className='p-2 rounded-lg bg-blue-100 dark:bg-blue-500/10 text-blue-600 shrink-0'>
+                                    <Mail size={14} />
                                 </div>
                                 <div className='min-w-0'>
-                                    <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Primary Email</p>
-                                    <p className='text-xs sm:text-sm font-bold text-gray-900 dark:text-white truncate'>{patient.email || '—'}</p>
+                                    <p className='text-[7px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Primary Email</p>
+                                    <p className='text-[10px] sm:text-xs font-bold text-gray-900 dark:text-white truncate'>{patient.email || '—'}</p>
                                 </div>
                             </div>
-                            <div className='flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]'>
-                                <div className='p-2.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 shrink-0'>
-                                    <Phone size={16} />
+                            <div className='flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]'>
+                                <div className='p-2 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 shrink-0'>
+                                    <Phone size={14} />
                                 </div>
                                 <div className='min-w-0'>
-                                    <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Phone Number</p>
-                                    <p className='text-xs sm:text-sm font-bold text-gray-900 dark:text-white truncate'>{patient.phone || '—'}</p>
+                                    <p className='text-[7px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Phone Number</p>
+                                    <p className='text-[10px] sm:text-xs font-bold text-gray-900 dark:text-white truncate'>{patient.phone || '—'}</p>
                                 </div>
                             </div>
                         </div>
@@ -92,10 +92,10 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
             </div>
 
             {/* Card 2: Personal Details */}
-            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
-                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10'>
+            <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
                     <div>
-                        <h4 className='text-lg sm:text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        <h4 className='text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
                             Personal Details
                         </h4>
                         <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5 font-bold'>
@@ -105,32 +105,33 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                     <Button
                         variant='outline'
                         onClick={onEditProfile}
-                        className='h-9 sm:h-11 px-4 sm:px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
+                        className='h-9 sm:h-10 px-4 sm:px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
                     >
                         <Edit3 size={14} className="sm:w-4 sm:h-4" />
                         <span>Edit Name</span>
                     </Button>
                 </div>
-
-                <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6'>
+ 
+                <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4'>
                     {[
                         { label: 'Last Name', value: patient?.last_name, color: 'text-gray-900' },
                         { label: 'First Name', value: patient?.first_name, color: 'text-gray-900' },
                         { label: 'Middle Name', value: patient?.middle_name, color: 'text-gray-900' },
                         { label: 'Suffix', value: patient?.suffix, color: 'text-gray-900' },
                     ].map((item, idx) => (
-                        <div key={idx} className='p-4 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]'>
-                            <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2'>{item.label}</p>
-                            <p className='text-xs sm:text-sm font-black text-gray-900 dark:text-white uppercase truncate'>{item.value || '—'}</p>
+                        <div key={idx} className='p-3 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]'>
+                            <p className='text-[7px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>{item.label}</p>
+                            <p className='text-[10px] sm:text-xs font-black text-gray-900 dark:text-white uppercase truncate'>{item.value || '—'}</p>
                         </div>
                     ))}
                 </div>
             </div>
+
             {/* Card 3: Contact Channels */}
-            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
-                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10'>
+            <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
                     <div>
-                        <h4 className='text-lg sm:text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        <h4 className='text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
                             Contact Channels
                         </h4>
                         <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5 font-bold'>
@@ -140,30 +141,30 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                     <Button
                         variant='outline'
                         onClick={onEditContact}
-                        className='h-9 sm:h-11 px-4 sm:px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
+                        className='h-9 sm:h-10 px-4 sm:px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
                     >
                         <Mail size={14} className="sm:w-4 sm:h-4" />
                         <span>Edit Contact</span>
                     </Button>
                 </div>
-
-                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'>
-                    <div className='p-5 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01] flex items-center gap-5'>
-                        <div className='p-3 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600'>
-                            <Mail size={20} />
+ 
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5'>
+                    <div className='p-4 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01] flex items-center gap-4'>
+                        <div className='p-2 rounded-lg bg-blue-100 dark:bg-blue-500/10 text-blue-600'>
+                            <Mail size={16} />
                         </div>
                         <div className='min-w-0'>
-                            <p className='text-[9px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1'>Official Email</p>
-                            <p className='text-sm sm:text-base font-black text-gray-900 dark:text-white truncate'>{patient?.email || 'NOT REGISTERED'}</p>
+                            <p className='text-[8px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1'>Official Email</p>
+                            <p className='text-[10px] sm:text-xs font-black text-gray-900 dark:text-white truncate'>{patient?.email || 'NOT REGISTERED'}</p>
                         </div>
                     </div>
-                    <div className='p-5 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01] flex items-center gap-5'>
-                        <div className='p-3 rounded-xl bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600'>
-                            <Phone size={20} />
+                    <div className='p-4 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01] flex items-center gap-4'>
+                        <div className='p-2 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600'>
+                            <Phone size={16} />
                         </div>
                         <div className='min-w-0'>
-                            <p className='text-[9px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1'>Primary Phone</p>
-                            <p className='text-sm sm:text-base font-black text-gray-900 dark:text-white truncate'>{patient?.phone || 'NOT SET'}</p>
+                            <p className='text-[8px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1'>Primary Phone</p>
+                            <p className='text-[10px] sm:text-xs font-black text-gray-900 dark:text-white truncate'>{patient?.phone || 'NOT SET'}</p>
                         </div>
                     </div>
                 </div>
