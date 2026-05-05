@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Plus, Loader2, Clock, User, ChevronRight } from 'lucide-react';
+import { Calendar, Plus, Loader2, Clock, User, ChevronRight, Phone, Search } from 'lucide-react';
 import Button from '../../../ui/Button';
 import { api } from '../../../../utils/api';
 import RequestReviewView from './RequestReviewView';
@@ -168,7 +168,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
     ];
 
     const activeFilters = [
-        { id: 'ALL', label: 'All Visits' },
+        { id: 'ALL', label: filterMode === 'upcoming' ? 'All Upcoming' : 'All Visits' },
         { id: 'GENERAL', label: 'General' },
         { id: 'SPECIALIZED', label: 'Specialized' },
     ];
@@ -193,185 +193,186 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
         }).toUpperCase();
     };
 
+    const getInitials = (name) => {
+        if (!name) return '??';
+        const parts = name.split(' ');
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
+        return parts[0].substring(0, 2).toUpperCase();
+    };
+
     return (
-        <div className='space-y-4 animate-in fade-in duration-300'>
+        <div className='space-y-4 sm:space-y-6 lg:space-y-10 animate-in fade-in duration-300'>
             {/* Integrated Search & Filter Header */}
-            <div className='flex flex-col gap-3 mb-2'>
-                <div className='flex items-center justify-between gap-3'>
-                    <div className='relative max-w-sm grow group'>
-                        <User className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors' size={14} />
-                        <input 
-                            type="text" 
-                            placeholder="Search appointments..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className='w-full h-9 pl-10 pr-4 rounded-lg bg-gray-50/50 dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder:text-gray-400'
-                        />
+            <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
+                    <div>
+                        <h4 className='text-base sm:text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                            Appointment Registry
+                        </h4>
+                        <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5 font-bold'>
+                            {filterMode === 'request' ? 'Reviewing pending booking requests' : 
+                             filterMode === 'attendance' ? 'Managing today\'s patient traffic' : 
+                             filterMode === 'upcoming' ? 'Monitoring future schedule volume' : 'Auditing historical clinical records'}
+                        </p>
                     </div>
                     {filterMode === 'attendance' && (
                         <button
                             onClick={() => setIsWizardOpen(true)}
-                            className='h-9 px-4 rounded-lg bg-brand-500 text-white text-[9px] font-black uppercase tracking-widest hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/20 active:scale-95 flex items-center gap-2 whitespace-nowrap'
+                            className='h-11 px-6 rounded-lg bg-brand-500 text-white text-xs font-bold hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/20 active:scale-95 flex items-center gap-2 whitespace-nowrap'
                         >
-                            <Plus size={14} /> <span>Add Appointment</span>
+                            <Plus size={18} /> <span>Create Appointment</span>
                         </button>
                     )}
                 </div>
 
-                <div className='flex items-center gap-2 overflow-x-auto no-scrollbar'>
-                    {currentFilters.map((f) => (
-                        <button
-                            key={f.id}
-                            onClick={() => setStatusFilter(f.id)}
-                            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                                statusFilter === f.id
-                                    ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
-                                    : 'bg-gray-100 dark:bg-white/5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
-                            }`}
-                        >
-                            {f.label}
-                        </button>
-                    ))}
+                <div className='flex flex-col lg:flex-row items-center gap-3 sm:gap-4'>
+                    <div className='relative flex-grow group w-full lg:w-auto'>
+                        <Search className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors' size={18} />
+                        <input 
+                            type="text" 
+                            placeholder="Search clinical registry by service or details..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium text-gray-900 dark:text-white placeholder:text-gray-400'
+                        />
+                    </div>
+                    <div className='flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 w-full lg:w-auto'>
+                        {currentFilters.map((f) => (
+                            <button
+                                key={f.id}
+                                onClick={() => setStatusFilter(f.id)}
+                                className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+                                    statusFilter === f.id
+                                        ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
+                                        : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
+                                }`}
+                            >
+                                {f.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
             {loading ? (
-                <div className='flex flex-col items-center justify-center py-20 bg-gray-50/50 dark:bg-white/[0.01] rounded-2xl border border-dashed border-gray-200 dark:border-gray-800'>
-                    <Loader2 className='animate-spin text-brand-500 mb-4' size={32} />
-                    <p className='text-xs font-bold text-gray-400 uppercase tracking-widest'>Synchronizing records...</p>
+                <div className='flex flex-col items-center justify-center py-20 bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-300 dark:border-gray-800 shadow-sm'>
+                    <Loader2 className='animate-spin text-brand-500 mb-4' size={40} />
+                    <p className='text-xs font-black text-gray-400 uppercase tracking-widest'>Synchronizing Data...</p>
                 </div>
             ) : filteredAppointments.length > 0 ? (
-                <div className='overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-white/[0.02] shadow-sm'>
-                    {/* Header - Desktop Only */}
-                    <div className='hidden sm:grid grid-cols-12 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01]'>
-                        <div className='col-span-2 px-6 py-4 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]'>Date</div>
-                        <div className='col-span-2 px-6 py-4 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]'>Time</div>
-                        <div className='col-span-3 px-6 py-4 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]'>Patient & Service</div>
-                        <div className='col-span-3 px-6 py-4 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]'>Doctor</div>
-                        <div className='col-span-2 px-6 py-4 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] text-right'>Status</div>
-                    </div>
+                <div className='space-y-2 sm:space-y-3'>
+                    {/* Header - Removed since we are using cards now for everything */}
 
                     {/* Rows */}
-                    <div className='divide-y divide-gray-50 dark:divide-gray-800/50'>
+                    <div className='flex flex-col gap-2'>
                         {filteredAppointments.map((app) => (
                             <div 
                                 key={app.id} 
-                                className='group relative cursor-pointer hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors'
+                                className='group relative cursor-pointer hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-all p-0 border border-gray-300 dark:border-gray-700 rounded-2xl bg-white dark:bg-white/[0.01] shadow-sm hover:shadow-md'
                                 onClick={() => handleRowClick(app)}
                             >
-                                {/* Desktop View */}
-                                <div className='hidden sm:grid grid-cols-12 items-center'>
-                                    <div className='col-span-2 px-6 py-5'>
-                                        <div className='flex flex-col'>
-                                            <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>Date of Visit</span>
-                                            <span className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>{formatDate(app.appointment_date)}</span>
+                                <div className='flex flex-row w-full overflow-hidden'>
+                                    {/* Left Side: Date & Time */}
+                                    <div className="flex flex-col justify-center w-24 sm:w-40 bg-gray-50/50 dark:bg-gray-800/30 border-r border-gray-300 dark:border-gray-700 shrink-0 text-center sm:text-left">
+                                        <div className="px-2 sm:px-4 py-2 sm:py-3">
+                                            <p className="text-[7px] sm:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</p>
+                                            <p className="text-[9px] sm:text-[11px] font-black text-gray-900 dark:text-white leading-none uppercase tracking-tighter">
+                                                {formatDate(app.appointment_date)}
+                                            </p>
                                         </div>
-                                    </div>
-                                    <div className='col-span-2 px-6 py-5'>
-                                        <div className='flex flex-col space-y-3'>
-                                            <div className='flex flex-col'>
-                                                <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>Start Time</span>
-                                                <span className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>{formatTime(app.start_time)}</span>
-                                            </div>
-                                            <div className='flex flex-col'>
-                                                <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>End Time</span>
-                                                <span className='text-[11px] font-black text-brand-500 uppercase tracking-tight'>{formatTime(app.end_time)}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className='col-span-3 px-6 py-5'>
-                                        <div className='flex flex-col space-y-3'>
-                                            <div className='flex flex-col'>
-                                                <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>Patient</span>
-                                                <span className='text-[11px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-tight'>{app.patient?.full_name}</span>
-                                            </div>
-                                            <div className='flex flex-col'>
-                                                <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>Service</span>
-                                                <span className='text-[10px] font-black text-brand-600/70 dark:text-brand-400/70 uppercase tracking-widest'>{app.service?.name}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className='col-span-3 px-6 py-5'>
-                                        <div className='flex flex-col'>
-                                            <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>Doctor</span>
-                                            <span className='text-[11px] font-black text-gray-400 uppercase tracking-tight'>{app.dentist?.profile?.last_name || 'Unassigned'}</span>
-                                        </div>
-                                    </div>
-                                    <div className='col-span-2 px-6 py-5 text-right'>
-                                        <div className='flex items-center justify-end gap-4'>
-                                            <div className='flex flex-col items-end'>
-                                                <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>Status</span>
-                                                <span className={`inline-flex px-2 py-0.5 text-[8px] font-black rounded-md uppercase tracking-widest shadow-sm ${getStatusStyle(app.status)}`}>
-                                                    {app.approval_status === 'rejected' ? 'REJECTED' : (app.status === 'CONFIRMED' ? 'APPROVED' : app.status)}
-                                                </span>
-                                            </div>
-                                            <ChevronRight size={14} className='text-gray-300 group-hover:text-brand-500 transition-colors mt-3' />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Mobile View (Full Width Card Style) */}
-                                <div className='sm:hidden p-5 flex flex-col gap-4 relative'>
-                                    {/* Top Row: Date & Status */}
-                                    <div className='flex justify-between items-start'>
-                                        <div className='flex flex-col'>
-                                            <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>Date of Visit</span>
-                                            <span className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>{formatDate(app.appointment_date)}</span>
-                                        </div>
-                                        <span className={`inline-flex px-2 py-0.5 text-[8px] font-black rounded-md uppercase tracking-widest shadow-sm ${getStatusStyle(app.status)}`}>
-                                            {app.status === 'CONFIRMED' ? 'APPROVED' : app.status}
-                                        </span>
-                                    </div>
-
-                                    {/* Middle: Patient & Service */}
-                                    <div className='flex flex-col space-y-3 py-3 border-y border-gray-50 dark:border-gray-800/50'>
-                                        <div className='flex flex-col'>
-                                            <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>Patient</span>
-                                            <span className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>{app.patient?.full_name}</span>
-                                        </div>
-                                        <div className='flex flex-col'>
-                                            <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>Service</span>
-                                            <span className='text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-widest'>{app.service?.name}</span>
+                                        <div className="h-[1px] w-full bg-gray-200 dark:bg-gray-700" />
+                                        <div className="px-2 sm:px-4 py-2 sm:py-3">
+                                            <p className="text-[7px] sm:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Time Slot</p>
+                                            <p className="text-[9px] sm:text-[11px] font-black text-brand-500 leading-none">
+                                                {formatTime(app.start_time)} - {formatTime(app.end_time)}
+                                            </p>
                                         </div>
                                     </div>
 
-                                    {/* Bottom: Time & Doctor */}
-                                    <div className='flex justify-between items-end'>
-                                        <div className='flex gap-10'>
-                                            <div className='flex flex-col'>
-                                                <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>Time</span>
-                                                <div className='flex items-baseline gap-1.5'>
-                                                    <span className='text-[10px] font-black text-gray-700 dark:text-gray-300 uppercase'>{formatTime(app.start_time)}</span>
-                                                    <span className='text-[8px] font-bold text-gray-400'>-</span>
-                                                    <span className='text-[10px] font-black text-brand-500 uppercase'>{formatTime(app.end_time)}</span>
+                                    {/* Main Content Area */}
+                                    <div className="flex-grow p-3 sm:p-5 flex items-center gap-3 sm:gap-4 min-w-0">
+                                        {/* Avatar */}
+                                        <div className="relative shrink-0">
+                                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-brand-500 text-white flex items-center justify-center text-[10px] sm:text-sm font-black shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
+                                                {app.patient?.avatar_url ? (
+                                                    <img src={app.patient.avatar_url} alt={app.patient.full_name} className='w-full h-full object-cover rounded-full' />
+                                                ) : (
+                                                    getInitials(app.patient?.full_name)
+                                                )}
+                                            </div>
+                                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full shadow-sm" />
+                                        </div>
+
+                                        <div className="flex-grow min-w-0">
+                                            <p className="text-xs sm:text-base font-black text-gray-900 dark:text-white leading-tight mb-0.5 sm:mb-1 truncate">{app.patient?.full_name}</p>
+                                            <div className="flex flex-col gap-0.5 sm:gap-1">
+                                                <div className="flex items-center gap-1.5 sm:gap-2">
+                                                    <p className="text-[8px] sm:text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tighter truncate">
+                                                        {app.service?.name}
+                                                    </p>
+                                                    <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">•</span>
+                                                    <p className="text-[8px] sm:text-[11px] font-bold text-gray-500 dark:text-gray-400 truncate">
+                                                        {app.dentist?.profile?.last_name || 'Unassigned'}
+                                                    </p>
                                                 </div>
-                                            </div>
-                                            <div className='flex flex-col'>
-                                                <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>Doctor</span>
-                                                <span className='text-[10px] font-black text-gray-400 uppercase'>{app.dentist?.profile?.last_name || 'Unassigned'}</span>
+                                                <p className="text-[8px] sm:text-[11px] font-medium text-gray-500 flex items-center gap-1.5 sm:gap-2">
+                                                    <Phone size={8} className="text-green-500 sm:w-[10px]" />
+                                                    <span className="text-gray-800 dark:text-gray-200">{app.patient?.phone || 'No Phone'}</span>
+                                                </p>
                                             </div>
                                         </div>
-                                        <ChevronRight size={14} className='text-gray-300' />
+                                    </div>
+
+                                    {/* Mobile Only: Floating View Indicator */}
+                                    <div className='absolute bottom-3 right-3 sm:hidden flex items-center gap-1 bg-brand-50/50 dark:bg-brand-500/10 px-2 py-1 rounded-lg border border-brand-100 dark:border-brand-500/20'>
+                                        <span className='text-[7px] font-black text-brand-500 uppercase tracking-widest'>View</span>
+                                        <ChevronRight size={10} className='text-brand-500' />
+                                    </div>
+
+                                    {/* Right Side: Status & Source Badges */}
+                                    <div className="hidden sm:flex flex-col items-stretch justify-center border-l border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 w-[200px]">
+                                        {/* Source */}
+                                        <div className="px-5 py-4 flex flex-col items-start gap-2">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Source</p>
+                                            <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded border shadow-sm bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 truncate w-full text-left`}>
+                                                {app.source || 'Portal Booking'}
+                                            </span>
+                                        </div>
+
+                                        <div className="h-[1px] w-full bg-gray-200 dark:bg-gray-700" />
+
+                                        {/* Status */}
+                                        <div className="px-5 py-4 flex flex-col items-start gap-2">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Status</p>
+                                            <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded shadow-sm border ${
+                                                app.status === 'CONFIRMED' ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' :
+                                                app.status === 'CANCELLED' ? 'bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20' :
+                                                'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+                                            } truncate w-full text-left`}>
+                                                {app.status === 'CONFIRMED' ? 'APPROVED' : app.status}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         ))}
+
                     </div>
                 </div>
             ) : (
-                <div className='flex flex-col items-center justify-center py-20 bg-gray-50/50 dark:bg-white/[0.01] rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-center px-6'>
-                    <div className='w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm flex items-center justify-center text-gray-200 dark:text-gray-700 mb-4'>
-                        <Calendar size={32} />
+                <div className='flex flex-col items-center justify-center py-20 bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-300 dark:border-gray-800 text-center px-6 shadow-sm'>
+                    <div className='w-20 h-20 bg-gray-100 dark:bg-white/5 rounded-3xl flex items-center justify-center text-gray-300 dark:text-gray-700 mb-6 border border-gray-200 dark:border-white/5'>
+                        <Calendar size={40} />
                     </div>
-                    <h5 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight'>
-                        {filterMode === 'request' ? 'No Pending Requests' : 
-                         filterMode === 'attendance' ? 'No Approved Appointments' : 
-                         'No Past Appointments'}
+                    <h5 className='text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit mb-2'>
+                        No Records Found
                     </h5>
-                    <p className='text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs'>
-                        {filterMode === 'request' ? 'All appointment requests for this family have been processed.' : 
-                         filterMode === 'attendance' ? 'There are no confirmed appointments scheduled for this family.' :
-                         'This patient has no historical visits or cancelled appointments on record.'}
+                    <p className='text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest font-bold max-w-sm leading-relaxed'>
+                        {filterMode === 'request' ? 'All appointment requests for this family have been processed or none have been submitted.' : 
+                         filterMode === 'attendance' ? 'There are no confirmed appointments scheduled for today.' :
+                         'No historical visits or cancelled appointments on record for this profile.'}
                     </p>
                 </div>
             )}

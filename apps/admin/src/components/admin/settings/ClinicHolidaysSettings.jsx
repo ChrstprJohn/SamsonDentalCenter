@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar as CalendarIcon, Trash2, Plus, Info, Clock as ClockIcon, Phone } from 'lucide-react';
+import { Calendar as CalendarIcon, Trash2, Plus, Info, Clock as ClockIcon, Phone, AlertTriangle } from 'lucide-react';
 import { Button, Input, Modal } from '../../ui';
 import { useSettings } from '../../../hooks/useSettings';
 import { useToast } from '../../../context/ToastContext';
@@ -83,70 +83,87 @@ const ClinicHolidaysSettings = () => {
     if (error) return <div className="p-4 text-red-500 font-bold">Error: {error}</div>;
 
     return (
-        <div className='space-y-6'>
-            <div className='p-6 border border-gray-200 rounded-xl dark:border-gray-800 lg:p-7 bg-white dark:bg-white/[0.03] shadow-sm'>
-                <div className='flex items-center justify-between mb-8'>
+        <div className='space-y-6 sm:space-y-8 pb-20 w-full'>
+            {/* 1. CLOSURE DATES SECTION */}
+            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10'>
                     <div>
-                        <h4 className='text-lg font-bold text-gray-900 dark:text-white'>
+                        <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
                             Clinic Closure Dates
                         </h4>
-                        <p className='text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1 font-bold'>
+                        <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
                             Public holidays and clinic-wide breaks
                         </p>
                     </div>
                     <Button
                         onClick={() => setIsAddModalOpen(true)}
-                        className='flex items-center gap-2 h-11 px-6 rounded-xl bg-brand-500 text-white text-xs font-black uppercase tracking-tight shadow-lg shadow-brand-500/20 hover:scale-[1.02] active:scale-95 transition-all'
+                        className='bg-brand-500 hover:bg-brand-600 text-white rounded-xl px-4 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-brand-500/20'
                     >
-                        <Plus size={18} /> Add Holiday
+                        <Plus size={14} className="sm:w-4 sm:h-4" />
+                        Add Holiday
                     </Button>
                 </div>
 
-                <div className='grid grid-cols-1 gap-4'>
-                    {holidays.length === 0 ? (
-                        <div className="text-center py-12 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-2xl">
-                            <CalendarIcon className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                            <p className="text-sm text-gray-500 font-medium">No closure dates scheduled.</p>
+                <div className='space-y-12'>
+                    {/* Active Holidays Grid */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <CalendarIcon size={16} className="text-brand-500" />
+                            <h6 className="text-xs font-black uppercase text-gray-400 tracking-widest">Upcoming Closures</h6>
                         </div>
-                    ) : (
-                        holidays.map(holiday => (
-                            <div key={holiday.id} className='flex items-center justify-between p-5 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-brand-500/30 hover:shadow-md transition-all bg-white dark:bg-white/[0.01] group'>
-                                <div className='flex items-center gap-5'>
-                                    <div className='w-12 h-12 rounded-xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-brand-50 dark:group-hover:bg-brand-500/10 group-hover:text-brand-500 transition-colors'>
-                                        <CalendarIcon size={24} />
-                                    </div>
-                                    <div>
-                                        <h5 className='text-base font-bold text-gray-900 dark:text-white'>{holiday.name}</h5>
-                                        <p className='text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5'>
-                                            {(() => {
-                                                const d = new Date(holiday.date + 'T00:00:00');
-                                                return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString('en-US', {
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                    year: 'numeric'
-                                                });
-                                            })()}
-                                        </p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => handleDeleteClick(holiday)}
-                                    className='p-2.5 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all'
-                                >
-                                    <Trash2 size={20} />
-                                </button>
-                            </div>
-                        ))
-                    )}
-                </div>
 
-                <div className='mt-10 p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10 flex items-start gap-4'>
-                    <div className='mt-1 text-blue-600'>
-                        <Info size={20} />
+                        {holidays.length === 0 ? (
+                            <div className="text-center py-12 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl bg-gray-50/30 dark:bg-white/[0.01]">
+                                <CalendarIcon className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                                <p className="text-sm text-gray-500 font-bold uppercase tracking-tighter">No closure dates scheduled.</p>
+                            </div>
+                        ) : (
+                            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6'>
+                                {holidays.map(holiday => (
+                                    <div key={holiday.id} className='flex flex-col p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01] hover:border-brand-500/30 transition-all group relative'>
+                                        <div className='flex items-center gap-4 mb-4'>
+                                            <div className='w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-400 group-hover:text-brand-500 transition-colors shadow-sm'>
+                                                <CalendarIcon size={20} className="sm:w-6 sm:h-6" />
+                                            </div>
+                                            <div className='flex-grow pr-8'>
+                                                <h5 className='text-xs sm:text-sm font-black text-gray-900 dark:text-white uppercase truncate'>{holiday.name}</h5>
+                                                <p className='text-[10px] text-brand-500 font-black uppercase tracking-wider mt-0.5'>
+                                                    {(() => {
+                                                        const d = new Date(holiday.date + 'T00:00:00');
+                                                        return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString('en-US', {
+                                                            month: 'short',
+                                                            day: 'numeric',
+                                                            year: 'numeric'
+                                                        }).toUpperCase();
+                                                    })()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDeleteClick(holiday)}
+                                            className='absolute top-4 right-4 p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all opacity-0 group-hover:opacity-100'
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                        <div className='mt-auto flex items-center gap-2 pt-4 border-t border-gray-200 dark:border-white/5'>
+                                            <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
+                                            <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest'>Clinic Closed</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                    <p className='text-xs text-blue-800/80 dark:text-blue-400/80 font-medium leading-relaxed'>
-                        On these dates, no appointment slots will be generated and the patient booking calendar will show the clinic as completely closed. Existing appointments on these dates will remain but should be rescheduled manually.
-                    </p>
+
+                    {/* Information Note */}
+                    <div className='p-4 sm:p-6 rounded-2xl bg-blue-50/50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10 flex items-start gap-4'>
+                        <div className='mt-0.5 text-blue-600'>
+                            <Info size={18} />
+                        </div>
+                        <p className='text-[10px] sm:text-xs text-blue-800/80 dark:text-blue-400/80 font-bold uppercase leading-relaxed tracking-tight'>
+                            On these dates, no appointment slots will be generated and the patient booking calendar will show the clinic as completely closed. Existing appointments on these dates will remain but should be rescheduled manually.
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -154,7 +171,13 @@ const ClinicHolidaysSettings = () => {
             {isAddModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-md p-8 animate-in zoom-in-95 duration-200">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Add Clinic Holiday</h3>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Add Clinic Holiday</h3>
+                        <div className="mb-6 p-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 flex items-center gap-3">
+                            <AlertTriangle size={14} className="text-amber-500 shrink-0" />
+                            <p className="text-[10px] font-black text-amber-800 dark:text-amber-200 uppercase tracking-wide leading-tight">
+                                This will affect all patient bookings globally.
+                            </p>
+                        </div>
                         <div className="space-y-5">
                             <div>
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Holiday Name</label>
@@ -264,9 +287,9 @@ const ClinicHolidaysSettings = () => {
                                 const initials = getInitials(patientName);
 
                                 return (
-                                    <div key={appt.id} className="flex flex-col sm:flex-row bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                    <div key={appt.id} className="flex flex-col sm:flex-row bg-white dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                                         {/* Left Side: Date & Time */}
-                                        <div className="flex sm:flex-col justify-between sm:justify-center sm:w-40 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800 shrink-0 text-center sm:text-left">
+                                        <div className="flex sm:flex-col justify-between sm:justify-center sm:w-40 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0 text-center sm:text-left">
                                             <div className="px-4 py-3">
                                                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</p>
                                                 <p className="text-[11px] font-black text-gray-900 dark:text-white leading-none whitespace-nowrap">
@@ -318,7 +341,7 @@ const ClinicHolidaysSettings = () => {
                                         </div>
 
                                         {/* Right Side: Status & Source Badges (Stacked with Full Labels) */}
-                                        <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[200px]">
+                                        <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-200 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[200px]">
                                             {/* Source */}
                                             <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
                                                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Source</p>

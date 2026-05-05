@@ -208,13 +208,13 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
     };
 
     const footer = (
-        <div className="flex items-center gap-3 w-full">
-            <Button variant="outline" type="button" onClick={onClose} disabled={isSaving} className="flex-1 h-11 font-bold">Cancel</Button>
+        <div className="flex items-center gap-3 w-full sm:justify-end">
+            <Button variant="outline" type="button" onClick={onClose} disabled={isSaving} className="flex-1 sm:flex-none h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl">Cancel</Button>
             <Button
                 variant='primary'
                 onClick={() => handleSave()}
                 disabled={isSaving || (draftBlockedSlots.size === 0 && draftUnblockedSlots.size === 0)}
-                className="flex-[1.5] h-11 font-bold min-w-[130px]"
+                className="flex-[1.5] sm:flex-none h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20"
             >
                 {isSaving ? 'Saving...' : 'Apply Changes'}
             </Button>
@@ -226,10 +226,10 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
         <Modal
             isOpen={isOpen}
             onClose={() => !isSaving && onClose()}
-            title="Manage Blocked Times"
-            subtitle={`Manage granular availability for ${format(new Date(selectedDate + 'T00:00:00'), 'MMMM d, yyyy')}.`}
+            title="Block Granular Times"
+            subtitle={`Availability for ${format(new Date(selectedDate + 'T00:00:00'), 'MMM d, yyyy')}.`}
             footer={footer}
-            className="max-w-[1000px] w-[95%] sm:w-full"
+            className="max-w-[900px] w-[95%] sm:w-full"
             noPadding={false}
         >
             <div className="flex flex-col md:flex-row gap-8">
@@ -241,16 +241,16 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                         <div className='-mx-5 sm:mx-0 border-y sm:border border-gray-200 dark:border-gray-800 sm:rounded-xl overflow-hidden bg-gray-50/50 dark:bg-white/[0.01]'>
                             <div className="grid grid-cols-2 gap-4 p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                                 <div>
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Select Date</label>
+                                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block ml-1">Select Date</label>
                                     <input 
                                         type="date" 
                                         value={selectedDate}
                                         onChange={(e) => setSelectedDate(e.target.value)}
-                                        className="w-full h-11 px-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
+                                        className="w-full h-9 px-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg text-[13px] font-bold focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Interval Gap</label>
+                                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block ml-1">Interval Gap</label>
                                     <select 
                                         value={slotGap}
                                         onChange={(e) => {
@@ -258,10 +258,10 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                             setDraftBlockedSlots(new Set());
                                             setDraftUnblockedSlots(new Set());
                                         }}
-                                        className="w-full h-11 px-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
+                                        className="w-full h-9 px-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg text-[13px] font-bold focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
                                     >
-                                        <option value={30}>30 Minutes</option>
-                                        <option value={60}>1 Hour</option>
+                                        <option value={30}>30m</option>
+                                        <option value={60}>1h</option>
                                     </select>
                                 </div>
                             </div>
@@ -319,15 +319,15 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                             <button
                                                 key={time}
                                                 onClick={() => toggleSlot(time)}
-                                                className={`h-11 rounded-xl border px-3 flex items-center justify-between transition-all active:scale-95 ${pillClass}`}
+                                                className={`h-9 rounded-xl border px-3 flex items-center justify-between transition-all active:scale-95 ${pillClass}`}
                                             >
                                                 <div className='flex flex-col items-start min-w-0'>
                                                     <div className='flex items-center gap-2'>
-                                                        <div className={`w-2 h-2 rounded-full shrink-0 ${dotClass}`} strokeWidth={0} />
-                                                        <span className="text-[10px] font-black tabular-nums whitespace-nowrap uppercase">{time}</span>
+                                                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotClass}`} strokeWidth={0} />
+                                                        <span className="text-[9px] font-black tabular-nums whitespace-nowrap uppercase">{time}</span>
                                                     </div>
                                                     {isAppointment && (
-                                                        <span className="text-[8px] font-bold truncate w-full mt-0.5 opacity-80 uppercase tracking-tighter text-left">
+                                                        <span className="text-[7px] font-bold truncate w-full mt-0.5 opacity-80 uppercase tracking-tighter text-left">
                                                             {occupiedEvent.patient}
                                                         </span>
                                                     )}
@@ -335,10 +335,10 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                                 
                                                 <div className='flex items-center justify-center shrink-0 ml-1'>
                                                     {isPendingBlock ? (
-                                                        <input type="checkbox" readOnly checked className={`w-3 h-3 translate-y-[-0.5px] ${isAppointment ? 'accent-orange-500' : 'accent-brand-500'}`} />
+                                                        <input type="checkbox" readOnly checked className={`w-2.5 h-2.5 translate-y-[-0.5px] ${isAppointment ? 'accent-orange-500' : 'accent-brand-500'}`} />
                                                     ) : occupied ? (
                                                         blockModalMode === 'unblock' ? (
-                                                            <input type="checkbox" readOnly checked={!isPendingUnblock} className="w-3 h-3 accent-red-500 translate-y-[-0.5px]" />
+                                                            <input type="checkbox" readOnly checked={!isPendingUnblock} className="w-2.5 h-2.5 accent-red-500 translate-y-[-0.5px]" />
                                                         ) : (
                                                             <span className={`text-[7px] font-black uppercase tracking-tighter ${isAppointment ? 'text-blue-500' : 'text-red-500/60'}`}>
                                                                 {isAppointment ? 'BOOKED' : 'BLOCKED'}
@@ -347,7 +347,7 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                                     ) : blockModalMode === 'view' ? (
                                                         <span className="opacity-0"></span> // Hide checkbox in view mode
                                                     ) : (
-                                                        <input type="checkbox" readOnly checked={false} className="w-3 h-3 opacity-10 cursor-pointer" />
+                                                        <input type="checkbox" readOnly checked={false} className="w-2.5 h-2.5 opacity-10 cursor-pointer" />
                                                     )}
                                                 </div>
                                             </button>
@@ -359,13 +359,13 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                     </div>
 
                     {/* RIGHT COLUMN: Management (Standardized) */}
-                    <div className="md:w-[40%] flex flex-col gap-6 md:pl-2 bg-white dark:bg-gray-900">
+                    <div className="md:w-[40%] flex flex-col gap-5 md:pl-2">
                         <div className="shrink-0">
-                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest">Action Mode</label>
+                            <label className="text-[9px] font-black text-gray-400 mb-2 block uppercase tracking-widest ml-1">Action Mode</label>
                             <div className="flex flex-col gap-2">
                                 <Button 
                                     variant={blockModalMode === 'block' ? 'primary' : 'outline'} 
-                                    className="justify-between w-full h-11 font-bold font-outfit"
+                                    className="justify-between w-full h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest font-outfit rounded-xl"
                                     onClick={() => {
                                         if (blockModalMode === 'block') setBlockModalMode('view');
                                         else {
@@ -375,11 +375,11 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                     }}
                                 >
                                     <span>Add Blocked Time</span>
-                                    {blockModalMode === 'block' && <CheckSquare size={16} />}
+                                    {blockModalMode === 'block' && <CheckSquare size={14} />}
                                 </Button>
                                 <Button 
                                     variant={blockModalMode === 'unblock' ? 'primary' : 'outline'} 
-                                    className={`justify-between w-full h-11 font-bold font-outfit ${blockModalMode === 'unblock' ? '!bg-red-500 hover:!bg-red-600' : ''}`}
+                                    className={`justify-between w-full h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest font-outfit rounded-xl ${blockModalMode === 'unblock' ? '!bg-red-500 hover:!bg-red-600' : ''}`}
                                     onClick={() => {
                                         if (blockModalMode === 'unblock') setBlockModalMode('view');
                                         else {
@@ -389,17 +389,17 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                     }}
                                 >
                                     <span>Remove Blocked Time</span>
-                                    {blockModalMode === 'unblock' && <CheckSquare size={16} />}
+                                    {blockModalMode === 'unblock' && <CheckSquare size={14} />}
                                 </Button>
                             </div>
                         </div>
 
                         <div className={`transition-all duration-300 flex-grow flex flex-col ${blockModalMode === 'block' ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
-                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest shrink-0">Block Reason</label>
+                            <label className="text-[9px] font-black text-gray-400 mb-2 block uppercase tracking-widest shrink-0 ml-1">Block Reason</label>
                             <select 
                                 value={blockReason}
                                 onChange={(e) => setBlockReason(e.target.value)}
-                                className="w-full h-11 shrink-0 px-3 rounded-lg border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
+                                className="w-full h-9 shrink-0 px-3 rounded-lg border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-[13px] font-bold focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
                             >
                                 <option value="leave">Vacation / Leave</option>
                                 <option value="emergency">Emergency Closure</option>
@@ -407,12 +407,12 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                 <option value="other">Other (Specify)</option>
                             </select>
                             {blockReason === 'other' && (
-                                <div className="mt-2 animate-fade-in flex-grow flex flex-col min-h-[60px]">
+                                <div className="mt-2 animate-fade-in flex-grow flex flex-col min-h-[50px]">
                                     <textarea 
-                                        placeholder="Type custom reason..."
+                                        placeholder="Type reason..."
                                         value={otherReason}
                                         onChange={(e) => setOtherReason(e.target.value)}
-                                        className="w-full h-full flex-grow text-sm font-bold bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 rounded-lg px-3 py-2 text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all resize-none"
+                                        className="w-full h-full flex-grow text-[13px] font-bold bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 rounded-lg px-3 py-2 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all resize-none"
                                     />
                                 </div>
                             )}

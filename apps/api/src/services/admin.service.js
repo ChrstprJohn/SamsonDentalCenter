@@ -1602,7 +1602,12 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
     // If a specific status is requested, use it; otherwise, exclude 'zombie' statuses by default
     // to prevent rescheduled/cancelled/missed appointments from cluttering active lists.
     if (filters.status) {
-        query = query.eq('status', filters.status);
+        if (filters.status.includes(',')) {
+            const statusList = filters.status.split(',').map(s => s.trim().toUpperCase());
+            query = query.in('status', statusList);
+        } else {
+            query = query.eq('status', filters.status.toUpperCase());
+        }
     } else {
         query = query.not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.NO_SHOW},${APPOINTMENT_STATUS.RESCHEDULED})`);
     }
@@ -1610,6 +1615,18 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
     if (filters.dentist_id) query = query.eq('dentist_id', filters.dentist_id);
     if (filters.patient_id) query = query.eq('patient_id', filters.patient_id);
     if (filters.tier) query = query.eq('service_tier', filters.tier);
+
+    // Search filter
+    if (filters.search) {
+        const s = `%${filters.search}%`;
+        query = query.or(`guest_name.ilike.${s},first_name.ilike.${s},last_name.ilike.${s},cancellation_reason.ilike.${s},notes.ilike.${s}`);
+    }
+
+    // Special handling for DISPLACED virtual status
+    if (filters.status === 'DISPLACED') {
+        query = query.eq('status', APPOINTMENT_STATUS.CANCELLED)
+                     .ilike('cancellation_reason', 'SYSTEM_DISPLACED%');
+    }
 
     // Pagination
     const offset = (page - 1) * limit;

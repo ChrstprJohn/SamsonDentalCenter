@@ -172,12 +172,22 @@ export const useDoctors = (fetchOnMount = true) => {
 
     const fetchDoctorHistory = useCallback(async (dentistId, params = {}) => {
         try {
-            const { page = 1, limit = 10, status = null } = params;
-            let url = `/admin/appointments?dentist_id=${dentistId}&page=${page}&limit=${limit}`;
+            const { page = 1, limit = 10, status = null, search = null, tier = null } = params;
+            let url = `/admin/appointments?page=${page}&limit=${limit}`;
             
+            if (dentistId) url += `&dentist_id=${dentistId}`;
             if (status && status !== 'all') {
-                url += `&status=${status.toUpperCase()}`;
+                url += `&status=${status}`;
             }
+            if (search) {
+                url += `&search=${encodeURIComponent(search)}`;
+            }
+            if (tier) {
+                url += `&tier=${tier}`;
+            }
+            if (params.date) url += `&date=${params.date}`;
+            if (params.date_from) url += `&date_from=${params.date_from}`;
+            if (params.date_to) url += `&date_to=${params.date_to}`;
 
             const response = await api.get(url, token);
             return {

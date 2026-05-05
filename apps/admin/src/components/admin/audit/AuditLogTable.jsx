@@ -42,65 +42,65 @@ const AuditLogTable = ({ logs, onViewDetails, loading }) => {
     }
 
     return (
-        <div className='grow relative py-4'>
+        <div className='grow relative py-8'>
             {/* Vertical Line */}
-            <div className='absolute left-[31px] top-0 bottom-0 w-[1px] bg-gray-100 dark:bg-gray-800' />
+            <div className='absolute left-[39px] top-0 bottom-0 w-[1px] bg-gray-300 dark:bg-gray-800' />
 
             <div className='space-y-12'>
                 {logs.map((log, idx) => (
-                    <div key={log.id} className='relative flex items-start gap-10 group'>
+                    <div key={log.id} className='relative flex items-start gap-12 group'>
                         {/* Timeline Node */}
                         <div className='relative z-10'>
-                            <div className={`w-[62px] h-[62px] rounded-2xl flex items-center justify-center bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm group-hover:border-brand-500/50 transition-all duration-300`}>
-                                <div className={`w-2.5 h-2.5 rounded-full ${getActionColor(log.action)} shadow-[0_0_10px_rgba(0,0,0,0.1)]`} />
+                            <div className={`w-[80px] h-[80px] rounded-2xl flex items-center justify-center bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 shadow-sm group-hover:border-brand-500 transition-all duration-500`}>
+                                <div className={`w-3 h-3 rounded-full ${getActionColor(log.action)} shadow-xl`} />
                             </div>
                         </div>
 
                         {/* Content Card */}
-                        <div className='grow grid grid-cols-1 md:grid-cols-4 items-center gap-6'>
+                        <div className='grow grid grid-cols-1 lg:grid-cols-4 items-center gap-8 py-2'>
                             {/* Actor Details */}
-                            <div className='md:col-span-1'>
-                                <h4 className='text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                            <div className='lg:col-span-1'>
+                                <h4 className='text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit leading-tight'>
                                     {log.actor_name || 'System / Guest'}
                                 </h4>
-                                <div className='flex items-center gap-2 mt-1'>
-                                    <span className='text-[10px] font-bold text-gray-400 uppercase tracking-widest'>
+                                <div className='flex items-center gap-3 mt-1.5'>
+                                    <span className='text-[9px] font-black text-brand-500 dark:text-brand-400 uppercase tracking-[0.2em]'>
                                         {log.actor_role || 'Auto'}
                                     </span>
-                                    <div className='w-1 h-1 rounded-full bg-gray-300' />
-                                    <span className='text-[10px] font-medium text-gray-500'>
+                                    <div className='w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700' />
+                                    <span className='text-[10px] font-bold text-gray-400 uppercase tracking-widest'>
                                         {formatTimestamp(log.created_at)}
                                     </span>
                                 </div>
                             </div>
 
                             {/* Action Summary (Friendly) */}
-                            <div className='md:col-span-2'>
-                                <div className='flex flex-wrap items-baseline gap-1.5'>
-                                    <span className='text-sm text-gray-500 dark:text-gray-400 font-medium'>
+                            <div className='lg:col-span-2 bg-gray-50/50 dark:bg-white/[0.01] p-4 rounded-2xl border border-gray-100 dark:border-white/5'>
+                                <div className='flex flex-wrap items-center gap-2'>
+                                    <span className='text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]'>
                                         Successfully
                                     </span>
-                                    <span className='text-sm font-bold text-gray-900 dark:text-white'>
+                                    <span className='text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight'>
                                         {getFriendlyAction(log.action)}
                                     </span>
-                                    <span className='text-sm text-gray-500 dark:text-gray-400 font-medium'>
+                                    <span className='text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]'>
                                         for
                                     </span>
-                                    <span className='text-sm font-black text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 px-2 py-0.5 rounded-lg'>
+                                    <span className='text-[11px] font-black text-brand-600 dark:text-brand-400 bg-brand-500/10 px-3 py-1 rounded-lg uppercase tracking-widest'>
                                         {log.resource_name}
                                     </span>
                                 </div>
                             </div>
 
                             {/* Actions */}
-                            <div className='md:col-span-1 flex justify-end'>
+                            <div className='lg:col-span-1 flex justify-end'>
                                 <Button
-                                    variant='ghost'
+                                    variant='outline'
                                     size='sm'
                                     onClick={() => onViewDetails(log)}
-                                    className='text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-500 hover:bg-brand-500/5 group/btn border border-transparent hover:border-brand-500/20 px-4 h-9 rounded-xl transition-all'
+                                    className='text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-white/5 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 px-6 h-11 rounded-xl transition-all shadow-sm'
                                 >
-                                    Review Details
+                                    Review Activity
                                 </Button>
                             </div>
                         </div>

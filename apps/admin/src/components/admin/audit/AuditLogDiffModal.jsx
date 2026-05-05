@@ -31,19 +31,19 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} className='max-w-4xl w-[95%]'>
-            <div className='bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800'>
+            <div className='bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-300 dark:border-gray-800'>
                 {/* Header */}
-                <div className='px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between'>
+                <div className='px-10 py-8 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gray-50/30 dark:bg-transparent'>
                     <div>
-                        <h4 className='text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
-                            Change Details
+                        <h4 className='text-xl sm:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                            Change Analysis
                         </h4>
-                        <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1'>
-                            Log ID: {log.id}
+                        <p className='text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1'>
+                            Audit Sequence Log ID: {log.id}
                         </p>
                     </div>
-                    <Button variant='ghost' size='icon' onClick={onClose} className='text-gray-400 hover:text-gray-600 dark:hover:text-white'>
-                        <X size={20} />
+                    <Button variant='ghost' size='icon' onClick={onClose} className='w-11 h-11 rounded-xl text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-all'>
+                        <X size={24} />
                     </Button>
                 </div>
 
@@ -58,18 +58,18 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                         <>
                             {/* Phase 3: Smart Diffing Summary */}
                             {smartChanges.length > 0 && (
-                                <div className='space-y-4'>
-                                    <div className='flex items-center gap-2'>
-                                        <div className='h-3 w-1 bg-green-500 rounded-full' />
-                                        <h5 className='text-[10px] font-black uppercase tracking-widest text-green-600 dark:text-green-500'>
-                                            Human-Readable Changes
+                                <div className='space-y-6'>
+                                    <div className='flex items-center gap-3'>
+                                        <div className='h-4 w-1.5 bg-brand-500 rounded-full' />
+                                        <h5 className='text-[11px] font-black uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400'>
+                                            Human-Readable Analysis
                                         </h5>
                                     </div>
-                                    <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+                                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                                         {smartChanges.map((change, idx) => (
-                                            <div key={idx} className='flex items-start gap-3 p-3 bg-gray-50 dark:bg-white/[0.02] rounded-xl border border-gray-100 dark:border-gray-800/50'>
-                                                <div className='mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0' />
-                                                <span className='text-sm text-gray-700 dark:text-gray-300 font-medium'>{change}</span>
+                                            <div key={idx} className='flex items-start gap-4 p-5 bg-white dark:bg-white/[0.01] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:border-brand-500/30 transition-all'>
+                                                <div className='mt-2 w-2 h-2 rounded-full bg-brand-500 shrink-0 shadow-lg shadow-brand-500/50' />
+                                                <span className='text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-bold uppercase tracking-tight'>{change}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -77,35 +77,35 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                             )}
 
                             <div>
-                                <div className='flex items-center gap-2 mb-4'>
-                                    <div className='h-3 w-1 bg-gray-400 rounded-full' />
-                                    <h5 className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
-                                        Raw Comparison
+                                <div className='flex items-center gap-3 mb-6'>
+                                    <div className='h-4 w-1.5 bg-gray-300 dark:bg-gray-700 rounded-full' />
+                                    <h5 className='text-[11px] font-black uppercase tracking-[0.2em] text-gray-400'>
+                                        Raw Structural Comparison
                                     </h5>
                                 </div>
-                                <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
+                                <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
                                     {/* Old Values */}
                                     <div className='space-y-4'>
-                                        <h5 className='text-[10px] font-bold uppercase tracking-widest text-gray-400 opacity-60'>
-                                            From (Old state)
+                                        <h5 className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 opacity-60'>
+                                            Original State (Baseline)
                                         </h5>
-                                        <div className='p-5 bg-gray-50 dark:bg-white/[0.02] rounded-xl border border-gray-100 dark:border-gray-800/50 min-h-[150px] overflow-auto'>
+                                        <div className='p-6 bg-gray-50 dark:bg-white/[0.01] rounded-2xl border border-gray-200 dark:border-gray-800 min-h-[200px] overflow-auto shadow-inner'>
                                             {renderJsonValue(details.old_values)}
                                         </div>
                                     </div>
 
                                     {/* New Values */}
                                     <div className='space-y-4 relative'>
-                                        <h5 className='text-[10px] font-bold uppercase tracking-widest text-gray-400 opacity-60'>
-                                            To (New state)
+                                        <h5 className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 opacity-60'>
+                                            Revised State (Modified)
                                         </h5>
-                                        <div className='p-5 bg-brand-50/10 dark:bg-brand-500/5 rounded-xl border border-brand-100/50 dark:border-brand-500/20 min-h-[150px] overflow-auto'>
+                                        <div className='p-6 bg-brand-50/30 dark:bg-brand-500/5 rounded-2xl border border-brand-200 dark:border-brand-500/20 min-h-[200px] overflow-auto shadow-inner'>
                                             {renderJsonValue(details.new_values)}
                                         </div>
                                         
                                         {/* Arrow indicator between columns on desktop */}
-                                        <div className='hidden md:flex absolute -left-12 top-1/2 -translate-y-1/2 items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-300 dark:text-gray-700'>
-                                            <ArrowRight size={16} />
+                                        <div className='hidden md:flex absolute -left-[35px] top-[60%] -translate-y-1/2 items-center justify-center w-12 h-12 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-brand-500 shadow-xl z-20'>
+                                            <ArrowRight size={20} />
                                         </div>
                                     </div>
                                 </div>
@@ -117,9 +117,9 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                 </div>
 
                 {/* Footer */}
-                <div className='px-8 py-5 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01] flex justify-end'>
-                    <Button onClick={onClose} className='px-8 rounded-xl font-black text-xs uppercase tracking-widest h-10'>
-                        Close View
+                <div className='px-10 py-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01] flex justify-end'>
+                    <Button onClick={onClose} className='px-10 rounded-xl font-black text-[11px] uppercase tracking-widest h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg active:scale-95 transition-all'>
+                        Close Analysis View
                     </Button>
                 </div>
             </div>
