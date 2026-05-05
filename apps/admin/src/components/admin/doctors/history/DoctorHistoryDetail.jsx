@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDoctors } from '../../../../hooks/useDoctors';
 import { format, parseISO } from 'date-fns';
 import { useAuth } from '../../../../context/AuthContext';
-import { ChevronRight, Phone, User } from 'lucide-react';
+import { ChevronRight, Phone, User, Search } from 'lucide-react';
 import PastAppointmentView from '../../patients/PatientDetail/PastAppointmentView';
 import RequestReviewView from '../../patients/PatientDetail/RequestReviewView';
 
@@ -179,24 +179,24 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
 
                 <div className='flex flex-col lg:flex-row items-center gap-3 sm:gap-4'>
                     <div className='relative flex-grow group w-full lg:w-auto'>
-                        <User className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors' size={14} />
+                        <Search className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors' size={18} />
                         <input 
                             type="text" 
-                            placeholder="Search by service or provider..."
+                            placeholder="Search clinical registry by service or details..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className='w-full h-9 sm:h-10 px-10 rounded-xl bg-gray-50/50 dark:bg-white/[0.03] border border-gray-300 dark:border-gray-700 text-[10px] sm:text-[11px] font-black uppercase tracking-tight focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder:text-gray-400'
+                            className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium text-gray-900 dark:text-white placeholder:text-gray-400'
                         />
                     </div>
-                    <div className='flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-1 w-full lg:w-auto'>
+                    <div className='flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 w-full lg:w-auto'>
                         {currentFilters.map((f) => (
                             <button
                                 key={f.id}
                                 onClick={() => handleFilterChange(f.id)}
-                                className={`h-9 sm:h-10 px-3 sm:px-6 rounded-xl text-[8px] sm:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
+                                className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
                                     activeFilter === f.id
-                                        ? 'bg-brand-500 border-brand-500 text-white shadow-lg shadow-brand-500/20'
-                                        : 'bg-white dark:bg-white/5 border-gray-300 dark:border-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                                        ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
+                                        : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
                                 }`}
                             >
                                 {f.label}

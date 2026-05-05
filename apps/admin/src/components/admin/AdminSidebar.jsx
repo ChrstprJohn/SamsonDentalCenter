@@ -113,23 +113,46 @@ const DisplacedIcon = () => (
     </svg>
 );
 
-const navItems = [
-    { icon: <GridIcon />, name: 'Dashboard', path: '/' },
-    { icon: <UserCircleIcon />, name: 'Doctors', path: '/doctors' },
-    { icon: <StaffIcon />, name: 'Staff & Reception', path: '/staff' },
-    { icon: <PatientsIcon />, name: 'Patients & Users', path: '/patients' },
-    { icon: <ServicesIcon />, name: 'Services Catalog', path: '/services' },
-    { icon: <SettingsIcon />, name: 'Clinic Settings', path: '/settings/website' },
-    { icon: <AuditIcon />, name: 'Audit Logs', path: '/audit-logs' },
-    { icon: <MailIcon />, name: 'Message Activity', path: '/message-activity' },
-    { icon: <UserIcon />, name: 'My Profile', path: '/profile' },
-];
-
-const registryItems = [
-    { icon: <UpcomingIcon />, name: 'Global Upcoming', path: '/registry/upcoming' },
-    { icon: <TodayIcon />, name: 'Daily Schedule', path: '/registry/today' },
-    { icon: <HistoryIcon />, name: 'Clinical History', path: '/registry/history' },
-    { icon: <DisplacedIcon />, name: 'Displaced Registry', path: '/registry/displaced' },
+const navigationGroups = [
+    {
+        title: 'Calendar & Flow',
+        items: [
+            { icon: <TodayIcon />, name: 'Daily Schedule', path: '/registry/today' },
+            { icon: <UpcomingIcon />, name: 'Upcoming Ledger', path: '/registry/upcoming' },
+            { icon: <DisplacedIcon />, name: 'Rescheduling Queue', path: '/registry/displaced' },
+        ]
+    },
+    {
+        title: 'Patient Records',
+        items: [
+            { icon: <HistoryIcon />, name: 'Clinical History', path: '/registry/history' },
+            { icon: <GridIcon />, name: 'Global Registries', path: '/registry/upcoming' },
+            { icon: <PatientsIcon />, name: 'Patients & Users', path: '/patients' },
+        ]
+    },
+    {
+        title: 'Clinic Resources',
+        items: [
+            { icon: <UserCircleIcon />, name: 'Doctors', path: '/doctors' },
+            { icon: <StaffIcon />, name: 'Staff & Reception', path: '/staff' },
+            { icon: <ServicesIcon />, name: 'Services Catalog', path: '/services' },
+        ]
+    },
+    {
+        title: 'Logs & Settings',
+        items: [
+            { icon: <MailIcon />, name: 'Message Activity', path: '/message-activity' },
+            { icon: <AuditIcon />, name: 'Audit Logs', path: '/audit-logs' },
+            { icon: <SettingsIcon />, name: 'Clinic Settings', path: '/settings' },
+            { icon: <HomeIcon />, name: 'Dashboard', path: '/' },
+        ]
+    },
+    {
+        title: 'Identity',
+        items: [
+            { icon: <UserIcon />, name: 'Authorized Identity', path: '/profile' },
+        ]
+    }
 ];
 
 const AdminSidebar = () => {
@@ -170,79 +193,45 @@ const AdminSidebar = () => {
             </div>
 
             {/* Nav */}
-            <div className='flex flex-col flex-1 min-h-0 overflow-y-auto duration-300 ease-linear sidebar-scroll-container custom-scrollbar'>
-                <nav className='mb-6'>
-                    <div className='flex flex-col'>
-                        <h2 className={`mb-4 text-xs uppercase flex items-center leading-[20px] text-gray-400 pl-[13px] transition-all duration-300`}>
-                            <div className={`flex items-center transition-all duration-300 ${isExpanded || isHovered || isMobileOpen ? 'opacity-0 scale-50 w-0 overflow-hidden' : 'opacity-100 scale-100 w-[24px]'}`}>
-                                <HorizontalDots className='size-6' />
-                            </div>
-                            <span className={`sidebar-text-base ${isExpanded || isHovered || isMobileOpen ? 'opacity-100 max-w-[200px] visible' : 'opacity-0 max-w-0 invisible ml-0'}`}>Menu</span>
-                        </h2>
-                        <ul className='flex flex-col gap-1'>
-                            {navItems.map((nav) => (
-                                <li key={nav.name}>
-                                    <Link
-                                        to={nav.path}
-                                        className={`menu-item group ${isActive(nav.path) ? 'menu-item-active' : 'menu-item-inactive'}`}
-                                    >
-                                        <span className={`menu-item-icon-size shrink-0 ${isActive(nav.path) ? 'menu-item-icon-active' : 'menu-item-icon-inactive'}`}>
-                                            {nav.icon}
-                                        </span>
-                                        <span className={`sidebar-text-base ${isExpanded || isHovered || isMobileOpen ? 'sidebar-text-expanded' : 'sidebar-text-collapsed'}`}>
-                                            {nav.name}
-                                        </span>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </nav>
-
-                <nav className='mb-6'>
-                    <div className='flex flex-col'>
-                        <h2 className={`mb-4 text-xs uppercase flex items-center leading-[20px] text-gray-400 pl-[13px] transition-all duration-300`}>
-                            <div className={`flex items-center transition-all duration-300 ${isExpanded || isHovered || isMobileOpen ? 'opacity-0 scale-50 w-0 overflow-hidden' : 'opacity-100 scale-100 w-[24px]'}`}>
-                                <HorizontalDots className='size-6' />
-                            </div>
-                            <span className={`sidebar-text-base ${isExpanded || isHovered || isMobileOpen ? 'opacity-100 max-w-[200px] visible' : 'opacity-0 max-w-0 invisible ml-0'}`}>Global Registries</span>
-                        </h2>
-                        <ul className='flex flex-col gap-1'>
-                            {registryItems.map((nav) => (
-                                <li key={nav.name}>
-                                    <Link
-                                        to={nav.path}
-                                        className={`menu-item group ${isActive(nav.path) ? 'menu-item-active' : 'menu-item-inactive'}`}
-                                    >
-                                        <span className={`menu-item-icon-size shrink-0 ${isActive(nav.path) ? 'menu-item-icon-active' : 'menu-item-icon-inactive'}`}>
-                                            {nav.icon}
-                                        </span>
-                                        <span className={`sidebar-text-base ${isExpanded || isHovered || isMobileOpen ? 'sidebar-text-expanded' : 'sidebar-text-collapsed'}`}>
-                                            {nav.name}
-                                        </span>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </nav>
+            <div className={`flex flex-col flex-1 min-h-0 duration-300 ease-linear sidebar-scroll-container ${isExpanded || isHovered || isMobileOpen ? 'overflow-y-auto custom-scrollbar' : 'overflow-hidden no-scrollbar'}`}>
+                {navigationGroups.map((group, idx) => (
+                    <nav key={group.title} className={idx === navigationGroups.length - 1 ? 'mb-2' : 'mb-6'}>
+                        <div className='flex flex-col'>
+                            <h2 className={`mb-4 text-[10px] font-black uppercase flex items-center leading-[20px] text-gray-400 pl-[13px] transition-all duration-300 tracking-widest`}>
+                                <div className={`flex items-center transition-all duration-300 ${isExpanded || isHovered || isMobileOpen ? 'opacity-0 scale-50 w-0 overflow-hidden' : 'opacity-100 scale-100 w-[24px]'}`}>
+                                    <HorizontalDots className='size-6' />
+                                </div>
+                                <span className={`sidebar-text-base ${isExpanded || isHovered || isMobileOpen ? 'opacity-100 max-w-[200px] visible' : 'opacity-0 max-w-0 invisible ml-0'}`}>
+                                    {group.title}
+                                </span>
+                            </h2>
+                            <ul className='flex flex-col gap-1'>
+                                {group.items.map((nav) => (
+                                    <li key={nav.name}>
+                                        <Link
+                                            to={nav.path}
+                                            className={`menu-item group ${isActive(nav.path) ? 'menu-item-active' : 'menu-item-inactive'}`}
+                                        >
+                                            <span className={`menu-item-icon-size shrink-0 ${isActive(nav.path) ? 'menu-item-icon-active' : 'menu-item-icon-inactive'}`}>
+                                                {nav.icon}
+                                            </span>
+                                            <span className={`sidebar-text-base ${isExpanded || isHovered || isMobileOpen ? 'sidebar-text-expanded' : 'sidebar-text-collapsed'}`}>
+                                                {nav.name}
+                                            </span>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </nav>
+                ))}
             </div>
 
             {/* Sidebar Footer */}
             <div className='mt-auto pt-4 border-t border-gray-100 dark:border-gray-800'>
                 <ul className='flex flex-col gap-1'>
-                    <li>
-                        <Link to='/' className={`menu-item group menu-item-inactive`}>
-                            <span className='menu-item-icon-size menu-item-icon-inactive shrink-0'>
-                                <HomeIcon />
-                            </span>
-                            <span className={`sidebar-text-base ${isExpanded || isHovered || isMobileOpen ? 'sidebar-text-expanded' : 'sidebar-text-collapsed'}`}>
-                                Back to Home
-                            </span>
-                        </Link>
-                    </li>
                     <li className='px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center'>
-                        <span className={`${isExpanded || isHovered || isMobileOpen ? 'opacity-100' : 'opacity-0'}`}>v1.0.4</span>
+                        <span className={`${isExpanded || isHovered || isMobileOpen ? 'opacity-100' : 'opacity-0'}`}>v1.1.0</span>
                     </li>
                 </ul>
             </div>
