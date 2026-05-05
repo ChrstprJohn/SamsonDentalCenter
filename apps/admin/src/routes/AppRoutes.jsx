@@ -22,6 +22,7 @@ import AuditLogs from '../pages/admin/AuditLogs';
 import MessageActivityPage from '../pages/admin/message-activity/MessageActivityPage';
 import PageError from '../components/common/PageError';
 import AdminProfile from '../pages/admin/AdminProfile';
+import GlobalRegistry from '../pages/admin/GlobalRegistry';
 
 const AppRoutes = () => {
     return (
@@ -67,6 +68,7 @@ const AppRoutes = () => {
                     <Route path='audit-logs' element={<AuditLogs />} />
                     <Route path='message-activity' element={<MessageActivityPage />} />
                     <Route path='profile' element={<AdminProfile />} />
+                    <Route path='registry/:mode' element={<GlobalRegistry />} />
                 </Route>
 
                 {/* Global Catch-all (Outside layout) */}

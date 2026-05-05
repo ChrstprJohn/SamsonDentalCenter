@@ -216,18 +216,18 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                                 <div 
                                     key={appt.id} 
                                     onClick={() => handleRowClick(appt)}
-                                    className='group relative cursor-pointer hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-all p-0 border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-white/[0.01] shadow-sm hover:shadow-md overflow-hidden'
+                                    className='group relative cursor-pointer hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-all p-0 border border-gray-300 dark:border-gray-700 rounded-2xl bg-white dark:bg-white/[0.01] shadow-sm hover:shadow-md overflow-hidden'
                                 >
                                     <div className='flex flex-row w-full'>
                                         {/* Left Side: Date & Time */}
-                                        <div className="flex flex-col justify-center w-24 sm:w-36 bg-gray-50/50 dark:bg-gray-800/30 border-r border-gray-200 dark:border-gray-800 shrink-0 text-center sm:text-left">
+                                        <div className="flex flex-col justify-center w-24 sm:w-36 bg-gray-50/50 dark:bg-gray-800/30 border-r border-gray-300 dark:border-gray-700 shrink-0 text-center sm:text-left">
                                             <div className="px-2 sm:px-4 py-2 sm:py-3">
                                                 <p className="text-[7px] sm:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Schedule</p>
                                                 <p className="text-[9px] sm:text-[11px] font-black text-gray-900 dark:text-white leading-none uppercase tracking-tighter">
                                                     {appt.date ? format(parseISO(appt.date), 'MMM dd, yyyy') : 'No Date'}
                                                 </p>
                                             </div>
-                                            <div className="h-[1px] w-full bg-gray-200 dark:bg-gray-700/50" />
+                                            <div className="h-[1px] w-full bg-gray-300 dark:bg-gray-700" />
                                             <div className="px-2 sm:px-4 py-2 sm:py-3">
                                                 <p className="text-[7px] sm:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Time Slot</p>
                                                 <p className="text-[9px] sm:text-[11px] font-black text-brand-500 leading-none">
@@ -277,7 +277,7 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                                         </div>
 
                                         {/* Right Side: Status Badges (Desktop Only) */}
-                                        <div className="hidden sm:flex flex-col items-stretch justify-center border-l border-gray-200 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 w-[180px]">
+                                        <div className="hidden sm:flex flex-col items-stretch justify-center border-l border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 w-[180px]">
                                             {/* Source */}
                                             <div className="px-5 py-3.5 flex flex-col items-start gap-2">
                                                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Source</p>
@@ -286,7 +286,7 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                                                 </span>
                                             </div>
 
-                                            <div className="h-[1px] w-full bg-gray-200 dark:bg-gray-700/50" />
+                                            <div className="h-[1px] w-full bg-gray-300 dark:bg-gray-700" />
 
                                             {/* Status */}
                                             <div className="px-5 py-3.5 flex flex-col items-start gap-2">
@@ -301,7 +301,7 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                             ))}
                         </div>
                     ) : (
-                        <div className='py-20 text-center border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col items-center justify-center bg-gray-50/30 dark:bg-white/[0.01]'>
+                        <div className='py-20 text-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl flex flex-col items-center justify-center bg-gray-50/30 dark:bg-white/[0.01]'>
                             <p className='text-sm font-black text-gray-400 uppercase tracking-widest'>No records found in this category.</p>
                             <button onClick={() => setActiveFilter('all')} className='text-[10px] font-black text-brand-500 mt-2 uppercase tracking-widest hover:underline'>Clear Global Filters</button>
                         </div>
