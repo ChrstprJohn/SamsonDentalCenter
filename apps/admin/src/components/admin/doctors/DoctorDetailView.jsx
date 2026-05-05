@@ -54,6 +54,8 @@ const DoctorDetailView = ({
         { id: 'profile', label: 'Profile' },
         { id: 'services', label: 'Services' },
         { id: 'schedule', label: 'Schedule' },
+        { id: 'pending', label: 'Pending' },
+        { id: 'upcoming', label: 'Upcoming' },
         { id: 'history', label: 'History' },
         { id: 'security', label: 'Security' },
     ];
@@ -153,21 +155,21 @@ const DoctorDetailView = ({
         <div className='bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-300 dark:border-gray-800 transition-all duration-300 overflow-hidden'>
             {/* A. Identity Section — Now part of normal flow */}
             <div className='bg-white dark:bg-transparent border-b border-gray-300 dark:border-gray-800'>
-                <div className='px-4 sm:px-6 py-4 sm:py-7 flex items-center justify-between'>
+                <div className='px-4 sm:px-6 py-3 sm:py-5 flex items-center justify-between'>
                     <div className='flex items-center gap-4'>
-                        <div className='bg-gray-100 dark:bg-white/5 p-1.5 rounded-xl'>
+                        <div className='bg-gray-100 dark:bg-white/5 p-1 rounded-xl'>
                             <button
                                 onClick={onBack}
-                                className='p-2 rounded-lg hover:bg-white dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition-all active:scale-95 shadow-sm sm:shadow-none'
+                                className='p-1.5 rounded-lg hover:bg-white dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition-all active:scale-95 shadow-sm sm:shadow-none'
                             >
-                                <ArrowLeft size={20} />
+                                <ArrowLeft size={18} />
                             </button>
                         </div>
                         <div>
-                            <h3 className='text-[clamp(14px,1.5vw,18px)] font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit leading-tight'>
+                            <h3 className='text-sm sm:text-base font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit leading-tight'>
                                 {doctor.full_name}
                             </h3>
-                            <p className='text-[clamp(9px,1vw,10px)] font-black text-brand-500 dark:text-brand-400 uppercase tracking-[0.15em] mt-1'>
+                            <p className='text-[8px] sm:text-[10px] font-black text-brand-500 dark:text-brand-400 uppercase tracking-[0.15em] mt-0.5'>
                                 {(activeTab || 'profile')} Profile Registry
                             </p>
                         </div>
@@ -176,20 +178,20 @@ const DoctorDetailView = ({
             </div>
 
             {/* B. Navigation Tabs Section — Sticky with header offset to browser viewport */}
-            <div className='sticky top-[68px] lg:top-[76px] z-30 bg-white dark:bg-[#1f2021] border-b border-gray-300 dark:border-gray-800 shadow-sm sm:shadow-none'>
-                <div className='bg-white dark:bg-transparent px-4 sm:px-6 flex items-center gap-[clamp(20px,3vw,32px)] overflow-x-auto no-scrollbar'>
+            <div className='sticky top-[60px] lg:top-[68px] z-30 bg-white dark:bg-[#1f2021] border-b border-gray-300 dark:border-gray-800 shadow-sm sm:shadow-none'>
+                <div className='bg-white dark:bg-transparent px-4 sm:px-6 flex items-center gap-6 sm:gap-8 overflow-x-auto no-scrollbar'>
                     {tabs.map((t) => (
                         <button
                             key={t.id}
                             onClick={() => navigate(`/doctors/${t.id}/${doctor.id}`)}
-                            className={`pt-4 pb-3 text-[clamp(9px,1.1vw,11px)] font-black uppercase tracking-[0.1em] transition-all relative whitespace-nowrap ${activeTab === t.id
+                            className={`pt-3.5 pb-2.5 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.12em] transition-all relative whitespace-nowrap ${activeTab === t.id
                                 ? 'text-brand-500'
                                 : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
                                 }`}
                         >
                             {t.label}
                             {activeTab === t.id && (
-                                <div className='absolute bottom-0 left-0 right-0 h-1 bg-brand-500 rounded-full' />
+                                <div className='absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500 rounded-full' />
                             )}
                         </button>
                     ))}
@@ -201,11 +203,11 @@ const DoctorDetailView = ({
 
                 {/* A. Profile Header Card — only on Profile tab */}
                 {(!activeTab || activeTab === 'profile') && (
-                    <div className='p-6 sm:p-10 border border-gray-300 rounded-3xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
-                        <div className='flex flex-col gap-[clamp(16px,2vw,24px)] xl:flex-row xl:items-start xl:justify-between'>
-                            <div className='flex flex-col items-center w-full gap-[clamp(16px,2vw,24px)] xl:flex-row xl:items-center'>
+                    <div className='p-4 sm:p-6 border border-gray-300 rounded-3xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+                        <div className='flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between'>
+                            <div className='flex flex-col items-center w-full gap-5 xl:flex-row xl:items-center'>
                                 <div className='relative shrink-0'>
-                                    <div className='w-20 h-20 sm:w-28 sm:h-28 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-brand-400 to-brand-600 text-white font-bold text-2xl sm:text-3xl shadow-inner'>
+                                    <div className='w-16 h-16 sm:w-24 sm:h-24 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-brand-400 to-brand-600 text-white font-bold text-xl sm:text-2xl shadow-inner'>
                                         {doctor.photo_url ? (
                                             <img
                                                 src={doctor.photo_url}
@@ -218,28 +220,28 @@ const DoctorDetailView = ({
                                     </div>
                                 </div>
                                 <div className='order-3 xl:order-2 text-center xl:text-left'>
-                                    <h4 className='mb-1 text-xl sm:text-3xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                                    <h4 className='mb-1 text-lg sm:text-2xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
                                         {doctor.full_name}
                                     </h4>
-                                    <div className='flex flex-wrap items-center justify-center xl:justify-start gap-3'>
-                                        <p className='text-[10px] sm:text-xs text-brand-600 dark:text-brand-400 font-black uppercase tracking-widest'>
+                                    <div className='flex flex-wrap items-center justify-center xl:justify-start gap-2.5'>
+                                        <p className='text-[9px] sm:text-[11px] text-brand-600 dark:text-brand-400 font-black uppercase tracking-widest'>
                                             {doctor.tier === 'general' ? 'General Dentist' : 'Specialized Dentist'}
                                         </p>
-                                        <div className='hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 sm:block'></div>
-                                        <div className='text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold flex items-center gap-2'>
+                                        <div className='hidden h-3 w-px bg-gray-300 dark:bg-gray-700 sm:block'></div>
+                                        <div className='text-[9px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold flex items-center gap-2'>
                                             <span>
                                                 License:{' '}
                                                 <span className='text-gray-900 dark:text-white font-black'>
                                                     {doctor.license_number}
                                                 </span>
                                             </span>
-                                            <div className='h-3.5 w-px bg-gray-300 dark:bg-gray-700 mx-1'></div>
-                                            <span className={`px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider ${doctor.is_active ? 'bg-success-100 text-success-600 dark:bg-success-500/10 dark:text-success-400' : 'bg-gray-100 text-gray-500'}`}>
+                                            <div className='h-3 w-px bg-gray-300 dark:bg-gray-700 mx-1'></div>
+                                            <span className={`px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-wider ${doctor.is_active ? 'bg-success-100 text-success-600 dark:bg-success-500/10 dark:text-success-400' : 'bg-gray-100 text-gray-500'}`}>
                                                 Status : {doctor.is_active ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
                                     </div>
-                                    <p className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 max-w-2xl font-medium leading-relaxed'>
+                                    <p className='text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-3 max-w-2xl font-medium leading-relaxed'>
                                         {doctor.bio}
                                     </p>
                                 </div>
@@ -248,44 +250,41 @@ const DoctorDetailView = ({
                                 <Button
                                     variant='outline'
                                     onClick={() => { setSelectedAvatar(doctor.photo_url); setIsEditModalOpen(true); }}
-                                    className='flex items-center justify-center gap-2 rounded-lg px-4 h-11 text-sm font-bold w-full sm:w-[160px] hover:border-brand-500 hover:text-brand-500 transition-all font-outfit shadow-sm'
+                                    className='flex items-center justify-center gap-2 rounded-lg px-4 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest w-full sm:w-[160px] hover:border-brand-500 hover:text-brand-500 transition-all font-outfit shadow-sm'
                                 >
-                                    <svg className='fill-current' width='18' height='18' viewBox='0 0 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                                        <path fillRule='evenodd' clipRule='evenodd' d='M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z' fill='currentColor' />
-                                    </svg>
-                                    Edit Profile
+                                    Edit Registry
                                 </Button>
                             </div>
                         </div>
 
                         {/* Contact footer */}
-                        <div className='mt-8 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
+                        <div className='mt-6 pt-6 border-t border-gray-200 dark:border-gray-800 flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
                             <div className='flex flex-wrap gap-8'>
                                 <div className='flex items-center gap-3'>
-                                    <div className='w-8 h-8 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400'>
-                                        <Mail size={16} />
+                                    <div className='w-7 h-7 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400'>
+                                        <Mail size={14} />
                                     </div>
                                     <div>
-                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Professional Email</p>
-                                        <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>{doctor.email}</p>
+                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Clinical Email</p>
+                                        <p className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>{doctor.email}</p>
                                     </div>
                                 </div>
                                 <div className='flex items-center gap-3'>
-                                    <div className='w-8 h-8 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400'>
-                                        <Phone size={16} />
+                                    <div className='w-7 h-7 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400'>
+                                        <Phone size={14} />
                                     </div>
                                     <div>
-                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Clinical Line</p>
-                                        <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>{doctor.phone}</p>
+                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Emergency Line</p>
+                                        <p className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>{doctor.phone}</p>
                                     </div>
                                 </div>
                             </div>
                             <Button
                                 variant='outline'
                                 onClick={() => setIsEditContactModalOpen(true)}
-                                className='h-11 sm:h-12 px-6 text-[10px] font-black uppercase tracking-widest shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
+                                className='h-9 sm:h-10 px-5 text-[10px] font-black uppercase tracking-widest shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
                             >
-                                <Mail size={16} className='mr-2' /> Update Credentials
+                                Update Line
                             </Button>
                         </div>
                     </div>
@@ -299,8 +298,12 @@ const DoctorDetailView = ({
                         <DoctorServicesDetail doctor={doctor} updateDoctorServices={updateDoctorServices} />
                     ) : activeTab === 'schedule' ? (
                         <DoctorScheduleDetail doctor={doctor} />
+                    ) : activeTab === 'pending' ? (
+                        <DoctorHistoryDetail doctor={doctor} filterMode="pending" />
+                    ) : activeTab === 'upcoming' ? (
+                        <DoctorHistoryDetail doctor={doctor} filterMode="upcoming" />
                     ) : activeTab === 'history' ? (
-                        <DoctorHistoryDetail doctor={doctor} />
+                        <DoctorHistoryDetail doctor={doctor} filterMode="history" />
                     ) : activeTab === 'security' ? (
                         <DoctorSecurityDetail doctor={doctor} />
                     ) : null}
@@ -312,13 +315,13 @@ const DoctorDetailView = ({
                 onClose={() => setIsEditModalOpen(false)}
                 className='max-w-[850px] w-[95%] sm:w-full m-auto'
             >
-                <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-5 dark:bg-gray-900 sm:p-10 max-h-[90vh]'>
+                <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-4 dark:bg-gray-900 sm:p-6 max-h-[90vh]'>
                     <div className='mb-6'>
-                        <h4 className='text-[clamp(18px,2.5vw,22px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
-                            Edit Doctor Profile
+                        <h4 className='text-base sm:text-xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                            Profile Registry
                         </h4>
-                        <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                            Update professional details and clinical information.
+                        <p className='text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 uppercase tracking-wider font-bold'>
+                            Authorized Credential Updates
                         </p>
                     </div>
 
@@ -503,29 +506,24 @@ const DoctorDetailView = ({
                         </div>
 
                         {/* Footer Actions */}
-                        <div className='flex items-center gap-3 mt-2 pt-6 border-t border-gray-200 dark:border-gray-800 sm:justify-end'>
+                        <div className='flex items-center gap-3 mt-4 pt-6 border-t border-gray-200 dark:border-gray-800 sm:justify-end'>
                             <Button
                                 variant='outline'
                                 type='button'
                                 onClick={() => {
                                     setIsEditModalOpen(false);
-                                    showToast(
-                                        "Changes discarded. You've exited edit mode.",
-                                        'info',
-                                        'Notice',
-                                    );
                                 }}
                                 disabled={isSaving}
-                                className='flex-1 sm:flex-none px-6 py-3.5 h-11 rounded-lg text-[14px] font-black text-gray-600 dark:text-gray-400 active:scale-95 transition-all'
+                                className='flex-1 sm:flex-none px-6 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl'
                             >
                                 Cancel
                             </Button>
                             <Button
                                 type='submit'
                                 disabled={isSaving}
-                                className='flex-1 sm:flex-none px-8 py-3.5 h-11 rounded-lg text-[14px] font-black bg-brand-500 text-white min-w-[140px] shadow-theme-xs hover:bg-brand-600 active:scale-95 transition-all'
+                                className='flex-1 sm:flex-none px-8 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
                             >
-                                {isSaving ? 'Saving...' : 'Save Changes'}
+                                {isSaving ? 'Saving...' : 'Save Registry'}
                             </Button>
                         </div>
                     </form>
@@ -537,13 +535,13 @@ const DoctorDetailView = ({
                 onClose={() => setIsEditContactModalOpen(false)}
                 className='max-w-[450px] w-[95%] sm:w-full m-auto'
             >
-                <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-5 dark:bg-gray-900 sm:p-8'>
+                <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-4 dark:bg-gray-900 sm:p-6'>
                     <div className='mb-6'>
-                        <h4 className='text-[clamp(18px,2.5vw,22px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
-                            Edit Contact Information
+                        <h4 className='text-base sm:text-lg font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                            Communication Registry
                         </h4>
-                        <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                            Update communication channels for this doctor.
+                        <p className='text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 uppercase tracking-wider font-bold'>
+                            Authorized Channel Updates
                         </p>
                     </div>
 
@@ -553,8 +551,8 @@ const DoctorDetailView = ({
                     >
                         <div className='space-y-4'>
                             <div>
-                                <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
-                                    Email Address
+                                <Label className='text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
+                                    Work Email Address
                                 </Label>
                                 <Input
                                     name='email'
@@ -562,47 +560,42 @@ const DoctorDetailView = ({
                                     defaultValue={doctor.email}
                                     required
                                     placeholder='doctor@primeradental.com'
-                                    className='font-medium h-10 rounded-lg text-sm'
+                                    className='font-bold h-10 rounded-lg text-sm bg-gray-50/30 dark:bg-white/[0.01]'
                                 />
                             </div>
                             <div>
-                                <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
-                                    Contact Number
+                                <Label className='text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
+                                    Primary Contact Number
                                 </Label>
                                 <Input
                                     name='phone'
                                     defaultValue={doctor.phone}
                                     required
                                     placeholder='+63 9XX'
-                                    className='font-medium h-10 rounded-lg text-sm'
+                                    className='font-bold h-10 rounded-lg text-sm bg-gray-50/30 dark:bg-white/[0.01]'
                                 />
                             </div>
                         </div>
 
                         {/* Footer Actions */}
-                        <div className='flex items-center gap-3 mt-2 pt-6 border-t border-gray-200 dark:border-gray-800 sm:justify-end'>
+                        <div className='flex items-center gap-3 mt-4 pt-6 border-t border-gray-200 dark:border-gray-800 sm:justify-end'>
                             <Button
                                 variant='outline'
                                 type='button'
                                 onClick={() => {
                                     setIsEditContactModalOpen(false);
-                                    showToast(
-                                        "Changes discarded. You've exited edit mode.",
-                                        'notice',
-                                        'Notice',
-                                    );
                                 }}
                                 disabled={isSaving}
-                                className='flex-1 sm:flex-none px-6 py-3.5 h-11 rounded-lg text-[14px] font-black text-gray-600 dark:text-gray-400 active:scale-95 transition-all'
+                                className='flex-1 sm:flex-none px-6 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl'
                             >
                                 Cancel
                             </Button>
                             <Button
                                 type='submit'
                                 disabled={isSaving}
-                                className='flex-1 sm:flex-none px-8 py-3.5 h-11 rounded-lg text-[14px] font-black bg-brand-500 text-white min-w-[140px] shadow-theme-xs hover:bg-brand-600 active:scale-95 transition-all'
+                                className='flex-1 sm:flex-none px-8 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
                             >
-                                {isSaving ? 'Saving...' : 'Save Changes'}
+                                {isSaving ? 'Saving...' : 'Save Registry'}
                             </Button>
                         </div>
                     </form>

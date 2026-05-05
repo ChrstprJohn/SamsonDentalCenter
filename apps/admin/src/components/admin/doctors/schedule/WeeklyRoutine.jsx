@@ -435,41 +435,41 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
 
     return (
         <div className="flex flex-col border border-gray-300 dark:border-gray-800 rounded-2xl bg-white dark:bg-white/[0.03] overflow-hidden shadow-sm">
-            <div className="p-6 sm:p-8 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                    <h4 className='text-base sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
                         Weekly Routine & Blocks
                     </h4>
-                    <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-1 font-bold'>
-                        Manage recurring availability and specific date exceptions.
+                    <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
+                        Manage availability and exceptions.
                     </p>
                     <div className='mt-2'>
                         {isUsingGlobal ? (
-                            <span className='inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-500/20'>
-                                <Link2 size={9} /> Synced to Clinic
+                            <span className='inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-500/20'>
+                                <Link2 size={8} /> Synced to Clinic
                             </span>
                         ) : (
-                            <span className='inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20'>
-                                <Settings2 size={9} /> Custom Schedule
+                            <span className='inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20'>
+                                <Settings2 size={8} /> Custom Schedule
                             </span>
                         )}
                     </div>
                 </div>
-                <div className='hidden sm:flex items-center gap-4'>
+                <div className='hidden sm:flex items-center gap-3'>
                     <Button
                         variant="soft"
                         onClick={openBlockModal}
-                        className="h-11 px-6 text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"
+                        className="h-9 px-5 text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"
                     >
-                        <CalendarOff size={16} className="mr-2" />
+                        <CalendarOff size={14} className="mr-2" />
                         Block Date
                     </Button>
                     <Button
                         variant="outline"
                         onClick={openEditModal}
-                        className="h-11 px-6 text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-white/5 rounded-xl"
+                        className="h-9 px-5 text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-white/5 rounded-xl"
                     >
-                        <CalendarIcon size={16} className="mr-2" />
+                        <CalendarIcon size={14} className="mr-2" />
                         Edit Routine
                     </Button>
                 </div>
@@ -606,9 +606,9 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             <Modal
                 isOpen={isEditModalOpen}
                 onClose={() => !isSaving && setIsEditModalOpen(false)}
-                className='max-w-5xl w-[95%] sm:w-full m-auto'
-                title="Edit Weekly Schedule"
-                subtitle="Set default availability and working hours."
+                className='max-w-4xl w-[95%] sm:w-full m-auto'
+                title="Weekly Schedule"
+                subtitle="Set default availability."
                 footer={(
                     <div className='flex items-center gap-3 sm:justify-end w-full sm:w-auto'>
                         <Button
@@ -616,14 +616,14 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                             type="button"
                             onClick={() => setIsEditModalOpen(false)}
                             disabled={isSaving}
-                            className='flex-1 sm:flex-none px-6 h-11 rounded-lg text-[14px] font-black'
+                            className='flex-1 sm:flex-none px-6 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl'
                         >
                             Cancel
                         </Button>
                         <Button
                             onClick={() => saveWeekly(false)}
                             disabled={isSaving}
-                            className='flex-1 sm:flex-none px-8 h-11 rounded-lg text-[14px] font-black bg-gray-900 text-white min-w-[170px] dark:bg-white dark:text-gray-900 shadow-theme-xs hover:bg-gray-800 active:scale-95 transition-all'
+                            className='flex-1 sm:flex-none px-8 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
                         >
                             {isSaving ? 'Saving...' : 'Save Changes'}
                         </Button>

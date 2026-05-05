@@ -63,7 +63,7 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
     return (
         <div
             onClick={onClick}
-            className={`group relative flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 dark:border-gray-800 cursor-pointer transition-all hover:z-10 ${
+            className={`group relative flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-200 dark:border-gray-800 cursor-pointer transition-all hover:z-10 ${
                 !is_active ? 'bg-white dark:bg-white/[0.02]' : 'bg-brand-50/30 dark:bg-brand-500/5'
             }`}
         >
@@ -73,8 +73,8 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
                      <span className={`w-2.5 h-2.5 rounded-full ${is_active ? 'bg-success-500' : 'bg-gray-300 dark:bg-gray-600'}`} title={is_active ? 'Active' : 'Inactive'} />
                 </div>
 
-                <div className='w-48 lg:w-56 shrink-0 flex items-center gap-3'>
-                    <div className='w-11 h-11 rounded-full overflow-hidden bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold text-sm border border-white dark:border-gray-800 shrink-0'>
+                <div className='w-48 lg:w-56 shrink-0 flex items-center gap-2.5'>
+                    <div className='w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold text-xs border border-white dark:border-gray-800 shrink-0'>
                         {photo_url ? (
                             <img src={photo_url} alt={full_name} className='w-full h-full object-cover' />
                         ) : (
@@ -82,20 +82,20 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
                         )}
                     </div>
                     <span
-                        className={`text-sm sm:text-lg uppercase tracking-tight truncate font-outfit ${!is_active ? 'text-gray-500 font-black' : 'text-gray-900 dark:text-white font-black'}`}
+                        className={`text-sm sm:text-base uppercase tracking-tight truncate font-outfit ${!is_active ? 'text-gray-500 font-black' : 'text-gray-900 dark:text-white font-black'}`}
                     >
                         {full_name}
                     </span>
                 </div>
 
                 <div className='w-48 lg:w-56 shrink-0 flex items-center gap-3'>
-                    <p className='text-sm sm:text-base truncate'>
+                    <p className='text-xs sm:text-sm truncate'>
                         <span
                             className={`${!is_active ? 'text-gray-600 dark:text-gray-400 font-medium' : 'text-gray-900 dark:text-white font-bold'}`}
                         >
                             {tier === 'both' ? 'General & Specialized Dentist' : tier === 'general' ? 'General Dentist' : 'Specialized Dentist'}
                         </span>
-                        <span className='text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-medium ml-2'>
+                        <span className='text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-medium ml-2'>
                             - {displayCategory}
                         </span>
                     </p>
