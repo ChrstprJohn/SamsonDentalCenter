@@ -42,6 +42,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                         { id: 'all', label: 'All History' },
                         { id: 'COMPLETED', label: 'Completed' },
                         { id: 'CANCELLED', label: 'Cancelled' },
+                        { id: 'LATE_CANCEL', label: 'Late Cancelled' },
                         { id: 'NO_SHOW', label: 'No-Show' },
                     ],
                     defaultStatus: 'COMPLETED,CANCELLED,LATE_CANCEL,NO_SHOW',
@@ -54,6 +55,14 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                         { id: 'SYSTEM_DISPLACED: Service no longer offered by doctor', label: 'Service Change' },
                     ],
                     defaultStatus: 'DISPLACED',
+                };
+            case 'pending':
+                return {
+                    filters: [
+                        { id: 'all', label: 'All Pending' },
+                        { id: 'PENDING', label: 'Needs Approval' },
+                    ],
+                    defaultStatus: 'PENDING',
                 };
             case 'upcoming':
             default:
@@ -92,11 +101,13 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                     search: searchQuery,
                     tier: tierQuery,
                 };
+                
                 if (mode === 'today') {
                     params.date = format(new Date(), 'yyyy-MM-dd');
                 } else if (mode === 'upcoming') {
                     params.date_from = format(new Date(), 'yyyy-MM-dd');
                 }
+                // Note: 'pending' and 'displaced' usually don't have strict date boundaries in the registry view
                 const result = await fetchDoctorHistory(null, params);
                 setAppointments(result.appointments || []);
                 setPagination(result.pagination || { total: 0, pages: 1, current_page: 1 });
