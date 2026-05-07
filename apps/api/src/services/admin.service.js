@@ -611,7 +611,19 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
         }
 
         const requiredTier = appointment.service?.tier || 'general';
-        if (dentist.tier !== requiredTier && dentist.tier !== 'both') {
+        
+        // Check for explicit service mapping (Skillset)
+        const { data: hasSkill } = await supabaseAdmin
+            .from('dentist_services')
+            .select('id')
+            .eq('dentist_id', assignedDentistId)
+            .eq('service_id', appointment.service_id)
+            .maybeSingle();
+
+        // Qualification Logic: Must have the explicit skill OR match the tier
+        const isQualified = hasSkill || (dentist.tier === requiredTier || dentist.tier === 'both');
+
+        if (!isQualified) {
             throw new AppError(`Selected dentist is not qualified for ${requiredTier} services.`, 400);
         }
         // ── CHECK FOR TIME CONFLICT ──
@@ -2503,14 +2515,21 @@ export const reassignAppointmentToDentist = async (appointmentId, newDentistId, 
         throw new AppError('Target dentist not found or inactive.', 404);
     }
 
-    // Check if target dentist is qualified for the service tier
-    const serviceTier = appointment.service?.tier;
-    if (
-        serviceTier === SERVICE_TIER.SPECIALIZED &&
-        targetDentist.tier !== 'specialized' &&
-        targetDentist.tier !== 'both'
-    ) {
-        throw new AppError('Target dentist is not qualified for specialized services.', 400);
+    const serviceTier = appointment.service?.tier || 'general';
+    
+    // Check for explicit service mapping (Skillset)
+    const { data: hasSkill } = await supabaseAdmin
+        .from('dentist_services')
+        .select('id')
+        .eq('dentist_id', newDentistId)
+        .eq('service_id', appointment.service_id)
+        .maybeSingle();
+
+    // Qualification Logic: Must have the explicit skill OR match the tier
+    const isQualified = hasSkill || (targetDentist.tier === serviceTier || targetDentist.tier === 'both');
+
+    if (!isQualified) {
+        throw new AppError(`Target dentist is not qualified for ${serviceTier} services.`, 400);
     }
 
     // ── Check for time conflicts ──
