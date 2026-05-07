@@ -7,6 +7,8 @@ export const Modal = ({
     className = '',
     showCloseButton = true,
     isFullscreen = false,
+    closeOnOverlayClick = true,
+    isBottomSheet = false,
 }) => {
     const modalRef = useRef(null);
 
@@ -42,14 +44,20 @@ export const Modal = ({
 
     const contentClasses = isFullscreen
         ? 'w-full h-full'
-        : 'relative w-full rounded-xl bg-white dark:bg-gray-900 max-h-[90vh] flex flex-col overflow-hidden';
+        : `relative w-full bg-white dark:bg-gray-900 flex flex-col overflow-hidden ${
+            isBottomSheet 
+                ? 'rounded-t-[32px] sm:rounded-3xl max-h-[95vh] sm:max-h-[90vh] animate-in slide-in-from-bottom duration-500' 
+                : 'rounded-xl max-h-[90vh]'
+        }`;
 
     return (
-        <div className='fixed inset-0 flex items-center justify-center overflow-y-auto modal z-[999999]'>
+        <div className={`fixed inset-0 flex overflow-y-auto modal z-[999999] ${
+            isBottomSheet ? 'items-end sm:items-center justify-center' : 'items-center justify-center'
+        }`}>
             {!isFullscreen && (
                 <div
-                    className='fixed inset-0 h-full w-full bg-gray-900/60'
-                    onClick={onClose}
+                    className='fixed inset-0 h-full w-full bg-gray-900/60 backdrop-blur-sm transition-opacity duration-500'
+                    onClick={closeOnOverlayClick ? onClose : undefined}
                 ></div>
             )}
             <div

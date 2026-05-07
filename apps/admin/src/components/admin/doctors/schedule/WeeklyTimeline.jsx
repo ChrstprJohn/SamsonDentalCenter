@@ -39,8 +39,8 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
     };
 
     // Layout constants — all positioning math uses these same values
-    const ROW_PX = daysToShow === 3 ? 56 : 80; // Compact 56px on mobile, spacious 80px on desktop
-    const SPACER_PX = 20;
+    const ROW_PX = daysToShow === 3 ? 48 : 64; // Compact 48px on mobile, efficient 64px on desktop
+    const SPACER_PX = 16;
     const NUM_SLOTS = TIMES.length - 1; // 20 visible 30-min slots
     const GRID_HEIGHT = SPACER_PX + NUM_SLOTS * ROW_PX; // total px height
 
@@ -66,25 +66,25 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
     const goToday = () => setStartDate(startOfDay(new Date()));
 
     return (
-        <div className="flex flex-col border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-white/[0.03]">
+        <div className="flex flex-col border border-gray-300 dark:border-gray-800 rounded-2xl bg-white dark:bg-white/[0.03] shadow-sm mt-8">
             {/* Main Header: Title & Block Action (Matches WeeklyRoutine) */}
-            <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h4 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        {daysToShow === 3 ? '3-Day Schedule' : 'Upcoming Schedule'}
+                    <h4 className="text-base sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit">
+                        {daysToShow === 3 ? '3-Day Timeline' : 'Upcoming Schedule'}
                     </h4>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
-                        {daysToShow === 3 ? 'Timeline view for the next 3 days.' : 'Timeline view of appointments and manual blocks for the next 7 days.'}
+                    <p className="text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold">
+                        {daysToShow === 3 ? 'Granular view for the next 72 hours.' : 'Clinical availability and reserved blocks.'}
                     </p>
                 </div>
                 <div className='hidden sm:flex items-center gap-3'>
                     <Button 
                         variant="soft" 
                         onClick={onBlockClick} 
-                        className="text-sm font-bold h-10 px-4 flex items-center gap-2 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 border border-transparent dark:border-red-900/30"
+                        className="h-9 px-5 text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"
                     >
-                        <CalendarOff size={16} />
-                        Block Time
+                        <CalendarOff size={14} className="mr-2" />
+                        Block Slot
                     </Button>
                 </div>
             </div>
@@ -93,40 +93,40 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
             <div className="flex flex-col h-auto overflow-hidden" style={{ '--gutter-width': 'clamp(56px, 15vw, 90px)' }}>
                 
                 {/* Grid Header: Date Range & Nav (Matches WeeklyRoutine Month Nav) */}
-                <div className='flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/[0.01] gap-2'>
+                <div className='flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01] gap-4'>
                     <div>
-                        <h3 className='text-xs sm:text-lg font-bold text-gray-900 dark:text-white truncate max-w-[150px] sm:max-w-none'>
+                        <h3 className='text-[11px] sm:text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
                             {daysToShow === 3 
                                 ? `${format(startDate, 'MMM d')} - ${format(addDays(startDate, 2), 'd, yyyy')}`
                                 : `Week of ${format(startDate, 'MMMM d, yyyy')}`
                             }
                         </h3>
                     </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                        <Button variant="outline" size="sm" onClick={goToday} className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-3 h-7 sm:h-8 border-gray-200 dark:border-gray-700">Today</Button>
-                        <div className="flex items-center gap-0.5 sm:gap-1 ml-1 sm:ml-2">
-                            <button onClick={() => nav(-7)} className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-500 transition-all">
-                                <ChevronLeft size={12} className="sm:w-4 sm:h-4" />
+                    <div className="flex items-center gap-3">
+                        <Button variant="outline" size="sm" onClick={goToday} className="text-[10px] font-black uppercase tracking-widest px-4 h-8 border-gray-200 dark:border-white/5 rounded-lg">Today</Button>
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => nav(-7)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-800 text-gray-500 transition-all">
+                                <ChevronLeft size={16} />
                             </button>
-                            <button onClick={() => nav(7)} className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-500 transition-all">
-                                <ChevronRight size={12} className="sm:w-4 sm:h-4" />
+                            <button onClick={() => nav(7)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-800 text-gray-500 transition-all">
+                                <ChevronRight size={16} />
                             </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Day Headers row - Fluid on mobile */}
-                <div className="grid border-b border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-transparent"
+                <div className="grid border-b border-gray-200 dark:border-gray-800 bg-gray-50/20 dark:bg-transparent"
                     style={{ gridTemplateColumns: `var(--gutter-width) repeat(${daysToShow}, 1fr)` }}>
-                    <div className="border-r border-gray-300 dark:border-gray-700" />
+                    <div className="border-r border-gray-200 dark:border-gray-800" />
                     {dates.map((date, i) => {
                         const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
                         return (
-                            <div key={i} className={`flex flex-col items-center sm:items-start justify-center sm:justify-start p-1 sm:p-3 border-r border-gray-300 dark:border-gray-700 last:border-r-0 ${isToday ? 'bg-brand-50/30 dark:bg-brand-500/5' : ''}`}>
-                                <span className={`text-[11px] sm:text-lg font-black ${isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
+                            <div key={i} className={`flex flex-col items-center sm:items-start justify-center sm:justify-start p-2 sm:p-3 border-r border-gray-200 dark:border-gray-800 last:border-r-0 ${isToday ? 'bg-brand-50/30 dark:bg-brand-500/5' : ''}`}>
+                                <span className={`text-[10px] sm:text-base font-black ${isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
                                      {format(date, 'd')}
                                 </span>
-                                <span className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-tight sm:tracking-widest mt-0.5 ${isToday ? 'text-brand-500 opacity-80' : 'text-gray-400'}`}>
+                                <span className={`text-[7px] sm:text-[9px] font-bold uppercase tracking-tight sm:tracking-widest mt-0.5 ${isToday ? 'text-brand-500 opacity-80' : 'text-gray-400'}`}>
                                     {format(date, 'EEE')}
                                 </span>
                             </div>
@@ -140,7 +140,7 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
                     <div className="flex" style={{ height: `${GRID_HEIGHT}px` }}>
 
                         {/* Time Gutter — absolutely positioned labels sharing SPACER_PX + ROW_PX math */}
-                        <div className="relative flex-shrink-0 border-r border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900/50"
+                        <div className="relative flex-shrink-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50"
                              style={{ width: 'var(--gutter-width)' }}>
                             {TIMES.map((time, i) => {
                                 const [hStr, mStr] = time.split(':');
@@ -150,7 +150,7 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
                                 const topPx = SPACER_PX + i * ROW_PX;
                                 return (
                                     <span key={i}
-                                          className={`absolute left-0 right-0 text-center text-[9px] sm:text-[13px] font-black tabular-nums -translate-y-1/2 select-none ${isHalf ? 'text-gray-400' : 'text-gray-800 dark:text-gray-100'}`}
+                                          className={`absolute left-0 right-0 text-center text-[8px] sm:text-[11px] font-black tabular-nums -translate-y-1/2 select-none uppercase tracking-tighter ${isHalf ? 'text-gray-300' : 'text-gray-900 dark:text-gray-100'}`}
                                           style={{ top: `${topPx}px` }}>
                                         {format(new Date().setHours(h, m), isHalf ? 'h:mm' : 'h a')}
                                     </span>
@@ -161,12 +161,12 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
                         {/* Data columns — one per visible day */}
                         {dates.map((date, colIndex) => (
                             <div key={colIndex}
-                                 className="relative flex-1 border-r border-gray-300 dark:border-gray-700 last:border-r-0 bg-white dark:bg-transparent">
+                                 className="relative flex-1 border-r border-gray-200 dark:border-gray-800 last:border-r-0 bg-white dark:bg-transparent">
 
                                 {/* Horizontal grid lines */}
                                 {TIMES.slice(0, -1).map((_, rowIndex) => (
                                     <div key={rowIndex}
-                                         className="absolute left-0 right-0 border-b border-gray-300 dark:border-gray-700"
+                                         className="absolute left-0 right-0 border-b border-gray-200 dark:border-gray-800"
                                          style={{ top: `${SPACER_PX + rowIndex * ROW_PX}px`, height: `${ROW_PX}px` }} />
                                 ))}
 
@@ -186,14 +186,14 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
                                                 zIndex: 10,
                                             }}
                                         >
-                                            <div className="flex flex-col flex-1 p-1.5 sm:p-2.5 justify-center min-w-0">
-                                                <div className='font-black truncate leading-none text-[9px] sm:text-[13px] mb-0.5 sm:mb-1 uppercase tracking-tight'>
+                                            <div className="flex flex-col flex-1 p-1 sm:p-1.5 justify-center min-w-0">
+                                                <div className='font-black truncate leading-none text-[8px] sm:text-[11px] mb-0.5 sm:mb-1 uppercase tracking-tight'>
                                                     {isBlocked ? 'Blocked: ' + event.service : event.service}
                                                 </div>
-                                                <div className='font-bold truncate opacity-90 text-[8px] sm:text-[12px] mb-1 sm:mb-1.5'>
+                                                <div className='font-bold truncate opacity-90 text-[7px] sm:text-[10px] mb-0.5 sm:mb-1'>
                                                     {event.patient}
                                                 </div>
-                                                <div className='opacity-80 text-[7px] sm:text-[11px] font-bold flex items-center gap-1.5 sm:gap-2'>
+                                                <div className='opacity-80 text-[6px] sm:text-[9px] font-bold flex items-center gap-1 sm:gap-1.5'>
                                                     <span className="whitespace-nowrap">{getTimeRange(event.start, event.duration)}</span>
                                                     <span className="opacity-40">•</span>
                                                     <span className="whitespace-nowrap">{event.duration}m</span>

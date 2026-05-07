@@ -17,18 +17,18 @@ const Toast = ({ toast, onDismiss }) => {
 
     return createPortal(
         <div className='fixed top-[4.5rem] sm:top-24 right-4 sm:right-6 z-[9999999] flex flex-col gap-3 pointer-events-none'>
-            <div className='bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-5 flex gap-4 items-center shadow-lg animate-in slide-in-from-right-10 fade-in duration-500 max-w-[calc(100vw-2rem)] sm:max-w-sm'>
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${isSuccess ? 'bg-emerald-500' : 'bg-red-500'}`}>
+            <div className='bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-3.5 sm:p-4 flex gap-4 items-center shadow-lg animate-in slide-in-from-right-10 fade-in duration-500 max-w-[calc(100vw-2rem)] sm:max-w-sm'>
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${isSuccess ? 'bg-emerald-500' : 'bg-red-500'}`}>
                     {isSuccess
-                        ? <Check size={22} className='text-white' />
-                        : <AlertCircle size={22} className='text-white' />
+                        ? <Check size={18} className='text-white' />
+                        : <AlertCircle size={18} className='text-white' />
                     }
                 </div>
                 <div>
-                    <h4 className={`text-[11px] font-black uppercase tracking-widest ${isSuccess ? 'text-emerald-500' : 'text-red-500'}`}>
+                    <h4 className={`text-[9px] font-black uppercase tracking-widest ${isSuccess ? 'text-emerald-500' : 'text-red-500'}`}>
                         {isSuccess ? 'Success' : 'Error'}
                     </h4>
-                    <p className='text-sm font-bold text-gray-900 dark:text-white leading-snug'>{toast.message}</p>
+                    <p className='text-[13px] font-bold text-gray-900 dark:text-white leading-tight'>{toast.message}</p>
                 </div>
             </div>
         </div>,
@@ -84,13 +84,13 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
             <Modal isOpen={isOpen} onClose={onClose} showCloseButton={false} className='max-w-[640px] w-[95%] sm:w-full m-auto shadow-none'>
             <div className='relative w-full flex flex-col rounded-2xl bg-white dark:bg-gray-950 max-h-[85vh] shadow-2xl border border-gray-200 dark:border-gray-800/50 overflow-hidden'>
                 {/* Header - Fixed/Sticky */}
-                <div className='sticky top-0 z-20 px-8 pt-7 pb-4 shrink-0 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800/20'>
-                    <div className='flex items-center justify-between mb-1'>
+                <div className='sticky top-0 z-20 px-8 pt-5 pb-3 shrink-0 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800/20'>
+                    <div className='flex items-center justify-between mb-0.5'>
                         <div className='flex items-center gap-2.5'>
-                            <div className='bg-brand-500/10 p-1.5 rounded-lg'>
-                                <CheckCircle size={18} className='text-brand-500' />
+                            <div className='bg-brand-500/10 p-1 rounded-lg'>
+                                <CheckCircle size={16} className='text-brand-500' />
                             </div>
-                            <h4 className='text-lg font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                            <h4 className='text-base font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
                                 Onboard Doctor
                             </h4>
                         </div>
@@ -98,19 +98,19 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                             variant='ghost'
                             size='icon'
                             onClick={onClose}
-                            className='text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors h-8 w-8 -mr-2'
+                            className='text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors h-7 w-7 -mr-1'
                         >
-                            <X size={18} />
+                            <X size={16} />
                         </Button>
                     </div>
-                    <p className='text-[11px] text-gray-500 dark:text-gray-400 font-medium ml-9 uppercase tracking-wider opacity-80'>
+                    <p className='text-[9px] text-gray-500 dark:text-gray-400 font-bold ml-8 uppercase tracking-widest opacity-80'>
                         Professional Access Initialization
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className='flex flex-col flex-grow'>
                     {/* Content */}
-                    <div className='flex-grow px-8 py-6 space-y-8'>
+                    <div className='flex-grow px-8 py-4 space-y-6'>
                         {/* Identity Section */}
                         <div className='space-y-4'>
                             <div className='flex items-center gap-2'>
@@ -209,7 +209,7 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                             type="button"
                             onClick={onClose}
                             disabled={isSaving}
-                            className='w-full sm:w-auto px-6 h-10 rounded-xl text-xs font-black text-gray-400 dark:text-gray-500 hover:bg-white dark:hover:bg-gray-900 border-gray-200 dark:border-gray-800 active:scale-95 transition-all font-outfit uppercase tracking-widest'
+                            className='w-full sm:w-auto px-5 h-9 sm:h-10 rounded-xl text-[10px] font-black text-gray-400 dark:text-gray-500 hover:bg-white dark:hover:bg-gray-900 border-gray-200 dark:border-gray-800 active:scale-95 transition-all font-outfit uppercase tracking-widest'
                         >
                             Cancel
                         </Button>
@@ -219,9 +219,9 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                                 type="submit"
                                 loading={isSaving}
                                 disabled={!isValid}
-                                className='w-full sm:w-auto bg-brand-500 hover:bg-brand-600 text-white font-black text-xs px-8 h-10 rounded-xl min-w-[200px] active:scale-95 transition-all font-outfit shadow-theme-xs flex items-center justify-center gap-2 group uppercase tracking-widest'
+                                className='w-full sm:w-auto bg-brand-500 hover:bg-brand-600 text-white font-black text-[10px] sm:text-xs px-8 h-9 sm:h-10 rounded-xl min-w-[180px] active:scale-95 transition-all font-outfit shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 group uppercase tracking-widest'
                             >
-                                Register Account <ArrowRight size={16} className='group-hover:translate-x-1 transition-transform' />
+                                Register Account <ArrowRight size={14} className='group-hover:translate-x-1 transition-transform' />
                             </Button>
                         </div>
                     </div>

@@ -1,180 +1,178 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Mail, Loader2, MailWarning, Clock, Hash, ShieldCheck, ArrowRight } from 'lucide-react';
+import { CheckCircle, Mail, Clock, Hash, ShieldCheck, ArrowRight, Home as HomeIcon, CalendarPlus, Calendar, User, Check, Info } from 'lucide-react';
 
 const GuestBookingSuccess = ({ result, onReset, booking }) => {
     const navigate = useNavigate();
-    const [resending, setResending] = useState(false);
-    const [resendStatus, setResendStatus] = useState(null);
-    const [cooldown, setCooldown] = useState(0);
-    const [password, setPassword] = useState('');
-    const [upgrading, setUpgrading] = useState(false);
-    const [upgradeResult, setUpgradeResult] = useState(null);
-    const [upgradeError, setUpgradeError] = useState(null);
-
-    // Countdown effect for the resend button
-    useEffect(() => {
-        if (cooldown <= 0) return;
-        const timer = setInterval(() => {
-            setCooldown((prev) => prev - 1);
-        }, 1000);
-        return () => clearInterval(timer);
-    }, [cooldown]);
+    const formData = booking?.formData || {};
+    const appointment = result?.appointment || {};
 
     // Auto-scroll to top when success screen mounts
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, []);
 
-    const handleResend = async () => {
-        if (!booking?.resendVerification || cooldown > 0) return;
-        setResending(true);
-        setResendStatus(null);
-        
-        const res = await booking.resendVerification(
-            result.appointment.id,
-            result.appointment.guest_email || booking.formData.email
-        );
-        
-        setResending(false);
-        
-        if (res?.success) {
-            setResendStatus({ success: true, message: "Verification email resent!" });
-            setCooldown(300); // 5 minutes block
-        } else {
-            setResendStatus(res);
+    const formatDate = (dateString) => {
+        if (!dateString) return '---';
+        try {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        } catch (e) {
+            return dateString;
         }
-        
-        // Remove status message after 10 seconds to keep UI clean
-        setTimeout(() => setResendStatus(null), 10000);
     };
 
-    const handleUpgrade = async (e) => {
-        e.preventDefault();
-        setUpgrading(true);
-        setUpgradeError(null);
-        
+    const formatTimeRange = (startTime, durationMinutes) => {
+        if (!startTime) return '---';
         try {
-            const res = await booking.upgradeToUser(password);
-            if (res.success) {
-                setUpgradeResult(true);
-            } else {
-                setUpgradeError(res.message);
-            }
-        } catch (err) {
-            setUpgradeError("An unexpected error occurred.");
-        } finally {
-            setUpgrading(false);
+            const [h, m] = startTime.split(':').map(Number);
+            const startDate = new Date();
+            startDate.setHours(h, m, 0, 0);
+            const endDate = new Date(startDate.getTime() + (durationMinutes || 60) * 60000);
+            
+            const format = (date) => {
+                const hour = date.getHours();
+                const min = date.getMinutes().toString().padStart(2, '0');
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const h12 = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+                return `${h12}:${min} ${ampm}`;
+            };
+            return `${format(startDate)} – ${format(endDate)}`;
+        } catch (e) {
+            return startTime;
         }
     };
 
     return (
-        <div className="w-full max-w-[500px] mx-auto animate-in fade-in zoom-in-95 duration-500">
-            <div className="bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-[28px] p-5 sm:p-8 shadow-theme-lg overflow-hidden relative">
-                {/* Decorative Top Border */}
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-400 via-brand-500 to-brand-600"></div>
-
-                {/* Header Section */}
-                <div className='mb-5 sm:mb-6 text-center'>
-                    <div className='w-12 h-12 sm:w-16 sm:h-16 bg-brand-50 dark:bg-brand-500/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 border border-brand-100 dark:border-brand-500/20 shadow-inner'>
-                        <CheckCircle className='w-6 h-6 sm:w-8 sm:h-8 text-brand-500' />
-                    </div>
-                    <h2 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase mb-1.5 sm:mb-2'>
-                        Request Submitted
-                    </h2>
-                    <p className='text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed font-medium px-2 sm:px-4'>
-                        Your booking has been recorded. Follow the instructions to finalize.
-                    </p>
-                </div>
-
-                {/* Success Alert Banner (Verified) */}
-                <div className='bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10 rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 text-left'>
-                    <div className="flex gap-3 sm:gap-4 items-center">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
-                            <ShieldCheck size={20} />
-                        </div>
-                        <div className="grow">
-                            <h4 className="text-[12px] sm:text-[14px] font-black text-gray-900 dark:text-white uppercase tracking-wide">Verification Successful!</h4>
-                            <p className='text-[11px] sm:text-[13px] text-gray-600 dark:text-gray-400 font-medium'>
-                                Your email is verified. Our team will review your request shortly.
-                            </p>
-                        </div>
+        <div className="w-full max-w-[600px] mx-auto animate-in fade-in zoom-in-95 duration-1000 pb-20 sm:pb-8">
+            {/* 1. The Visual Confirmation */}
+            <div className='mb-6 sm:mb-6 text-center px-4'>
+                <div className='w-20 h-20 sm:w-24 sm:h-24 bg-emerald-50 dark:bg-emerald-500/10 rounded-[1.5rem] sm:rounded-[2rem] flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-emerald-100 dark:border-emerald-500/20 shadow-theme-lg animate-in zoom-in-50 duration-700 delay-300'>
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/40 animate-in fade-in zoom-in duration-500 delay-500">
+                        <Check className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={4} />
                     </div>
                 </div>
+                <h2 className='text-xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight uppercase mb-2 sm:mb-3'>
+                    Thank you for choosing Samson Dental Center
+                </h2>
+                <p className='text-[12px] sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium max-w-sm mx-auto px-2'>
+                    Your booking request has been received. We've sent the details to <span className="text-brand-500 dark:text-brand-400 font-bold break-all">{appointment.guest_email || formData.email}</span>.
+                </p>
+            </div>
 
-                {/* --- Frictionless Account Creation --- */}
-                {!upgradeResult ? (
-                    <div className='bg-brand-500 rounded-3xl p-6 sm:p-8 mb-6 text-white shadow-theme-xl relative overflow-hidden group'>
-                        {/* Decorative Background Icon */}
-                        <Mail className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10 rotate-12 group-hover:rotate-6 transition-transform duration-700" />
-                        
-                        <div className="relative z-10">
-                            <h3 className="text-xl sm:text-2xl font-black mb-2 uppercase tracking-tight">Access your records anytime</h3>
-                            <p className="text-brand-50 text-[13px] sm:text-[14px] font-medium leading-relaxed mb-6 opacity-90">
-                                Since you've already verified your email, just set a password to create your account and skip these steps next time!
+            {/* 2. The "Quick Summary" (Request Summary) */}
+            <div className='bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-[28px] sm:rounded-[32px] p-4 sm:p-8 shadow-theme-xl mb-4 sm:mb-6 overflow-hidden relative'>
+                <div className="absolute top-0 left-0 w-full h-1 bg-brand-500/10"></div>
+                
+                <div className="flex items-center justify-between mb-5 sm:mb-8 pb-4 border-b border-gray-50 dark:border-gray-800/50">
+                    <h3 className="text-[10px] sm:text-sm font-black text-gray-400 uppercase tracking-[0.2em]">Request Summary</h3>
+                    <div className="px-3 py-1 bg-brand-50/50 dark:bg-brand-500/10 rounded-full border border-brand-100/50 dark:border-brand-500/20 flex items-center">
+                        <span className="text-[10px] sm:text-xs font-black font-mono tracking-tighter">
+                            <span className="text-brand-400 dark:text-brand-500 mr-1.5">REF</span>
+                            <span className="text-brand-600 dark:text-brand-400">
+                                {appointment.reference_id || `#PRM-${Math.floor(1000 + Math.random() * 9000)}`}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+
+                <div className="space-y-4 sm:space-y-6">
+                    {/* Service */}
+                    <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center shrink-0 border border-brand-100 dark:border-brand-800/50">
+                            <ShieldCheck className="text-brand-500" size={18} sm:size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5 leading-none">Service</p>
+                            <p className="text-[13px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                {appointment.service_name || formData.service_name || 'Cleaning & X-Ray'}
                             </p>
-                            
-                            <form onSubmit={handleUpgrade} className="space-y-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-100 ml-1">Set Password</label>
-                                    <input 
-                                        type="password"
-                                        placeholder="Minimum 6 characters"
-                                        className="w-full bg-white/10 border border-white/20 focus:border-white/40 focus:ring-4 focus:ring-white/10 rounded-2xl px-5 py-3.5 text-white placeholder-white/40 outline-none transition-all font-bold"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                        minLength={6}
-                                    />
-                                </div>
-                                <button 
-                                    type="submit"
-                                    disabled={upgrading || !password || password.length < 6}
-                                    className="w-full bg-white text-brand-600 font-black py-4 rounded-2xl hover:bg-brand-50 active:scale-95 transition-all shadow-theme-lg disabled:opacity-50 flex items-center justify-center gap-2 uppercase tracking-widest text-sm"
-                                >
-                                    {upgrading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <>Create My Account <ArrowRight size={18} /></>
-                                    )}
-                                </button>
-                            </form>
-                            {upgradeError && <p className="mt-4 text-[11px] font-bold text-red-100 uppercase tracking-wide bg-red-500/20 p-3 rounded-xl border border-red-500/30">{upgradeError}</p>}
                         </div>
                     </div>
-                ) : (
-                    <div className='bg-emerald-500 rounded-3xl p-6 sm:p-8 mb-6 text-white shadow-theme-xl animate-in zoom-in-95 duration-500'>
-                        <div className="flex flex-col items-center text-center">
-                            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-4">
-                                <ShieldCheck size={28} />
-                            </div>
-                            <h3 className="text-xl font-black mb-2 uppercase tracking-tight">Account Created!</h3>
-                            <p className="text-emerald-50 text-sm font-medium opacity-90 mb-6">
-                                Welcome to PrimeraDental! You've been automatically logged in.
+
+                    {/* Date */}
+                    <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                            <Calendar className="text-gray-500" size={18} sm:size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5 leading-none">Date</p>
+                            <p className="text-[13px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                {formatDate(appointment.date || formData.date)}
                             </p>
-                            <button 
-                                onClick={() => navigate('/dashboard')}
-                                className="bg-white text-emerald-600 font-black px-8 py-3.5 rounded-xl hover:bg-emerald-50 transition-all uppercase tracking-widest text-[13px]"
-                            >
-                                Go to Dashboard
-                            </button>
                         </div>
                     </div>
-                )}
 
-                {/* Navigation Footer */}
-                <div className='flex flex-row items-center justify-between gap-2 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-100 dark:border-gray-700/50'>
+                    {/* Time */}
+                    <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                            <Clock className="text-gray-500" size={18} sm:size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5 leading-none">Time Window</p>
+                            <p className="text-[13px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                {formatTimeRange(appointment.time || formData.time, appointment.service_duration || formData.service_duration)}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Guest Name */}
+                    <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                            <User className="text-gray-500" size={18} sm:size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5 leading-none">Guest Patient</p>
+                            <p className="text-[13px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight capitalize">
+                                {`${appointment.guest_first_name || formData.first_name || ''} ${appointment.guest_last_name || formData.last_name || ''}`}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 3. The "Next Steps" */}
+            <div className='bg-brand-50/30 dark:bg-brand-500/5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-4 sm:mb-6 border border-brand-100/50 dark:border-brand-500/10'>
+                <div className="flex gap-3 sm:gap-4 items-start">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white dark:bg-brand-500/20 text-brand-500 flex items-center justify-center shrink-0 shadow-theme-xs">
+                        <Info size={18} sm:size={20} />
+                    </div>
+                    <div className="space-y-2 sm:space-y-3">
+                        <h4 className="text-[12px] sm:text-sm font-black text-gray-900 dark:text-white uppercase tracking-wide">What happens now?</h4>
+                        <div className="space-y-1.5 sm:space-y-2">
+                            <p className='text-[11px] sm:text-[13px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed flex items-start gap-2'>
+                                <span className="w-1 h-1 rounded-full bg-brand-400 mt-1.5 shrink-0" />
+                                Our team will review your request and send a final confirmation within 24 hours.
+                            </p>
+                            <p className='text-[11px] sm:text-[13px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed flex items-start gap-2'>
+                                <span className="w-1 h-1 rounded-full bg-brand-400 mt-1.5 shrink-0" />
+                                Please wait for the final confirmation before heading to the clinic.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 4. Action Buttons (Sticky Footer on Mobile) */}
+            <div className="fixed bottom-0 left-0 w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 p-4 sm:relative sm:bg-transparent sm:border-0 sm:p-0 sm:flex sm:flex-row gap-4 sm:mt-8 z-50">
+                <div className="max-w-[600px] mx-auto flex flex-row gap-3 sm:w-full">
                     <button
                         onClick={() => navigate('/')}
-                        className='text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[10px] sm:text-[13px] px-3 py-2 sm:px-6 sm:py-3 transition-colors uppercase tracking-widest'
+                        className='flex-1 group flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all shadow-theme-xs'
                     >
-                        Home
+                        <HomeIcon size={16} className="sm:size-[18px]" />
+                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Home</span>
                     </button>
                     <button
                         onClick={onReset}
-                        className='bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all shadow-theme-sm sm:shadow-theme-md text-[10px] sm:text-[13px] uppercase tracking-widest'
+                        className='flex-[2] flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black transition-all shadow-lg shadow-brand-500/20'
                     >
-                        Book Another
+                        <CalendarPlus size={18} className="sm:size-5" />
+                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Book Another</span>
                     </button>
                 </div>
             </div>

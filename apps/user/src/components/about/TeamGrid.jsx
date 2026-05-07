@@ -110,22 +110,13 @@ const TeamGrid = () => {
 
     return (
         <>
-            <section ref={containerRef} className='bg-white py-16 lg:py-24 relative'>
-                <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>
-                    <div className='mb-12 md:mb-16'>
-                        <div className='max-w-3xl'>
-                            <div className='flex items-center gap-3 mb-6'>
-                                <span className='h-px w-8 bg-red-600' />
-                                <span className='text-red-500 font-bold uppercase tracking-widest text-[10px]'>
-                                    Our Team
-                                </span>
-                            </div>
-                            <h2 className='text-[clamp(2.25rem,5vw,3.5rem)] font-bold tracking-tight text-stone-900 leading-[1.1] mb-6'>
-                                Our Dedicated Team
-                            </h2>
-                            <p className='text-lg text-stone-600 leading-relaxed max-w-2xl'>
-                                Behind every smile is a team of passionate professionals 
-                                dedicated to your comfort and care.
+            <section ref={containerRef} className='bg-white py-10 md:py-20 relative'>
+                <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 w-full'>
+                    <div className='mb-12'>
+                        <div className='text-center max-w-2xl mx-auto'>
+                            <h2 className='text-3xl md:text-4xl font-brand font-black text-stone-900 mb-4'>Our Dedicated Team</h2>
+                            <p className='text-stone-600'>
+                                Behind every smile is a team of passionate professionals dedicated to your comfort and care.
                             </p>
                         </div>
                     </div>
