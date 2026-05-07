@@ -22,6 +22,7 @@ import profilesRoutes from './routes/profiles.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
 import emailTemplateRoutes from './routes/email-template.routes.js';
 import webhookRoutes from './routes/webhook.routes.js';
+import appointmentAdminRoutes from './routes/appointment-admin.routes.js';
 
 const app = express();
 
@@ -142,6 +143,7 @@ v1Router.use('/appointments', appointmentsRoutes);
 v1Router.use('/waitlist', waitlistRoutes);
 v1Router.use('/notifications', notificationsRoutes);
 v1Router.use('/admin', adminRoutes);
+v1Router.use('/admin/appointments-approval', appointmentAdminRoutes);
 v1Router.use('/admin/analytics', analyticsRoutes);
 v1Router.use('/doctor', doctorRoutes);
 v1Router.use('/profiles', profilesRoutes);

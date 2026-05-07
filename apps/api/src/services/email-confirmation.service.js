@@ -49,25 +49,25 @@ export const sendOTPEmail = async (email, name, otpCode) => {
 
 /**
  * Send a "Booking Confirmed" email after successful booking.
- * Used for:
- *   - Authenticated patients (immediately after booking)
- *   - Guests (after they click the confirmation link)
  *
  * @param {string} email - Patient/guest email
  * @param {string} name - Patient/guest name
- * @param {object} details - { date, start_time, end_time, service, dentist }
+ * @param {object} details - { appointmentId, date, start_time, end_time, service, dentist }
  */
 export const sendBookingSuccessEmail = async (email, name, details) => {
-    const { date, start_time, end_time, service, dentist } = details;
+    const { appointmentId, date, start_time, end_time, service, dentist } = details;
 
     try {
         const { html, subject } = await compileTemplate('booking-confirmed', {
+            appointmentId,
             name,
             service,
             date,
-            start_time,
-            end_time,
+            start_time: start_time,
+            end_time: end_time,
             dentist,
+            note: details.note || '',
+            noteDisplay: details.note ? 'block' : 'none'
         });
 
         const result = await resend.emails.send({
@@ -91,13 +91,14 @@ export const sendBookingSuccessEmail = async (email, name, details) => {
  *
  * @param {string} email - Patient email
  * @param {string} name - Patient name
- * @param {object} details - { date, start_time, service }
+ * @param {object} details - { appointmentId, date, start_time, service }
  */
 export const sendBookingRequestReceivedEmail = async (email, name, details) => {
-    const { date, start_time, service } = details;
+    const { appointmentId, date, start_time, service } = details;
 
     try {
         const { html, subject } = await compileTemplate('booking-request-received', {
+            appointmentId,
             name,
             serviceName: service,
             appointmentDate: date,
@@ -120,10 +121,6 @@ export const sendBookingRequestReceivedEmail = async (email, name, details) => {
  * Send a "Cancellation" email after a patient cancels their appointment.
  * Informational only — no action required from the patient.
  *
- * Used for:
- *   - Authenticated patients (fetch email from profiles table)
- *   - Guests (use appointment.guest_email)
- *
  * @param {string} email - Patient/guest email
  * @param {string} name - Patient/guest name
  * @param {object} details - { date, start_time, service, isLastMinute }
@@ -141,9 +138,9 @@ export const sendCancellationEmail = async (email, name, details) => {
     try {
         const { html, subject } = await compileTemplate('booking-cancelled', {
             name,
-            service,
-            date,
-            start_time,
+            serviceName: service,
+            appointmentDate: date,
+            startTime: start_time,
             lateNotice,
         });
 
@@ -161,23 +158,24 @@ export const sendCancellationEmail = async (email, name, details) => {
 
 /**
  * Send a "Rescheduled" email after a patient reschedules their appointment.
- * Informational only — tells patient their new date/time.
  *
  * @param {string} email - Patient email
  * @param {string} name - Patient name
- * @param {object} details - { oldDate, oldTime, newDate, newTime, service, dentist }
+ * @param {object} details - { appointmentId, oldDate, oldTime, newDate, newTime, service, dentist }
  */
 export const sendRescheduleEmail = async (email, name, details) => {
-    const { oldDate, oldTime, newDate, newTime, service, dentist } = details;
+    const { appointmentId, oldDate, oldTime, newDate, newTime, service, dentist } = details;
 
     try {
         const { html, subject } = await compileTemplate('appointment-rescheduled', {
+            appointmentId,
             name,
-            service,
+            serviceName: service,
             oldDate,
             oldTime,
             newDate,
             newTime,
+            startTime: newTime,
             dentist,
         });
 
@@ -263,13 +261,14 @@ export const sendBookingRejectedEmail = async (email, name, details) => {
  * 
  * @param {string} email - Recipient email
  * @param {string} name - Recipient name
- * @param {object} details - { service, date, start_time, reason }
+ * @param {object} details - { appointmentId, service, date, start_time, reason }
  */
 export const sendAppointmentDisplacedEmail = async (email, name, details) => {
-    const { service, date, start_time, reason } = details;
+    const { appointmentId, service, date, start_time, reason } = details;
 
     try {
         const { html, subject } = await compileTemplate('appointment-displaced', {
+            appointmentId,
             name,
             serviceName: service,
             appointmentDate: date,
@@ -294,14 +293,15 @@ export const sendAppointmentDisplacedEmail = async (email, name, details) => {
  * 
  * @param {string} email - Recipient email
  * @param {string} name - Recipient name
- * @param {object} details - { service, date, start_time, interval } // interval: '24h' or '48h'
+ * @param {object} details - { appointmentId, service, date, start_time, interval }
  */
 export const sendReminderIntervalEmail = async (email, name, details) => {
-    const { service, date, start_time, interval } = details;
+    const { appointmentId, service, date, start_time, interval } = details;
     const key = `appointment-reminder-${interval}`;
 
     try {
         const { html, subject } = await compileTemplate(key, {
+            appointmentId,
             name,
             serviceName: service,
             appointmentDate: date,
@@ -317,5 +317,66 @@ export const sendReminderIntervalEmail = async (email, name, details) => {
         console.log(`📧 ${interval} reminder email sent to ${email}`);
     } catch (err) {
         console.error(`Failed to send ${interval} reminder email:`, err.message);
+    }
+};
+
+/**
+ * Send a "Missed Appointment" (No-Show) email.
+ * 
+ * @param {string} email - Patient email
+ * @param {string} name - Patient name
+ * @param {object} details - { appointmentId, date, start_time, service }
+ */
+export const sendMissedAppointmentEmail = async (email, name, details) => {
+    const { appointmentId, date, start_time, service } = details;
+
+    try {
+        const { html, subject } = await compileTemplate('missed-appointment', {
+            appointmentId,
+            name,
+            serviceName: service,
+            appointmentDate: date,
+            startTime: start_time,
+        });
+
+        await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'Samson Dental Center <noreply@mail.chrbuilds.dev>',
+            to: email,
+            subject: subject || 'We Missed You Today — Samson Dental Center',
+            html,
+        });
+        console.log(`📧 Missed appointment email sent to ${email}`);
+    } catch (err) {
+        console.error('Failed to send missed appointment email:', err.message);
+    }
+};
+
+/**
+ * Send a "Post-Visit Feedback" email.
+ * 
+ * @param {string} email - Patient email
+ * @param {string} name - Patient name
+ * @param {object} details - { appointmentId, service, dentistName }
+ */
+export const sendPostVisitFeedbackEmail = async (email, name, details) => {
+    const { appointmentId, service, dentistName } = details;
+
+    try {
+        const { html, subject } = await compileTemplate('post-visit-feedback', {
+            appointmentId,
+            name,
+            serviceName: service,
+            dentistName,
+        });
+
+        await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'Samson Dental Center <noreply@mail.chrbuilds.dev>',
+            to: email,
+            subject: subject || 'How was your visit to Samson Dental Center?',
+            html,
+        });
+        console.log(`📧 Post-visit feedback email sent to ${email}`);
+    } catch (err) {
+        console.error('Failed to send post-visit feedback email:', err.message);
     }
 };

@@ -137,8 +137,8 @@ const formatDoctorResponse = (d) => {
  */
 export const getAllAppointments = async (req, res, next) => {
     try {
-        const { date, date_from, date_to, status, dentist_id, patient_id, tier, page = 1, limit = 20 } = req.query;
-
+        const { date, date_from, date_to, status, dentist_id, patient_id, tier, search, created_at, page = 1, limit = 50 } = req.query;
+ 
         const filters = {
             date: date || null,
             date_from: date_from || null,
@@ -147,6 +147,8 @@ export const getAllAppointments = async (req, res, next) => {
             dentist_id: dentist_id || null,
             patient_id: patient_id || null,
             tier: tier || null,
+            search: search || null,
+            created_at: created_at || null,
         };
 
         const result = await getAllAppointmentsFiltered(filters, parseInt(page), parseInt(limit));
@@ -163,6 +165,7 @@ export const getAllAppointments = async (req, res, next) => {
                 cancellation_reason: appt.cancellation_reason,
                 rejection_reason: appt.rejection_reason,
                 is_walk_in: appt.is_walk_in,
+                source: appt.source,
                 notes: appt.notes,
                 patient: {
                     id: appt.patient_id,
@@ -356,8 +359,8 @@ export const getPending = async (req, res, next) => {
  */
 export const approve = async (req, res, next) => {
     try {
-        const { dentist_id } = req.body;
-        const appointment = await approveRequest(req.params.id, req.user.id, dentist_id || null);
+        const { dentist_id, note } = req.body;
+        const appointment = await approveRequest(req.params.id, req.user.id, dentist_id || null, note);
 
         // 1. Email Notification
         let emailResult = null;
@@ -368,6 +371,7 @@ export const approve = async (req, res, next) => {
                 end_time: appointment.end_time,
                 service: appointment.service?.name,
                 dentist: appointment.dentist?.profile?.full_name || 'Assigned',
+                note: note || ''
             });
         } catch (e) {
             console.error('Failed to send approval email:', e);

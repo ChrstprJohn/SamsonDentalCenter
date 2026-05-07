@@ -2,6 +2,7 @@ import { AppError } from '../utils/errors.js';
 import { supabaseAdmin } from '../config/supabase.js';
 import { APPOINTMENT_STATUS, CLINIC_CONFIG } from '../utils/constants.js';
 import { sendNoShowNotice, sendRestrictionNotice } from './notification.service.js';
+import { sendMissedAppointmentEmail } from './email-confirmation.service.js';
 
 /**
  * Mark an appointment as NO_SHOW and log it.
@@ -56,11 +57,27 @@ export const markNoShow = async (appointmentId) => {
         days_booked_in_advance: daysInAdvance,
     });
 
-    // ── 4. Create in-app notification for the patient ──
+    // ── 4. Create in-app notification & Email for the patient ──
     await sendNoShowNotice(appointment.patient_id, {
         date: appointment.appointment_date,
         start_time: appointment.start_time,
     });
+
+    // Fetch patient profile for email and name
+    const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('email, full_name')
+        .eq('id', appointment.patient_id)
+        .single();
+
+    if (profile && profile.email) {
+        await sendMissedAppointmentEmail(profile.email, profile.full_name, {
+            appointmentId: appointment.id,
+            date: appointment.appointment_date,
+            start_time: appointment.start_time,
+            service: appointment.service_id, // Could fetch name if needed, but ID works for now
+        });
+    }
 
     // ── 5. Get patient's total no-show count ──
     const { count: noShowCount } = await supabaseAdmin

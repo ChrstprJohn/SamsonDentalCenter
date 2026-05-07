@@ -2,6 +2,7 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { AppError } from '../utils/errors.js';
 import fs from 'fs';
 import path from 'path';
+import jwt from 'jsonwebtoken';
 import { getSettings } from './settings.service.js';
 
 const TEMPLATES_DIR = path.join(process.cwd(), '..', '..', '..', 'EmailTemplates');
@@ -19,7 +20,10 @@ const FILE_MAP = {
     'booking-rejected': 'booking-rejected.html',
     'appointment-reminder-24h': 'appointment-reminder-24h.html',
     'appointment-reminder-48h': 'appointment-reminder-48h.html',
-    'appointment-displaced': 'appointment-displaced.html'
+    'appointment-displaced': 'appointment-displaced.html',
+    'account-setup-invite': 'account-setup-invite.html',
+    'missed-appointment': 'missed-appointment.html',
+    'post-visit-feedback': 'post-visit-feedback.html'
 };
 
 /**
@@ -80,13 +84,21 @@ export const updateTemplate = async (key, updates, actorId) => {
 
     if (fetchError) throw new AppError('Template definition not found', 404);
 
-    // 2. Validate required variables
+    // 2. Validate required variables and structure
     if (html_content) {
         const required = template.required_variables || [];
         const missing = required.filter(v => !html_content.includes(`{{${v}}}`));
         
         if (missing.length > 0) {
             throw new AppError(`Missing required variables in HTML: ${missing.map(m => `{{${m}}}`).join(', ')}`, 400);
+        }
+
+        // Basic check for structural integrity (detecting obvious unclosed or malformed tags)
+        const openTags = (html_content.match(/<[a-zA-Z]+/g) || []).length;
+        const closeTags = (html_content.match(/<\/[a-zA-Z]+/g) || []).length;
+        // Self-closing tags are complex to regex accurately, but we can catch obvious body/html breaks
+        if (html_content.includes('<body') && !html_content.includes('</body>')) {
+            throw new AppError('The template has an opening <body> tag but is missing the closing </body> tag.', 400);
         }
     }
 
@@ -125,6 +137,25 @@ export const restoreDefault = async (key, actorId) => {
     if (!defaultHtml) throw new AppError('Default template file not found on server', 404);
 
     return await updateTemplate(key, { html_content: defaultHtml }, actorId);
+};
+
+/**
+ * Generate a secure action link for an appointment.
+ * @param {string} action - 'manage' | 'cancel' | 'reschedule'
+ * @param {string} appointmentId - UUID
+ * @returns {string} URL
+ */
+const generateActionLink = (action, appointmentId) => {
+    const secret = process.env.EMAIL_TOKEN_SECRET;
+    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    
+    if (!secret) {
+        console.warn('⚠️ EMAIL_TOKEN_SECRET not set. Links will not be secure.');
+        return `${baseUrl}/booking/${action}?id=${appointmentId}`;
+    }
+
+    const token = jwt.sign({ id: appointmentId, action }, secret, { expiresIn: '7d' });
+    return `${baseUrl}/booking/${action}?t=${token}`;
 };
 
 /**
@@ -177,13 +208,20 @@ export const compileTemplate = async (key, data) => {
         instagramUrl: settings.instagram_url || '',
     };
 
-    const finalData = { ...globalData, ...data };
+    // 5. Generate Action Links if appointmentId is provided
+    const actionLinks = data.appointmentId ? {
+        manageUrl: generateActionLink('manage', data.appointmentId),
+        cancelUrl: generateActionLink('cancel', data.appointmentId),
+        rescheduleUrl: generateActionLink('reschedule', data.appointmentId)
+    } : {};
 
-    // 5. Replace placeholders {{var}}
+    const finalData = { ...globalData, ...actionLinks, ...data };
+
+    // 6. Replace placeholders {{var}}
     for (const [vKey, vValue] of Object.entries(finalData)) {
         const regex = new RegExp(`{{${vKey}}}`, 'g');
-        html = html.replace(regex, vValue || '');
-        subject = subject.replace(regex, vValue || '');
+        html = html.replace(regex, vValue !== undefined && vValue !== null ? vValue : '');
+        subject = subject.replace(regex, vValue !== undefined && vValue !== null ? vValue : '');
     }
 
     return { html, subject };
@@ -220,7 +258,9 @@ const getDefaultSubject = (key) => {
         'booking-rejected': 'Update Regarding Your Appointment Request — Samson Dental Center',
         'appointment-reminder-24h': 'Reminder: Your Appointment is Tomorrow — Samson Dental Center',
         'appointment-reminder-48h': 'Upcoming Appointment Reminder (48h) — Samson Dental Center',
-        'appointment-displaced': 'Important Update: Your Appointment has Changed — Samson Dental Center'
+        'appointment-displaced': 'Important Update: Your Appointment has Changed — Samson Dental Center',
+        'missed-appointment': 'We Missed You Today — Samson Dental Center',
+        'post-visit-feedback': 'How was your visit to Samson Dental Center?'
     };
     return subjects[key] || 'Notification from Samson Dental Center';
 };

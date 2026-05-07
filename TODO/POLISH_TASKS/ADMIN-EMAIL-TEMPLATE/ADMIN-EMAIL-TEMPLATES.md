@@ -20,15 +20,17 @@ an explicit list of available dynamic variables `{{...}}` for each type of email
 We need a dedicated table to store these templates, supporting versioning or at least overriding the
 defaults.
 
-### 2.1 SQL Migration (`20260505_create_email_templates.sql`)
+### 2.1 SQL Migration (`2026_create_email_templates.sql`)
+
+_Execution Order Note: Always start with Database, then Backend, then Frontend._
 
 ```sql
 CREATE TABLE IF NOT EXISTS email_templates (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    template_key VARCHAR(100) UNIQUE NOT NULL, -- e.g., 'guest-otp', 'booking-confirmed'
+    template_key VARCHAR(100) UNIQUE NOT NULL, -- e.g., 'guest-otp', 'booking-approved'
     subject_line VARCHAR(255) NOT NULL,
     html_content TEXT NOT NULL,
-    available_variables JSONB NOT NULL DEFAULT '[]', -- Array of keys: ['name', 'date', 'time']
+    available_variables JSONB NOT NULL DEFAULT '[]', -- Array of keys: ['name', 'date', 'startTime', 'endTime']
     description TEXT,
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -36,12 +38,13 @@ CREATE TABLE IF NOT EXISTS email_templates (
 -- Insert Default Stubs based on current hardcoded files
 INSERT INTO email_templates (template_key, subject_line, html_content, available_variables, description) VALUES
 ('guest-otp', 'Primera Dental - Your Verification Code', '<html>...</html>', '["name", "otpCode", "expiresIn"]', 'Sent to guests to verify their email before booking.'),
-('booking-confirmed', 'Your Appointment is Confirmed', '<html>...</html>', '["name", "service", "date", "time", "location"]', 'Sent when the secretary approves a booking.'),
-('booking-request-received', 'Booking Request Received', '<html>...</html>', '["name", "service", "date", "time"]', 'Sent instantly upon booking request.'),
-('booking-cancelled', 'Appointment Cancelled', '<html>...</html>', '["name", "service", "date", "time", "reason"]', 'Sent when an appointment is cancelled.'),
-('appointment-rescheduled', 'Appointment Rescheduled', '<html>...</html>', '["name", "service", "oldDate", "newDate", "newTime"]', 'Sent when an appointment time is moved.'),
-('appointment-reminder', 'Reminder: Upcoming Appointment', '<html>...</html>', '["name", "service", "date", "time"]', 'Sent 24/48 hours before the appointment.'),
-('waitlist-offer', 'A Slot Opened Up!', '<html>...</html>', '["name", "service", "date", "time", "claimLink", "expiresIn"]', 'Sent to waitlist users when a slot matches.'),
+('booking-approved', 'Your Appointment is Approved', '<html>...</html>', '["name", "service", "date", "startTime", "endTime"]', 'Sent when the secretary approves a booking (General or Specialized).'),
+('booking-request-received', 'Booking Request Received', '<html>...</html>', '["name", "service", "date", "startTime", "endTime"]', 'Sent instantly upon booking request.'),
+('booking-rejected', 'Booking Request Update', '<html>...</html>', '["name", "service", "reason"]', 'Sent when a booking (General or Specialized) is rejected.'),
+('booking-cancelled', 'Appointment Cancelled', '<html>...</html>', '["name", "service", "date", "startTime", "endTime", "reason"]', 'Sent when an appointment is cancelled.'),
+('appointment-rescheduled', 'Appointment Rescheduled', '<html>...</html>', '["name", "service", "oldDate", "newDate", "newStartTime", "newEndTime"]', 'Sent when an appointment time is moved.'),
+('appointment-reminder', 'Reminder: Upcoming Appointment', '<html>...</html>', '["name", "service", "date", "startTime", "endTime"]', 'Sent 24/48 hours before the appointment.'),
+('waitlist-offer', 'A Slot Opened Up!', '<html>...</html>', '["name", "service", "date", "startTime", "endTime", "claimLink", "expiresIn"]', 'Sent to waitlist users when a slot matches.'),
 ('account-setup-invite', 'Set up your Primera Dental Account', '<html>...</html>', '["name", "setupLink"]', 'Sent to guests converted into patients by the Admin.')
 ON CONFLICT (template_key) DO NOTHING;
 ```
@@ -108,10 +111,11 @@ implemented:
 
 ## 🚀 6. Deployment Phase
 
-- [x] **Dual-Read Period**: Initially, have the system check the DB; if a template is missing or the DB
-  query fails, it silently falls back to the local `fs.readFileSync` files to ensure zero downtime.
+- [x] **Dual-Read Period**: Initially, have the system check the DB; if a template is missing or the
+      DB query fails, it silently falls back to the local `fs.readFileSync` files to ensure zero
+      downtime.
 - [x] **Audit Logging**: Record which admin edited which template and when in the `audit_log` table,
-  ensuring strict traceability in case a change breaks a template and needs to be reverted.
+      ensuring strict traceability in case a change breaks a template and needs to be reverted.
 
 ---
 
@@ -120,16 +124,25 @@ implemented:
 Use these steps to confirm the "Samson Dental Center" professionalization is successful:
 
 ### 7.1 Database Verification
-- [ ] Run `SELECT template_key FROM email_templates;` in Supabase.
-- [ ] Confirm deprecated keys (`waitlist-offer`, `guest-verification`, `verification-success`) are **ABSENT**.
-- [ ] Confirm active keys (`guest-otp`, `booking-confirmed`, `appointment-reminder-24h`, etc.) are **PRESENT**.
+
+- [x] Run `SELECT template_key FROM email_templates;` in Supabase.
+- [x] Confirm deprecated keys (`waitlist-offer`, `guest-verification`, `verification-success`) are
+      **ABSENT**.
+- [x] Confirm active keys (`guest-otp`, `booking-approved`, `appointment-reminder-24h`, etc.) are
+      **PRESENT**.
 
 ### 7.2 Branding & Design
-- [ ] Open Admin Portal -> **Email Templates**.
-- [ ] Verify **all** templates use "Samson Dental Center" in the subject line.
-- [ ] Verify **all** previews show the new high-fidelity HTML (Blue/Green headers, Inter font).
+
+- [x] Open Admin Portal -> **Email Templates**.
+- [x] Verify **all** templates use "Samson Dental Center" in the subject line.
+- [x] Verify **all** previews show the new high-fidelity Red Theme (Samson Red #be123c).
+- [x] Confirm **OTP Template** has the "Click to select & copy" instructions.
 
 ### 7.3 Integration Tests
-- [ ] **Guest OTP**: Trigger a verification code on the website; confirm the professional email arrives.
-- [ ] **Booking Confirmation**: Approve an appointment; confirm the "✅ Appointment Confirmed" email arrives.
-- [ ] **Reminder Test**: Use the Admin "Test Reminder" buttons; confirm the professional 24h/48h mail arrives.
+
+- [ ] **Guest OTP**: Trigger a verification code on the website; confirm the professional email
+      arrives.
+- [ ] **Booking Approval**: Approve an appointment; confirm the "✅ Appointment Approved" email
+      arrives.
+- [ ] **Reminder Test**: Use the Admin "Test Reminder" buttons; confirm the professional 24h/48h
+      mail arrives.
