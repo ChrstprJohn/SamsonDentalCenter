@@ -561,7 +561,7 @@ export const getSystemHealth = async () => {
  * @param {string|null} dentistId - Optional: manually pick a dentist. NULL = auto-assign.
  * @returns {object} Updated appointment
  */
-export const approveRequest = async (appointmentId, supervisorId, dentistId = null) => {
+export const approveRequest = async (appointmentId, supervisorId, dentistId = null, note = null) => {
     // ── 1. Get the appointment ──
     const { data: appointment, error: fetchErr } = await supabaseAdmin
         .from('appointments')
@@ -611,7 +611,19 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
         }
 
         const requiredTier = appointment.service?.tier || 'general';
-        if (dentist.tier !== requiredTier && dentist.tier !== 'both') {
+        
+        // Check for explicit service mapping (Skillset)
+        const { data: hasSkill } = await supabaseAdmin
+            .from('dentist_services')
+            .select('id')
+            .eq('dentist_id', assignedDentistId)
+            .eq('service_id', appointment.service_id)
+            .maybeSingle();
+
+        // Qualification Logic: Must have the explicit skill OR match the tier
+        const isQualified = hasSkill || (dentist.tier === requiredTier || dentist.tier === 'both');
+
+        if (!isQualified) {
             throw new AppError(`Selected dentist is not qualified for ${requiredTier} services.`, 400);
         }
         // ── CHECK FOR TIME CONFLICT ──
@@ -681,7 +693,6 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
     if (updateErr) throw { status: 500, message: updateErr.message };
 
     // ── 4. VOID linked waitlist entries ──
-    // If this appointment was a "Primary" for a waitlist entry, void those entries now.
     try {
         await voidWaitlistForApprovedAppointment(appointmentId, {
             date: updated.appointment_date,
@@ -690,8 +701,24 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
             patient_id: updated.patient_id,
         });
     } catch (err) {
-        // Non-critical — don't fail the approval
         console.warn(`⚠️ [ADMIN] Failed to void linked waitlist entries: ${err.message}`);
+    }
+
+    // ── 5. Audit Log Entry ──
+    try {
+        await supabaseAdmin.from('audit_log').insert({
+            actor_id: supervisorId,
+            action: 'APPROVE_APPOINTMENT',
+            target_type: 'appointments',
+            target_id: appointmentId,
+            resource_type: 'appointments',
+            resource_id: appointmentId,
+            old_values: { status: appointment.status, approval_status: appointment.approval_status },
+            new_values: { status: updated.status, approval_status: updated.approval_status },
+            details: { note }
+        });
+    } catch (auditErr) {
+        console.error('Audit Log failed (approveRequest):', auditErr.message);
     }
 
     return updated;
@@ -760,6 +787,23 @@ export const rejectRequest = async (appointmentId, supervisorId, reason, suggest
         });
     } catch (e) {
         console.warn('⚠️ [ADMIN] Failed to trigger waitlist on rejection:', e.message);
+    }
+
+    // ── Audit Log Entry ──
+    try {
+        await supabaseAdmin.from('audit_log').insert({
+            actor_id: supervisorId,
+            action: 'REJECT_APPOINTMENT',
+            target_type: 'appointments',
+            target_id: appointmentId,
+            resource_type: 'appointments',
+            resource_id: appointmentId,
+            old_values: { status: appointment.status, approval_status: appointment.approval_status },
+            new_values: { status: updated.status, approval_status: updated.approval_status },
+            details: { reason, suggested_date: suggestedDate }
+        });
+    } catch (auditErr) {
+        console.error('Audit Log failed (rejectRequest):', auditErr.message);
     }
 
     return { appointment: updated, suggested_date: suggestedDate };
@@ -1374,6 +1418,42 @@ export const adminCancelAppointment = async (appointmentId, reason = null) => {
 };
 
 /**
+ * Mark an appointment as IN_PROGRESS (Check-in).
+ * 
+ * @param {string} appointmentId 
+ * @returns {object} Updated appointment
+ */
+export const checkInAppointment = async (appointmentId) => {
+    const { data: appt } = await supabaseAdmin
+        .from('appointments')
+        .select('status')
+        .eq('id', appointmentId)
+        .single();
+
+    if (!appt) throw { status: 404, message: 'Appointment not found.' };
+
+    if (appt.status !== APPOINTMENT_STATUS.CONFIRMED) {
+        throw { 
+            status: 400, 
+            message: `Cannot check in. Current status: ${appt.status}. Must be CONFIRMED.` 
+        };
+    }
+
+    const { data, error } = await supabaseAdmin
+        .from('appointments')
+        .update({
+            status: APPOINTMENT_STATUS.IN_PROGRESS,
+            updated_at: new Date().toISOString(),
+        })
+        .eq('id', appointmentId)
+        .select()
+        .single();
+
+    if (error) throw { status: 500, message: error.message };
+    return { appointment: data };
+};
+
+/**
  * Block a dentist's availability (leave, emergency, training, etc).
  *
  * @param {string} dentistId - Dentist UUID
@@ -1598,34 +1678,41 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
             query = query.lte('appointment_date', filters.date_to);
         }
     }
+
+    // Filter by creation date (e.g., for "New Today")
+    if (filters.created_at) {
+        // Assuming created_at is passed as 'YYYY-MM-DD'
+        // We filter for the entire day
+        query = query.gte('created_at', `${filters.created_at}T00:00:00.000Z`)
+                     .lte('created_at', `${filters.created_at}T23:59:59.999Z`);
+    }
     
-    // If a specific status is requested, use it; otherwise, exclude 'zombie' statuses by default
-    // to prevent rescheduled/cancelled/missed appointments from cluttering active lists.
+    // 1. Status Filter - Refined to ensure no pending requests are missed
     if (filters.status) {
-        if (filters.status.includes(',')) {
-            const statusList = filters.status.split(',').map(s => s.trim().toUpperCase());
-            query = query.in('status', statusList);
+        if (filters.status === 'DISPLACED') {
+            query = query.or(`status.ilike.${APPOINTMENT_STATUS.DISPLACED},and(status.ilike.${APPOINTMENT_STATUS.CANCELLED},cancellation_reason.ilike.SYSTEM_DISPLACED%)`);
+        } else if (filters.status.includes(',')) {
+            const statusList = filters.status.split(',').map(s => s.trim());
+            // Use case-insensitive matching for each status in the list
+            query = query.filter('status', 'in', `(${statusList.join(',')})`);
         } else {
-            query = query.eq('status', filters.status.toUpperCase());
+            // Use ilike for robustness across all pending types
+            query = query.ilike('status', filters.status);
         }
     } else {
-        query = query.not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.NO_SHOW},${APPOINTMENT_STATUS.RESCHEDULED})`);
+        // Default: Active appointments only
+        query = query.not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.NO_SHOW})`);
     }
 
     if (filters.dentist_id) query = query.eq('dentist_id', filters.dentist_id);
     if (filters.patient_id) query = query.eq('patient_id', filters.patient_id);
     if (filters.tier) query = query.eq('service_tier', filters.tier);
 
-    // Search filter
+    // 2. Search Filter - Comprehensive across snapshot and reason fields
     if (filters.search) {
         const s = `%${filters.search}%`;
-        query = query.or(`guest_name.ilike.${s},first_name.ilike.${s},last_name.ilike.${s},cancellation_reason.ilike.${s},notes.ilike.${s}`);
-    }
-
-    // Special handling for DISPLACED virtual status
-    if (filters.status === 'DISPLACED') {
-        query = query.eq('status', APPOINTMENT_STATUS.CANCELLED)
-                     .ilike('cancellation_reason', 'SYSTEM_DISPLACED%');
+        // Search across guest name, snapshot name, and clinical notes/reasons
+        query = query.or(`guest_name.ilike.${s},guest_first_name.ilike.${s},guest_last_name.ilike.${s},first_name.ilike.${s},last_name.ilike.${s},cancellation_reason.ilike.${s},notes.ilike.${s}`);
     }
 
     // Pagination
@@ -2428,14 +2515,21 @@ export const reassignAppointmentToDentist = async (appointmentId, newDentistId, 
         throw new AppError('Target dentist not found or inactive.', 404);
     }
 
-    // Check if target dentist is qualified for the service tier
-    const serviceTier = appointment.service?.tier;
-    if (
-        serviceTier === SERVICE_TIER.SPECIALIZED &&
-        targetDentist.tier !== 'specialized' &&
-        targetDentist.tier !== 'both'
-    ) {
-        throw new AppError('Target dentist is not qualified for specialized services.', 400);
+    const serviceTier = appointment.service?.tier || 'general';
+    
+    // Check for explicit service mapping (Skillset)
+    const { data: hasSkill } = await supabaseAdmin
+        .from('dentist_services')
+        .select('id')
+        .eq('dentist_id', newDentistId)
+        .eq('service_id', appointment.service_id)
+        .maybeSingle();
+
+    // Qualification Logic: Must have the explicit skill OR match the tier
+    const isQualified = hasSkill || (targetDentist.tier === serviceTier || targetDentist.tier === 'both');
+
+    if (!isQualified) {
+        throw new AppError(`Target dentist is not qualified for ${serviceTier} services.`, 400);
     }
 
     // ── Check for time conflicts ──

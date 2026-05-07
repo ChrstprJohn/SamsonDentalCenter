@@ -188,6 +188,8 @@ export const useDoctors = (fetchOnMount = true) => {
             if (params.date) url += `&date=${params.date}`;
             if (params.date_from) url += `&date_from=${params.date_from}`;
             if (params.date_to) url += `&date_to=${params.date_to}`;
+            if (params.created_at) url += `&created_at=${params.created_at}`;
+            if (params.patient_id) url += `&patient_id=${params.patient_id}`;
 
             const response = await api.get(url, token);
             return {

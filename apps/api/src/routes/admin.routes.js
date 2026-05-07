@@ -97,6 +97,16 @@ router.get('/appointments/pending', getPending); // NEW: Specialized requests
 router.patch('/appointments/:id/approve', approve); // NEW: Approve specialized
 router.patch('/appointments/:id/reject', reject); // NEW: Reject specialized
 router.patch('/appointments/:id/noshow', markAsNoShow);
+router.patch('/appointments/:id/check-in', async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { checkInAppointment } = await import('../services/admin.service.js');
+        const result = await checkInAppointment(id);
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+});
 router.patch('/appointments/:id/complete', markAsComplete);
 router.patch('/appointments/:id/cancel', adminCancel);
 router.patch('/appointments/:id/reassign', reassignAppointment); // NEW

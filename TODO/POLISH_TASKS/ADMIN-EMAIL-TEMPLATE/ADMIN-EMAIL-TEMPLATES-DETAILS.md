@@ -45,19 +45,21 @@ CREATE TABLE IF NOT EXISTS email_templates (
 
 -- Note: We define 'Global Variables' implicitly in the app logic (e.g., {{clinicName}}, {{supportEmail}}),
 -- while 'Unique Variables' are defined per template in 'required_variables' and 'optional_variables'.
--- 
+--
 -- STATUS: DEPLOYED in FINAL-COMPLETE-SCHEMA.sql
 ```
 
 ## 3. Backend Implementation (Node.js/Express)
 
 ### 3.1. API Endpoints (`apps/api/src/routes/email-templates.routes.js`) [DONE]
+
 - `GET /api/v1/email-templates`: Fetch all templates.
 - `GET /api/v1/email-templates/:key`: Fetch specific template + metadata.
 - `PUT /api/v1/email-templates/:key`: Update content/subject with validation.
 - `POST /api/v1/email-templates/:key/restore`: Reset to factory default.
 
 ### 3.2. Service Refactoring [DONE]
+
 - [x] **Retrieve:** DB-first lookup.
 - [x] **Fallback:** Local FS reading if DB is empty.
 - [x] **Global Injection:** {{clinicName}} automatically available.
@@ -72,30 +74,11 @@ Add the new route in the Admin's `App.jsx` or router configuration:
 
 ### 4.2. UI Architecture (`apps/admin/src/pages/EmailTemplates/`)
 
-- **`EmailTemplatesPage.jsx`**: The main container.
-    - **Layout:** Two-column layout if editing, or a list view that transitions into the editor. We
-      will use a List on the left and Editor on the right, or a full-page editor when a template is
-      selected.
-
-- **`TemplateSelector.jsx`**: A sidebar or dropdown categorizing available templates (e.g.,
-  Category: Registration -> Template: OTP Code).
-
-- **`TemplateEditorPane.jsx`**:
-    - Code editor using a lightweight library like `react-simple-code-editor` or Monaco (if already
-      installed) for HTML syntax highlighting.
-    - Inputs for "Subject Line".
-    - A "Save" button and a "Restore Default" button.
-
-- **`VariablePanel.jsx`**:
-    - Displays Global Variables (always accessible): `{{clinicName}}`, `{{clinicPhone}}`, etc.
-    - Displays Unique Variables based on selected template (e.g., `{{name}}`, `{{otpCode}}`).
-    - Interactive: Clicking a variable tag copies it or injects it into the editor cursor position.
-
-- **`LivePreviewPane.jsx`**:
-    - Takes the current `html_content` from state.
-    - Maps dummy data (e.g., `{ name: "John Doe", otpCode: "123456" }`) to the text.
-    - Injects the parsed HTML into a sandboxed `<iframe>` via `srcDoc`. This ensures Admin dashboard
-      styles don't leak into the email preview.
+- **`EmailTemplatesPage.jsx`**: [DONE] The main container for the template management suite.
+- **`TemplateSelector.jsx`**: [DONE] Integrated as a dropdown selector within the header.
+- **`TemplateEditorPane.jsx`**: [DONE] Source code editor with live preview toggle.
+- **`VariablePanel.jsx`**: [DONE] Redesigned VariableHelper with tooltips and click-to-copy.
+- **`LivePreviewPane.jsx`**: [DONE] Sandboxed iframe preview with real-time demo data mapping.
 
 ## 5. Security & Safety Flow
 
@@ -107,3 +90,122 @@ Add the new route in the Admin's `App.jsx` or router configuration:
     (e.g., "Actor X modified Template Y").
 3.  **Graceful Degradation:** If the SQL query fails during an actual patient operation, the system
     inherently falls back to reading the hardcoded `fs.readFileSync` file.
+
+---
+
+## 6. Recommended Template Lifecycle (Positive vs. Negative Flows)
+
+To ensure the patient is always informed about _what happens next_, we will structure templates
+around a "Positive/Negative" decision tree. We are also upgrading the time formatting from just a
+`startTime` to a full `timeRange` (`{{startTime}} - {{endTime}}`).
+
+### 6.1 Expanded Global & Unique Variables
+
+- **Time Range Variables:** We will supply both `{{startTime}}` and `{{endTime}}` to the parser so
+  templates can format them as: `2:00 PM - 3:00 PM`. **This is mandatory for all appointment-related
+  templates.**
+- **Doctor Variable (Optional):** We will include `{{doctor}}` as an optional variable for templates
+  where the provider needs to be specified (e.g., after approval).
+- **Reason/Context Variables:** Introducing `{{reason}}` for rejections/cancellations.
+- **Action/Next Steps Variables:** Implicit text inside templates guiding the user.
+- **Interactive Action Links:** Introducing `{{manageUrl}}`, `{{cancelUrl}}`, and
+  `{{rescheduleUrl}}` to allow patients to take direct action from their emails.
+
+### 6.2 The Complete Template Catalog
+
+**A. Authentication**
+
+- **`guest-otp`**: Sent during initial booking.
+    - _Tone:_ Secure.
+    - _Next Step Info:_ "Enter this code to submit your request."
+
+**B. The Booking Lifecycle**
+
+- **`booking-request-received` (Neutral)**: Sent immediately upon patient confirming the OTP.
+    - _Tone:_ Acknowledgment.
+    - _Next Step Info:_ "Our staff is reviewing your request. You will receive an approval or
+      rejection notice shortly."
+- **`booking-approved` (Positive Outcome)**: Sent when Admin/Secretary clicks "Approve" (Renamed
+  from Confirmed). Applies to **both General and Specialized** requests.
+    - _Time Context:_ `{{date}} from {{startTime}} to {{endTime}}`
+    - _Variables Included:_ `{{manageUrl}}`, optional `{{doctor}}`.
+    - _Next Step Info:_ "Please arrive 10 minutes early. If you need to modify your booking, click
+      the button below."
+- **`booking-rejected` (Negative Outcome)**: Sent if Admin/Secretary declines the booking. Applies
+  to **both General and Specialized** requests.
+    - _Variables included:_ `{{reason}}`
+    - _Next Step Info:_ "Unfortunately, we cannot accommodate this request because: {{reason}}.
+      Please view our live calendar to select a different time."
+
+**C. Timeline Changes**
+
+- **`appointment-rescheduled` (Neutral/Clinic Action)**: Admin moves the appointment.
+    - _Variables included:_ `{{oldDate}}`, `{{newDate}}`, `{{newStartTime}} - {{newEndTime}}`,
+      `{{manageUrl}}`.
+    - _Next Step Info:_ "If this new time does not work for you, please click below to reschedule."
+- **`appointment-cancelled` (Negative/Patient Action)**: Patient or Clinic cancels.
+    - _Variables included:_ `{{date}}`, `{{startTime}} - {{endTime}}`.
+    - _Next Step Info:_ "Your slot has been released. Book a new session anytime!"
+
+**D. Pre & Post Visit (Retention)**
+
+- **`appointment-reminder-48h` (Positive / Early Warning)**: Sent 2 days prior to allow graceful
+  rescheduling without penalization.
+    - _Variables included:_ `{{manageUrl}}`, `{{cancelUrl}}`, `{{rescheduleUrl}}`.
+    - _Next Step Info:_ Includes a large, prominent button: "Manage Appointment" (to cancel or
+      reschedule). "Please let us know now if you cannot make it."
+- **`appointment-reminder-24h` (Positive / Final Reminder)**: Sent 1 day prior.
+    - _Variables included:_ `{{manageUrl}}`, `{{cancelUrl}}`.
+    - _Next Step Info:_ Includes an action button. "Your appointment is tomorrow. Cancellations
+      under 24 hours may incur a penalty."
+- **`missed-appointment` (Negative/No-Show)**: Sent automatically if marked as No-Show.
+    - _Tone:_ Polite but firm.
+    - _Next Step Info:_ "We missed you today. Repeated no-shows may limit your ability to book
+      online."
+- **`post-visit-feedback` (Positive/Growth)**: Sent 2 hours after a successful service.
+    - _Next Step Info:_ "How was your visit? Leave a quick review linking to our Google page."
+
+---
+
+## 7. The Default Master Skeleton (Brand Identity)
+
+All seed templates in the database will share a single, responsive master layout. This prevents
+emails from looking mismatched.
+
+### Design Philosophy
+
+- **Responsive Framework:** A `<div style="max-width: 600px; margin: 0 auto;">` shell that works on
+  both mobile and desktop clients.
+- **Formal & Minimalist:** White cards on a soft off-white/rose background (`#fef2f2`).
+- **Brand Colors:** The primary branding uses "Samson Red" (`#be123c`) sparingly. The red is used
+  _only_ for the header block (`<div style="background: #be123c;">`) holding the clinic name,
+  primary action buttons, and critical text (like OTPs).
+- **Typography:** Web-safe `sans-serif` (Inter/Roboto fallback) with high-contrast text (`#1e293b`
+  for headings, `#475569` for body text) ensuring maximum readability.
+
+### Action Buttons
+
+Links such as `{{rescheduleUrl}}` and `{{cancelUrl}}` will be wrapped in bold, easily-tappable CTA
+(Call to Action) buttons.
+
+```html
+<!-- Example CTA Button Structure for Reminders -->
+<div style="margin: 32px 0; text-align: center;">
+    <a
+        href="{{manageUrl}}"
+        style="background-color: #be123c; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;"
+        >Manage or Reschedule</a
+    >
+
+    <p style="margin-top: 16px; font-size: 14px;">
+        <a
+            href="{{cancelUrl}}"
+            style="color: #64748b; text-decoration: underline;"
+            >Cancel Appointment</a
+        >
+    </p>
+</div>
+```
+
+This ensures patients receive a visually striking, professional email that intuitively drives them
+to manage their own schedules, thus lowering receptionist call volume.

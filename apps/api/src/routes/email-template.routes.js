@@ -3,6 +3,9 @@ import * as emailTemplateController from '../controllers/email-template.controll
 import { requireAuth } from '../middleware/auth.middleware.js';
 import { requireAdmin } from '../middleware/admin.middleware.js';
 
+import { validate } from '../utils/validate.js';
+import { updateTemplateSchema } from '../schemas/email-template.schema.js';
+
 const router = Router();
 
 // All routes require authentication and admin role
@@ -10,7 +13,7 @@ router.use(requireAuth, requireAdmin);
 
 router.get('/', emailTemplateController.getAllTemplates);
 router.get('/:key', emailTemplateController.getTemplateByKey);
-router.put('/:key', emailTemplateController.updateTemplate);
+router.put('/:key', validate(updateTemplateSchema), emailTemplateController.updateTemplate);
 router.post('/:key/restore', emailTemplateController.restoreDefault);
 
 export default router;
