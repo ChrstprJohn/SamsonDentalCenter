@@ -7,16 +7,17 @@ const GlobalRegistry = () => {
     const { mode } = useParams();
     
     // Default to 'upcoming' if mode is invalid or missing
-    const activeMode = ['upcoming', 'today', 'history', 'displaced'].includes(mode) 
+    const activeMode = ['upcoming', 'today', 'history', 'displaced', 'pending'].includes(mode) 
         ? mode 
         : 'upcoming';
 
     const getModeLabel = () => {
         switch (activeMode) {
-            case 'today': return "Today's Schedule";
+            case 'today': return "Today's Attendance";
+            case 'pending': return "Approvals Inbox";
             case 'history': return "Clinical History";
-            case 'displaced': return "Displaced Registry";
-            case 'upcoming': return "Upcoming Appointments";
+            case 'displaced': return "Rescheduling Queue";
+            case 'upcoming': return "Global Schedule";
             default: return "Global Registry";
         }
     };

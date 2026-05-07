@@ -108,51 +108,57 @@ const HistoryIcon = () => (
 );
 
 const DisplacedIcon = () => (
+    <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+        <path d='M13 16H12V12H11M12 8H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
+    </svg>
+);
+
+const PendingIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M13 16H12V12H11M12 8H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 12V15L14 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="12" cy="14" r="4" stroke="currentColor" strokeWidth="1.5" />
     </svg>
 );
 
 const navigationGroups = [
     {
-        title: 'Calendar & Flow',
+        title: 'Overview',
+        items: [{ icon: <HomeIcon />, name: 'Dashboard', path: '/' }],
+    },
+    {
+        title: 'Global Appointments',
         items: [
-            { icon: <TodayIcon />, name: 'Daily Schedule', path: '/registry/today' },
-            { icon: <UpcomingIcon />, name: 'Upcoming Ledger', path: '/registry/upcoming' },
+            { icon: <PendingIcon />, name: 'Approvals Inbox', path: '/registry/pending' },
             { icon: <DisplacedIcon />, name: 'Rescheduling Queue', path: '/registry/displaced' },
-        ]
-    },
-    {
-        title: 'Patient Records',
-        items: [
+            { icon: <GridIcon />, name: 'Global Schedule', path: '/registry/upcoming' },
+            { icon: <TodayIcon />, name: "Today's Attendance", path: '/registry/today' },
             { icon: <HistoryIcon />, name: 'Clinical History', path: '/registry/history' },
-            { icon: <GridIcon />, name: 'Global Registries', path: '/registry/upcoming' },
-            { icon: <PatientsIcon />, name: 'Patients & Users', path: '/patients' },
-        ]
+        ],
     },
     {
-        title: 'Clinic Resources',
+        title: 'Clinic Management',
         items: [
-            { icon: <UserCircleIcon />, name: 'Doctors', path: '/doctors' },
-            { icon: <StaffIcon />, name: 'Staff & Reception', path: '/staff' },
+            { icon: <PatientsIcon />, name: 'Patient Database', path: '/patients' },
+            { icon: <UserCircleIcon />, name: 'Doctor Profiles', path: '/doctors' },
+            { icon: <StaffIcon />, name: 'Staff Management', path: '/staff' },
             { icon: <ServicesIcon />, name: 'Services Catalog', path: '/services' },
-        ]
+        ],
     },
     {
-        title: 'Logs & Settings',
+        title: 'System & Logs',
         items: [
-            { icon: <MailIcon />, name: 'Message Activity', path: '/message-activity' },
-            { icon: <AuditIcon />, name: 'Audit Logs', path: '/audit-logs' },
-            { icon: <SettingsIcon />, name: 'Clinic Settings', path: '/settings' },
-            { icon: <HomeIcon />, name: 'Dashboard', path: '/' },
-        ]
+            { icon: <MailIcon />, name: 'Message Logs', path: '/message-activity' },
+            { icon: <MailIcon />, name: 'Email Templates', path: '/email-templates' },
+            { icon: <AuditIcon />, name: 'Audit Trail', path: '/audit-logs' },
+            { icon: <SettingsIcon />, name: 'Clinic Configuration', path: '/settings' },
+        ],
     },
     {
         title: 'Identity',
-        items: [
-            { icon: <UserIcon />, name: 'Authorized Identity', path: '/profile' },
-        ]
-    }
+        items: [{ icon: <UserIcon />, name: 'Admin Account', path: '/profile' }],
+    },
 ];
 
 const AdminSidebar = () => {

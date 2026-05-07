@@ -42,6 +42,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                         { id: 'all', label: 'All History' },
                         { id: 'COMPLETED', label: 'Completed' },
                         { id: 'CANCELLED', label: 'Cancelled' },
+                        { id: 'LATE_CANCEL', label: 'Late Cancelled' },
                         { id: 'NO_SHOW', label: 'No-Show' },
                     ],
                     defaultStatus: 'COMPLETED,CANCELLED,LATE_CANCEL,NO_SHOW',
@@ -54,6 +55,15 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                         { id: 'SYSTEM_DISPLACED: Service no longer offered by doctor', label: 'Service Change' },
                     ],
                     defaultStatus: 'DISPLACED',
+                };
+            case 'pending':
+                return {
+                    filters: [
+                        { id: 'PENDING', label: 'Action Required' },
+                        { id: 'recent', label: 'New Today' },
+                        { id: 'urgent', label: 'High Priority (48h)' },
+                    ],
+                    defaultStatus: 'PENDING',
                 };
             case 'upcoming':
             default:
@@ -92,13 +102,32 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                     search: searchQuery,
                     tier: tierQuery,
                 };
+                
                 if (mode === 'today') {
                     params.date = format(new Date(), 'yyyy-MM-dd');
                 } else if (mode === 'upcoming') {
                     params.date_from = format(new Date(), 'yyyy-MM-dd');
+                } else if (mode === 'pending' && activeFilter === 'urgent') {
+                    const today = new Date();
+                    const next48h = new Date();
+                    next48h.setDate(today.getDate() + 2);
+                    params.date_from = format(today, 'yyyy-MM-dd');
+                    params.date_to = format(next48h, 'yyyy-MM-dd');
                 }
+
                 const result = await fetchDoctorHistory(null, params);
-                setAppointments(result.appointments || []);
+                let fetchedAppointments = result.appointments || [];
+
+                // Client-side filtering for specific 'pending' filters that backend doesn't support yet
+                if (mode === 'pending') {
+                    if (activeFilter === 'recent') {
+                        const oneDayAgo = new Date();
+                        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+                        fetchedAppointments = fetchedAppointments.filter(a => a.created_at && new Date(a.created_at) >= oneDayAgo);
+                    }
+                }
+
+                setAppointments(fetchedAppointments);
                 setPagination(result.pagination || { total: 0, pages: 1, current_page: 1 });
             } catch (err) {
                 console.error('Registry Sync Failed:', err);
