@@ -533,7 +533,7 @@ const DateTimeStep = ({
     }
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 relative pb-10 sm:pb-6">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-5 sm:pb-6">
             {/* FLOATING TOAST LOGIC (SweetAlert style) - Positioned under header */}
             {(holdError || (error && !error.includes('fetch'))) && (
                 <div className="fixed top-[4.5rem] sm:top-24 right-4 sm:right-6 z-[9999] flex flex-col gap-3 max-w-[calc(100vw-2rem)] sm:max-w-sm pointer-events-none animate-in slide-in-from-right-10 fade-in duration-500">

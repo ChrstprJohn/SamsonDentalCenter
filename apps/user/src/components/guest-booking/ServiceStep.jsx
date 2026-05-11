@@ -26,7 +26,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
     const categories = ['All', 'General', 'Specialized'];
 
     return (
-        <div className="pb-10 sm:pb-6">
+        <div className="pb-[60px] sm:pb-6">
             <div className='mb-8 sm:mb-10'>
                 <h2 className='text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
                     Choose Service
@@ -52,7 +52,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
             </div>
 
             {loading && (
-                <div className='grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6'>
+                <div className='grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6'>
                     {[1, 2, 3, 4, 5, 6].map(i => (
                         <div key={i} className='h-[160px] sm:h-[180px] rounded-2xl bg-gray-200 dark:bg-gray-700/60 animate-pulse border border-gray-100 dark:border-gray-800'></div>
                     ))}
@@ -67,7 +67,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
             )}
 
             {!loading && !fetchError && filteredServices && (
-                <div className='grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6'>
+                <div className='grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6'>
                     {filteredServices.map((service) => (
                         <button
                             key={service.id}

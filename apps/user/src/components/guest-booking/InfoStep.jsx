@@ -190,7 +190,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     const labelClasses = "mb-2 block text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 leading-none";
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-6 sm:pb-4">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-5 sm:pb-6">
             {/* Header Section */}
             <div className='mb-6 sm:mb-8'>
                 <h2 className='text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
