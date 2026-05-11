@@ -201,7 +201,9 @@ export const submitWizard = async (req, res, next) => {
                     booking.booked_for_name_parts?.birthday || null,
                     booking.booked_for_name_parts?.relationship || null,
                     booking.notes || null,
-                    booking.booked_for_name_parts?.sex || null
+                    booking.booked_for_name_parts?.sex || null,
+                    booking.accepted_terms || false,
+                    booking.terms_accepted_at || null
                 );
             } catch (err) {
                 // If booking fails, return error and stop.

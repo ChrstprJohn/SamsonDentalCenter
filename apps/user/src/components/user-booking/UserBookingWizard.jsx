@@ -435,6 +435,7 @@ const UserBookingWizard = ({ booking }) => {
                             formData={formData}
                             book_for_others={book_for_others}
                             onSubmit={submit}
+                            onUpdate={updateFields} // Added
                             onBack={prevStep}
                             onEdit={goToStep}
                             submitting={submitting}

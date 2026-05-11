@@ -208,18 +208,20 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
                     date: formData.date,
                     time: formData.time,
                     dentist_id: formData.dentist_id || null,
-                    booked_for_name_parts: book_for_others ? {
-                        first: formData.booked_for_first_name,
-                        last: formData.booked_for_last_name,
-                        middle: formData.booked_for_middle_name,
-                        suffix: formData.booked_for_suffix_name,
-                        birthday: formData.booked_for_birthday,
-                        relationship: formData.booked_for_relationship,
-                        sex: formData.booked_for_sex, // ✅ Added sex
-                    } : null,
+                    booked_for_name_parts: {
+                        first: formData.booked_for_first_name || user?.first_name,
+                        last: formData.booked_for_last_name || user?.last_name,
+                        middle: formData.booked_for_middle_name || user?.middle_name,
+                        suffix: formData.booked_for_suffix_name || user?.suffix,
+                        birthday: formData.booked_for_birthday || user?.date_of_birth,
+                        relationship: formData.booked_for_relationship || 'Self',
+                        sex: formData.booked_for_sex || user?.sex, 
+                    },
                     user_session_id: sessionId,
                     patient_profile_id: formData.patient_profile_id === 'new' ? null : (formData.patient_profile_id || null),
                     notes: formData.patient_note || null,
+                    accepted_terms: formData.agreed_to_terms || false,
+                    terms_accepted_at: formData.agreed_to_terms ? new Date().toISOString() : null,
                 }
             };
 

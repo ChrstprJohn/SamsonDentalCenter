@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-const UserReviewStep = ({ formData, book_for_others, onSubmit, onBack, onEdit, submitting, error }) => {
+const UserReviewStep = ({ formData, book_for_others, onSubmit, onUpdate, onBack, onEdit, submitting, error }) => {
     const { user } = useAuth();
     const [isRetrying, setIsRetrying] = useState(false);
 
@@ -314,6 +314,34 @@ const UserReviewStep = ({ formData, book_for_others, onSubmit, onBack, onEdit, s
                         </p>
                     </div>
                 </ReviewSection>
+
+                {/* 6. Agreement & Privacy (1:1 with Guest) */}
+                <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md overflow-hidden mb-6'>
+                    <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
+                        <CheckCircle2 size={18} className="text-brand-500" />
+                        <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Agreement & Privacy</h3>
+                    </div>
+
+                    <div className="px-5 py-6 sm:px-10 sm:py-8">
+                        <div className='flex items-start gap-4'>
+                            <div className="pt-0.5">
+                                <input
+                                    type="checkbox"
+                                    id="terms-review"
+                                    checked={formData.agreed_to_terms || false}
+                                    onChange={(e) => onUpdate({ agreed_to_terms: e.target.checked })}
+                                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-gray-300 text-brand-500 focus:ring-brand-500/20 cursor-pointer transition-all"
+                                />
+                            </div>
+                            <label htmlFor="terms-review" className="text-[12px] sm:text-[14px] text-gray-700 dark:text-gray-300 font-medium leading-relaxed cursor-pointer select-none">
+                                I agree to the <a href="/terms-of-service" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Terms of Service</a> and <a href="/privacy-policy" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Privacy Policy</a>.
+                                <span className="block mt-1.5 text-[10px] sm:text-[12px] text-gray-500 dark:text-gray-500 font-normal italic leading-snug">
+                                    I understand my data will be handled securely per clinic policy.
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-10 sm:pt-6 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>

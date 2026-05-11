@@ -232,6 +232,8 @@ export const bookAppointment = async (
     bookedForRelationship = null,
     notes = null, // ✅ Added notes parameter
     patientSex = null, // ✅ NEW: Snapshot patient sex
+    acceptedTerms = false, // ✅ NEW: Compliance tracking
+    termsAcceptedAt = null, // ✅ NEW: Compliance tracking
 ) => {
     const finalIsPreferred = isPreferred !== null ? isPreferred : !!preferredDentistId;
     let bookedForName = null;
@@ -241,7 +243,11 @@ export const bookAppointment = async (
     let suffix = null;
     let finalBookedForBirthday = null;
     let finalBookedForRelationship = null;
-    let finalPatientSex = patientSex; // Default to provided or null
+    
+    // Normalize patient sex (M/F -> Male/Female) to satisfy DB check constraints
+    let finalPatientSex = patientSex;
+    if (patientSex === 'M') finalPatientSex = 'Male';
+    if (patientSex === 'F') finalPatientSex = 'Female';
 
     if (patientProfileId) {
         // ── A. Fetch from saved patient profile (Late-Binding Stub) ──
@@ -279,6 +285,38 @@ export const bookAppointment = async (
             }
         }
     }
+
+    // ✅ NEW: Handle dynamic profile creation for new dependents
+    // If we have name parts and a relationship but NO profile ID, it's a "New Family Member"
+    if (!patientProfileId && firstName && lastName && finalBookedForRelationship && finalBookedForRelationship !== 'Self' && source === APPOINTMENT_SOURCE.USER_BOOKING) {
+        try {
+            const { data: newProfile, error: profileErr } = await supabaseAdmin
+                .from('profiles')
+                .insert({
+                    primary_profile_id: patientId, // Linked to the account holder
+                    first_name: firstName,
+                    last_name: lastName,
+                    middle_name: middleName,
+                    suffix: suffix,
+                    full_name: bookedForName,
+                    date_of_birth: finalBookedForBirthday,
+                    relationship_to_primary: finalBookedForRelationship,
+                    sex: finalPatientSex,
+                    role: 'patient',
+                    is_registered: false // Stub profile for dependents
+                })
+                .select('id')
+                .single();
+
+            if (newProfile) {
+                patientProfileId = newProfile.id;
+                console.log(`[Auto-Profile] Created profile ${patientProfileId} for ${bookedForName}`);
+            }
+        } catch (profileErr) {
+            console.error('[Auto-Profile] Creation failed (continuing with manual snapshot):', profileErr.message);
+        }
+    }
+
     // ── 0. Check if patient is restricted (3+ no-shows or 3+ cancellations) ──
     const { data: patient } = await supabaseAdmin
         .from('profiles')
@@ -418,6 +456,10 @@ export const bookAppointment = async (
                 patient_sex: finalPatientSex,
                 patient_relationship: finalBookedForRelationship,
                 booked_by_user_id: patientId, // The primary user who is booking
+
+                // ✅ NEW: Compliance tracking
+                accepted_terms: acceptedTerms,
+                terms_accepted_at: termsAcceptedAt,
             })
             .select(
                 `
@@ -563,6 +605,10 @@ export const bookAppointment = async (
             patient_sex: finalPatientSex,
             patient_relationship: finalBookedForRelationship,
             booked_by_user_id: patientId, // The primary user who is booking
+
+            // ✅ NEW: Compliance tracking
+            accepted_terms: acceptedTerms,
+            terms_accepted_at: termsAcceptedAt,
         })
         .select(
             `
