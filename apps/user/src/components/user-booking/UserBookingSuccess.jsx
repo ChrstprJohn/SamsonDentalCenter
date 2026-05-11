@@ -80,7 +80,7 @@ const UserBookingSuccess = ({ result, onReset }) => {
                 <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-gray-100 dark:border-gray-800/50">
                     <div className="flex items-center gap-3">
                         <ClipboardList size={18} className="text-brand-500" />
-                        <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white uppercase tracking-tight">Request Summary</h3>
+                        <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">Request Summary</h3>
                     </div>
                     {appointment.id && (
                         <div className="px-3 py-1.5 bg-brand-50/50 dark:bg-brand-500/10 rounded-full border border-brand-100/50 dark:border-brand-500/20 flex items-center shrink-0">
@@ -198,14 +198,14 @@ const UserBookingSuccess = ({ result, onReset }) => {
                         className='flex-1 group flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all shadow-theme-xs'
                     >
                         <HomeIcon size={18} className="sm:size-[22px]" />
-                        <span className="text-[11px] sm:text-base font-black uppercase tracking-widest">Home</span>
+                        <span className="text-[11px] sm:text-base font-black">Home</span>
                     </button>
                     <button
                         onClick={() => { onReset(); navigate('/patient'); }}
                         className='flex-[2] group flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black transition-all shadow-lg shadow-brand-500/20'
                     >
                         <LayoutDashboard size={20} className="sm:size-6" />
-                        <span className="text-[11px] sm:text-base font-black uppercase tracking-widest">Dashboard</span>
+                        <span className="text-[11px] sm:text-base font-black">Dashboard</span>
                         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>

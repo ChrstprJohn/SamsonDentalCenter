@@ -90,7 +90,7 @@ const UserReviewStep = ({ formData, book_for_others, onSubmit, onBack, onEdit, s
             <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-gray-100 dark:border-gray-800/50 bg-gray-50/30 dark:bg-transparent">
                 <div className="flex items-center gap-3">
                     {Icon && <Icon size={18} className="text-brand-500" />}
-                    <h3 className="text-[14px] sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                    <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
                         {title}
                     </h3>
                 </div>
@@ -238,14 +238,14 @@ const UserReviewStep = ({ formData, book_for_others, onSubmit, onBack, onEdit, s
                     <button 
                         onClick={onBack} 
                         disabled={submitting} 
-                        className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-6 py-3.5 sm:px-8 transition-colors bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs disabled:opacity-30 uppercase tracking-widest'
+                        className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-6 py-3.5 sm:px-8 transition-colors bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs disabled:opacity-30'
                     >
                         Back
                     </button>
                     <button 
                         onClick={onSubmit} 
                         disabled={submitting} 
-                        className='flex-[2] sm:flex-none sm:min-w-[240px] group bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-3 text-[11px] sm:text-base uppercase tracking-widest'
+                        className='flex-[2] sm:flex-none sm:min-w-[240px] group bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-3 text-[11px] sm:text-base'
                     >
                         {submitting ? (
                             <><Loader2 size={20} className="animate-spin" /> Confirming...</>

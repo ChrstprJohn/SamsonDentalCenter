@@ -126,6 +126,19 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
     };
 
     const nextStep = () => {
+        // ✅ Commitment Check: Release hold and clear schedule ONLY if service actually changed 
+        // when advancing from the Service selection step (Step 0).
+        if (step === 0 && slotHold.activeHold && formData.service_id !== slotHold.activeHold.service_id) {
+            slotHold.releaseHold().catch(() => {});
+            setFormData(prev => ({
+                ...prev,
+                date: '',
+                time: '',
+                dentist_id: '',
+                waitlist_date: '',
+                waitlist_time: '',
+            }));
+        }
         if (step < steps.length - 1) setStep((s) => s + 1);
     };
 
@@ -134,7 +147,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
             const nextIdx = step - 1;
             // ✅ Reset states when going back to Service step
             if (nextIdx === 0) {
-                slotHold.releaseHold();
+                slotHold.releaseHold().catch(() => {});
                 setFormData(prev => ({
                     ...prev,
                     date: '',
@@ -142,7 +155,6 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
                     dentist_id: '',
                     waitlist_date: '',
                     waitlist_time: '',
-                    service_tier: prev.service_tier, // Keep tier
                 }));
             }
             setStep(nextIdx);
@@ -152,9 +164,10 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
     // Only allow going back to completed steps
     const goToStep = (index) => {
         if (index < step) {
+            setError(null);
             // ✅ Reset states when navigating back to Service step via breadcrumbs
             if (index === 0) {
-                slotHold.releaseHold();
+                slotHold.releaseHold().catch(() => {});
                 setFormData(prev => ({
                     ...prev,
                     date: '',
@@ -162,7 +175,6 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
                     dentist_id: '',
                     waitlist_date: '',
                     waitlist_time: '',
-                    service_tier: prev.service_tier, // Keep tier
                 }));
             }
             setStep(index);
@@ -259,7 +271,10 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         }
     };
 
-    const reset = () => {
+    const reset = async () => {
+        // ✅ Release the hold on the backend first - robust session-based cleanup
+        await slotHold.releaseHold().catch(() => {});
+
         setStep(0);
         setFormData({
             service_id: '',
@@ -275,9 +290,10 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
             booked_for_sex: '',
             booked_for_phone: '',
             dentist_id: '',
-            service_tier: '', // Reset
             patient_profile_id: '', // Clear
             patient_note: '',
+            waitlist_date: '',
+            waitlist_time: '',
         });
         setError(null);
         setSubmitting(false); // ✅ Safety reset

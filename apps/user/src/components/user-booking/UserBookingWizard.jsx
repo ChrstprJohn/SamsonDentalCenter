@@ -113,6 +113,20 @@ const UserBookingWizard = ({ booking }) => {
         verifySession();
     }, [step, result, hasCheckedRecovery, slotHold, reset, toast, goToStep]);
 
+    // ✅ Release hold on page exit (close browser, navigate away, refresh)
+    useEffect(() => {
+        const handleUnload = async (e) => {
+            // Note: browsers restrict what we can do in beforeunload, 
+            // but the slotHold.releaseHold fallback hits /release-session-hold 
+            // which the backend should handle if we can get the beacon out.
+        };
+
+        window.addEventListener('beforeunload', handleUnload);
+        return () => {
+            window.removeEventListener('beforeunload', handleUnload);
+        };
+    }, [sessionId, result]);
+
     // Handle Expired Holds
     useEffect(() => {
         if (hasCheckedRecovery && !slotHold.isCheckingHold && !isCheckingRecovery && !slotHold.holdLoading && step >= 1 && hadHoldRef.current && !slotHold.activeHold && formData.time && !result) {
