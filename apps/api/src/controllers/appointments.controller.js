@@ -197,7 +197,7 @@ export const submitWizard = async (req, res, next) => {
                     booking.dentist_id,              // preferredDentistId
                     0,                               // rescheduleCount
                     null,                            // isPreferred
-                    booking.patient_profile_id,      // ✅ patientProfileId
+                    booking.patient_profile_id === 'new' ? null : (booking.patient_profile_id || null),      // ✅ patientProfileId
                     booking.booked_for_name_parts?.birthday || null,
                     booking.booked_for_name_parts?.relationship || null,
                     booking.notes || null,

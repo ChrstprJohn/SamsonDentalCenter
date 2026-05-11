@@ -65,6 +65,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         booked_for_suffix_name: '',
         booked_for_birthday: '',
         booked_for_relationship: '',
+        booked_for_sex: '',       // ✅ Was missing — caused undefined in JSON payload
         booked_for_phone: '',
         dentist_id: '', // ✅ NEW: Preferred dentist (null = any available)
         // ✅ NEW: Deferred Waitlist Fields
@@ -72,6 +73,8 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         waitlist_time: '', // Selected full slot time
         service_tier: '', // ✅ NEW: Track tier
         patient_profile_id: '', // ✅ NEW: Selected dependent profile ID
+        patient_note: '',       // ✅ Was missing — caused undefined in JSON payload
+        agreed_to_terms: false, // ✅ Was missing — caused undefined in JSON payload
     });
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -183,6 +186,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
 
     // Submit booking to API with unified atomic endpoint
     const submit = async () => {
+        console.log('[useUserBooking DEBUG] Final formData before submit:', formData);
         // ✅ Implement client-side rate limiting (minimum 1 second between submissions)
         const now = Date.now();
         if (lastSubmissionTime && now - lastSubmissionTime < 1000) {
@@ -202,6 +206,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
 
         try {
             // ✅ Unified Atomic Body
+            const isNewMember = !formData.patient_profile_id || formData.patient_profile_id === 'new';
             const body = {
                 service_id: formData.service_id,
                 booking: {
@@ -209,13 +214,15 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
                     time: formData.time,
                     dentist_id: formData.dentist_id || null,
                     booked_for_name_parts: {
-                        first: formData.booked_for_first_name || user?.first_name,
-                        last: formData.booked_for_last_name || user?.last_name,
-                        middle: formData.booked_for_middle_name || user?.middle_name,
-                        suffix: formData.booked_for_suffix_name || user?.suffix,
-                        birthday: formData.booked_for_birthday || user?.date_of_birth,
-                        relationship: formData.booked_for_relationship || 'Self',
-                        sex: formData.booked_for_sex || user?.sex, 
+                        first: formData.booked_for_first_name || user?.first_name || null,
+                        last: formData.booked_for_last_name || user?.last_name || null,
+                        middle: formData.booked_for_middle_name || user?.middle_name || null,
+                        suffix: formData.booked_for_suffix_name || user?.suffix || null,
+                        birthday: formData.booked_for_birthday || user?.date_of_birth || null,
+                        relationship: isNewMember
+                            ? (formData.booked_for_relationship || null)
+                            : (formData.booked_for_relationship || 'Self'),
+                        sex: formData.booked_for_sex || user?.sex || null,
                     },
                     user_session_id: sessionId,
                     patient_profile_id: formData.patient_profile_id === 'new' ? null : (formData.patient_profile_id || null),
@@ -225,6 +232,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
                 }
             };
 
+            console.log('[useUserBooking DEBUG] FINAL BODY TO SEND:', JSON.stringify(body, null, 2));
             const response = await api.post('/appointments/submit-wizard', body, token);
             
             clearTimeout(timeoutId);
