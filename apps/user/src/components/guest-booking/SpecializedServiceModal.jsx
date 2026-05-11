@@ -1,5 +1,6 @@
 import { Lock, ArrowRight, X, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Modal } from '../ui/Modal';
 
 /**
  * Modal that appears when a guest tries to book a specialized service.
@@ -19,18 +20,18 @@ const SpecializedServiceModal = ({ service, onClose }) => {
     };
 
     return (
-        <div
-            className='fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 sm:p-6'
-            onClick={onClose}
+        <Modal 
+            isOpen={!!service} 
+            onClose={onClose} 
+            isBottomSheet={true}
+            className="max-w-md"
+            showCloseButton={false} // We'll keep the custom styled close button for this specific design
         >
-            <div
-                className='bg-white dark:bg-gray-900 rounded-3xl max-w-md w-full p-5 sm:p-7 relative shadow-2xl animate-in fade-in zoom-in duration-300'
-                onClick={(e) => e.stopPropagation()}
-            >
+            <div className='p-5 sm:p-7 relative'>
                 {/* Close button */}
                 <button
                     onClick={onClose}
-                    className='absolute top-4 right-4 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full'
+                    className='absolute top-4 right-4 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full z-10'
                     aria-label='Close'
                 >
                     <X size={18} />
@@ -112,7 +113,7 @@ const SpecializedServiceModal = ({ service, onClose }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 };
 
