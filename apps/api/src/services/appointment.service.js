@@ -231,6 +231,7 @@ export const bookAppointment = async (
     bookedForBirthday = null,
     bookedForRelationship = null,
     notes = null, // ✅ Added notes parameter
+    patientSex = null, // ✅ NEW: Snapshot patient sex
 ) => {
     const finalIsPreferred = isPreferred !== null ? isPreferred : !!preferredDentistId;
     let bookedForName = null;
@@ -240,6 +241,7 @@ export const bookAppointment = async (
     let suffix = null;
     let finalBookedForBirthday = null;
     let finalBookedForRelationship = null;
+    let finalPatientSex = patientSex; // Default to provided or null
 
     if (patientProfileId) {
         // ── A. Fetch from saved patient profile (Late-Binding Stub) ──
@@ -257,6 +259,7 @@ export const bookAppointment = async (
             suffix = pProfile.suffix;
             finalBookedForBirthday = pProfile.date_of_birth;
             finalBookedForRelationship = pProfile.relationship_to_primary;
+            finalPatientSex = pProfile.sex || finalPatientSex; // Use profile sex if available
             bookedForName = pProfile.full_name || `${lastName}, ${firstName} ${middleName || ''} ${suffix || ''}`.replace(/\s+/g, ' ').trim();
         }
     } else {
@@ -315,6 +318,7 @@ export const bookAppointment = async (
         suffix = suffix || patient.suffix;
         finalBookedForBirthday = finalBookedForBirthday || patient.date_of_birth;
         finalBookedForRelationship = finalBookedForRelationship || 'Self';
+        finalPatientSex = finalPatientSex || patient.sex; // Use patient sex for self
         bookedForName = bookedForName || patient.full_name;
     }
 
@@ -408,6 +412,12 @@ export const bookAppointment = async (
                 patient_confirmed: true,
                 confirmed_at: new Date().toISOString(),
                 notes: notes, // ✅ Save patient note
+
+                // ✅ NEW: Identity Snapshot fields
+                patient_birthday: finalBookedForBirthday,
+                patient_sex: finalPatientSex,
+                patient_relationship: finalBookedForRelationship,
+                booked_by_user_id: patientId, // The primary user who is booking
             })
             .select(
                 `
@@ -547,6 +557,12 @@ export const bookAppointment = async (
             patient_confirmed: true,
             confirmed_at: new Date().toISOString(),
             notes: notes, // ✅ Save patient note
+
+            // ✅ NEW: Identity Snapshot fields
+            patient_birthday: finalBookedForBirthday,
+            patient_sex: finalPatientSex,
+            patient_relationship: finalBookedForRelationship,
+            booked_by_user_id: patientId, // The primary user who is booking
         })
         .select(
             `
