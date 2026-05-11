@@ -115,7 +115,7 @@ const OTPStep = ({ email, onVerify, onResend, isVerifying, error, onReset, resen
                     <div className="w-16 h-16 bg-brand-50 dark:bg-brand-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-theme-sm border border-brand-100 dark:border-brand-500/20">
                         <Mail size={24} className="text-brand-600 dark:text-brand-400" />
                     </div>
-                    <h2 className="text-[19px] sm:text-[22px] font-bold text-gray-900 dark:text-white mb-2 tracking-tight">Verify Your Email</h2>
+                    <h2 className="text-lg sm:text-[22px] font-bold text-gray-900 dark:text-white mb-2 tracking-tight">Verify Your Email</h2>
                     <p className="text-[14px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed max-w-[320px] mx-auto">
                         We sent a 6-digit code to <span className="bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 px-1.5 py-0.5 rounded-md font-bold break-all">{email}</span>. Please enter it below to finalize your booking.
                     </p>

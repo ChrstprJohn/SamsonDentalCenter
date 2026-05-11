@@ -156,6 +156,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
 
     const prevStep = () => {
         if (step > 0) {
+            setError(null);
             const nextIdx = step - 1;
             // ✅ Reset states when going back to Service step
             if (nextIdx === 0) {
@@ -181,6 +182,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
     // Issue #3: Only allow going back to completed steps
     const goToStep = (index) => {
         if (index < step) {
+            setError(null);
             // ✅ Reset states when navigating back to Service step via breadcrumbs
             if (index === 0) {
                 slotHold.releaseHold();

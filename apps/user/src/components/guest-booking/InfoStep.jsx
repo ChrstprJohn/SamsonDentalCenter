@@ -192,7 +192,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-6 sm:pb-4">
             {/* Header Section */}
             <div className='mb-6 sm:mb-8'>
-                <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
+                <h2 className='text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
                     Patient Details
                 </h2>
                 <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium'>
@@ -404,23 +404,24 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         <div className='mt-6 bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 rounded-2xl p-5 sm:p-6 animate-in slide-in-from-bottom-4 duration-500'>
                             <div className="flex flex-col gap-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
-                                        <Mail size={20} />
+                                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
+                                        <Mail size={18} className="sm:hidden" />
+                                        <Mail size={20} className="hidden sm:block" />
                                     </div>
-                                    <h4 className="text-[13px] sm:text-base font-black text-gray-900 dark:text-white tracking-tight">
+                                    <h4 className="text-[12px] sm:text-base font-black text-gray-900 dark:text-white tracking-tight">
                                         Verify Your Email
                                     </h4>
                                 </div>
                                 <ul className="space-y-3">
                                     <li className="flex items-start gap-2.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
-                                        <p className="text-[12px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-1.5 shrink-0" />
+                                        <p className="text-[11px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                             This email is our <strong className="text-brand-600 dark:text-brand-400">only way</strong> to send your confirmation and status updates.
                                         </p>
                                     </li>
                                     <li className="flex items-start gap-2.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
-                                        <p className="text-[12px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-1.5 shrink-0" />
+                                        <p className="text-[11px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                             Please double-check <strong className="text-brand-600 dark:text-brand-400 break-all">{formData.email || 'your email'}</strong> before proceeding.
                                         </p>
                                     </li>
@@ -441,9 +442,9 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             className="w-4 h-4 sm:w-6 sm:h-6 rounded-lg border-gray-300 text-brand-500 focus:ring-brand-500/20 cursor-pointer transition-all"
                         />
                     </div>
-                    <label htmlFor="terms" className="text-[13px] sm:text-[14px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed cursor-pointer select-none">
+                    <label htmlFor="terms" className="text-[12px] sm:text-[14px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed cursor-pointer select-none">
                         I agree to the <a href="/terms-of-service" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Terms of Service</a> and <a href="/privacy-policy" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Privacy Policy</a>.
-                        <span className="block mt-1 text-[10px] sm:text-[12px] opacity-60 font-normal italic leading-snug">
+                        <span className="block mt-1 text-[9px] sm:text-[12px] opacity-60 font-normal italic leading-snug">
                             I understand my data will be handled securely per clinic policy.
                         </span>
                     </label>

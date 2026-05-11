@@ -28,7 +28,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
     return (
         <div className="pb-10 sm:pb-6">
             <div className='mb-8 sm:mb-10'>
-                <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
+                <h2 className='text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
                     Choose Service
                 </h2>
                 <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed'>
@@ -125,10 +125,10 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
                     <button
                         onClick={onNext}
                         disabled={!selectedServiceId}
-                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-4 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-[11px] sm:text-lg'
+                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-4 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2.5 text-[11px] sm:text-base'
                     >
                         Continue to Date & Time
-                        <ArrowRight size={18} className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <ArrowRight size={18} className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                     </button>
                 </div>
             </div>

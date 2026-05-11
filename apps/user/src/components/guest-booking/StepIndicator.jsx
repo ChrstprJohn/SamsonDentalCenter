@@ -41,7 +41,7 @@ const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) =
 
                             {/* Label: Under on Mobile, Right on Desktop */}
                             <span
-                                className={`text-[9px] sm:text-[14px] font-black tracking-tight whitespace-nowrap transition-colors text-center sm:text-left ${
+                                className={`text-[10px] sm:text-[14px] font-black tracking-tight whitespace-nowrap transition-colors text-center sm:text-left ${
                                     isActive
                                         ? (label === 'Success' ? 'text-red-500' : 'text-gray-900 dark:text-white')
                                         : isCompleted

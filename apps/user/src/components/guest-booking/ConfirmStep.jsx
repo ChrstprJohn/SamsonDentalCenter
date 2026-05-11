@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, User, Mail, Phone, Stethoscope, ShieldCheck, MailWarning, Edit2, ArrowRight, Info } from 'lucide-react';
+import { Calendar, Clock, User, Mail, Phone, Stethoscope, AlertCircle, ShieldCheck, MailWarning, Edit2, ArrowRight, Info } from 'lucide-react';
 
 const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, error, clinicPhone }) => {
     // ✅ Phase 1: Robust Auto-scroll to top on error
@@ -66,21 +66,26 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
     };
 
     const ReviewSection = ({ title, children, onEditClick }) => (
-        <div className="p-4 border border-gray-200 rounded-2xl dark:border-gray-800 sm:p-6 mb-5 overflow-hidden">
-            <div className="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-gray-100 dark:border-gray-800/80 lg:mb-6 lg:pb-6">
-                <h4 className="text-sm sm:text-lg font-bold text-gray-800 dark:text-white/90 truncate min-w-0 tracking-tight">
-                    {title}
-                </h4>
-                <button
-                    onClick={onEditClick}
-                    className="flex items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-5 py-2 text-[12px] sm:text-sm font-bold text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 transition-all shrink-0 active:scale-95"
-                >
-                    <Edit2 size={12} className="text-gray-500" />
-                    Edit
-                </button>
-            </div>
-            <div className="w-full min-w-0">
-                {children}
+        <div className="group mb-6 sm:mb-8">
+            <div className="p-5 sm:p-8 bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800/50 rounded-[28px] sm:rounded-[36px] shadow-theme-xs transition-all hover:shadow-theme-sm group-hover:border-brand-100/50 dark:group-hover:border-brand-500/10">
+                <div className="flex items-center justify-between mb-5 sm:mb-6 pb-4 sm:pb-5 border-b border-gray-50 dark:border-gray-800/50">
+                    <h3 className="text-[10px] sm:text-[12px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.15em] flex items-center gap-2">
+                        <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-brand-500"></div>
+                        {title}
+                    </h3>
+                    {onEditClick && (
+                        <button
+                            onClick={onEditClick}
+                            className="flex items-center justify-center gap-1.5 sm:gap-2 rounded-full border border-gray-200 bg-white dark:bg-gray-800 px-3 py-1.5 sm:px-5 sm:py-2 text-[10px] sm:text-sm font-bold text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-white/[0.03] transition-all shadow-theme-xs active:scale-95 shrink-0"
+                        >
+                            <Edit2 size={11} className="text-gray-400 sm:w-3.5 sm:h-3.5" />
+                            Edit
+                        </button>
+                    )}
+                </div>
+                <div className="w-full min-w-0">
+                    {children}
+                </div>
             </div>
         </div>
     );
@@ -89,7 +94,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-10 sm:pb-6">
             {/* Header Section */}
             <div className='mb-6 sm:mb-8'>
-                <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
+                <h2 className='text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
                     Review Your Appointment Details
                 </h2>
                 <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium'>
@@ -98,79 +103,62 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
             </div>
 
             {error && (
-                <div className='group relative overflow-hidden bg-white dark:bg-red-950/20 border-2 border-red-500/30 dark:border-red-500/20 rounded-3xl p-6 mb-8 animate-in shake duration-500 shadow-2xl shadow-red-500/10'>
-                    {/* Decorative Background Pattern */}
-                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-red-500/5 rounded-full blur-2xl group-hover:bg-red-500/10 transition-colors" />
-                    
-                    <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-red-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-red-500/30">
-                            <ShieldCheck size={28} strokeWidth={2.5} />
+                <div className='bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-4 sm:p-5 mb-8 animate-in shake duration-500 shadow-sm'>
+                    <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+                            <AlertCircle size={18} className="sm:hidden" />
+                            <AlertCircle size={20} className="hidden sm:block" />
                         </div>
                         
-                        <div className="flex-1 text-center sm:text-left">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                                <h3 className="text-lg font-black text-red-600 dark:text-red-400 tracking-tight">
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                                <h3 className="text-[13px] sm:text-base font-black text-red-600 dark:text-red-400 truncate">
                                     {error.includes('limited to 3 active bookings') ? 'Booking Limit Reached' : 
-                                     error.includes('already scheduled for this email on the selected date') ? 'Duplicate Booking Detected' :
-                                     error.includes('This time overlaps with another booking') ? 'Scheduling Conflict' :
-                                     'Booking Blocked'}
+                                     error.includes('already scheduled for this email on the selected date') ? 'Duplicate Appointment' :
+                                     error.includes('This time overlaps with another booking') ? 'Time Conflict' :
+                                     'Booking Restricted'}
                                 </h3>
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50 w-fit mx-auto sm:mx-0">
-                                    Security Notice
+                                <span className="px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50 uppercase tracking-tighter shrink-0">
+                                    Notice
                                 </span>
                             </div>
                             
                             {error.includes('limited to 3 active bookings') ? (
-                                <>
-                                    <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-bold">
-                                        To maintain a fair scheduling system, each email is limited to 3 active bookings (Pending or Confirmed).
+                                <div className="space-y-1">
+                                    <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
+                                        Each email is limited to 3 active appointments to ensure fair scheduling.
                                     </p>
-                                    <div className="mt-4 space-y-3">
-                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                            Our records show that <span className="text-brand-600 dark:text-brand-400 font-bold underline">{formData.email}</span> already has 3 upcoming appointments.
-                                        </p>
-                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                            If you need to schedule additional family members, or if you believe this is an error, please contact the clinic directly at <span className="text-gray-900 dark:text-white font-black">{clinicPhone}</span> so our staff can assist you manually.
-                                        </p>
-                                    </div>
-                                </>
+                                    <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                        Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
+                                    </p>
+                                </div>
                             ) : error.includes('already scheduled for this email on the selected date') ? (
-                                <>
-                                    <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-bold">
-                                        An appointment for this treatment is already scheduled for this date.
+                                <div className="space-y-1">
+                                    <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
+                                        You already have this treatment scheduled for this day under <span className="text-brand-600 dark:text-brand-400 underline decoration-brand-500/30">{formData.email}</span>.
                                     </p>
-                                    <div className="mt-4 space-y-3">
-                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                            Our system prevents multiple bookings for the same treatment on the same day under <span className="text-brand-600 dark:text-brand-400 font-bold underline">{formData.email}</span>.
-                                        </p>
-                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                            If you need to change your time or book for a second person using this email, please contact the clinic directly at <span className="text-gray-900 dark:text-white font-black">{clinicPhone}</span> so our staff can assist you manually.
-                                        </p>
-                                    </div>
-                                </>
+                                    <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                        Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
+                                    </p>
+                                </div>
                             ) : error.includes('This time overlaps with another booking') ? (
-                                <>
-                                    <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-bold">
-                                        This time slot overlaps with another appointment.
+                                <div className="space-y-1">
+                                    <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
+                                        This slot overlaps with an existing appointment for <span className="text-brand-600 dark:text-brand-400 underline decoration-brand-500/30">{formData.email}</span>.
                                     </p>
-                                    <div className="mt-4 space-y-3">
-                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                            Our records show that <span className="text-brand-600 dark:text-brand-400 font-bold underline">{formData.email}</span> already has an appointment scheduled during or near this time.
-                                        </p>
-                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                            To avoid double-booking, please select a different time or contact us at <span className="text-gray-900 dark:text-white font-black">{clinicPhone}</span> for assistance.
-                                        </p>
-                                    </div>
-                                </>
+                                    <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                        Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
+                                    </p>
+                                </div>
                             ) : (
-                                <>
-                                    <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-bold">
-                                        {error}
+                                <div className="space-y-1">
+                                    <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
+                                        For security, we limit the number of active bookings per guest account.
                                     </p>
-                                    <p className="mt-3 text-[12px] text-gray-500 dark:text-gray-400 font-medium">
-                                        To protect our scheduling system, we enforce strict limits on guest accounts. If you believe this is an error, please reach out to us directly.
+                                    <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                        Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
                                     </p>
-                                </>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -182,18 +170,18 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                 <ReviewSection title="Service Selection" onEditClick={() => onEdit(0)}>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
                         <div>
-                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="mb-1 text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Selected Treatment
                             </p>
-                            <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
                                 {formData.service_name || 'No service selected'}
                             </p>
                         </div>
                         <div>
-                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="mb-1 text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Duration
                             </p>
-                            <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
                                 {formData.service_duration ? `${formData.service_duration} mins` : '-'}
                             </p>
                         </div>
@@ -204,18 +192,18 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                 <ReviewSection title="Date & Time" onEditClick={() => onEdit(1)}>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
                         <div>
-                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Appointment Date
                             </p>
-                            <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
                                 {formatDate(formData.date)}
                             </p>
                         </div>
                         <div>
-                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Selected Timeslot
                             </p>
-                            <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
                                 {formatTimeRange(formData.time, formData.service_duration)}
                             </p>
                         </div>
@@ -226,34 +214,34 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                 <ReviewSection title="Your Information" onEditClick={() => onEdit(2)}>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
                         <div className="min-w-0">
-                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 font-bold">
+                            <p className="mb-1 text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none font-bold">
                                 Full Name
                             </p>
-                            <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white truncate">
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white break-words leading-tight">
                                 {formData.first_name ? `${formData.last_name}, ${formData.first_name} ${formData.middle_name || ''} ${formData.suffix_name || ''}`.replace(/\s+/g, ' ').trim() : (formData.full_name || '—')}
                             </p>
                         </div>
                         <div className="min-w-0">
-                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 font-bold">
+                            <p className="mb-1 text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none font-bold">
                                 Email Address
                             </p>
-                            <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white break-all leading-tight">
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white break-all leading-tight">
                                 {formData.email}
                             </p>
                         </div>
                         <div className="min-w-0">
-                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Phone Number
                             </p>
-                            <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
                                 {formData.phone}
                             </p>
                         </div>
                         <div className="min-w-0">
-                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Birthday
                             </p>
-                            <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
                                 {formData.birthday ? formatDate(formData.birthday) : '—'}
                             </p>
                         </div>
@@ -263,10 +251,10 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                 {/* 4. Additional Notes */}
                 <ReviewSection title="Additional Notes" onEditClick={() => onEdit(2)}>
                     <div className="min-w-0">
-                        <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                        <p className="mb-1 text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                             Note for the Clinic
                         </p>
-                        <p className={`text-[13px] sm:text-base font-bold leading-relaxed ${formData.patient_note ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600 italic font-medium'}`}>
+                        <p className={`text-[14px] sm:text-base font-bold leading-relaxed break-words whitespace-pre-wrap ${formData.patient_note ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600 italic font-medium'}`}>
                             {formData.patient_note || 'No additional notes provided'}
                         </p>
                     </div>

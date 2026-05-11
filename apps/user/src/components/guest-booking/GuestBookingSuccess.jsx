@@ -56,7 +56,7 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
                         <Check className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={4} />
                     </div>
                 </div>
-                <h2 className='text-xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-2 sm:mb-3'>
+                <h2 className='text-lg sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-2 sm:mb-3'>
                     Thank you for choosing Us!
                 </h2>
                 <p className='text-[12px] sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium max-w-sm mx-auto px-2'>
