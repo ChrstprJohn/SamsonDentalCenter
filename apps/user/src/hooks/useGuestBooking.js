@@ -52,6 +52,7 @@ const DEFAULT_FORM_DATA = {
     email: '',
     phone: '',
     dentist_id: '',
+    dentist_name: '',
     service_tier: '',
     patient_note: '',
     birthday: '', // ✅ NEW: Guest birthday
@@ -172,6 +173,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                     email: '',
                     phone: '',
                     dentist_id: '',
+                    dentist_name: '',
                     patient_note: '',
                     birthday: '',
                     agreed_to_terms: false,
@@ -200,6 +202,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                     email: '',
                     phone: '',
                     dentist_id: '',
+                    dentist_name: '',
                     patient_note: '',
                     birthday: '',
                     agreed_to_terms: false,
@@ -402,6 +405,8 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
             service_tier: '', // Total reset
             patient_note: '',
             birthday: '',
+            dentist_id: '',
+            dentist_name: '',
         });
         setError(null);
         setSubmitting(false);

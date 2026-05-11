@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, User, Mail, Phone, Stethoscope, AlertCircle, ShieldCheck, MailWarning, Edit2, ArrowRight, Info } from 'lucide-react';
+import { ArrowRight, ChevronLeft, Calendar, Clock, Edit2, CheckCircle2, ShieldCheck, Mail, Loader2, Info, AlertCircle, ClipboardList, CalendarDays, UserRound, StickyNote, UserCircle, Contact } from 'lucide-react';
 
 const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, error, clinicPhone }) => {
     // ✅ Phase 1: Robust Auto-scroll to top on error
@@ -65,14 +65,16 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
         }
     };
 
-    const ReviewSection = ({ title, children, onEditClick }) => (
-        <div className="group mb-6 sm:mb-8">
-            <div className="p-5 sm:p-8 bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800/50 rounded-[28px] sm:rounded-[36px] shadow-theme-xs transition-all hover:shadow-theme-sm group-hover:border-brand-100/50 dark:group-hover:border-brand-500/10">
-                <div className="flex items-center justify-between mb-5 sm:mb-6 pb-4 sm:pb-5 border-b border-gray-50 dark:border-gray-800/50">
-                    <h3 className="text-[10px] sm:text-[12px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.15em] flex items-center gap-2">
-                        <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-brand-500"></div>
-                        {title}
-                    </h3>
+    const ReviewSection = ({ title, children, onEditClick, icon: Icon }) => (
+        <div className="mb-6 sm:mb-8">
+            <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md overflow-hidden">
+                <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-gray-100 dark:border-gray-800/50">
+                    <div className="flex items-center gap-3">
+                        {Icon && <Icon size={18} className="text-brand-500" />}
+                        <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">
+                            {title}
+                        </h3>
+                    </div>
                     {onEditClick && (
                         <button
                             onClick={onEditClick}
@@ -83,7 +85,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                         </button>
                     )}
                 </div>
-                <div className="w-full min-w-0">
+                <div className="px-5 py-6 sm:px-10 sm:py-8">
                     {children}
                 </div>
             </div>
@@ -167,10 +169,10 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
 
             <div className='w-full space-y-6'>
                 {/* 1. Service Selection */}
-                <ReviewSection title="Service Selection" onEditClick={() => onEdit(0)}>
+                <ReviewSection title="Service Selection" icon={ClipboardList} onEditClick={() => onEdit(0)}>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
                         <div>
-                            <p className="mb-1 text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Selected Treatment
                             </p>
                             <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
@@ -178,7 +180,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                             </p>
                         </div>
                         <div>
-                            <p className="mb-1 text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Duration
                             </p>
                             <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
@@ -189,32 +191,51 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                 </ReviewSection>
 
                 {/* 2. Date & Time */}
-                <ReviewSection title="Date & Time" onEditClick={() => onEdit(1)}>
-                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
-                        <div>
-                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
-                                Appointment Date
-                            </p>
-                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
-                                {formatDate(formData.date)}
-                            </p>
+                <ReviewSection title="Schedule Details" icon={CalendarDays} onEditClick={() => onEdit(1)}>
+                    <div className="grid grid-cols-1 gap-6 sm:gap-7">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-7">
+                            <div>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                    Appointment Date
+                                </p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
+                                    {formatDate(formData.date)}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                    Timeslot
+                                </p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
+                                    {formatTimeRange(formData.time, formData.service_duration)}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
-                                Selected Timeslot
+
+                        <div className="pt-5 border-t border-gray-50 dark:border-gray-800/50">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1.5 leading-none">
+                                Selected Dentist
                             </p>
-                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
-                                {formatTimeRange(formData.time, formData.service_duration)}
-                            </p>
+                            <div className="text-[14px] sm:text-base font-bold">
+                                {!formData.dentist_id ? (
+                                    <span className="text-gray-400 dark:text-gray-500 italic font-medium">
+                                        Any Available Dentist
+                                    </span>
+                                ) : (
+                                    <span className="text-brand-600 dark:text-brand-400">
+                                        {formData.dentist_name || 'Selected Specialist'}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </ReviewSection>
 
-                {/* 3. Your Information */}
-                <ReviewSection title="Your Information" onEditClick={() => onEdit(2)}>
+                {/* 3. Personal Details */}
+                <ReviewSection title="Personal Details" icon={UserCircle} onEditClick={() => onEdit(2)}>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
                         <div className="min-w-0">
-                            <p className="mb-1 text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none font-bold">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Full Name
                             </p>
                             <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white break-words leading-tight">
@@ -222,23 +243,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                             </p>
                         </div>
                         <div className="min-w-0">
-                            <p className="mb-1 text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none font-bold">
-                                Email Address
-                            </p>
-                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white break-all leading-tight">
-                                {formData.email}
-                            </p>
-                        </div>
-                        <div className="min-w-0">
-                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
-                                Phone Number
-                            </p>
-                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
-                                {formData.phone}
-                            </p>
-                        </div>
-                        <div className="min-w-0">
-                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Birthday
                             </p>
                             <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
@@ -248,10 +253,32 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                     </div>
                 </ReviewSection>
 
+                {/* 4. Contact Details */}
+                <ReviewSection title="Contact Details" icon={Contact} onEditClick={() => onEdit(2)}>
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+                        <div className="min-w-0">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                Email Address
+                            </p>
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white break-all leading-tight">
+                                {formData.email}
+                            </p>
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                Phone Number
+                            </p>
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
+                                {formData.phone}
+                            </p>
+                        </div>
+                    </div>
+                </ReviewSection>
+
                 {/* 4. Additional Notes */}
-                <ReviewSection title="Additional Notes" onEditClick={() => onEdit(2)}>
+                <ReviewSection title="Additional Notes" icon={StickyNote} onEditClick={() => onEdit(2)}>
                     <div className="min-w-0">
-                        <p className="mb-1 text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                        <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                             Note for the Clinic
                         </p>
                         <p className={`text-[14px] sm:text-base font-bold leading-relaxed break-words whitespace-pre-wrap ${formData.patient_note ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600 italic font-medium'}`}>

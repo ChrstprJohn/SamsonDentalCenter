@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, UserCircle, Contact, Info, ChevronDown, X, Mail, Check, Calendar, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowRight, UserCircle, Contact, Info, ChevronDown, X, Mail, Check, Calendar, Clock, CheckCircle2, AlertCircle, StickyNote } from 'lucide-react';
 
 const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     const [errors, setErrors] = useState({});
@@ -202,252 +202,237 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
 
 
 
-            {/* Premium Card - Full-width stretched container */}
-            <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-theme-sm overflow-hidden'>
+            {/* Section 1: Personal Details */}
+            <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md mb-6 sm:mb-8 overflow-hidden'>
+                <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
+                    <UserCircle size={18} className="text-brand-500" />
+                    <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Personal Details</h3>
+                </div>
 
-                {/* Section: Personal Details */}
-                <section>
-                    {/* Header with icon and title */}
-                    <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
-                        <UserCircle size={18} className="text-brand-500" />
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Personal Details</h3>
-                    </div>
+                <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                        {/* Last Name */}
+                        <div>
+                            <label className={labelClasses}>Last Name <span className='text-brand-500'>*</span></label>
+                            <input
+                                id="field-last"
+                                type='text'
+                                value={nameParts.last}
+                                onChange={(e) => handleNamePartChange('last', e.target.value)}
+                                placeholder='Dela Cruz'
+                                className={getInputClasses(errors.last)}
+                            />
+                            {errors.last && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.last}</p>}
+                        </div>
 
-                    <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                            {/* Last Name */}
-                            <div>
-                                <label className={labelClasses}>Last Name <span className='text-brand-500'>*</span></label>
-                                <input
-                                    id="field-last"
-                                    type='text'
-                                    value={nameParts.last}
-                                    onChange={(e) => handleNamePartChange('last', e.target.value)}
-                                    placeholder='Dela Cruz'
-                                    className={getInputClasses(errors.last)}
-                                />
-                                {errors.last && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.last}</p>}
-                            </div>
+                        {/* First Name */}
+                        <div>
+                            <label className={labelClasses}>First Name <span className='text-brand-500'>*</span></label>
+                            <input
+                                id="field-first"
+                                type='text'
+                                value={nameParts.first}
+                                onChange={(e) => handleNamePartChange('first', e.target.value)}
+                                placeholder='Juan'
+                                className={getInputClasses(errors.first)}
+                            />
+                            {errors.first && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.first}</p>}
+                        </div>
 
-                            {/* First Name */}
-                            <div>
-                                <label className={labelClasses}>First Name <span className='text-brand-500'>*</span></label>
-                                <input
-                                    id="field-first"
-                                    type='text'
-                                    value={nameParts.first}
-                                    onChange={(e) => handleNamePartChange('first', e.target.value)}
-                                    placeholder='Juan'
-                                    className={getInputClasses(errors.first)}
-                                />
-                                {errors.first && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.first}</p>}
-                            </div>
+                        {/* Date of Birth */}
+                        <div>
+                            <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
+                            <input
+                                id="field-birthday"
+                                type='date'
+                                value={formData.birthday || ''}
+                                onChange={(e) => handleFieldChange('birthday', e.target.value)}
+                                onClick={(e) => {
+                                    try {
+                                        e.target.showPicker();
+                                    } catch (err) {
+                                        // Fallback for browsers that don't support showPicker()
+                                    }
+                                }}
+                                className={getInputClasses(errors.birthday)}
+                                max={new Date().toISOString().split('T')[0]}
+                            />
+                            {errors.birthday && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.birthday}</p>}
+                        </div>
 
-                            {/* Date of Birth */}
-                            <div>
-                                <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
-                                    <input
-                                        id="field-birthday"
-                                        type='date'
-                                        value={formData.birthday || ''}
-                                        onChange={(e) => handleFieldChange('birthday', e.target.value)}
-                                        onClick={(e) => {
-                                            try {
-                                                e.target.showPicker();
-                                            } catch (err) {
-                                                // Fallback for browsers that don't support showPicker()
+                        {/* Middle Name */}
+                        <div>
+                            <label className={labelClasses}>Middle Name <span className="opacity-40 font-normal italic">(optional)</span></label>
+                            <input
+                                type='text'
+                                value={nameParts.middle}
+                                onChange={(e) => handleNamePartChange('middle', e.target.value)}
+                                placeholder='Santos'
+                                className={getInputClasses(errors.middle)}
+                            />
+                            {errors.middle && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.middle}</p>}
+                        </div>
+
+                        {/* Suffix */}
+                        <div>
+                            <label className={labelClasses}>Suffix <span className="opacity-40 font-normal italic">(optional)</span></label>
+                            {!showCustomSuffix ? (
+                                <div className="relative group/suffix">
+                                    <select
+                                        value={commonSuffixes.includes(nameParts.suffix) ? nameParts.suffix : ''}
+                                        onChange={(e) => {
+                                            if (e.target.value === 'Other') {
+                                                setShowCustomSuffix(true);
+                                                handleNamePartChange('suffix', '');
+                                            } else {
+                                                handleNamePartChange('suffix', e.target.value);
                                             }
                                         }}
-                                        className={getInputClasses(errors.birthday)}
-                                        max={new Date().toISOString().split('T')[0]}
-                                    />
-                                {errors.birthday && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.birthday}</p>}
-                            </div>
-
-                            {/* Middle Name */}
-                            <div>
-                                <label className={labelClasses}>Middle Name <span className="opacity-40 font-normal italic">(optional)</span></label>
-                                <input
-                                    type='text'
-                                    value={nameParts.middle}
-                                    onChange={(e) => handleNamePartChange('middle', e.target.value)}
-                                    placeholder='Santos'
-                                    className={getInputClasses(errors.middle)}
-                                />
-                                {errors.middle && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.middle}</p>}
-                            </div>
-
-                            {/* Suffix */}                            <div>
-                                <label className={labelClasses}>Suffix <span className="opacity-40 font-normal italic">(optional)</span></label>
-                                {!showCustomSuffix ? (
-                                    <div className="relative group/suffix">
-                                        <select
-                                            value={commonSuffixes.includes(nameParts.suffix) ? nameParts.suffix : ''}
-                                            onChange={(e) => {
-                                                if (e.target.value === 'Other') {
-                                                    setShowCustomSuffix(true);
-                                                    handleNamePartChange('suffix', '');
-                                                } else {
-                                                    handleNamePartChange('suffix', e.target.value);
-                                                }
-                                            }}
-                                            className={`${getInputClasses()} cursor-pointer pr-10`}
-                                        >
-                                            <option value="">None</option>
-                                            <option value="Jr.">Jr.</option>
-                                            <option value="Sr.">Sr.</option>
-                                            <option value="II">II</option>
-                                            <option value="III">III</option>
-                                            <option value="IV">IV</option>
-                                            <option value="Other">Other...</option>
-                                        </select>
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover/suffix:text-brand-500 transition-colors">
-                                            <ChevronDown size={18} />
-                                        </div>
+                                        className={`${getInputClasses()} cursor-pointer pr-10`}
+                                    >
+                                        <option value="">None</option>
+                                        <option value="Jr.">Jr.</option>
+                                        <option value="Sr.">Sr.</option>
+                                        <option value="II">II</option>
+                                        <option value="III">III</option>
+                                        <option value="IV">IV</option>
+                                        <option value="Other">Other...</option>
+                                    </select>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover/suffix:text-brand-500 transition-colors">
+                                        <ChevronDown size={18} />
                                     </div>
-                                ) : (
-                                    <div className="relative animate-in slide-in-from-left-2 duration-300">
-                                        <input
-                                            type='text'
-                                            value={nameParts.suffix}
-                                            onChange={(e) => handleNamePartChange('suffix', e.target.value)}
-                                            placeholder='e.g. PhD, Ret.'
-                                            autoFocus
-                                            className={getInputClasses()}
-                                        />
-                                        <button
-                                            onClick={() => { setShowCustomSuffix(false); handleNamePartChange('suffix', ''); }}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded-md text-[10px] font-black text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors uppercase tracking-tight"
-                                        >
-                                            Reset
-                                        </button>
+                                </div>
+                            ) : (
+                                <div className="relative animate-in slide-in-from-left-2 duration-300">
+                                    <input
+                                        type='text'
+                                        value={nameParts.suffix}
+                                        onChange={(e) => handleNamePartChange('suffix', e.target.value)}
+                                        placeholder='e.g. PhD, Ret.'
+                                        autoFocus
+                                        className={getInputClasses()}
+                                    />
+                                    <button
+                                        onClick={() => { setShowCustomSuffix(false); handleNamePartChange('suffix', ''); }}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded-md text-[10px] font-black text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors uppercase tracking-tight"
+                                    >
+                                        Reset
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Section 2: Contact Details */}
+            <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md mb-6 sm:mb-8 overflow-hidden'>
+                <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
+                    <Contact size={18} className="text-brand-500" />
+                    <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Contact Details</h3>
+                </div>
+
+                <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                        {/* Email Address */}
+                        <div>
+                            <label className={labelClasses}>Email address <span className='text-brand-500'>*</span></label>
+                            <div className="relative">
+                                <input
+                                    id="field-email"
+                                    type='email'
+                                    value={formData.email}
+                                    onChange={(e) => handleFieldChange('email', e.target.value)}
+                                    placeholder='juan@email.com'
+                                    className={`${getInputClasses(errors.email)} ${formData.email ? (isValidEmail(formData.email) ? 'pr-10' : 'pr-10') : ''}`}
+                                />
+                                {formData.email && (
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+                                        {isValidEmail(formData.email) ? (
+                                            <CheckCircle2 size={16} className="text-green-500 animate-in zoom-in duration-300" />
+                                        ) : (
+                                            <AlertCircle size={16} className="text-amber-500 animate-in zoom-in duration-300" />
+                                        )}
                                     </div>
                                 )}
                             </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Section: Contact Information */}
-                <section className="border-t border-gray-100 dark:border-gray-800/50">
-                    {/* Header with icon and title */}
-                    <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
-                        <Contact size={18} className="text-brand-500" />
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Contact Details</h3>
-                    </div>
-
-                    <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                            {/* Email Address */}
-                            <div>
-                                <label className={labelClasses}>Email address <span className='text-brand-500'>*</span></label>
-                                <div className="relative">
-                                    <input
-                                        id="field-email"
-                                        type='email'
-                                        value={formData.email}
-                                        onChange={(e) => handleFieldChange('email', e.target.value)}
-                                        placeholder='juan@email.com'
-                                        className={`${getInputClasses(errors.email)} ${formData.email ? (isValidEmail(formData.email) ? 'pr-10' : 'pr-10') : ''}`}
-                                    />
-                                    {formData.email && (
-                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
-                                            {isValidEmail(formData.email) ? (
-                                                <CheckCircle2 size={16} className="text-green-500 animate-in zoom-in duration-300" />
-                                            ) : (
-                                                <AlertCircle size={16} className="text-amber-500 animate-in zoom-in duration-300" />
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                                {errors.email && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.email}</p>}
-                            </div>
-
-                            {/* Phone Number */}
-                            <div>
-                                <label className={labelClasses}>Phone Number <span className='text-brand-500'>*</span></label>
-                                <div className="relative">
-                                    <input
-                                        id="field-phone"
-                                        type='tel'
-                                        value={formData.phone}
-                                        onChange={(e) => handleFieldChange('phone', e.target.value)}
-                                        placeholder='09XX XXXX XXXX'
-                                        maxLength={13} // 11 digits + 2 spaces
-                                        className={`${getInputClasses(errors.phone)} pr-20`}
-                                    />
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                                        <span className="text-[10px] font-black text-gray-400">PH (+63)</span>
-                                    </div>
-                                </div>
-                                {errors.phone && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.phone}</p>}
-                            </div>
+                            {errors.email && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.email}</p>}
                         </div>
 
-                        {/* Section: Additional Notes */}
-                        <div className="pt-2">
-                            <div className="flex justify-between items-end mb-1">
-                                <label className={labelClasses}>Note for the clinic <span className="opacity-40 font-normal italic">(optional)</span></label>
-                                <span className={`text-[10px] font-bold ${formData.patient_note?.length >= 100 ? 'text-error-500' : 'text-gray-400'}`}>
-                                    {formData.patient_note?.length || 0} / 100
-                                </span>
+                        {/* Phone Number */}
+                        <div>
+                            <label className={labelClasses}>Phone Number <span className='text-brand-500'>*</span></label>
+                            <div className="relative">
+                                <input
+                                    id="field-phone"
+                                    type='tel'
+                                    value={formData.phone}
+                                    onChange={(e) => handleFieldChange('phone', e.target.value)}
+                                    placeholder='09XX XXXX XXXX'
+                                    maxLength={13} // 11 digits + 2 spaces
+                                    className={`${getInputClasses(errors.phone)} pr-20`}
+                                />
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                    <span className="text-[10px] font-black text-gray-400">PH (+63)</span>
+                                </div>
                             </div>
-                            <textarea
-                                value={formData.patient_note || ''}
-                                onChange={(e) => handleFieldChange('patient_note', e.target.value)}
-                                placeholder="Any special requests?"
-                                maxLength={100}
-                                className={`${getInputClasses()} min-h-[80px] py-2 resize-none`}
+                            {errors.phone && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.phone}</p>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Section 3: Additional Notes */}
+            <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md mb-6 sm:mb-8 overflow-hidden'>
+                <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
+                    <StickyNote size={18} className="text-brand-500" />
+                    <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Additional Notes</h3>
+                </div>
+
+                <div className="px-5 py-6 sm:px-10 sm:py-8">
+                    <div className="flex flex-row items-baseline justify-between gap-2 mb-3">
+                        <label className={`${labelClasses} mb-0 flex-1 min-w-0`}>
+                            Special Requests <span className="opacity-40 font-normal italic">(Optional)</span>
+                        </label>
+                        <span className={`text-[10px] font-bold shrink-0 tabular-nums ${formData.patient_note?.length >= 100 ? 'text-error-500' : 'text-gray-400'}`}>
+                            {formData.patient_note?.length || 0} / 100
+                        </span>
+                    </div>
+                    <textarea
+                        value={formData.patient_note || ''}
+                        onChange={(e) => handleFieldChange('patient_note', e.target.value)}
+                        placeholder="e.g. Allergies, preferred room, etc."
+                        maxLength={100}
+                        className={`${getInputClasses()} min-h-[80px] py-3 resize-none`}
+                    />
+                </div>
+            </div>
+
+            {/* Section 3: Terms & Agreement */}
+            <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md mb-10 overflow-hidden animate-in slide-in-from-bottom-4 duration-700'>
+                <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
+                    <CheckCircle2 size={18} className="text-brand-500" />
+                    <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Agreement & Privacy</h3>
+                </div>
+
+                <div className="px-5 py-6 sm:px-10 sm:py-8">
+                    <div className='flex items-start gap-4 p-4 sm:p-6 bg-brand-50/30 dark:bg-brand-500/5 rounded-2xl border border-brand-100/50 dark:border-brand-500/10'>
+                        <div className="pt-0.5">
+                            <input
+                                type="checkbox"
+                                id="terms"
+                                checked={formData.agreed_to_terms || false}
+                                onChange={(e) => onUpdate('agreed_to_terms', e.target.checked)}
+                                className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-gray-300 text-brand-500 focus:ring-brand-500/20 cursor-pointer transition-all"
                             />
                         </div>
-                        {/* Verification Email Highlight Banner */}
-                        <div className='mt-6 bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 rounded-2xl p-5 sm:p-6 animate-in slide-in-from-bottom-4 duration-500'>
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
-                                        <Mail size={18} className="sm:hidden" />
-                                        <Mail size={20} className="hidden sm:block" />
-                                    </div>
-                                    <h4 className="text-[12px] sm:text-base font-black text-gray-900 dark:text-white tracking-tight">
-                                        Verify Your Email
-                                    </h4>
-                                </div>
-                                <ul className="space-y-3">
-                                    <li className="flex items-start gap-2.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-1.5 shrink-0" />
-                                        <p className="text-[11px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                            This email is our <strong className="text-brand-600 dark:text-brand-400">only way</strong> to send your confirmation and status updates.
-                                        </p>
-                                    </li>
-                                    <li className="flex items-start gap-2.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-1.5 shrink-0" />
-                                        <p className="text-[11px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                            Please double-check <strong className="text-brand-600 dark:text-brand-400 break-all">{formData.email || 'your email'}</strong> before proceeding.
-                                        </p>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+                        <label htmlFor="terms" className="text-[12px] sm:text-[14px] text-gray-700 dark:text-gray-300 font-medium leading-relaxed cursor-pointer select-none">
+                            I agree to the <a href="/terms-of-service" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Terms of Service</a> and <a href="/privacy-policy" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Privacy Policy</a>.
+                            <span className="block mt-1.5 text-[10px] sm:text-[12px] text-gray-500 dark:text-gray-500 font-normal italic leading-snug">
+                                I understand my data will be handled securely per clinic policy.
+                            </span>
+                        </label>
                     </div>
-                </section>
-
-                {/* Terms Checkbox - Now outside the fixed container to avoid crowding on mobile */}
-                <div className='mx-5 sm:mx-10 mb-6 flex items-start gap-3 p-4 sm:p-5 bg-gray-50/50 dark:bg-gray-800/30 rounded-2xl border border-gray-100/80 dark:border-gray-800/50 mt-3 sm:mt-4 animate-in slide-in-from-bottom-4 duration-700'>
-                    <div className="pt-0.5">
-                        <input
-                            type="checkbox"
-                            id="terms"
-                            checked={formData.agreed_to_terms || false}
-                            onChange={(e) => onUpdate('agreed_to_terms', e.target.checked)}
-                            className="w-4 h-4 sm:w-6 sm:h-6 rounded-lg border-gray-300 text-brand-500 focus:ring-brand-500/20 cursor-pointer transition-all"
-                        />
-                    </div>
-                    <label htmlFor="terms" className="text-[12px] sm:text-[14px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed cursor-pointer select-none">
-                        I agree to the <a href="/terms-of-service" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Terms of Service</a> and <a href="/privacy-policy" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Privacy Policy</a>.
-                        <span className="block mt-1 text-[9px] sm:text-[12px] opacity-60 font-normal italic leading-snug">
-                            I understand my data will be handled securely per clinic policy.
-                        </span>
-                    </label>
                 </div>
             </div>
 

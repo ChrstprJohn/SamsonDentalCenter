@@ -113,7 +113,21 @@ const DateTimeStep = ({
                 setSpecialistsError(null);
                 try {
                     const data = await api.get(`/services/${serviceId}/specialists`);
-                    setSpecialists(data.specialists || []);
+                    const loadedSpecialists = data.specialists || [];
+                    setSpecialists(loadedSpecialists);
+
+                    // ✅ Sync dentist name if ID exists but name is missing (e.g., on recovery or refresh)
+                    if (dentistId && !formData?.dentist_name && loadedSpecialists.length > 0) {
+                        const specialist = loadedSpecialists.find(s => s.id === dentistId);
+                        if (specialist) {
+                            const { first_name, last_name, full_name } = specialist.profile || {};
+                            const doctorName = (first_name || last_name)
+                                ? `Dr. ${first_name} ${last_name}`.trim()
+                                : (full_name || 'Selected Dentist');
+                            
+                            onUpdate({ dentist_name: doctorName });
+                        }
+                    }
                 } catch (err) {
                     console.error('Failed to fetch specialists:', err);
                     setSpecialistsError(err.message);
@@ -124,7 +138,7 @@ const DateTimeStep = ({
             fetchSpecialists();
             fetchAvailabilityStatus();
         }
-    }, [serviceId, fetchAvailabilityStatus]);
+    }, [serviceId, fetchAvailabilityStatus, dentistId, formData?.dentist_name]);
 
     const {
         slots,
@@ -166,14 +180,22 @@ const DateTimeStep = ({
     }, [isLoading]);
 
     const handleSpecialistChange = async (id) => {
-        if (isLoading) return; // ✅ Block while loading
+        if (isProcessing) return; // ✅ Block while loading
         const val = id || null;
         
         // Inform user about loading
         const specialist = specialists.find(s => s.id === val);
-        const doctorName = specialist 
-            ? (specialist.profile?.first_name ? `Dr. ${specialist.profile.first_name} ${specialist.profile.last_name}`.trim() : specialist.profile?.full_name) 
-            : 'Any Available Dentist';
+        
+        const getDoctorName = (s) => {
+            if (!s?.profile) return 'Any Available Dentist';
+            const { first_name, last_name, full_name } = s.profile;
+            if (first_name || last_name) {
+                return `Dr. ${first_name} ${last_name}`.trim();
+            }
+            return full_name || 'Selected Dentist';
+        };
+
+        const doctorName = getDoctorName(specialist);
         
         toast.info(`Loading available dates for ${doctorName}...`);
 
@@ -182,12 +204,15 @@ const DateTimeStep = ({
             await releaseHold();
             onUpdate({ 
                 dentist_id: val, 
+                dentist_name: doctorName,
                 date: '', 
                 time: '' 
             });
-            setPendingDate(null);
         } else {
-            onUpdate({ dentist_id: val });
+            onUpdate({ 
+                dentist_id: val,
+                dentist_name: doctorName
+            });
         }
     };
 
