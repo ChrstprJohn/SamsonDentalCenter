@@ -118,7 +118,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                                      error.includes('This time overlaps with another booking') ? 'Time Conflict' :
                                      'Booking Restricted'}
                                 </h3>
-                                <span className="px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50 uppercase tracking-tighter shrink-0">
+                                <span className="px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50 uppercase tracking-tighter shrink-0">
                                     Notice
                                 </span>
                             </div>

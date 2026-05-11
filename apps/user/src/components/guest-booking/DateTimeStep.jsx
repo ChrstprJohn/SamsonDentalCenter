@@ -820,7 +820,7 @@ const DateTimeStep = ({
                                         disabled={!selectedDate || !selectedTime || isProcessing} 
                                         className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2.5 text-[11px] sm:text-base'
                                     >
-                                        Continue to Info
+                                        Continue to Details
                                         <ArrowRight size={16} className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                                     </button>
                                 </div>

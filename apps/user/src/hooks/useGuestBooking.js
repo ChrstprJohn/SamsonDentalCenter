@@ -172,6 +172,9 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                     email: '',
                     phone: '',
                     dentist_id: '',
+                    patient_note: '',
+                    birthday: '',
+                    agreed_to_terms: false,
                     service_tier: prev.service_tier, // Keep tier for DateTimeStep usage
                 }));
             }
@@ -197,6 +200,9 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                     email: '',
                     phone: '',
                     dentist_id: '',
+                    patient_note: '',
+                    birthday: '',
+                    agreed_to_terms: false,
                     service_tier: prev.service_tier, // Keep tier
                 }));
             }
