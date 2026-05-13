@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { format, addDays, startOfDay, isSameDay, addMinutes } from 'date-fns';
 import { Link } from 'react-router-dom';
 
@@ -48,9 +48,18 @@ export default function DashboardCalendar({ appointments = [], loading = false }
     
     const getAppointmentStyles = (app) => {
         const s = (app.status || '').toUpperCase();
+        const as = (app.approval_status || '').toLowerCase();
         const type = (app.type || '').toLowerCase();
-        const isBlocked = s === 'CANCELLED' || s === 'REJECTED' || s === 'NO_SHOW' || type === 'blocked';
         
+        // Red: Cancelled, Rejected, No Show, or Blocked
+        const isBlocked = ['CANCELLED', 'REJECTED', 'NO_SHOW', 'LATE_CANCEL'].includes(s) || type === 'blocked';
+        
+        // Green: Approved or Confirmed
+        const isApproved = s === 'CONFIRMED' || as === 'approved';
+        
+        // Yellow: Pending
+        const isPending = s === 'PENDING' && as !== 'approved' && as !== 'rejected';
+
         if (isBlocked) {
             return {
                 card: 'border-l-red-500 dark:border-l-red-400 border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-950/40 hover:shadow-red-500/10 dark:hover:bg-red-900/20',
@@ -59,9 +68,28 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                 duration: 'text-red-500/70 dark:text-red-500/70'
             };
         }
+
+        if (isPending) {
+            return {
+                card: 'border-l-amber-500 dark:border-l-amber-400 border-amber-100 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-950/40 hover:shadow-amber-500/10 dark:hover:bg-amber-900/20',
+                title: 'text-amber-700 dark:text-amber-300 group-hover:text-amber-600 dark:group-hover:text-amber-200',
+                time: 'text-amber-600/80 dark:text-amber-400/80',
+                duration: 'text-amber-500/70 dark:text-amber-500/70'
+            };
+        }
+
+        if (isApproved) {
+            return {
+                card: 'border-l-success-500 dark:border-l-success-400 border-success-100 dark:border-success-900/30 bg-success-50 dark:bg-success-950/40 hover:shadow-success-500/10 dark:hover:bg-success-900/20',
+                title: 'text-success-700 dark:text-success-300 group-hover:text-success-600 dark:group-hover:text-success-200',
+                time: 'text-success-600/80 dark:text-success-400/80',
+                duration: 'text-success-500/70 dark:text-success-500/70'
+            };
+        }
         
+        // Default: Brand color (Blue)
         return {
-            card: 'border-l-brand-500 dark:border-l-brand-400 border-brand-100 dark:border-gray-700 bg-[#f0f9ff] dark:bg-white/[0.08] hover:shadow-brand-500/10 dark:hover:bg-white/[0.12]',
+            card: 'border-l-brand-500 dark:border-l-brand-400 border-brand-100 dark:border-gray-700 bg-brand-50/50 dark:bg-white/[0.08] hover:shadow-brand-500/10 dark:hover:bg-white/[0.12]',
             title: 'text-brand-700 dark:text-brand-300 group-hover:text-brand-600 dark:group-hover:text-brand-200',
             time: 'text-brand-600/80 dark:text-brand-400/80',
             duration: 'text-brand-500/70 dark:text-brand-500/70'
@@ -102,23 +130,28 @@ export default function DashboardCalendar({ appointments = [], loading = false }
     }
 
     return (
-        <div className="flex flex-col border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-white/[0.03] shadow-sm overflow-hidden">
+        <div className="flex flex-col border border-gray-200 dark:border-gray-800 rounded-2xl bg-white/50 dark:bg-white/[0.02] backdrop-blur-md shadow-sm overflow-hidden transition-all duration-300">
             {/* Header Section */}
-            <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h4 className="text-[clamp(1rem,2.5vw,1.25rem)] font-black text-gray-900 dark:text-white tracking-tight">Upcoming Schedule</h4>
-                    <p className="text-[clamp(0.7rem,1.5vw,0.875rem)] font-medium text-gray-500 dark:text-gray-400 mt-1">Timeline view of your dental appointments</p>
+            <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-500">
+                        <CalendarIcon size={20} />
+                    </div>
+                    <div>
+                        <h4 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight leading-tight">Upcoming Schedule</h4>
+                        <p className="text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">Timeline view of your dental journey • <span className="text-brand-500">Approved & Pending Sessions</span></p>
+                    </div>
                 </div>
-                <Link to="/patient/appointments" className="hidden sm:inline-flex items-center gap-2 px-4 h-10 text-xs font-black border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-gray-700 dark:text-gray-300 tracking-widest">
-                    <CalendarIcon size={14} /> View All
+                <Link to="/patient/appointments" className="hidden sm:inline-flex items-center gap-2 px-5 h-11 text-[11px] font-bold border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 hover:border-brand-500/30 transition-all text-gray-700 dark:text-gray-300 tracking-wider">
+                    View All Requests <ArrowRight size={14} />
                 </Link>
             </div>
 
             {/* Navigation Section */}
             <div className='flex items-center justify-between px-4 sm:px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/[0.01]'>
-                <h3 className='text-[clamp(0.8rem,2vw,1.1rem)] font-black text-gray-900 dark:text-white tracking-tight'>{`Week of ${format(startDate, 'MMMM d, yyyy')}`}</h3>
+                <h3 className='text-[clamp(0.85rem,2vw,1.1rem)] font-bold text-gray-900 dark:text-white tracking-tight'>{`Week of ${format(startDate, 'MMMM d, yyyy')}`}</h3>
                 <div className="flex items-center gap-2">
-                    <button onClick={goToday} className="text-[10px] sm:text-xs font-black px-3 h-8 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-white dark:hover:bg-white/5 transition-all tracking-widest text-gray-600 dark:text-gray-400">Today</button>
+                    <button onClick={goToday} className="text-[10px] sm:text-xs font-bold px-3 h-8 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-white dark:hover:bg-white/5 transition-all text-gray-600 dark:text-gray-400">Today</button>
                     <div className="flex items-center gap-1">
                         <button onClick={() => nav(-7)} className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"><ChevronLeft size={14} /></button>
                         <button onClick={() => nav(7)} className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"><ChevronRight size={14} /></button>
@@ -132,7 +165,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                     
                     {/* Time Scale Header (Absolute Positioning for perfect alignment) */}
                     <div className='grid border-b border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-white/[0.03] sticky top-0 z-30' style={{ gridTemplateColumns: `${dayColWidth}px ${timelinePadding}px 1fr` }}>
-                        <div className='p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 bg-white dark:bg-gray-900 z-40 text-[9px] font-black text-gray-400 dark:text-gray-500 tracking-[0.2em] text-center'>Day / Time</div>
+                        <div className='p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 bg-white dark:bg-gray-900 z-40 text-[9px] font-bold text-gray-400 dark:text-gray-500 text-center'>Day / Time</div>
                         <div className='border-r border-gray-300 dark:border-gray-700 bg-gray-50/10 dark:bg-white/[0.01]' />
                         
                         <div className='relative h-14 w-full'>
@@ -177,8 +210,8 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                 >
                                     {/* Sticky Date Label (Opaque to prevent overlap visibility) */}
                                     <div className={`p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 z-20 flex flex-col items-center justify-center shadow-[4px_0_10px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.3)] ${active ? 'bg-brand-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-900'}`}>
-                                        <span className={`text-[clamp(1.1rem,3vw,1.75rem)] font-black leading-none ${active ? 'text-brand-500 dark:text-brand-400' : 'text-gray-900 dark:text-gray-100'}`}>{format(day, 'd')}</span>
-                                        <span className={`text-[clamp(0.5rem,1.2vw,0.65rem)] font-black tracking-[0.15em] mt-1 ${active ? 'text-brand-500 dark:text-brand-400 opacity-80' : 'text-gray-400 dark:text-gray-500'}`}>{format(day, 'EEE')}</span>
+                                        <span className={`text-[clamp(1.1rem,3vw,1.75rem)] font-bold leading-none ${active ? 'text-brand-500 dark:text-brand-400' : 'text-gray-900 dark:text-gray-100'}`}>{format(day, 'd')}</span>
+                                        <span className={`text-[clamp(0.5rem,1.2vw,0.65rem)] font-bold mt-1 ${active ? 'text-brand-500 dark:text-brand-400 opacity-80' : 'text-gray-400 dark:text-gray-500'}`}>{format(day, 'EEE')}</span>
                                     </div>
                                     
                                     <div className='border-r border-gray-300 dark:border-gray-700 bg-gray-50/10 dark:bg-white/[0.01]' />
@@ -222,7 +255,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                                                     ${styles.card}
                                                                 `}
                                                             >
-                                                                <div className={`font-black truncate leading-tight text-[clamp(0.7rem,1.4vw,0.85rem)] mb-0.5 tracking-tight ${styles.title}`}>
+                                                                <div className={`font-bold truncate leading-tight text-[clamp(0.7rem,1.4vw,0.85rem)] mb-0.5 tracking-tight ${styles.title}`}>
                                                                     {app.service?.name || app.service}
                                                                 </div>
                                                                 {(app.patient_name || app.booked_for_name) && (
