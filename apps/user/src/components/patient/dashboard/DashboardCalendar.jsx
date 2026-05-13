@@ -91,7 +91,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
 
     if (loading) {
         return (
-            <div className='rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] flex flex-col h-[500px] animate-pulse'>
+            <div className='rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] flex flex-col h-[600px] animate-pulse'>
                 <div className='p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between'>
                     <div className='h-6 w-32 bg-gray-100 dark:bg-white/5 rounded' />
                     <div className='h-6 w-24 bg-gray-100 dark:bg-white/5 rounded' />
@@ -106,19 +106,19 @@ export default function DashboardCalendar({ appointments = [], loading = false }
             {/* Header Section */}
             <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h4 className="text-[clamp(1rem,2.5vw,1.25rem)] font-black text-gray-900 dark:text-white uppercase tracking-tight">Upcoming Schedule</h4>
+                    <h4 className="text-[clamp(1rem,2.5vw,1.25rem)] font-black text-gray-900 dark:text-white tracking-tight">Upcoming Schedule</h4>
                     <p className="text-[clamp(0.7rem,1.5vw,0.875rem)] font-medium text-gray-500 dark:text-gray-400 mt-1">Timeline view of your dental appointments</p>
                 </div>
-                <Link to="/patient/appointments" className="hidden sm:inline-flex items-center gap-2 px-4 h-10 text-xs font-black border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-gray-700 dark:text-gray-300 uppercase tracking-widest">
+                <Link to="/patient/appointments" className="hidden sm:inline-flex items-center gap-2 px-4 h-10 text-xs font-black border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-gray-700 dark:text-gray-300 tracking-widest">
                     <CalendarIcon size={14} /> View All
                 </Link>
             </div>
 
             {/* Navigation Section */}
             <div className='flex items-center justify-between px-4 sm:px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/[0.01]'>
-                <h3 className='text-[clamp(0.8rem,2vw,1.1rem)] font-black text-gray-900 dark:text-white uppercase tracking-tight'>{`Week of ${format(startDate, 'MMMM d, yyyy')}`}</h3>
+                <h3 className='text-[clamp(0.8rem,2vw,1.1rem)] font-black text-gray-900 dark:text-white tracking-tight'>{`Week of ${format(startDate, 'MMMM d, yyyy')}`}</h3>
                 <div className="flex items-center gap-2">
-                    <button onClick={goToday} className="text-[10px] sm:text-xs font-black px-3 h-8 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-white dark:hover:bg-white/5 transition-all uppercase tracking-widest text-gray-600 dark:text-gray-400">Today</button>
+                    <button onClick={goToday} className="text-[10px] sm:text-xs font-black px-3 h-8 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-white dark:hover:bg-white/5 transition-all tracking-widest text-gray-600 dark:text-gray-400">Today</button>
                     <div className="flex items-center gap-1">
                         <button onClick={() => nav(-7)} className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"><ChevronLeft size={14} /></button>
                         <button onClick={() => nav(7)} className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"><ChevronRight size={14} /></button>
@@ -132,7 +132,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                     
                     {/* Time Scale Header (Absolute Positioning for perfect alignment) */}
                     <div className='grid border-b border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-white/[0.03] sticky top-0 z-30' style={{ gridTemplateColumns: `${dayColWidth}px ${timelinePadding}px 1fr` }}>
-                        <div className='p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 bg-white dark:bg-gray-900 z-40 text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] text-center'>Day / Time</div>
+                        <div className='p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 bg-white dark:bg-gray-900 z-40 text-[9px] font-black text-gray-400 dark:text-gray-500 tracking-[0.2em] text-center'>Day / Time</div>
                         <div className='border-r border-gray-300 dark:border-gray-700 bg-gray-50/10 dark:bg-white/[0.01]' />
                         
                         <div className='relative h-14 w-full'>
@@ -152,7 +152,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                         className='absolute bottom-2 -translate-x-1/2 px-1 bg-white dark:bg-transparent z-10'
                                         style={{ left: `${percent}%` }}
                                     >
-                                        <p className={`font-black uppercase text-gray-800 dark:text-gray-200 tabular-nums ${slot.value.includes(':30') ? 'text-[clamp(0.5rem,1.2vw,0.6rem)] opacity-40' : 'text-[clamp(0.65rem,1.5vw,0.75rem)]'}`}>
+                                        <p className={`font-black text-gray-800 dark:text-gray-200 tabular-nums ${slot.value.includes(':30') ? 'text-[clamp(0.5rem,1.2vw,0.6rem)] opacity-40' : 'text-[clamp(0.65rem,1.5vw,0.75rem)]'}`}>
                                             {format(new Date().setHours(...slot.value.split(':')), slot.value.includes(':30') ? 'h:mm' : 'h a')}
                                         </p>
                                     </div>
@@ -167,7 +167,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                             const active = isSameDay(day, new Date());
                             const dayAppts = appointments.filter(a => isSameDay(new Date(a.date), day));
                             const tracks = getAppointmentTracks(dayAppts);
-                            const rowHeight = Math.max(1, tracks.length) * 90 + 24; // 90px per card + padding
+                            const rowHeight = Math.max(1, tracks.length) * 110 + 24; // 110px per card + padding
 
                             return (
                                 <div 
@@ -178,7 +178,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                     {/* Sticky Date Label (Opaque to prevent overlap visibility) */}
                                     <div className={`p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 z-20 flex flex-col items-center justify-center shadow-[4px_0_10px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.3)] ${active ? 'bg-brand-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-900'}`}>
                                         <span className={`text-[clamp(1.1rem,3vw,1.75rem)] font-black leading-none ${active ? 'text-brand-500 dark:text-brand-400' : 'text-gray-900 dark:text-gray-100'}`}>{format(day, 'd')}</span>
-                                        <span className={`text-[clamp(0.5rem,1.2vw,0.65rem)] font-black uppercase tracking-[0.15em] mt-1 ${active ? 'text-brand-500 dark:text-brand-400 opacity-80' : 'text-gray-400 dark:text-gray-500'}`}>{format(day, 'EEE')}</span>
+                                        <span className={`text-[clamp(0.5rem,1.2vw,0.65rem)] font-black tracking-[0.15em] mt-1 ${active ? 'text-brand-500 dark:text-brand-400 opacity-80' : 'text-gray-400 dark:text-gray-500'}`}>{format(day, 'EEE')}</span>
                                     </div>
                                     
                                     <div className='border-r border-gray-300 dark:border-gray-700 bg-gray-50/10 dark:bg-white/[0.01]' />
@@ -210,8 +210,8 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                                             style={{ 
                                                                 left: `${left}%`,
                                                                 width: `${width}%`,
-                                                                top: `${trackIndex * 90 + 12}px`,
-                                                                height: '80px'
+                                                                top: `${trackIndex * 110 + 12}px`,
+                                                                height: '100px'
                                                             }}
                                                         >
                                                             <Link 
@@ -222,11 +222,11 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                                                     ${styles.card}
                                                                 `}
                                                             >
-                                                                <div className={`font-black truncate leading-tight text-[clamp(0.7rem,1.4vw,0.85rem)] mb-0.5 uppercase tracking-tight ${styles.title}`}>
+                                                                <div className={`font-black truncate leading-tight text-[clamp(0.7rem,1.4vw,0.85rem)] mb-0.5 tracking-tight ${styles.title}`}>
                                                                     {app.service?.name || app.service}
                                                                 </div>
                                                                 {(app.patient_name || app.booked_for_name) && (
-                                                                    <div className="text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 truncate uppercase tracking-tighter">
+                                                                    <div className="text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 truncate tracking-tighter">
                                                                         For: {app.patient_name || app.booked_for_name}
                                                                     </div>
                                                                 )}

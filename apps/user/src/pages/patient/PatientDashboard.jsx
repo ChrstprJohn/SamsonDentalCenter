@@ -5,10 +5,6 @@ import DashboardWelcomeBanner from '../../components/patient/dashboard/Dashboard
 import ContactClinicModal from '../../components/patient/dashboard/ContactClinicModal';
 import DashboardStats from '../../components/patient/dashboard/DashboardStats';
 import DashboardCalendar from '../../components/patient/dashboard/DashboardCalendar';
-import DashboardNotifications from '../../components/patient/dashboard/DashboardNotifications';
-import WaitlistOfferCard from '../../components/patient/waitlist/WaitlistOfferCard';
-import ClaimSlotModal from '../../components/patient/waitlist/ClaimSlotModal';
-import useWaitlist from '../../hooks/useWaitlist';
 import { useAppointmentState } from '../../context/AppointmentContext';
 import { useAuth } from '../../context/AuthContext';
 import ErrorState from '../../components/common/ErrorState';
@@ -16,27 +12,9 @@ import ErrorState from '../../components/common/ErrorState';
 const PatientDashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const { entries, offers, loading: waitlistLoading, error: waitlistError, confirmOffer } = useWaitlist();
     const { appointments, total: totalAppointments, loading: apptsLoading, error: apptsError } = useAppointmentState();
-    const error = waitlistError || apptsError;
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedSlot, setSelectedSlot] = useState(null);
+    const error = apptsError;
     const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-
-    const handleClaimClick = (slot) => {
-        setSelectedSlot(slot);
-        setIsModalOpen(true);
-    };
-
-    const handleConfirmClaim = async (id) => {
-        try {
-            await confirmOffer(id);
-            setIsModalOpen(false);
-            setSelectedSlot(null);
-        } catch (err) {
-            console.error('Failed to confirm offer:', err);
-        }
-    };
 
     const fullName = user?.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : 'Guest';
 
@@ -68,10 +46,9 @@ const PatientDashboard = () => {
 
                         {/* Row 1: Metrics & Latest Appt (4 Cards, 5 Cols) */}
                         <DashboardStats 
-                            entries={entries} 
                             appointments={appointments}
                             totalAppointments={totalAppointments}
-                            loading={waitlistLoading || apptsLoading}
+                            loading={apptsLoading}
                         />
 
                         {/* Row 2: Calendar (Full Width) */}
@@ -84,14 +61,6 @@ const PatientDashboard = () => {
                     </>
                 )}
             </div>
-
-            <ClaimSlotModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
-                slot={selectedSlot}
-                onConfirm={handleConfirmClaim}
-                loading={waitlistLoading}
-            />
 
             <ContactClinicModal 
                 isOpen={isContactModalOpen} 

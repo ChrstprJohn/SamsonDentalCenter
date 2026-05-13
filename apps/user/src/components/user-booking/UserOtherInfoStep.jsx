@@ -19,9 +19,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../utils/api';
+import { useToast } from '../../context/ToastContext';
 
 const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     const { user, token } = useAuth();
+    const toast = useToast();
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
@@ -92,8 +94,9 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         // Helper to normalize sex values to 'Male'/'Female'
         const normalizeSex = (val) => {
             if (!val) return '';
-            if (val === 'M' || val === 'Male') return 'Male';
-            if (val === 'F' || val === 'Female') return 'Female';
+            const v = val.toString().toUpperCase();
+            if (v === 'M' || v === 'MALE') return 'Male';
+            if (v === 'F' || v === 'FEMALE') return 'Female';
             return val;
         };
 
@@ -109,6 +112,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                 booked_for_sex: normalizeSex(user?.sex),
                 booked_for_phone: user?.phone || ''
             };
+            toast.info('Profile selected! Information auto-filled from your account.');
         } else if (profileId === 'new') {
             newData = {
                 patient_profile_id: 'new',
@@ -135,6 +139,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     booked_for_sex: normalizeSex(profile.sex),
                     booked_for_phone: user?.phone || ''
                 };
+                toast.info(`Profile selected! Information auto-filled for ${profile.first_name}.`);
             }
         }
 
@@ -262,13 +267,16 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         return p ? `${p.first_name} ${p.last_name} (${p.relationship_to_primary || 'Dependent'})` : 'Select Patient';
     };
 
-    const baseInput = "h-11 w-full rounded-xl border appearance-none px-4 py-2.5 text-[13px] sm:text-sm shadow-theme-sm placeholder:text-gray-400 focus:outline-hidden focus:ring-4 transition-all bg-white dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 font-medium";
+    const baseInput = "h-11 w-full rounded-xl border appearance-none px-4 py-2.5 text-[13px] sm:text-sm shadow-theme-sm placeholder:text-gray-400 focus:outline-hidden focus:ring-4 transition-all dark:placeholder:text-white/30 font-medium";
     
-    const getInputClasses = (fieldError) => {
+    const getInputClasses = (fieldError, isFieldReadOnly = false) => {
         if (fieldError) {
-            return `${baseInput} border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800`;
+            return `${baseInput} border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800 bg-white dark:bg-gray-900`;
         }
-        return `${baseInput} text-gray-800 border-gray-300 dark:border-gray-700 focus:border-brand-300 focus:ring-brand-500/15 hover:border-gray-400 dark:hover:border-gray-600 dark:text-white/90 dark:focus:border-brand-800 shadow-theme-xs hover:shadow-theme-sm`;
+        if (isFieldReadOnly) {
+            return `${baseInput} bg-gray-50/80 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800/50 text-gray-500 dark:text-white/40 cursor-not-allowed hover:cursor-not-allowed ring-0 focus:ring-0 focus:border-gray-100 dark:focus:border-gray-800/50`;
+        }
+        return `${baseInput} text-gray-800 border-gray-300 dark:border-gray-700 focus:border-brand-300 focus:ring-brand-500/15 hover:border-gray-400 dark:hover:border-gray-600 dark:text-white/90 dark:focus:border-brand-800 shadow-theme-xs hover:shadow-theme-sm bg-white dark:bg-gray-900`;
     };
 
     const labelClasses = "mb-2 block text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 leading-none";
@@ -444,6 +452,21 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     </div>
 
                     <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
+                        {/* Auto-fill Notice Box */}
+                        {isReadOnly && (
+                            <div className='bg-info-50 dark:bg-info-500/10 border border-info-100 dark:border-info-500/20 rounded-xl p-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-500'>
+                                <div className='flex items-center gap-2 text-info-700 dark:text-info-400 font-black text-[11px] uppercase tracking-wider'>
+                                    <AlertCircle size={14} />
+                                    Profile Synchronization
+                                </div>
+                                <p className='text-[12px] font-semibold text-info-600 dark:text-info-300 leading-relaxed'>
+                                    {isSelf 
+                                        ? "Information auto-filled from your primary account profile." 
+                                        : `Information auto-filled from ${formData.booked_for_first_name}'s saved profile.`}
+                                </p>
+                            </div>
+                        )}
+
                         {/* Row 1: Primary Names */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6">
                             <div>
@@ -455,7 +478,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                     value={nameParts.last}
                                     onChange={(e) => handleNamePartChange('last', e.target.value)}
                                     placeholder='Dela Cruz'
-                                    className={getInputClasses(errors.last)}
+                                    className={getInputClasses(errors.last, isReadOnly)}
                                 />
                                 {errors.last && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.last}</p>}
                             </div>
@@ -469,7 +492,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                     value={nameParts.first}
                                     onChange={(e) => handleNamePartChange('first', e.target.value)}
                                     placeholder='Juan'
-                                    className={getInputClasses(errors.first)}
+                                    className={getInputClasses(errors.first, isReadOnly)}
                                 />
                                 {errors.first && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.first}</p>}
                             </div>
@@ -486,7 +509,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                     value={nameParts.middle}
                                     onChange={(e) => handleNamePartChange('middle', e.target.value)}
                                     placeholder='Santos'
-                                    className={getInputClasses(errors.middle)}
+                                    className={getInputClasses(errors.middle, isReadOnly)}
                                 />
                                 {errors.middle && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.middle}</p>}
                             </div>
@@ -506,7 +529,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                                     handleNamePartChange('suffix', e.target.value);
                                                 }
                                             }}
-                                            className={`${getInputClasses()} cursor-pointer pr-10 ${isReadOnly ? 'cursor-default opacity-100' : ''}`}
+                                            className={`${getInputClasses(null, isReadOnly)} cursor-pointer pr-10 ${isReadOnly ? 'cursor-not-allowed hover:cursor-not-allowed opacity-100' : ''}`}
                                         >
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -558,7 +581,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         onClick={(e) => {
                                             if (!isReadOnly) try { e.target.showPicker(); } catch (err) {}
                                         }}
-                                        className={`${getInputClasses(errors.birthday)} w-full ${!formData.booked_for_birthday ? 'text-transparent dark:text-transparent' : ''}`}
+                                        className={`${getInputClasses(errors.birthday, isReadOnly)} w-full ${!formData.booked_for_birthday ? 'text-transparent dark:text-transparent' : ''}`}
                                         max={new Date().toISOString().split('T')[0]}
                                     />
                                     {!formData.booked_for_birthday && (
@@ -584,7 +607,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                                 formData.booked_for_sex === s
                                                     ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 shadow-sm'
                                                     : 'border-gray-100 bg-gray-50/50 text-gray-500 hover:border-gray-200 dark:border-gray-800 dark:bg-transparent dark:text-gray-400'
-                                            } ${isReadOnly ? 'cursor-default opacity-100' : ''}`}
+                                            } ${isReadOnly ? 'cursor-not-allowed opacity-100' : ''}`}
                                         >
                                             {s}
                                         </button>
@@ -603,7 +626,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         type="text" 
                                         readOnly 
                                         value={formData.booked_for_relationship}
-                                        className={getInputClasses()}
+                                        className={getInputClasses(null, true)}
                                     />
                                 ) : (
                                     <div className="relative group">
@@ -636,7 +659,18 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Contact Details</h3>
                     </div>
 
-                    <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
+                    <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
+                        {/* Auto-fill Notice Box for Contact */}
+                        <div className='bg-info-50 dark:bg-info-500/10 border border-info-100 dark:border-info-500/20 rounded-xl p-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-500'>
+                            <div className='flex items-center gap-2 text-info-700 dark:text-info-400 font-black text-[11px] uppercase tracking-wider'>
+                                <AlertCircle size={14} />
+                                Account Link Active
+                            </div>
+                            <p className='text-[12px] font-semibold text-info-600 dark:text-info-300 leading-relaxed'>
+                                Contact information is automatically linked to your primary account for verification purposes.
+                            </p>
+                        </div>
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
                             {/* Email Address */}
                             <div>
@@ -647,7 +681,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         type='email'
                                         readOnly
                                         value={user?.email || ''}
-                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed pr-10`}
+                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed hover:cursor-not-allowed pr-10`}
                                     />
                                     <Mail size={16} className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none' />
                                 </div>
@@ -662,7 +696,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         type='tel'
                                         readOnly
                                         value={user?.phone || ''}
-                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed pr-20`}
+                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed hover:cursor-not-allowed pr-20`}
                                     />
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                         <span className="text-[10px] font-black text-gray-400">PH (+63)</span>

@@ -24,8 +24,6 @@ import CancelAppointmentPage from '../pages/guest/CancelAppointmentPage';
 import AppointmentCancelledPage from '../pages/guest/AppointmentCancelledPage';
 import RescheduleAppointmentPage from '../pages/guest/RescheduleAppointmentPage';
 import AppointmentRescheduledPage from '../pages/guest/AppointmentRescheduledPage';
-import WaitlistClaimPage from '../pages/guest/WaitlistClaimPage';
-
 // Public website pages
 import HomePage from '../pages/public/HomePage';
 import AboutPage from '../pages/public/AboutPage';
@@ -42,12 +40,14 @@ import GuestBookingPage from '../pages/guest/GuestBookingPage';
 // Patient pages
 import PatientDashboard from '../pages/patient/PatientDashboard';
 import MyAppointments from '../pages/patient/MyAppointments';
+import MyRequests from '../pages/patient/MyRequests';
+import AppointmentHistory from '../pages/patient/AppointmentHistory';
 import AppointmentDetails from '../pages/patient/AppointmentDetails';
 import PatientProfile from '../pages/patient/PatientProfile';
 import NotificationsPage from '../pages/patient/NotificationsPage';
-import WaitlistPage from '../pages/patient/WaitlistPage';
 import UserBookingPage from '../pages/patient/UserBookingPage';
 import UserReschedulePage from '../pages/patient/UserReschedulePage';
+import DependentsPage from '../pages/patient/DependentsPage';
 
 const AppRoutes = () => {
     return (
@@ -167,11 +167,6 @@ const AppRoutes = () => {
                     path='/email/rescheduled'
                     element={<AppointmentRescheduledPage />}
                 />
-                <Route
-                    path='/email/waitlist-claim'
-                    element={<WaitlistClaimPage />}
-                />
-
                 {/* ── Patient Portal (Sidebar Layout) ── */}
                 <Route
                     path='/patient'
@@ -183,10 +178,12 @@ const AppRoutes = () => {
                 >
                     <Route index element={<PatientDashboard />} />
                     <Route path='appointments' element={<MyAppointments />} />
+                    <Route path='history' element={<AppointmentHistory />} />
+                    <Route path='requests' element={<MyRequests />} />
                     <Route path='appointments/:id' element={<AppointmentDetails />} />
                     <Route path='profile' element={<PatientProfile />} />
+                    <Route path='dependents' element={<DependentsPage />} />
                     <Route path='notifications' element={<NotificationsPage />} />
-                    <Route path='waitlist' element={<WaitlistPage />} />
                 </Route>
 
                 {/* ── Patient Booking (standalone — no sidebar layout) ── */}

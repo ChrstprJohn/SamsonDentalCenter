@@ -5,7 +5,7 @@ import NotificationInbox from '../../components/patient/notification/Notificatio
 import NotificationDetailView from '../../components/patient/notification/NotificationDetailView';
 import useNotifications from '../../hooks/useNotifications';
 import { formatFullDateTime } from '../../hooks/useAppointments';
-import { Clock, Inbox, Star, XCircle, Search } from 'lucide-react';
+
 import { renderNotification } from '../../utils/notificationRenderer';
 import NotificationSkeleton from '../../components/patient/notification/NotificationSkeleton';
 import ErrorState from '../../components/common/ErrorState';
@@ -118,10 +118,6 @@ const NotificationsPage = () => {
                 'NO_SHOW'
             ].includes(n.category);
         }
-        if (activeFilter === 'waitlist') {
-            return n.category === 'WAITLIST';
-        }
-
         return n.category.toLowerCase().includes(activeFilter.toLowerCase());
     });
 

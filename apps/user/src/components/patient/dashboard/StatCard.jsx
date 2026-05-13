@@ -70,7 +70,7 @@ const StatCard = ({ title, value, subtitle, icon: Icon, color = 'brand', link = 
                 </div>
 
                 <div className='flex flex-col'>
-                    <span className='text-[11px] sm:text-xs lg:text-[13px] text-gray-500 dark:text-gray-400 truncate font-bold uppercase tracking-wider px-0.5 mt-0.5'>
+                    <span className='text-[11px] sm:text-xs lg:text-[13px] text-gray-500 dark:text-gray-400 truncate font-bold tracking-wider px-0.5 mt-0.5'>
                         {title}
                     </span>
                     {subtitle && (

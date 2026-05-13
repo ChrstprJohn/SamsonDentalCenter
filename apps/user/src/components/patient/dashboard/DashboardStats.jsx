@@ -1,10 +1,10 @@
 import React from 'react';
-import { ClipboardList, Clock, CheckCircle2, AlertCircle, Calendar } from 'lucide-react';
+import { Clock, CheckCircle2, AlertCircle, Calendar } from 'lucide-react';
 import StatCard from './StatCard';
 import { formatDate, formatTime } from '../../../hooks/useAppointments';
 import { Link } from 'react-router-dom';
 
-const DashboardStats = ({ entries = [], appointments = [], totalAppointments = 0, loading = false }) => {
+const DashboardStats = ({ appointments = [], totalAppointments = 0, loading = false }) => {
     const scrollRef = React.useRef(null);
     const [scrolled, setScrolled] = React.useState(false);
 
@@ -26,7 +26,6 @@ const DashboardStats = ({ entries = [], appointments = [], totalAppointments = 0
         const isInactive = ['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'RESCHEDULED'].includes(s);
         return isApproved && !isInactive;
     }).length;
-    const waitlistCount = entries.length;
 
     const serviceName = loading ? '…' : (latestAppt ? latestAppt.service?.name || latestAppt.service : null);
 
@@ -51,7 +50,7 @@ const DashboardStats = ({ entries = [], appointments = [], totalAppointments = 0
                                 </div>
                                 
                                 <div className='min-w-0 grow'>
-                                    <p className='text-[10px] sm:text-[11px] lg:text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5 uppercase tracking-wider'>
+                                    <p className='text-[10px] sm:text-[11px] lg:text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5 tracking-wider'>
                                         Next Appointment
                                     </p>
                                     <h3 className='text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white truncate tracking-tight'>
@@ -59,11 +58,11 @@ const DashboardStats = ({ entries = [], appointments = [], totalAppointments = 0
                                     </h3>
                                     {latestAppt && (
                                         <div className='flex items-center gap-1.5 sm:gap-2 mt-1.5 flex-wrap'>
-                                            <span className='inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 text-[9px] sm:text-[10px] lg:text-[11px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-tight'>
+                                            <span className='inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 text-[9px] sm:text-[10px] lg:text-[11px] font-bold text-gray-600 dark:text-gray-300 tracking-tight'>
                                                 <Calendar size={10} className="sm:w-[12px] sm:h-[12px]" />
                                                 {formatDate(latestAppt.date)}
                                             </span>
-                                            <span className='inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 text-[9px] sm:text-[10px] lg:text-[11px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-tight'>
+                                            <span className='inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 text-[9px] sm:text-[10px] lg:text-[11px] font-bold text-gray-600 dark:text-gray-300 tracking-tight'>
                                                 <Clock size={10} className="sm:w-[12px] sm:h-[12px]" />
                                                 {formatTime(latestAppt.start_time)}
                                             </span>
@@ -105,22 +104,9 @@ const DashboardStats = ({ entries = [], appointments = [], totalAppointments = 0
                         loading={loading}
                     />
                 </div>
-                <div className='min-w-[calc(50%-8px)] lg:min-w-0 lg:col-span-1 snap-start'>
-                    <StatCard
-                        title='Waitlist'
-                        value={waitlistCount.toString()}
-                        icon={ClipboardList}
-                        color='info'
-                        loading={loading}
-                    />
-                </div>
             </div>
 
-            {/* Mobile Pagination Dots (2 Pages) */}
-            <div className='flex lg:hidden justify-center gap-1.5 mt-[-4px] mb-1'>
-                <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${!scrolled ? 'bg-brand-500' : 'bg-gray-300 dark:bg-gray-700'}`} />
-                <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${scrolled ? 'bg-brand-500' : 'bg-gray-300 dark:bg-gray-700'}`} />
-            </div>
+            {/* Mobile Pagination (Not needed for 2 cards) */}
         </div>
     );
 };

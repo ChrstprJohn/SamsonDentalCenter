@@ -1,4 +1,4 @@
-import { Search, Mail, Star, Clock, Calendar, Bell } from 'lucide-react';
+import { Search, Mail, Star, Calendar, Bell } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import NotificationRow from './NotificationRow';
 import NotificationSkeleton from './NotificationSkeleton';
@@ -9,7 +9,6 @@ const CATEGORIES = [
     { id: 'unread', label: 'Unread', icon: Bell, key: 'unread' },
     { id: 'starred', label: 'Starred', icon: Star, key: 'starred' },
     { id: 'appointments', label: 'Appointments', icon: Calendar, key: 'appointments' },
-    { id: 'waitlist', label: 'Waitlist', icon: Clock, key: 'waitlist' },
 ];
 
 const NotificationInbox = ({
@@ -45,7 +44,6 @@ const NotificationInbox = ({
         if (key === 'all') return totalCount || 0;
         if (key === 'unread') return stats.unread || 0;
         if (key === 'starred') return stats.starred || 0;
-        if (key === 'waitlist') return stats.waitlist || 0;
         if (key === 'appointments') {
             // Sum all appointment-related types
             return (

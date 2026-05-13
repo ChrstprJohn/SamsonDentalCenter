@@ -96,7 +96,8 @@ const HomeIcon = () => (
     </svg>
 );
 
-const WaitlistIcon = () => (
+
+const UsersIcon = () => (
     <svg
         width='24'
         height='24'
@@ -105,13 +106,6 @@ const WaitlistIcon = () => (
         xmlns='http://www.w3.org/2000/svg'
     >
         <path
-            d='M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21'
-            stroke='currentColor'
-            strokeWidth='1.5'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-        />
-        <path
             d='M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z'
             stroke='currentColor'
             strokeWidth='1.5'
@@ -119,19 +113,55 @@ const WaitlistIcon = () => (
             strokeLinejoin='round'
         />
         <path
-            d='M23 21V19C22.9993 18.1137 22.7044 17.2522 22.1614 16.5463C21.6184 15.8403 20.8581 15.3331 20 15.11'
+            d='M2 18V17C2 14.7909 3.79086 13 6 13H12C14.2091 13 16 14.7909 16 17V18'
             stroke='currentColor'
             strokeWidth='1.5'
             strokeLinecap='round'
             strokeLinejoin='round'
         />
         <path
-            d='M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11145 19.0078 6.995C19.0078 7.87855 18.7122 8.73608 18.1676 9.43768C17.623 10.1393 16.8604 10.6397 16 10.86'
+            d='M16 11C17.6569 11 19 9.65685 19 8C19 6.34315 17.6569 5 16 5'
             stroke='currentColor'
             strokeWidth='1.5'
             strokeLinecap='round'
             strokeLinejoin='round'
         />
+        <path
+            d='M19 13C21.2091 13 23 14.7909 23 17V18'
+            stroke='currentColor'
+            strokeWidth='1.5'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+        />
+    </svg>
+);
+
+const ClipboardIcon = () => (
+    <svg 
+        width="24" 
+        height="24" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path d="M16 4H18C19.1046 4 20 4.89543 20 6V20C20 21.1046 19.1046 22 18 22H6C4.89543 22 4 21.1046 4 20V6C4 4.89543 4.89543 4 6 4H8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M15 2H9C8.44772 2 8 2.44772 8 3V5C8 5.55228 8.44772 6 9 6H15C15.5523 6 16 5.55228 16 5V3C16 2.44772 15.5523 2 15 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M9 12H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M9 16H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+);
+
+const HistoryIcon = () => (
+    <svg 
+        width="24" 
+        height="24" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path d="M12 8V12L15 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M3.05 11C3.2107 9.42547 3.82475 7.94092 4.8213 6.71692C5.81785 5.49291 7.1511 4.5855 8.66794 4.09915C10.1848 3.6128 11.8152 3.56994 13.3688 3.97544C14.9224 4.38094 16.3274 5.21584 17.421 6.384L20 9M20 9V4M20 9H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M20.95 13C20.7893 14.5745 20.1753 16.0591 19.1787 17.2831C18.1821 18.5071 16.8489 19.4145 15.3321 19.9008C13.8152 20.3872 12.1848 20.4301 10.6312 20.0246C9.07759 19.6191 7.6726 18.7842 6.579 17.616L4 15M4 15V20M4 15H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 
@@ -162,19 +192,29 @@ const navItems = [
         path: '/patient/appointments',
     },
     {
+        icon: <HistoryIcon />,
+        name: 'Appointment History',
+        path: '/patient/history',
+    },
+    {
+        icon: <ClipboardIcon />,
+        name: 'My Requests',
+        path: '/patient/requests',
+    },
+    {
         icon: <BellIcon />,
         name: 'Notifications',
         path: '/patient/notifications',
     },
     {
-        icon: <WaitlistIcon />,
-        name: 'Waitlist',
-        path: '/patient/waitlist',
-    },
-    {
         icon: <UserCircleIcon />,
         name: 'Profile',
         path: '/patient/profile',
+    },
+    {
+        icon: <UsersIcon />,
+        name: 'Dependents',
+        path: '/patient/dependents',
     },
 ];
 
