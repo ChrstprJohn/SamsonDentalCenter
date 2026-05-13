@@ -116,7 +116,7 @@ const MyRequests = () => {
 
                             {/* Dropdown Filters Row */}
                             <div className='px-4 sm:px-6 pb-5 pt-2'>
-                                <div className='flex flex-nowrap items-center gap-3 overflow-x-auto no-scrollbar py-1'>
+                                <div className='flex flex-nowrap items-center gap-3 overflow-x-auto no-scrollbar py-2'>
                                     {/* 1. Person Filter */}
                                     <div className='relative w-[170px] sm:w-[190px] shrink-0'>
                                     <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
@@ -127,7 +127,7 @@ const MyRequests = () => {
                                             onChange={(e) => setSelectedPersonId(e.target.value)}
                                             className='w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                                         >
-                                            <option value='all' className='dark:bg-gray-900'>All Family Members</option>
+                                            <option value='all' className='dark:bg-gray-900'>All Relationships</option>
                                             <option value={user?.id} className='dark:bg-gray-900'>Me ({user?.full_name})</option>
                                             {dependents.map(dep => (
                                                 <option key={dep.id} value={dep.id} className='dark:bg-gray-900'>

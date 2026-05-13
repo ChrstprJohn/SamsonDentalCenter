@@ -99,7 +99,7 @@ const DependentsPage = () => {
 
                             {/* Filters & Quota Row */}
                             <div className='px-4 sm:px-6 pb-5 pt-2 flex flex-wrap items-center justify-between gap-4'>
-                                <div className='flex flex-nowrap items-center gap-3 overflow-x-auto no-scrollbar'>
+                                <div className='flex flex-nowrap items-center gap-3 overflow-x-auto no-scrollbar py-2'>
                                     {/* Relationship Filter */}
                                     <div className='relative w-[160px] sm:w-[180px] shrink-0'>
                                         <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
@@ -108,7 +108,7 @@ const DependentsPage = () => {
                                         <select
                                             value={relationshipFilter}
                                             onChange={(e) => setRelationshipFilter(e.target.value)}
-                                            className='w-full pl-10 pr-10 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer'
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer'
                                         >
                                             <option value='all' className='dark:bg-gray-900'>All Relationships</option>
                                             <option value='Child' className='dark:bg-gray-900'>Children</option>
