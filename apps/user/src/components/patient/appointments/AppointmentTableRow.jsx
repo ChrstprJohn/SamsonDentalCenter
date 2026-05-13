@@ -50,20 +50,27 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
             </div>
 
             {/* 2. Middle: Content Area */}
-            <div className='flex-grow px-4 py-3 sm:px-8 sm:py-3 flex items-center gap-4 sm:gap-6 min-w-0'>
-                <div className='w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-500 text-white flex items-center justify-center font-black text-sm sm:text-xl shadow-lg shadow-brand-500/10 shrink-0'>
+            <div className='flex-grow px-4 py-3 sm:px-8 sm:py-3 flex items-center gap-4 sm:gap-10 min-w-0'>
+                <div className='w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-brand-500 text-white flex items-center justify-center font-black text-sm sm:text-2xl shadow-lg shadow-brand-500/10 shrink-0'>
                     {getInitial(appointment.service)}
                 </div>
-                <div className='flex flex-col min-w-0'>
-                    <h3 className='text-[13px] sm:text-[16px] font-bold text-gray-900 dark:text-white truncate leading-tight group-hover:text-brand-500 transition-colors'>
-                        {appointment.service}
-                    </h3>
-                    
-                    <div className='flex flex-col gap-0.5 mt-0.5'>
-                        <div className='flex items-center gap-1.5 text-gray-400'>
-                            <User size={12} className='shrink-0 sm:w-3.5 sm:h-3.5' />
-                            <span className='text-[11px] sm:text-[13px] font-medium truncate'>
-                                {patientName} {isSelf && <span className='text-brand-500 opacity-70 ml-1'>(You)</span>}
+                
+                <div className='flex flex-col sm:flex-row sm:items-center flex-grow gap-4 sm:gap-12 min-w-0'>
+                    {/* Service Column */}
+                    <div className='flex flex-col min-w-0 sm:w-48 lg:w-64'>
+                        <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-widest'>Service</p>
+                        <h3 className='text-[13px] sm:text-[15px] font-bold text-gray-900 dark:text-white truncate leading-tight group-hover:text-brand-500 transition-colors'>
+                            {appointment.service}
+                        </h3>
+                    </div>
+
+                    {/* Patient Column */}
+                    <div className='flex flex-col min-w-0'>
+                        <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-widest'>Patient</p>
+                        <div className='flex items-center gap-1.5 text-gray-500 dark:text-gray-400'>
+                            <User size={12} className='sm:hidden shrink-0' />
+                            <span className='text-[11px] sm:text-[14px] font-bold truncate'>
+                                {patientName} {isSelf && <span className='text-brand-500 opacity-70 ml-1 font-bold'>(You)</span>}
                             </span>
                         </div>
                         
