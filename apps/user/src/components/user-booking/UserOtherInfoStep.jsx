@@ -659,9 +659,9 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Contact Details</h3>
                     </div>
 
-                    <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
+                    <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
                         {/* Auto-fill Notice Box for Contact */}
-                        <div className='bg-info-50 dark:bg-info-500/10 border border-info-100 dark:border-info-500/20 rounded-xl p-4 space-y-2 mb-2'>
+                        <div className='bg-info-50 dark:bg-info-500/10 border border-info-100 dark:border-info-500/20 rounded-xl p-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-500'>
                             <div className='flex items-center gap-2 text-info-700 dark:text-info-400 font-black text-[11px] uppercase tracking-wider'>
                                 <AlertCircle size={14} />
                                 Account Link Active
