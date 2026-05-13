@@ -13,29 +13,29 @@ const CombinedOverview = ({
     return (
         <div className='flex flex-col lg:flex-row gap-8 lg:gap-16 items-start'>
             {/* Left Column: Assigned Doctor */}
-            <div className='w-full lg:w-[40%] space-y-4 sm:space-y-6 sm:px-0'>
+            <div className='w-full lg:w-[40%] space-y-6 sm:px-0'>
                 <div>
-                    <h3 className='text-[9px] sm:text-[11px] text-gray-400 dark:text-gray-500 font-extrabold uppercase tracking-[0.2em] mb-3 sm:mb-4'>
+                    <h3 className='text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-[0.2em] mb-4 sm:mb-6'>
                         Assigned Doctor
                     </h3>
-                    <div className='flex items-center gap-4 sm:gap-5'>
-                        <div className='w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-xl sm:text-2xl border border-brand-500/20 shrink-0'>
+                    <div className='flex items-center gap-4 sm:gap-6'>
+                        <div className='w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-2xl sm:text-3xl border border-brand-500/20 shrink-0 shadow-sm'>
                             {dentistName
                                 .replace(/^Dr\.\s*/i, '')
                                 .charAt(0)
                                 .toUpperCase()}
                         </div>
-                        <div className='space-y-0.5 sm:space-y-1 overflow-hidden'>
-                            <h4 className='text-base sm:text-xl font-bold text-gray-900 dark:text-white truncate leading-tight'>
+                        <div className='space-y-1 overflow-hidden'>
+                            <h4 className='text-lg sm:text-2xl font-bold text-gray-900 dark:text-white truncate leading-tight'>
                                 {dentistName}
                             </h4>
-                            <p className='text-xs sm:text-[13px] text-brand-600 dark:text-brand-400 font-bold'>
+                            <p className='text-sm sm:text-[15px] text-brand-600 dark:text-brand-400 font-bold'>
                                 {specialization || 'General Dentistry'}
                             </p>
                         </div>
                     </div>
                 </div>
-                <p className='text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-bold leading-relaxed opacity-80'>
+                <p className='text-[12px] sm:text-[14px] text-gray-600 dark:text-gray-400 font-bold leading-relaxed'>
                     Experience exceptional care with your assigned doctor, dedicated to ensuring a comfortable and professional environment.
                 </p>
             </div>
@@ -43,49 +43,53 @@ const CombinedOverview = ({
             {/* Divider (Mobile only) */}
             <div className='block lg:hidden w-full h-px bg-gray-200 dark:bg-white/10'></div>
 
-            {/* Right Column: Appointment Logistics */}
-            <div className='flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 sm:gap-y-10 w-full sm:px-0'>
-                {/* Date Selection */}
-                <div className='space-y-2 sm:space-y-3'>
-                    <div className='flex items-center gap-2 text-[9px] text-gray-400 dark:text-gray-500 font-extrabold uppercase tracking-[0.15em]'>
-                        <Calendar className='w-3 h-3' />
-                        Date
+            {/* Right Column: Appointment Logistics (Bento Box Style) */}
+            <div className='flex-1 w-full sm:px-0'>
+                <h3 className='text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-[0.2em] mb-4 sm:mb-6'>
+                    Appointment Logistics
+                </h3>
+                
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'>
+                    {/* Date Box */}
+                    <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700'>
+                        <div className='flex items-center gap-2 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider'>
+                            <Calendar className='w-3.5 h-3.5 text-brand-500' />
+                            Date
+                        </div>
+                        <div className='text-[15px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
+                            {dateFormatted}
+                        </div>
                     </div>
-                    <div className='text-[13px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
-                        {dateFormatted}
-                    </div>
-                </div>
 
-                {/* Time Selection */}
-                <div className='space-y-2 sm:space-y-3'>
-                    <div className='flex items-center gap-2 text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-[0.15em]'>
-                        <Clock className='w-3 h-3' />
-                        Time
+                    {/* Time Box */}
+                    <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700'>
+                        <div className='flex items-center gap-2 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider'>
+                            <Clock className='w-3.5 h-3.5 text-brand-500' />
+                            Time
+                        </div>
+                        <div className='text-[15px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
+                            {timeFormatted}
+                        </div>
                     </div>
-                    <div className='text-[13px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
-                        {timeFormatted}
-                    </div>
-                </div>
 
-                {/* Duration */}
-                <div className='space-y-2 sm:space-y-3'>
-                    <div className='flex items-center gap-2 text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-[0.15em]'>
-                        <Timer className='w-3 h-3' />
-                        Duration
+                    {/* Duration Box */}
+                    <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700'>
+                        <div className='flex items-center gap-2 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider'>
+                            <Timer className='w-3.5 h-3.5 text-brand-500' />
+                            Duration
+                        </div>
+                        <div className='text-[15px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
+                            {duration || '30 - 60 mins'}
+                        </div>
                     </div>
-                    <div className='text-[13px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
-                        {duration || '30 - 60 mins'}
-                    </div>
-                </div>
 
-                {/* Patient Information */}
-                <div className='space-y-2 sm:space-y-3'>
-                    <div className='flex items-center gap-2 text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-[0.15em]'>
-                        <User className='w-3 h-3' />
-                        Patient
-                    </div>
-                    <div className='space-y-2'>
-                        <div className='text-[13px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
+                    {/* Patient Box */}
+                    <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700'>
+                        <div className='flex items-center gap-2 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider'>
+                            <User className='w-3.5 h-3.5 text-brand-500' />
+                            Patient
+                        </div>
+                        <div className='text-[15px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
                             {patientLabel}
                         </div>
                     </div>
