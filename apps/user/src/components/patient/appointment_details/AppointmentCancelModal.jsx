@@ -56,16 +56,6 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
 
             <ModalBody>
                 <div className='space-y-6'>
-                    {/* Status Icon */}
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                        isPending 
-                            ? 'bg-warning-50 dark:bg-warning-500/10 text-warning-500' 
-                            : isLate
-                                ? 'bg-error-50 dark:bg-error-500/10 text-error-500'
-                                : 'bg-info-50 dark:bg-info-500/10 text-info-500'
-                    }`}>
-                        <AlertCircle size={24} />
-                    </div>
 
                     {/* Policy Notice Box */}
                     {isPending ? (
