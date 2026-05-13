@@ -100,13 +100,13 @@ const Navbar = () => {
 
         let ctx = gsap.context(() => {
             gsap.from('.nav-anim', {
-                y: -30,
+                y: -20,
                 opacity: 0,
-                duration: 1.2,
-                stagger: 0.08,
-                ease: 'expo.out',
-                delay: 0.2,
-                clearProps: 'transform,opacity',
+                duration: 1,
+                stagger: 0.1,
+                ease: 'power4.out',
+                delay: 0.3,
+                clearProps: 'all',
             });
         }, navRef);
 
@@ -158,7 +158,7 @@ const Navbar = () => {
                             {/* Logo Container (Hidden on mobile, flex on desktop) */}
                             <Link
                                 to='/'
-                                className='hidden lg:flex items-center gap-3 transition-all duration-300 group flex-shrink-0'
+                                className='hidden lg:flex items-center gap-3 transition-all duration-300 group flex-shrink-0 nav-anim'
                             >
                                 <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
                                     <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto" />
@@ -182,7 +182,7 @@ const Navbar = () => {
                                 {navLinks.map((link, index) => (
                                     <li
                                         key={index}
-                                        className='relative'
+                                        className='relative nav-anim'
                                     >
                                         <NavLink
                                             to={link.path}
@@ -207,7 +207,7 @@ const Navbar = () => {
                             )}
 
                             <div
-                                className='relative'
+                                className='relative nav-anim'
                                 ref={profileRef}
                             >
                                 {loading ? (
