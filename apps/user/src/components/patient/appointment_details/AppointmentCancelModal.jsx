@@ -93,7 +93,7 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                     {/* Reason Selection */}
                     <div className='space-y-3'>
                         <label className='text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 block px-1'>
-                            Reason for Cancellation
+                            Reason
                         </label>
                         
                         <div className='relative group'>

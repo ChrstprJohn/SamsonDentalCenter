@@ -92,23 +92,10 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
                             e.stopPropagation();
                             onViewDetails(appointment.id);
                         }}
-                        className={`px-3 py-1.5 sm:px-4 sm:py-2 border rounded-lg text-[10px] sm:text-[12px] font-bold flex items-center gap-2 transition-all active:scale-95 ${
-                            isPending 
-                                ? 'bg-error-50 dark:bg-error-500/10 text-error-600 dark:text-error-500 border-error-100 dark:border-error-500/20 hover:bg-error-100 dark:hover:bg-error-500/20' 
-                                : 'bg-white dark:bg-white/10 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700 hover:border-brand-500 hover:text-brand-500 shadow-sm'
-                        }`}
+                        className='px-3 py-1.5 sm:px-4 sm:py-2 border bg-white dark:bg-white/10 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700 hover:border-brand-500 hover:text-brand-500 shadow-sm rounded-lg text-[10px] sm:text-[12px] font-bold flex items-center gap-2 transition-all active:scale-95'
                     >
-                        {isPending ? (
-                            <>
-                                <span className='hidden sm:inline'>Cancel</span>
-                                <X size={14} strokeWidth={3} />
-                            </>
-                        ) : (
-                            <>
-                                <span className='hidden sm:inline text-gray-500 dark:text-gray-400'>View</span>
-                                <ChevronRight size={14} strokeWidth={3} />
-                            </>
-                        )}
+                        <span className='hidden sm:inline text-gray-500 dark:text-gray-400'>View</span>
+                        <ChevronRight size={14} strokeWidth={3} />
                     </button>
                 </div>
             </div>
