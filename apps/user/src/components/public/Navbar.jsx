@@ -100,11 +100,11 @@ const Navbar = () => {
 
         let ctx = gsap.context(() => {
             gsap.from('.nav-anim', {
-                y: 15,
+                y: 20,
                 scale: 0.98,
                 opacity: 0,
-                duration: 0.8,
-                stagger: 0.06,
+                duration: 1,
+                stagger: 0.15,
                 ease: 'expo.out',
                 delay: 0.1,
                 clearProps: 'all',
@@ -178,12 +178,12 @@ const Navbar = () => {
                         {/* Section 2: Links (Desktop Only) */}
                         <div className='hidden lg:flex items-center justify-center'>
                             <ul
-                                className='flex items-center justify-center gap-1 px-3 py-1.5 rounded-full transition-all duration-300 ring-1 h-[48px] bg-white/10 ring-white/20 hover:ring-white/30 backdrop-blur-md'
+                                className='flex items-center justify-center gap-1 px-3 py-1.5 rounded-full transition-all duration-300 ring-1 h-[48px] bg-white/10 ring-white/20 hover:ring-white/30 backdrop-blur-md nav-anim'
                             >
                                 {navLinks.map((link, index) => (
                                     <li
                                         key={index}
-                                        className='relative nav-anim'
+                                        className='relative'
                                     >
                                         <NavLink
                                             to={link.path}
@@ -202,19 +202,19 @@ const Navbar = () => {
                         </div>
 
                         {/* Section 3: Profile & Notifications */}
-                        <div className='flex items-center gap-2 lg:gap-4'>
+                        <div className='flex items-center gap-2 lg:gap-4 nav-anim'>
                             {loading ? (
-                                <div className='relative nav-anim flex items-center'>
+                                <div className='relative flex items-center'>
                                     <div className='flex items-center justify-center bg-gray-200/50 border border-gray-200 rounded-full h-10 w-10 lg:h-11 lg:w-11 dark:bg-white/[0.03] dark:border-gray-800 animate-pulse' />
                                 </div>
                             ) : user ? (
-                                <div className='nav-anim flex items-center'>
+                                <div className='flex items-center'>
                                     <PatientNotification />
                                 </div>
                             ) : null}
 
                             <div
-                                className='relative nav-anim'
+                                className='relative'
                                 ref={profileRef}
                             >
                                 {loading ? (
