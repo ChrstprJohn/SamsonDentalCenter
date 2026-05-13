@@ -55,7 +55,7 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
                     {getInitial(appointment.service)}
                 </div>
                 
-                <div className='flex flex-col sm:flex-row sm:items-center flex-grow gap-4 sm:gap-0 min-w-0'>
+                <div className='flex flex-col sm:flex-row sm:items-center flex-grow gap-1 sm:gap-0 min-w-0'>
                     {/* Service Column */}
                     <div className='flex flex-col min-w-0 sm:w-[200px] lg:w-[260px] shrink-0'>
                         <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1'>Service</p>
