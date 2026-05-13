@@ -119,6 +119,12 @@ const AppointmentDetails = () => {
     const rescheduleCount = raw?.reschedule_count || 0;
     const hasRescheduled = rescheduleCount >= 1;
 
+    // Calculate if it's a late cancellation (within 24 hours)
+    const appointmentDateTime = raw?.appointment_date && raw?.start_time 
+        ? new Date(`${raw.appointment_date}T${raw.start_time}`) 
+        : null;
+    const isLate = appointmentDateTime ? (appointmentDateTime - new Date()) / (1000 * 60 * 60) < 24 : false;
+
     const handleCancel = async () => {
         const result = await cancelAppointment(
             cancelReason.trim() || 'Patient requested cancellation.',
@@ -257,6 +263,7 @@ const AppointmentDetails = () => {
                 cancelling={cancelling}
                 handleCancel={handleCancel}
                 isPending={isPending}
+                isLate={isLate}
                 serviceName={serviceName}
             />
 

@@ -11,7 +11,7 @@ const CANCEL_REASONS = [
     "Other"
 ];
 
-const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, rawId, cancelling, handleCancel, isPending, serviceName }) => {
+const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, rawId, cancelling, handleCancel, isPending, isLate, serviceName }) => {
     const [reasonType, setReasonType] = useState("");
     const [showOthers, setShowOthers] = useState(false);
 
@@ -56,7 +56,9 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
                         isPending 
                             ? 'bg-warning-50 dark:bg-warning-500/10 text-warning-500' 
-                            : 'bg-error-50 dark:bg-error-500/10 text-error-500'
+                            : isLate
+                                ? 'bg-error-50 dark:bg-error-500/10 text-error-500'
+                                : 'bg-info-50 dark:bg-info-500/10 text-info-500'
                     }`}>
                         <AlertCircle size={24} />
                     </div>
@@ -76,7 +78,7 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                                 Repeatedly creating and withdrawing requests holds up slots for other patients. Frequent withdrawals will restrict your online booking access, forcing manual phone verification for future appointments.
                             </p>
                         </div>
-                    ) : (
+                    ) : isLate ? (
                         <div className='bg-error-50 dark:bg-error-500/10 border border-error-100 dark:border-error-500/20 rounded-xl p-4 space-y-2'>
                             <div className='flex items-center gap-2 text-error-700 dark:text-error-400 font-black text-[11px] uppercase tracking-wider'>
                                 <AlertCircle size={14} />
@@ -84,6 +86,16 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                             </div>
                             <p className='text-[12px] font-semibold text-error-600 dark:text-error-300 leading-relaxed'>
                                 This slot was locked exclusively for you. To maintain fair scheduling, canceling approved sessions on short notice will restrict your account from booking online, requiring you to visit or call the clinic manually.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className='bg-info-50 dark:bg-info-500/10 border border-info-100 dark:border-info-500/20 rounded-xl p-4 space-y-2'>
+                            <div className='flex items-center gap-2 text-info-700 dark:text-info-400 font-black text-[11px] uppercase tracking-wider'>
+                                <AlertCircle size={14} />
+                                Advance Notice
+                            </div>
+                            <p className='text-[12px] font-semibold text-info-600 dark:text-info-300 leading-relaxed'>
+                                Thank you for notifying us in advance. Canceling your appointment now allows other patients to use this slot. We hope to see you again soon!
                             </p>
                         </div>
                     )}
@@ -152,7 +164,9 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                     className={`flex-1 sm:flex-none h-12 px-8 text-white rounded-xl font-black text-[11px] sm:text-sm shadow-lg transition-all ${
                         isPending 
                             ? 'bg-warning-500 hover:bg-warning-600 shadow-warning-500/20' 
-                            : 'bg-error-500 hover:bg-error-600 shadow-error-500/20'
+                            : isLate
+                                ? 'bg-error-500 hover:bg-error-600 shadow-error-500/20'
+                                : 'bg-info-500 hover:bg-info-600 shadow-info-500/20'
                     }`}
                 >
                     {cancelling ? (
