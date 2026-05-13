@@ -1,0 +1,65 @@
+import React from 'react';
+import { Calendar, Clock, User, Timer } from 'lucide-react';
+
+const LogisticsOverview = ({
+    dateFormatted,
+    timeFormatted,
+    duration,
+    patientLabel,
+}) => {
+    return (
+        <div className='w-full'>
+            <h3 className='text-base sm:text-xl text-gray-900 dark:text-white font-bold tracking-tight mb-6 pb-4 border-b border-gray-100 dark:border-white/5'>
+                Appointment Overview
+            </h3>
+            
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6'>
+                {/* Date Box */}
+                <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-sm h-full'>
+                    <div className='flex items-center gap-2 text-[11px] text-brand-700 dark:text-brand-400 font-bold tracking-tight'>
+                        <Calendar className='w-4 h-4 text-brand-500' />
+                        Date
+                    </div>
+                    <div className='text-[15px] sm:text-[17px] font-bold text-gray-900 dark:text-white mt-auto'>
+                        {dateFormatted}
+                    </div>
+                </div>
+
+                {/* Time Box */}
+                <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-sm h-full'>
+                    <div className='flex items-center gap-2 text-[11px] text-brand-700 dark:text-brand-400 font-bold tracking-tight'>
+                        <Clock className='w-4 h-4 text-brand-500' />
+                        Time
+                    </div>
+                    <div className='text-[15px] sm:text-[17px] font-bold text-gray-900 dark:text-white mt-auto'>
+                        {timeFormatted}
+                    </div>
+                </div>
+
+                {/* Duration Box */}
+                <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-sm h-full'>
+                    <div className='flex items-center gap-2 text-[11px] text-brand-700 dark:text-brand-400 font-bold tracking-tight'>
+                        <Timer className='w-4 h-4 text-brand-500' />
+                        Duration
+                    </div>
+                    <div className='text-[15px] sm:text-[17px] font-bold text-gray-900 dark:text-white mt-auto'>
+                        {duration || '30 - 60 mins'}
+                    </div>
+                </div>
+
+                {/* Patient Box */}
+                <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-sm h-full'>
+                    <div className='flex items-center gap-2 text-[11px] text-brand-700 dark:text-brand-400 font-bold tracking-tight'>
+                        <User className='w-4 h-4 text-brand-500' />
+                        Patient
+                    </div>
+                    <div className='text-[15px] sm:text-[17px] font-bold text-gray-900 dark:text-white mt-auto'>
+                        {patientLabel}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default LogisticsOverview;

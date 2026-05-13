@@ -11,7 +11,8 @@ import AppointmentDetailTabs from '../../components/patient/appointment_details/
 import AppointmentDetailFooter from '../../components/patient/appointment_details/AppointmentDetailFooter';
 import AppointmentCancelModal from '../../components/patient/appointment_details/AppointmentCancelModal';
 import ReschedulePolicyModal from '../../components/patient/appointment_details/ReschedulePolicyModal';
-import CombinedOverview from '../../components/patient/appointment_details/CombinedOverview';
+import DoctorOverview from '../../components/patient/appointment_details/DoctorOverview';
+import LogisticsOverview from '../../components/patient/appointment_details/LogisticsOverview';
 import AppointmentDetailSkeleton from '../../components/patient/appointment_details/AppointmentDetailSkeleton';
 import ErrorState from '../../components/common/ErrorState';
 
@@ -164,7 +165,7 @@ const AppointmentDetails = () => {
 
                     {/* Content Area */}
                     <div className='px-0 py-6 sm:p-8 md:p-10 overflow-y-auto grow no-scrollbar pb-28 sm:pb-8 md:pb-10 bg-white/50 dark:bg-transparent'>
-                        <div className='max-w-4xl mx-auto space-y-3 sm:space-y-8'>
+                        <div className='w-full space-y-3 sm:space-y-8'>
                             {/* Header Section: Service Name & Status */}
                             <div className='bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl mx-4 sm:mx-0 px-4 py-5 sm:p-8 shadow-theme-xs'>
                                 <div className='flex flex-row items-center justify-between gap-4'>
@@ -214,16 +215,21 @@ const AppointmentDetails = () => {
                                 />
                             </div>
 
-                            {/* Overview Section */}
+                            {/* Assigned Doctor Section */}
                             <div className='bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl mx-4 sm:mx-0 p-4 sm:p-8 shadow-theme-xs'>
-                                <CombinedOverview
+                                <DoctorOverview
                                     dentistName={dentistName}
                                     specialization={specialization}
+                                />
+                            </div>
+
+                            {/* Appointment Logistics Section */}
+                            <div className='bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl mx-4 sm:mx-0 p-4 sm:p-8 shadow-theme-xs'>
+                                <LogisticsOverview
                                     dateFormatted={formatDate(raw.appointment_date)}
                                     timeFormatted={`${formatTime(raw.start_time)} – ${formatTime(raw.end_time)}`}
                                     duration={duration}
                                     patientLabel={patientLabel}
-                                    isRepresentativeBooking={isRepresentativeBooking}
                                 />
                             </div>
 
