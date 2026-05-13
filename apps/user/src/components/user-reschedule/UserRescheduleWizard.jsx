@@ -123,10 +123,9 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
 
                 <div className="max-w-6xl mx-auto px-8 md:px-12 py-10 md:py-16">
                     <UserRescheduleSuccess
-                        newDate={formData.date}
-                        newTime={formData.time}
-                        serviceName={appointment?.service?.name || appointment?.service}
-                        onReturn={() => navigate('/patient/appointments')}
+                        result={result}
+                        appointment={appointment}
+                        onReset={reset}
                     />
                 </div>
             </div>
