@@ -105,19 +105,15 @@ const Navbar = () => {
 
     useLayoutEffect(() => {
         let ctx = gsap.context(() => {
-            gsap.from('.nav-anim', {
-                y: -20,
-                opacity: 0,
-                duration: 1.2,
-                stagger: 0.08,
-                ease: 'power2.out',
-                delay: 0.1,
-                clearProps: 'all',
-            });
+            const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.8, clearProps: 'all' } });
+            
+            tl.from('.nav-logo', { y: -20, opacity: 0 })
+              .from('.nav-link-item', { y: -20, opacity: 0, stagger: 0.08 }, '-=0.6')
+              .from('.nav-actions', { y: -20, opacity: 0 }, '-=0.6');
         }, navRef);
 
         return () => ctx.revert();
-    }, [location.pathname]);
+    }, []);
 
     // Smart Visibility Logic
     useEffect(() => {
@@ -161,7 +157,7 @@ const Navbar = () => {
                             {/* Logo Container (Hidden on mobile, flex on desktop) */}
                             <Link
                                 to='/'
-                                className='hidden lg:flex items-center gap-3 transition-all duration-300 group flex-shrink-0 nav-anim'
+                                className='hidden lg:flex items-center gap-3 transition-all duration-300 group flex-shrink-0 nav-logo'
                             >
                                 <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
                                     <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto" />
@@ -185,7 +181,7 @@ const Navbar = () => {
                                 {navLinks.map((link, index) => (
                                     <li
                                         key={index}
-                                        className='relative nav-anim'
+                                        className='relative nav-link-item'
                                     >
                                         <NavLink
                                             to={link.path}
@@ -204,15 +200,15 @@ const Navbar = () => {
                         </div>
 
                         {/* Section 3: Profile & Notifications */}
-                        <div className='flex items-center gap-2 lg:gap-4'>
+                        <div className='flex items-center gap-2 lg:gap-4 nav-actions'>
                             {user && (
-                                <div className='nav-anim flex items-center'>
+                                <div className='flex items-center'>
                                     <PatientNotification />
                                 </div>
                             )}
 
                             <div
-                                className='relative nav-anim'
+                                className='relative'
                                 ref={profileRef}
                             >
                                 {loading ? (
