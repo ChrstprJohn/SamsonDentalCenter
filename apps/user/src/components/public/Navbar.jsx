@@ -100,12 +100,13 @@ const Navbar = () => {
 
         let ctx = gsap.context(() => {
             gsap.from('.nav-anim', {
-                y: -20,
+                y: 15,
+                scale: 0.98,
                 opacity: 0,
-                duration: 1,
-                stagger: 0.1,
-                ease: 'power4.out',
-                delay: 0.3,
+                duration: 0.8,
+                stagger: 0.06,
+                ease: 'expo.out',
+                delay: 0.1,
                 clearProps: 'all',
             });
         }, navRef);
@@ -202,9 +203,15 @@ const Navbar = () => {
 
                         {/* Section 3: Profile & Notifications */}
                         <div className='flex items-center gap-2 lg:gap-4'>
-                            {user && (
-                                <PatientNotification />
-                            )}
+                            {loading ? (
+                                <div className='relative nav-anim flex items-center'>
+                                    <div className='flex items-center justify-center bg-gray-200/50 border border-gray-200 rounded-full h-10 w-10 lg:h-11 lg:w-11 dark:bg-white/[0.03] dark:border-gray-800 animate-pulse' />
+                                </div>
+                            ) : user ? (
+                                <div className='nav-anim flex items-center'>
+                                    <PatientNotification />
+                                </div>
+                            ) : null}
 
                             <div
                                 className='relative nav-anim'
