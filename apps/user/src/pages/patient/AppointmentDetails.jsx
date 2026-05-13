@@ -108,13 +108,13 @@ const AppointmentDetails = () => {
           : raw?.patient_id
             ? 'Yourself'
             : '—';
-    const isRepresentativeBooking = !!raw?.booked_for_name;
-    const isCancellable = !['CANCELLED', 'LATE_CANCEL', 'COMPLETED', 'NO_SHOW'].includes(
-        raw.status,
-    );
-    // User can always TRY to reschedule if the appointment is active
-    // The modal will handle the blockage if they already reached the limit
-    const isReschedulable = isCancellable;
+    const isPending = raw.status === 'PENDING' && (raw.approval_status || '').toLowerCase() !== 'approved' && (raw.approval_status || '').toLowerCase() !== 'rejected';
+    const isApproved = ((raw.approval_status || '').toLowerCase() === 'approved' || raw.status === 'CONFIRMED') && !['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'RESCHEDULED', 'COMPLETED', 'IN_PROGRESS'].includes(raw.status);
+    const isHistory = ['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED'].includes(raw.status) || (raw.approval_status || '').toLowerCase() === 'rejected';
+
+    const isCancellable = isPending || isApproved;
+    // Reschedule is ONLY for Approved appointments
+    const isReschedulable = isApproved;
     const rescheduleCount = raw?.reschedule_count || 0;
     const hasRescheduled = rescheduleCount >= 1;
 
@@ -147,8 +147,8 @@ const AppointmentDetails = () => {
         <>
             <PageBreadcrumb
                 pageTitle='Appointment Details'
-                parentName='My Appointments'
-                parentPath='/patient/appointments'
+                parentName={isPending || (raw.approval_status || '').toLowerCase() === 'rejected' ? 'My Requests' : 'My Appointments'}
+                parentPath={isPending || (raw.approval_status || '').toLowerCase() === 'rejected' ? '/patient/requests' : '/patient/appointments'}
             />
 
             <div className='flex-grow min-h-0 relative sm:mx-0'>
@@ -235,6 +235,8 @@ const AppointmentDetails = () => {
                     <AppointmentDetailFooter
                         isCancellable={isCancellable}
                         isReschedulable={isReschedulable}
+                        isPending={isPending}
+                        isApproved={isApproved}
                         hasRescheduled={hasRescheduled}
                         onCancelClick={() => setShowCancelModal(true)}
                         onRescheduleClick={handleRescheduleClick}
