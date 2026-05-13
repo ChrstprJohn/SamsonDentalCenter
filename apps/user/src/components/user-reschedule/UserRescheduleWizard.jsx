@@ -1,16 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, LogOut, AlertCircle } from 'lucide-react';
+import { X, LogOut, AlertCircle, Clock, Calendar } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
 import UserStepIndicator from '../user-booking/UserStepIndicator';
 import DateTimeStep from '../user-booking/DateTimeStep';
 import UserRescheduleReviewStep from './UserRescheduleReviewStep';
 import UserRescheduleSuccess from './UserRescheduleSuccess';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
-import { useState } from 'react';
 
 const UserRescheduleWizard = ({ reschedule, appointment }) => {
     const navigate = useNavigate();
+    const toast = useToast();
     const {
         sessionId,
         step,
@@ -28,12 +29,47 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
         slotHold,
     } = reschedule;
 
+    const [showExitModal, setShowExitModal] = useState(false);
+    const [showExpiryModal, setShowExpiryModal] = useState(false);
+    const warnedExpiryRef = useRef(false);
+    const [showRecoveryModal, setShowRecoveryModal] = useState(false);
+
+    // Initial hold check (Recovery Interceptor)
+    useEffect(() => {
+        const checkRecovery = async () => {
+            if (slotHold.checkActiveHold) {
+                const hasHold = await slotHold.checkActiveHold();
+                // Only show recovery if we are on step 1 and have a hold
+                if (hasHold && step === 1 && formData.date && formData.time) {
+                    setShowRecoveryModal(true);
+                }
+            }
+        };
+        checkRecovery();
+    }, []);
+
+    // Track hold for expiry detection
+    useEffect(() => {
+        if (slotHold.activeHold && slotHold.timeRemaining === 120 && !warnedExpiryRef.current) {
+            toast.warning('Your slot hold expires in 2 minutes. Please complete your reschedule soon!');
+            warnedExpiryRef.current = true;
+        }
+
+        if (!slotHold.activeHold || slotHold.timeRemaining > 120) {
+            warnedExpiryRef.current = false;
+        }
+
+        // Auto-show expiry modal if hold is lost while on review step
+        if (!slotHold.activeHold && !result && currentStep === 'review' && !showExpiryModal) {
+            setShowExpiryModal(true);
+        }
+    }, [slotHold.activeHold, slotHold.timeRemaining, toast, result, currentStep, showExpiryModal]);
+
     // Auto-scroll to top when step changes
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [step]);
 
-    const [showExitModal, setShowExitModal] = useState(false);
     const breadcrumbLabels = ['Schedule', 'Review'];
 
     if (result && result.success) {
@@ -80,7 +116,33 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
                         labels={breadcrumbLabels}
                         onStepClick={(index) => goToStep(index + 1)}
                     />
+
+                    {slotHold.activeHold && (
+                        <div className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 sm:gap-3 px-2 sm:px-4 py-1 sm:py-2 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-lg sm:rounded-xl">
+                            <Clock className="text-amber-600 dark:text-amber-400 animate-pulse hidden sm:block" size={18} />
+                            <div className="flex flex-col items-center sm:items-start justify-center">
+                                <span className="order-2 sm:order-1 text-[6px] sm:text-[9px] font-black text-amber-600/70 dark:text-amber-400/50 leading-none tracking-wider uppercase">
+                                    <span className="hidden sm:inline">Slot </span>Hold
+                                </span>
+                                <span className="order-1 sm:order-2 text-[10px] sm:text-[13px] font-mono font-black text-amber-700 dark:text-amber-300 leading-none">
+                                    {slotHold.formattedTime}
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
+
+                {slotHold.activeHold && (
+                    <div className="absolute bottom-0 left-0 w-full h-[3px] bg-gray-100 dark:bg-gray-800/50 overflow-hidden">
+                        <div
+                            className="h-full bg-amber-500 transition-all duration-1000 ease-linear shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+                            style={{
+                                width: `${(slotHold.timeRemaining / ((slotHold.activeHold?.expires_in_minutes || 10) * 60)) * 100}%`,
+                                backgroundColor: slotHold.timeRemaining < 60 ? '#ef4444' : '#f59e0b'
+                            }}
+                        />
+                    </div>
+                )}
             </header>
 
             <Modal
@@ -132,6 +194,117 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
                 </div>
             </Modal>
 
+            <Modal
+                isOpen={showExpiryModal}
+                onClose={() => setShowExpiryModal(false)}
+                showCloseButton={true}
+                className="max-w-md"
+                isBottomSheet={true}
+            >
+                <div className="flex flex-col h-full">
+                    <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                            <Clock className="text-amber-600 dark:text-amber-400" size={22} />
+                        </div>
+                        <div className="text-left">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Need More Time?</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Your current slot reservation has timed out.</p>
+                        </div>
+                    </div>
+
+                    <div className="px-6 py-8 flex-1 overflow-y-auto text-center">
+                        <div className="space-y-4">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                We’ve kept your info ready for you. Simply pick a new time to complete your reschedule!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="px-5 py-5 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-row gap-3">
+                        <Button
+                            variant="ghost"
+                            fullWidth
+                            onClick={() => {
+                                setShowExpiryModal(false);
+                                goToStep(1);
+                                updateFields({ date: '', time: '' });
+                            }}
+                            className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-300"
+                        >
+                            Select New Time
+                        </Button>
+                        <Button
+                            variant="primary"
+                            fullWidth
+                            onClick={() => setShowExpiryModal(false)}
+                            className="flex-[1.5] h-10 sm:h-12 text-[10px] sm:text-sm font-black shadow-lg shadow-brand-500/20"
+                        >
+                            Keep Browsing
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={showRecoveryModal}
+                onClose={() => setShowRecoveryModal(false)}
+                showCloseButton={false}
+                closeOnOverlayClick={false}
+                className="max-w-md"
+                isBottomSheet={true}
+            >
+                <div className="flex flex-col h-full">
+                    <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center shrink-0">
+                            <AlertCircle className="text-brand-600 dark:text-brand-400" size={22} />
+                        </div>
+                        <div className="text-left">
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white">Resume Rescheduling?</h3>
+                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold">We’ve saved your progress.</p>
+                        </div>
+                    </div>
+
+                    <div className="px-6 py-6 sm:py-8 flex-1 overflow-y-auto">
+                        <div className="p-5 sm:p-6 bg-brand-50/50 dark:bg-brand-900/10 border border-brand-100/50 dark:border-brand-800/30 rounded-2xl sm:rounded-3xl flex flex-col items-center text-center gap-4 shadow-theme-xs">
+                            <div className="w-12 h-12 rounded-2xl bg-white dark:bg-brand-800 flex items-center justify-center shrink-0 shadow-theme-sm">
+                                <Calendar className="text-brand-600 dark:text-brand-400" size={24} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <h4 className="text-base font-black text-gray-900 dark:text-white leading-tight">Held Slot:</h4>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                    Your previously selected time is still reserved for you.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="px-5 py-5 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-row gap-3">
+                        <Button
+                            variant="ghost"
+                            fullWidth
+                            onClick={() => {
+                                setShowRecoveryModal(false);
+                                reset();
+                            }}
+                            className="flex-1 h-11 text-[11px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-300"
+                        >
+                            Start Over
+                        </Button>
+                        <Button
+                            variant="primary"
+                            fullWidth
+                            onClick={() => {
+                                setShowRecoveryModal(false);
+                                goToStep(2); // Jump to review
+                            }}
+                            className="flex-[1.5] h-11 text-[11px] sm:text-sm font-black shadow-lg shadow-brand-500/20"
+                        >
+                            Continue to Review
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
             <main className="flex-1 max-w-6xl mx-auto px-8 md:px-12 py-10 md:py-16 w-full">
                 <div className="min-h-[60vh]">
                     {currentStep === 'datetime' && (
@@ -147,7 +320,7 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
                             serviceTier={appointment?.service?.tier || 'standard'}
                             sessionId={sessionId}
                             slotHold={slotHold}
-                            disableWaitlist={true} // Hide waitlist for reschedule
+                            nextLabel="Continue to Review"
                         />
                     )}
 

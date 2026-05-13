@@ -1139,8 +1139,8 @@ export const bookAppointment = async (
             throw new AppError('Appointment not found.', 404);
         }
 
-        if (original.status !== APPOINTMENT_STATUS.CONFIRMED) {
-            throw new AppError(`Cannot reschedule appointment with status: ${original.status}`, 400);
+        if (original.status !== APPOINTMENT_STATUS.CONFIRMED && original.status !== APPOINTMENT_STATUS.PENDING) {
+            throw new AppError('Only active or pending appointments can be rescheduled.', 400);
         }
 
         // ── 1b. Prevent "Zombie" Reschedule (Past appointments) ──
