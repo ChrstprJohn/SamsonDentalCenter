@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { useAppointmentState } from '../context/AppointmentContext';
-import { format, parseISO, isValid } from 'date-fns';
+import { format, parseISO, isValid, isPast, isFuture, startOfDay } from 'date-fns';
 
 export const STATUS_LABEL = {
     CONFIRMED: 'Approved',
@@ -30,7 +30,6 @@ export const STATUS_COLOR = {
 
 export const getDisplayStatus = (status, approvalStatus, cancellationReason) => {
     // 1. Rejection is a specific case of "Terminal" in the requests context
-    // If it's rejected, we want to see "Rejected" even if status is technically cancelled
     const appStatus = (approvalStatus || '').toLowerCase();
     if (appStatus === 'rejected') {
         return { label: 'Rejected', color: STATUS_COLOR.Rejected };
@@ -41,8 +40,7 @@ export const getDisplayStatus = (status, approvalStatus, cancellationReason) => 
         return { label: 'Clinic Updating', color: 'warning' };
     }
 
-    // 2. Terminal statuses always win — a cancelled appointment is cancelled
-    // regardless of what approval_status says (e.g. approved then cancelled)
+    // 2. Terminal statuses always win
     const TERMINAL = ['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'IN_PROGRESS', 'RESCHEDULED'];
     if (TERMINAL.includes((status || '').toUpperCase())) {
         const label = STATUS_LABEL[status] || status;
@@ -67,7 +65,7 @@ export const formatDate = (dateStr) => {
     if (!dateStr) return '';
     try {
         let date;
-        // Plain date string YYYY-MM-DD — parse as LOCAL midnight to avoid UTC offset issues
+        // Plain date string YYYY-MM-DD
         if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr.trim())) {
             const [y, m, d] = dateStr.trim().split('-').map(Number);
             date = new Date(y, m - 1, d);
@@ -116,7 +114,10 @@ export const formatFullDateTime = (dateStr) => {
 // Alias for convenience
 export const formatDateTime = formatFullDateTime;
 
-export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10 } = {}) => {
+/**
+ * Hook to manage and filter appointments with strict upcoming vs history logic.
+ */
+export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10, patientId = 'all' } = {}) => {
     const { 
         appointments: allAppointments = [], 
         loading, 
@@ -127,19 +128,19 @@ export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10 } = 
 
     const [page, setPage] = useState(1);
 
-    // Reset page when status changes
+    // Reset page when status or patient changes
     useEffect(() => {
         setPage(1);
-    }, [status]);
+    }, [status, patientId]);
 
     // Helpers for consistent filtering
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const today = startOfDay(now);
 
     const isApproved = useCallback((a) => {
         const s = (a.status || '').toUpperCase();
         const as = (a.approval_status || '').toLowerCase();
-        return (as === 'approved' || s === 'CONFIRMED') && !['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'RESCHEDULED'].includes(s);
+        return (as === 'approved' || s === 'CONFIRMED') && !['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'RESCHEDULED', 'COMPLETED', 'IN_PROGRESS'].includes(s);
     }, []);
 
     const isPending = useCallback((a) => {
@@ -150,30 +151,58 @@ export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10 } = 
 
     const isRejected = useCallback((a) => (a.approval_status || '').toLowerCase() === 'rejected', []);
 
+    const isOutdated = useCallback((a) => {
+        // We use the start_time to be precise. 
+        // If it's 10:00 AM and it's 10:01 AM, it's outdated if not seated.
+        if (!a.date || !a.start_time) return false;
+        const appointmentDate = new Date(`${a.date}T${a.start_time}`);
+        return appointmentDate < now;
+    }, [now]);
+
     const isHistoryStatus = useCallback((a) => {
         const s = (a.status || '').toUpperCase();
         const as = (a.approval_status || '').toLowerCase();
-        return ['COMPLETED', 'CANCELLED', 'LATE_CANCEL', 'NO_SHOW'].includes(s) && as !== 'rejected';
-    }, []);
+        // Terminal statuses are always history
+        if (['COMPLETED', 'CANCELLED', 'LATE_CANCEL', 'NO_SHOW'].includes(s) && as !== 'rejected') return true;
+        // Outdated approved appointments are also history (missed/expired)
+        if (isApproved(a) && isOutdated(a)) return true;
+        return false;
+    }, [isApproved, isOutdated]);
 
     const filtered = useMemo(() => {
         let result = allAppointments;
+
+        // 1. Patient ID Filter
+        if (patientId && patientId !== 'all') {
+            result = result.filter(a => a.patient_id === patientId);
+        }
+
+        // 2. Status Filter
         if (status && status !== 'all') {
-            if (status === 'upcoming') result = result.filter(isApproved);
-            else if (status === 'requests') result = result.filter(a => isApproved(a) || isPending(a) || isRejected(a));
+            if (status === 'upcoming') {
+                // Upcoming MUST be approved AND in the future
+                result = result.filter(a => isApproved(a) && !isOutdated(a));
+            }
+            else if (status === 'requests') {
+                // Requests are pending or rejected
+                result = result.filter(a => isPending(a) || isRejected(a));
+            }
+            else if (status === 'history') {
+                result = result.filter(isHistoryStatus);
+            }
             else if (status === 'pending') result = result.filter(isPending);
-            else if (status === 'approved') result = result.filter(isApproved);
+            else if (status === 'approved') result = result.filter(a => isApproved(a) && !isOutdated(a));
             else if (status === 'decline') result = result.filter(isRejected);
-            else if (status === 'history') result = result.filter(isHistoryStatus);
             else if (status === 'completed') result = result.filter(a => (a.status || '').toUpperCase() === 'COMPLETED');
             else if (status === 'cancel') result = result.filter(a => ['CANCELLED', 'LATE_CANCEL', 'NO_SHOW'].includes((a.status || '').toUpperCase()) && (a.approval_status || '').toLowerCase() !== 'rejected');
         }
         return [...result].sort((a, b) => {
-            const dateA = new Date(`${a.appointment_date}T${a.start_time}`);
-            const dateB = new Date(`${b.appointment_date}T${b.start_time}`);
+            const dateA = new Date(`${a.date}T${a.start_time}`);
+            const dateB = new Date(`${b.date}T${b.start_time}`);
             return sort === 'asc' ? dateA - dateB : dateB - dateA;
         });
-    }, [allAppointments, status, sort, isApproved, isPending, isRejected, isHistoryStatus]);
+    }, [allAppointments, status, sort, isApproved, isPending, isRejected, isHistoryStatus, isOutdated, patientId]);
+
     const totalPages = Math.max(1, Math.ceil(filtered.length / limit));
     const paginated = useMemo(() => {
         const start = (page - 1) * limit;
@@ -181,18 +210,22 @@ export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10 } = 
     }, [filtered, page, limit]);
 
     const counts = useMemo(() => {
+        const base = (patientId && patientId !== 'all') 
+            ? allAppointments.filter(a => a.patient_id === patientId)
+            : allAppointments;
+
         return {
-            all: allAppointments.filter(a => !['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'RESCHEDULED'].includes((a.status || '').toUpperCase())).length,
-            upcoming: allAppointments.filter(isApproved).length,
-            requests: allAppointments.filter(a => isApproved(a) || isPending(a) || isRejected(a)).length,
-            approved: allAppointments.filter(isApproved).length,
-            pending: allAppointments.filter(isPending).length,
-            decline: allAppointments.filter(isRejected).length,
-            history: allAppointments.filter(isHistoryStatus).length,
-            completed: allAppointments.filter(a => (a.status || '').toUpperCase() === 'COMPLETED').length,
-            cancel: allAppointments.filter(a => ['CANCELLED', 'LATE_CANCEL', 'NO_SHOW'].includes((a.status || '').toUpperCase()) && (a.approval_status || '').toLowerCase() !== 'rejected').length,
+            all: base.filter(a => !['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'RESCHEDULED'].includes((a.status || '').toUpperCase())).length,
+            upcoming: base.filter(a => isApproved(a) && !isOutdated(a)).length,
+            requests: base.filter(a => isPending(a) || isRejected(a)).length,
+            approved: base.filter(isApproved).length,
+            pending: base.filter(isPending).length,
+            decline: base.filter(isRejected).length,
+            history: base.filter(isHistoryStatus).length,
+            completed: base.filter(a => (a.status || '').toUpperCase() === 'COMPLETED').length,
+            cancel: base.filter(a => ['CANCELLED', 'LATE_CANCEL', 'NO_SHOW'].includes((a.status || '').toUpperCase()) && (a.approval_status || '').toLowerCase() !== 'rejected').length,
         };
-    }, [allAppointments, isApproved, isPending, isRejected, isHistoryStatus]);
+    }, [allAppointments, isApproved, isPending, isRejected, isHistoryStatus, isOutdated, patientId]);
 
     const goToPage = useCallback((p) => setPage(p), []);
     const prevPage = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);

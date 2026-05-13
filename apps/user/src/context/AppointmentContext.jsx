@@ -82,7 +82,21 @@ export const AppointmentProvider = ({ children }) => {
                     filter: `patient_id=eq.${user.id}`,
                 },
                 (payload) => {
-                    console.log('[AppointmentContext] ⚡ appointments table event:', payload.eventType);
+                    console.log('[AppointmentContext] ⚡ self appointment event:', payload.eventType);
+                    fetchAppointments(true);
+                }
+            )
+            // 1.1. Family: Listen to appointments booked BY the user (for dependents)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'appointments',
+                    filter: `booked_by_user_id=eq.${user.id}`,
+                },
+                (payload) => {
+                    console.log('[AppointmentContext] 👨‍👩‍👧‍👦 family appointment event:', payload.eventType);
                     fetchAppointments(true);
                 }
             )

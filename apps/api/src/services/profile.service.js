@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import { AppError } from '../utils/errors.js';
+import { CLINIC_CONFIG } from '../utils/constants.js';
 
 /**
  * Get all patient profiles (dependents) for a specific account holder.
@@ -49,6 +50,18 @@ export const createPatientProfile = async (profileId, profileData) => {
         throw new AppError('First name, last name, DOB, and relationship are required.', 400);
     }
 
+    // Enforce dependent limit
+    const { count, error: countError } = await supabaseAdmin
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('primary_profile_id', profileId);
+
+    if (countError) throw new AppError('Failed to validate dependent limit.', 500);
+    
+    if ((count || 0) >= CLINIC_CONFIG.MAX_DEPENDENTS_PER_USER) {
+        throw new AppError(`You've reached the maximum limit of ${CLINIC_CONFIG.MAX_DEPENDENTS_PER_USER} family members.`, 403);
+    }
+
     const full_name = `${first_name} ${last_name}`.trim();
 
     const { data, error } = await supabaseAdmin
@@ -95,6 +108,19 @@ export const updatePatientProfile = async (id, profileId, profileData) => {
     
     if (relationship) {
         updates.relationship_to_primary = relationship;
+    }
+
+    // Update full_name if first_name or last_name changes
+    if (updates.first_name || updates.last_name) {
+        const { data: current } = await supabaseAdmin
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', id)
+            .single();
+            
+        const first = updates.first_name || current?.first_name || '';
+        const last = updates.last_name || current?.last_name || '';
+        updates.full_name = `${first} ${last}`.trim();
     }
 
     const { data, error } = await supabaseAdmin

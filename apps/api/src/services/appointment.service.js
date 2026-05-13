@@ -761,10 +761,10 @@ export const bookAppointment = async (
         const { data: familyProfiles } = await supabaseAdmin
             .from('profiles')
             .select('id')
-            .or(`id.eq.${patientId},primary_profile_id.eq.${patientId}`);
+            .eq('primary_profile_id', patientId);
 
         const familyIds = (familyProfiles || []).map(p => p.id);
-        if (familyIds.length === 0) familyIds.push(patientId); // Fallback
+        familyIds.push(patientId); // Always include self
 
         let query = supabaseAdmin
             .from('appointments')
@@ -830,6 +830,7 @@ export const bookAppointment = async (
 
         const appointments = data.map((appt) => ({
             id: appt.id,
+            patient_id: appt.patient_id, // ✅ Essential for frontend filtering
             date: appt.appointment_date,
             start_time: appt.start_time,
             end_time: appt.end_time,
@@ -858,14 +859,14 @@ export const bookAppointment = async (
     export const getPatientAppointmentStats = async (patientId) => {
         const today = getTodayPH();
 
-        // 1. Get all profile IDs in this family
+        // 1. Get all profile IDs in this family (Self + Dependents)
         const { data: familyProfiles } = await supabaseAdmin
             .from('profiles')
             .select('id')
-            .or(`id.eq.${patientId},primary_profile_id.eq.${patientId}`);
+            .eq('primary_profile_id', patientId);
 
         const familyIds = (familyProfiles || []).map(p => p.id);
-        if (familyIds.length === 0) familyIds.push(patientId);
+        familyIds.push(patientId); // Always include self
 
         // Run summary counts in parallel for performance
         const [upcoming, pending, rejected, completed] = await Promise.all([
