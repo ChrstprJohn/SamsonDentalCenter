@@ -1191,6 +1191,7 @@ export const bookAppointment = async (
                 .from('appointments')
                 .update({
                     status: APPOINTMENT_STATUS.RESCHEDULED,
+                    approval_status: APPOINTMENT_STATUS.RESCHEDULED, // Definitively free the slot
                     cancellation_reason: 'Rescheduled to new time',
                     cancelled_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
@@ -1792,6 +1793,7 @@ export const bookAppointment = async (
             .from('appointments')
             .update({
                 status: APPOINTMENT_STATUS.RESCHEDULED,
+                approval_status: APPOINTMENT_STATUS.RESCHEDULED,
                 cancellation_reason: `Admin rescheduled to ${newDate} ${newTime}`,
                 cancelled_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
