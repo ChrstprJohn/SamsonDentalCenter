@@ -448,15 +448,22 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     </div>
 
                     <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
-                        {/* Auto-fill Notice */}
+                        {/* Auto-fill Alert Notice */}
                         {isReadOnly && (
-                            <div className='flex items-start gap-3 p-4 bg-brand-50/50 dark:bg-brand-500/5 rounded-2xl border border-brand-100 dark:border-brand-500/20 animate-in fade-in slide-in-from-top-2 duration-500'>
-                                <Info size={16} className='text-brand-500 mt-0.5 shrink-0' />
-                                <p className='text-[12px] sm:text-[13px] font-bold text-brand-700 dark:text-brand-400 leading-tight'>
-                                    {isSelf 
-                                        ? "Information auto-filled from your primary account profile." 
-                                        : `Information auto-filled from ${formData.booked_for_first_name}'s saved profile.`}
-                                </p>
+                            <div className='flex items-center gap-3.5 p-4 bg-blue-50/60 dark:bg-blue-500/10 rounded-2xl border border-blue-100 dark:border-blue-500/20 animate-in fade-in slide-in-from-top-2 duration-500 shadow-theme-xs'>
+                                <div className='w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 shadow-sm'>
+                                    <AlertCircle size={18} />
+                                </div>
+                                <div className='flex flex-col'>
+                                    <p className='text-[13px] sm:text-[14px] font-black text-blue-900 dark:text-blue-300 leading-tight'>
+                                        Profile Sync Active
+                                    </p>
+                                    <p className='text-[11px] sm:text-[12px] font-bold text-blue-700/80 dark:text-blue-400/80 mt-0.5'>
+                                        {isSelf 
+                                            ? "We've auto-filled this step using your primary account information." 
+                                            : `We've auto-filled this step using ${formData.booked_for_first_name}'s saved profile.`}
+                                    </p>
+                                </div>
                             </div>
                         )}
 
