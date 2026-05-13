@@ -102,13 +102,13 @@ const DependentsPage = () => {
                                 <div className='flex flex-nowrap items-center gap-3 overflow-x-auto no-scrollbar'>
                                     {/* Relationship Filter */}
                                     <div className='relative w-[160px] sm:w-[180px] shrink-0'>
-                                        <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500 pointer-events-none'>
+                                        <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
                                             <Users size={16} />
                                         </div>
                                         <select
                                             value={relationshipFilter}
                                             onChange={(e) => setRelationshipFilter(e.target.value)}
-                                            className='w-full pl-10 pr-10 py-2.5 bg-brand-50/50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-900/50 rounded-lg text-xs font-bold text-brand-700 dark:text-brand-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all cursor-pointer'
+                                            className='w-full pl-10 pr-10 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer'
                                         >
                                             <option value='all' className='dark:bg-gray-900'>All Relationships</option>
                                             <option value='Child' className='dark:bg-gray-900'>Children</option>
@@ -117,7 +117,7 @@ const DependentsPage = () => {
                                             <option value='Sibling' className='dark:bg-gray-900'>Siblings</option>
                                             <option value='Other' className='dark:bg-gray-900'>Others</option>
                                         </select>
-                                        <div className='absolute right-4 top-4 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-brand-500 pointer-events-none' />
+                                        <div className='absolute right-4 top-4 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                                     </div>
                                 </div>
 
@@ -125,10 +125,10 @@ const DependentsPage = () => {
                                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] font-black tracking-widest transition-all ${
                                     isLimitReached 
                                         ? 'bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400' 
-                                        : 'bg-brand-50/50 border-brand-100/50 text-brand-600 dark:bg-brand-900/10 dark:border-brand-900/20'
+                                        : 'bg-gray-100/50 border-gray-200/50 text-gray-600 dark:bg-white/5 dark:border-white/10'
                                 }`}>
                                     <span className="uppercase tracking-widest opacity-60">QUOTA:</span>
-                                    <span className={isLimitReached ? 'text-rose-700 dark:text-rose-400' : 'text-brand-700 dark:text-brand-400'}>
+                                    <span className={isLimitReached ? 'text-rose-700 dark:text-rose-400' : 'text-gray-900 dark:text-gray-400'}>
                                         {currentCount} / {maxDependents}
                                     </span>
                                 </div>
@@ -196,9 +196,10 @@ const DependentsPage = () => {
                         {!isLimitReached && (
                             <button
                                 onClick={handleAddClick}
-                                className="fixed bottom-20 right-6 sm:hidden z-50 w-14 h-14 bg-brand-500 text-white rounded-full shadow-2xl shadow-brand-500/40 flex items-center justify-center active:scale-95 transition-all outline-none"
+                                className="fixed bottom-8 right-5 sm:hidden z-50 flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg shadow-2xl shadow-brand-500/40 active:scale-95 transition-all outline-none"
                             >
-                                <Plus size={24} strokeWidth={3} />
+                                <Plus size={18} strokeWidth={3} />
+                                <span className='text-xs font-bold'>New Family Member</span>
                             </button>
                         )}
                     </>
