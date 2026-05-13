@@ -206,8 +206,7 @@ const AppointmentDetailStatus = ({
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
 };
 
 export default AppointmentDetailStatus;
