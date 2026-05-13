@@ -279,6 +279,9 @@ const AddDependentModal = ({ isOpen, onClose, onSave, dependent = null }) => {
                                 className={`text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm transition-all ${errors.date_of_birth ? 'border-rose-500 ring-rose-500/10 focus:ring-rose-500/10 focus:border-rose-500' : ''}`} 
                                 value={formData.date_of_birth}
                                 onChange={handleInputChange}
+                                onClick={(e) => {
+                                    try { e.target.showPicker(); } catch (err) {}
+                                }}
                                 required
                             />
                             {errors.date_of_birth && <p className='text-rose-500 text-[10px] font-bold mt-1.5 ml-1 animate-in fade-in slide-in-from-top-1'>{errors.date_of_birth}</p>}
