@@ -1,7 +1,7 @@
-import { Badge, Dropdown, DropdownItem } from '../../ui';
+import { Badge, Dropdown, DropdownItem } from '../../ui'; // Nudge for refresh
 import { ThreeDotsIcon } from './AppointmentIcons';
 import { STATUS_LABEL, STATUS_COLOR, getDisplayStatus, formatDate, formatTime } from '../../../hooks/useAppointments';
-import { Calendar, Clock, User, UserCheck, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, User, UserCheck, ChevronRight, X } from 'lucide-react';
 
 const truncateText = (text, maxLength) => {
     if (!text) return '';

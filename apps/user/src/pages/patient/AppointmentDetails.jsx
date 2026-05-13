@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; // Nudge for refresh
 import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import useAppointmentDetail from '../../hooks/useAppointmentDetail';
@@ -163,10 +163,10 @@ const AppointmentDetails = () => {
                             <div className='bg-transparent sm:bg-white dark:sm:bg-gray-800/40 border-0 sm:border border-gray-100/80 dark:border-white/5 rounded-none sm:rounded-xl px-4 pb-4 pt-0 sm:p-8'>
                                 <div className='flex flex-row items-center justify-between gap-4'>
                                     <div className='space-y-2'>
-                                        <h2 className='text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white font-outfit leading-tight tracking-tight'>
+                                        <h2 className='text-xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white font-outfit leading-tight tracking-tight'>
                                             {serviceName}
                                         </h2>
-                                        <div className='flex items-center gap-2 text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold'>
+                                        <div className='flex items-center gap-2 text-[9px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold'>
                                             <span className='uppercase tracking-[0.15em] opacity-40'>Appointment ID:</span>
                                             <span className='font-mono text-gray-900 dark:text-gray-200 px-1.5 py-0.5 bg-gray-100 dark:bg-white/5 rounded'>
                                                 {raw.id?.slice(0, 8).toUpperCase()}
