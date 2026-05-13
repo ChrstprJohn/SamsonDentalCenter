@@ -52,8 +52,12 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                 title={title}
                 description={description}
                 onClose={onClose}
-                icon={
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
+            />
+
+            <ModalBody>
+                <div className='space-y-6'>
+                    {/* Status Icon */}
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                         isPending 
                             ? 'bg-warning-50 dark:bg-warning-500/10 text-warning-500' 
                             : isLate
@@ -62,11 +66,7 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                     }`}>
                         <AlertCircle size={24} />
                     </div>
-                }
-            />
 
-            <ModalBody>
-                <div className='space-y-6'>
                     {/* Policy Notice Box */}
                     {isPending ? (
                         <div className='bg-warning-50 dark:bg-warning-500/10 border border-warning-100 dark:border-warning-500/20 rounded-xl p-4 space-y-2'>
@@ -149,19 +149,19 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                 </div>
             </ModalBody>
 
-            <ModalFooter className="flex w-full gap-3 px-6 pb-6">
+            <ModalFooter>
                 <Button 
                     variant='outline' 
                     onClick={onClose} 
                     disabled={cancelling}
-                    className="flex-1 h-12 rounded-xl font-black text-[11px] sm:text-sm"
+                    className="flex-1 h-11 px-6 rounded-xl font-black text-[11px] sm:text-sm"
                 >
                     {cancelLabel}
                 </Button>
                 <Button 
                     onClick={handleCancel}
                     disabled={cancelling || !isReady || (showOthers && cancelReason.trim().length < 2)}
-                    className={`flex-1 h-12 text-white rounded-xl font-black text-[11px] sm:text-sm shadow-lg transition-all ${
+                    className={`flex-1 h-11 text-white rounded-xl font-black text-[11px] sm:text-sm shadow-lg transition-all ${
                         isPending 
                             ? 'bg-warning-500 hover:bg-warning-600 shadow-warning-500/20' 
                             : isLate
