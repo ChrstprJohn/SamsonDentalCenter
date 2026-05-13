@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
     Lock, 
     Trash2, 
@@ -16,15 +16,24 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Label from '../../components/ui/Label';
 import { useToast } from '../../context/ToastContext';
+import SettingsSkeleton from '../../components/patient/settings/SettingsSkeleton';
 
 const SettingsPage = () => {
     const { showToast } = useToast();
+    const [loading, setLoading] = useState(true);
     const [pushEnabled, setPushEnabled] = useState(true);
     const [showPushModal, setShowPushModal] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 800);
+        return () => clearTimeout(timer);
+    }, []);
     
     // Password state
     const [passwords, setPasswords] = useState({
@@ -143,49 +152,53 @@ const SettingsPage = () => {
                 </div>
 
                 <div className="flex-grow flex flex-col h-full sm:bg-white dark:sm:bg-white/[0.03] sm:rounded-xl sm:border border-gray-200 dark:border-gray-700/60 overflow-hidden">
-                    <div className="p-4 sm:p-10 space-y-8 sm:space-y-12 w-full">
-                        {/* 1. Notifications Section */}
-                        <SettingsCard 
-                            title="Notifications" 
-                            description="Control how you receive updates and alerts."
-                        >
-                            <Toggle 
-                                enabled={pushEnabled}
-                                onToggle={handlePushToggle}
-                                label="Push Notifications"
-                                description="Receive alerts about appointment approvals and changes."
-                                icon={Smartphone}
-                            />
-                        </SettingsCard>
+                    {loading ? (
+                        <SettingsSkeleton />
+                    ) : (
+                        <div className="p-4 sm:p-10 space-y-8 sm:space-y-12 w-full">
+                            {/* 1. Notifications Section */}
+                            <SettingsCard 
+                                title="Notifications" 
+                                description="Control how you receive updates and alerts."
+                            >
+                                <Toggle 
+                                    enabled={pushEnabled}
+                                    onToggle={handlePushToggle}
+                                    label="Push Notifications"
+                                    description="Receive alerts about appointment approvals and changes."
+                                    icon={Smartphone}
+                                />
+                            </SettingsCard>
 
-                        {/* 2. Account Security Section */}
-                        <SettingsCard 
-                            title="Account Security" 
-                            description="Manage your credentials and account access."
-                        >
-                            <ActionItem 
-                                icon={Lock}
-                                label="Change Password"
-                                description="Update your password to keep your account secure."
-                                onClick={() => setShowPasswordModal(true)}
-                            />
-                        </SettingsCard>
+                            {/* 2. Account Security Section */}
+                            <SettingsCard 
+                                title="Account Security" 
+                                description="Manage your credentials and account access."
+                            >
+                                <ActionItem 
+                                    icon={Lock}
+                                    label="Change Password"
+                                    description="Update your password to keep your account secure."
+                                    onClick={() => setShowPasswordModal(true)}
+                                />
+                            </SettingsCard>
 
-                        {/* 3. Danger Zone Section */}
-                        <SettingsCard 
-                            title="Danger Zone" 
-                            description="Permanent actions regarding your account."
-                            danger
-                        >
-                            <ActionItem 
-                                icon={Trash2}
-                                label="Delete Account"
-                                description="Permanently remove your account and all associated data."
-                                onClick={() => setShowDeleteModal(true)}
+                            {/* 3. Danger Zone Section */}
+                            <SettingsCard 
+                                title="Danger Zone" 
+                                description="Permanent actions regarding your account."
                                 danger
-                            />
-                        </SettingsCard>
-                    </div>
+                            >
+                                <ActionItem 
+                                    icon={Trash2}
+                                    label="Delete Account"
+                                    description="Permanently remove your account and all associated data."
+                                    onClick={() => setShowDeleteModal(true)}
+                                    danger
+                                />
+                            </SettingsCard>
+                        </div>
+                    )}
                 </div>
             </div>
 
