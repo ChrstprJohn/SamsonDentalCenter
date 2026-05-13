@@ -69,6 +69,16 @@ const UserBookingWizard = ({ booking }) => {
     const hadHoldRef = useRef(false);
     const warnedExpiryRef = useRef(false);
 
+    // ✅ Phase 1: Global Auto-scroll to top on step change
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        // Small delay to ensure DOM has rendered before smooth scrolling if needed
+        const timer = setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 10);
+        return () => clearTimeout(timer);
+    }, [step]);
+
     // Track hold for expiry detection
     useEffect(() => {
         if (slotHold.activeHold) {
