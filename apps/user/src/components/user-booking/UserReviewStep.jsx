@@ -86,14 +86,15 @@ const UserReviewStep = ({
         const pName = formData.booked_for_first_name || 'The patient';
         const serviceName = formData.service_name || 'this service';
 
-        if (error.includes('limit of 3 active appointments')) {
+        // Check for Quota Limit (Backend: "This individual already has 3 active appointments.")
+        if (error.includes('already has 3 active appointments') || error.includes('limit of 3 active appointments')) {
             return {
                 headline: 'Booking Limit Reached',
                 message: isSelf 
                     ? "You've reached the maximum of 3 active appointments allowed per patient."
                     : `${pName} already has 3 active appointments scheduled.`,
                 solution: "To book a new visit, please complete or cancel one of your existing appointments first.",
-                action: { label: 'View Appointments', onClick: () => navigate('/appointments') }
+                action: { label: 'View Appointments', onClick: () => navigate('/') }
             };
         }
 
@@ -127,12 +128,12 @@ const UserReviewStep = ({
                 headline: 'Family Profile Limit',
                 message: "Your account has reached the maximum capacity of 10 linked family members.",
                 solution: "To add a new member, please manage your inactive profiles in settings or contact our support team.",
-                action: { label: 'Manage Family', onClick: () => navigate('/settings/family') }
+                action: { label: 'Manage Family', onClick: () => navigate('/') }
             };
         }
 
         return {
-            headline: 'Verification Note',
+            headline: 'Scheduling Alert',
             message: error,
             action: null
         };

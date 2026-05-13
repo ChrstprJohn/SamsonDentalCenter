@@ -89,6 +89,14 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         setErrors({});
 
         let newData = {};
+        // Helper to normalize sex values to 'Male'/'Female'
+        const normalizeSex = (val) => {
+            if (!val) return '';
+            if (val === 'M' || val === 'Male') return 'Male';
+            if (val === 'F' || val === 'Female') return 'Female';
+            return val;
+        };
+
         if (profileId === 'myself') {
             newData = {
                 patient_profile_id: '',
@@ -98,7 +106,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                 booked_for_suffix_name: user?.suffix || '',
                 booked_for_birthday: user?.date_of_birth || '',
                 booked_for_relationship: 'Self',
-                booked_for_sex: user?.sex || '',
+                booked_for_sex: normalizeSex(user?.sex),
                 booked_for_phone: user?.phone || ''
             };
         } else if (profileId === 'new') {
@@ -124,7 +132,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     booked_for_suffix_name: profile.suffix,
                     booked_for_birthday: profile.date_of_birth,
                     booked_for_relationship: profile.relationship_to_primary || 'Dependent',
-                    booked_for_sex: profile.sex || '',
+                    booked_for_sex: normalizeSex(profile.sex),
                     booked_for_phone: user?.phone || ''
                 };
             }
@@ -562,7 +570,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             <div>
                                 <label className={labelClasses}>Biological Sex <span className='text-red-500'>*</span></label>
                                 <div className="grid grid-cols-2 gap-3">
-                                    {['M', 'F'].map((s) => (
+                                    {['Male', 'Female'].map((s) => (
                                         <button
                                             key={s}
                                             type="button"
@@ -575,7 +583,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                                     : 'border-gray-100 bg-gray-50/50 text-gray-500 hover:border-gray-200 dark:border-gray-800 dark:bg-transparent dark:text-gray-400'
                                             } ${isReadOnly ? 'cursor-default opacity-100' : ''}`}
                                         >
-                                            {s === 'M' ? 'Male' : 'Female'}
+                                            {s}
                                         </button>
                                     ))}
                                 </div>
