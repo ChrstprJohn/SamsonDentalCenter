@@ -15,7 +15,7 @@ const CombinedOverview = ({
             {/* Left Column: Assigned Doctor */}
             <div className='w-full lg:w-[40%] space-y-6 sm:px-0'>
                 <div>
-                    <h3 className='text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-[0.2em] mb-4 sm:mb-6'>
+                    <h3 className='text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold tracking-tight mb-4 sm:mb-6'>
                         Assigned Doctor
                     </h3>
                     <div className='flex items-center gap-4 sm:gap-6'>
@@ -45,14 +45,14 @@ const CombinedOverview = ({
 
             {/* Right Column: Appointment Logistics (Bento Box Style) */}
             <div className='flex-1 w-full sm:px-0'>
-                <h3 className='text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-[0.2em] mb-4 sm:mb-6'>
+                <h3 className='text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold tracking-tight mb-4 sm:mb-6'>
                     Appointment Overview
                 </h3>
                 
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'>
                     {/* Date Box */}
                     <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700'>
-                        <div className='flex items-center gap-2 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider'>
+                        <div className='flex items-center gap-2 text-[11px] text-brand-700 dark:text-brand-400 font-bold tracking-tight'>
                             <Calendar className='w-3.5 h-3.5 text-brand-500' />
                             Date
                         </div>
@@ -63,7 +63,7 @@ const CombinedOverview = ({
 
                     {/* Time Box */}
                     <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700'>
-                        <div className='flex items-center gap-2 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider'>
+                        <div className='flex items-center gap-2 text-[11px] text-brand-700 dark:text-brand-400 font-bold tracking-tight'>
                             <Clock className='w-3.5 h-3.5 text-brand-500' />
                             Time
                         </div>
@@ -74,7 +74,7 @@ const CombinedOverview = ({
 
                     {/* Duration Box */}
                     <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700'>
-                        <div className='flex items-center gap-2 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider'>
+                        <div className='flex items-center gap-2 text-[11px] text-brand-700 dark:text-brand-400 font-bold tracking-tight'>
                             <Timer className='w-3.5 h-3.5 text-brand-500' />
                             Duration
                         </div>
@@ -85,7 +85,7 @@ const CombinedOverview = ({
 
                     {/* Patient Box */}
                     <div className='p-4 sm:p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl flex flex-col gap-3 transition-all hover:border-gray-200 dark:hover:border-gray-700'>
-                        <div className='flex items-center gap-2 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider'>
+                        <div className='flex items-center gap-2 text-[11px] text-brand-700 dark:text-brand-400 font-bold tracking-tight'>
                             <User className='w-3.5 h-3.5 text-brand-500' />
                             Patient
                         </div>
