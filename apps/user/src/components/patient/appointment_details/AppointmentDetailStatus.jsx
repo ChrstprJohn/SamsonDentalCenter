@@ -188,7 +188,7 @@ const AppointmentDetailStatus = ({
                                         {step.desc}
                                     </p>
                                     {step.time && (
-                                        <div className='mt-2 text-[10px] text-gray-400 dark:text-gray-500 font-mono font-bold uppercase tracking-wider opacity-60'>
+                                        <div className='mt-2.5 text-[10px] sm:text-[11px] text-brand-600/70 dark:text-brand-400/70 font-mono font-bold uppercase tracking-wider'>
                                             {step.time}
                                         </div>
                                     )}
