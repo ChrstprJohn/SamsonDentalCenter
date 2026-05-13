@@ -33,14 +33,14 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
             className='group relative bg-white dark:bg-white/[0.03] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden flex flex-row'
         >
             {/* 1. Left Side: Schedule Block (Desktop Only) */}
-            <div className='hidden sm:flex w-44 bg-gray-50/50 dark:bg-gray-800/20 border-r border-gray-200 dark:border-gray-800 shrink-0 flex-col text-center'>
+            <div className='hidden sm:flex w-44 bg-gray-50/50 dark:bg-gray-800/20 border-r border-gray-200 dark:border-white/10 shrink-0 flex-col text-center'>
                 <div className='px-4 py-2.5 flex-1 flex flex-col justify-center'>
                     <p className='text-[10px] font-bold text-gray-400 mb-0.5'>Date</p>
                     <p className='text-[14px] font-bold text-gray-900 dark:text-white leading-tight'>
                         {formatDate(appointment.date)}
                     </p>
                 </div>
-                <div className='h-px w-full bg-gray-200 dark:bg-gray-700/50' />
+                <div className='h-px w-full bg-gray-200 dark:bg-white/5' />
                 <div className='px-4 py-2.5 flex-1 flex flex-col justify-center'>
                     <p className='text-[10px] font-bold text-gray-400 mb-0.5'>Time</p>
                     <p className='text-[13px] font-bold text-brand-500 leading-tight'>
@@ -78,14 +78,14 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
             </div>
 
             {/* 3. Right Side: Status & Action Block */}
-            <div className='w-24 sm:w-44 bg-gray-50/50 dark:bg-gray-800/20 border-l border-gray-200 dark:border-gray-800 shrink-0 flex flex-col text-center'>
+            <div className='w-24 sm:w-44 bg-gray-50/50 dark:bg-gray-800/20 border-l border-gray-200 dark:border-white/10 shrink-0 flex flex-col text-center'>
                 <div className='px-1 py-2 sm:px-4 sm:py-2.5 flex-1 flex flex-col justify-center items-center'>
                     <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1'>Status</p>
                     <Badge size='sm' color={badgeColor} className='font-bold text-[9px] sm:text-[11px] px-2.5 sm:px-4 py-0.5 sm:py-1 rounded-md border-0'>
                         {displayStatus}
                     </Badge>
                 </div>
-                <div className='h-px w-full bg-gray-200 dark:bg-gray-700/50' />
+                <div className='h-px w-full bg-gray-200 dark:bg-white/5' />
                 <div className='px-1 py-2 sm:px-4 sm:py-2.5 flex-1 flex items-center justify-center'>
                     <button
                         onClick={(e) => {
