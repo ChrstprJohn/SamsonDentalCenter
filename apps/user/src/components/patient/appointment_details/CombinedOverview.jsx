@@ -46,7 +46,7 @@ const CombinedOverview = ({
             {/* Right Column: Appointment Logistics (Bento Box Style) */}
             <div className='flex-1 w-full sm:px-0'>
                 <h3 className='text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-[0.2em] mb-4 sm:mb-6'>
-                    Appointment Logistics
+                    Appointment Overview
                 </h3>
                 
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'>
