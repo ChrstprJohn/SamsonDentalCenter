@@ -35,14 +35,14 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
             {/* 1. Left Side: Schedule Block (Desktop Only) */}
             <div className='hidden sm:flex w-44 bg-gray-50/50 dark:bg-gray-800/20 border-r border-gray-200 dark:border-white/10 shrink-0 flex-col text-left'>
                 <div className='px-6 py-2.5 flex-1 flex flex-col justify-center'>
-                    <p className='text-[10px] font-bold text-gray-400 mb-0.5'>Date</p>
+                    <p className='text-[10px] font-black text-gray-500 dark:text-gray-400 mb-0.5'>Date</p>
                     <p className='text-[14px] font-bold text-gray-900 dark:text-white leading-tight'>
                         {formatDate(appointment.date)}
                     </p>
                 </div>
                 <div className='h-px w-full bg-gray-200 dark:bg-white/5' />
                 <div className='px-6 py-2.5 flex-1 flex flex-col justify-center'>
-                    <p className='text-[10px] font-bold text-gray-400 mb-0.5'>Time</p>
+                    <p className='text-[10px] font-black text-gray-500 dark:text-gray-400 mb-0.5'>Time</p>
                     <p className='text-[13px] font-bold text-brand-500 leading-tight'>
                         {formatTime(appointment.start_time)} - {formatTime(appointment.end_time)}
                     </p>
@@ -58,7 +58,7 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
                 <div className='flex flex-col sm:flex-row sm:items-center flex-grow gap-1 sm:gap-0 min-w-0'>
                     {/* Service Column */}
                     <div className='flex flex-col min-w-0 sm:w-[200px] lg:w-[260px] shrink-0'>
-                        <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1'>Service</p>
+                        <p className='hidden sm:block text-[10px] font-black text-gray-500 dark:text-gray-400 mb-1'>Service</p>
                         <h3 className='text-[13px] sm:text-[17px] font-bold text-gray-900 dark:text-white truncate leading-tight group-hover:text-brand-500 transition-colors'>
                             {appointment.service}
                         </h3>
@@ -66,7 +66,7 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
 
                     {/* Patient Column */}
                     <div className='flex flex-col min-w-0 flex-grow sm:pl-8 sm:border-l sm:border-gray-100 sm:dark:border-white/5'>
-                        <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1'>Patient</p>
+                        <p className='hidden sm:block text-[10px] font-black text-gray-500 dark:text-gray-400 mb-1'>Patient</p>
                         <div className='flex items-center gap-1.5 text-gray-500 dark:text-gray-400'>
                             <span className='text-[11px] sm:text-[14px] font-bold truncate'>
                                 {patientName} {isSelf && <span className='text-brand-500 opacity-70 ml-1 font-bold'>(You)</span>}
@@ -86,8 +86,8 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
             {/* 3. Right Side: Status & Action Block */}
             <div className='w-24 sm:w-44 bg-gray-50/50 dark:bg-gray-800/20 border-l border-gray-200 dark:border-white/10 shrink-0 flex flex-col text-left'>
                 <div className='px-2.5 py-2 sm:px-8 sm:py-2.5 flex-1 flex flex-col justify-center items-start'>
-                    <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1'>Status</p>
-                    <Badge size='sm' color={badgeColor} className='font-bold text-[9px] sm:text-[11px] px-2.5 sm:px-4 py-0.5 sm:py-1 rounded-md border-0'>
+                    <p className='hidden sm:block text-[10px] font-black text-gray-500 dark:text-gray-400 mb-1'>Status</p>
+                    <Badge size='sm' color={badgeColor} className='font-bold text-[9px] sm:text-[11px] px-2.5 sm:px-4 py-0.5 sm:py-1 rounded-md'>
                         {displayStatus}
                     </Badge>
                 </div>
