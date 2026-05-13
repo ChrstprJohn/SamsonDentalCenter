@@ -270,7 +270,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
             return `${baseInput} border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800 bg-white dark:bg-gray-900`;
         }
         if (isFieldReadOnly) {
-            return `${baseInput} bg-gray-50/80 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800/50 text-gray-500 dark:text-white/40 cursor-default ring-0 focus:ring-0 focus:border-gray-100 dark:focus:border-gray-800/50`;
+            return `${baseInput} bg-gray-50/80 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800/50 text-gray-500 dark:text-white/40 cursor-not-allowed hover:cursor-not-allowed ring-0 focus:ring-0 focus:border-gray-100 dark:focus:border-gray-800/50`;
         }
         return `${baseInput} text-gray-800 border-gray-300 dark:border-gray-700 focus:border-brand-300 focus:ring-brand-500/15 hover:border-gray-400 dark:hover:border-gray-600 dark:text-white/90 dark:focus:border-brand-800 shadow-theme-xs hover:shadow-theme-sm bg-white dark:bg-gray-900`;
     };
@@ -448,22 +448,18 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     </div>
 
                     <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
-                        {/* Auto-fill Alert Notice */}
+                        {/* Auto-fill Notice Box */}
                         {isReadOnly && (
-                            <div className='flex items-center gap-3.5 p-4 bg-blue-50/60 dark:bg-blue-500/10 rounded-2xl border border-blue-100 dark:border-blue-500/20 animate-in fade-in slide-in-from-top-2 duration-500 shadow-theme-xs'>
-                                <div className='w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 shadow-sm'>
-                                    <AlertCircle size={18} />
+                            <div className='bg-info-50 dark:bg-info-500/10 border border-info-100 dark:border-info-500/20 rounded-xl p-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-500'>
+                                <div className='flex items-center gap-2 text-info-700 dark:text-info-400 font-black text-[11px] uppercase tracking-wider'>
+                                    <AlertCircle size={14} />
+                                    Profile Synchronization
                                 </div>
-                                <div className='flex flex-col'>
-                                    <p className='text-[13px] sm:text-[14px] font-black text-blue-900 dark:text-blue-300 leading-tight'>
-                                        Profile Sync Active
-                                    </p>
-                                    <p className='text-[11px] sm:text-[12px] font-bold text-blue-700/80 dark:text-blue-400/80 mt-0.5'>
-                                        {isSelf 
-                                            ? "We've auto-filled this step using your primary account information." 
-                                            : `We've auto-filled this step using ${formData.booked_for_first_name}'s saved profile.`}
-                                    </p>
-                                </div>
+                                <p className='text-[12px] font-semibold text-info-600 dark:text-info-300 leading-relaxed'>
+                                    {isSelf 
+                                        ? "Information auto-filled from your primary account profile." 
+                                        : `Information auto-filled from ${formData.booked_for_first_name}'s saved profile.`}
+                                </p>
                             </div>
                         )}
 
@@ -529,7 +525,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                                     handleNamePartChange('suffix', e.target.value);
                                                 }
                                             }}
-                                            className={`${getInputClasses(null, isReadOnly)} cursor-pointer pr-10 ${isReadOnly ? 'cursor-default opacity-100' : ''}`}
+                                            className={`${getInputClasses(null, isReadOnly)} cursor-pointer pr-10 ${isReadOnly ? 'cursor-not-allowed hover:cursor-not-allowed opacity-100' : ''}`}
                                         >
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -607,7 +603,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                                 formData.booked_for_sex === s
                                                     ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 shadow-sm'
                                                     : 'border-gray-100 bg-gray-50/50 text-gray-500 hover:border-gray-200 dark:border-gray-800 dark:bg-transparent dark:text-gray-400'
-                                            } ${isReadOnly ? 'cursor-default opacity-100' : ''}`}
+                                            } ${isReadOnly ? 'cursor-not-allowed opacity-100' : ''}`}
                                         >
                                             {s}
                                         </button>
@@ -626,7 +622,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         type="text" 
                                         readOnly 
                                         value={formData.booked_for_relationship}
-                                        className={getInputClasses()}
+                                        className={getInputClasses(null, true)}
                                     />
                                 ) : (
                                     <div className="relative group">
@@ -660,6 +656,17 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     </div>
 
                     <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
+                        {/* Auto-fill Notice Box for Contact */}
+                        <div className='bg-info-50 dark:bg-info-500/10 border border-info-100 dark:border-info-500/20 rounded-xl p-4 space-y-2 mb-2'>
+                            <div className='flex items-center gap-2 text-info-700 dark:text-info-400 font-black text-[11px] uppercase tracking-wider'>
+                                <AlertCircle size={14} />
+                                Account Link Active
+                            </div>
+                            <p className='text-[12px] font-semibold text-info-600 dark:text-info-300 leading-relaxed'>
+                                Contact information is automatically linked to your primary account for verification purposes.
+                            </p>
+                        </div>
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
                             {/* Email Address */}
                             <div>
@@ -670,7 +677,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         type='email'
                                         readOnly
                                         value={user?.email || ''}
-                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed pr-10`}
+                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed hover:cursor-not-allowed pr-10`}
                                     />
                                     <Mail size={16} className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none' />
                                 </div>
@@ -685,7 +692,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         type='tel'
                                         readOnly
                                         value={user?.phone || ''}
-                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed pr-20`}
+                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed hover:cursor-not-allowed pr-20`}
                                     />
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                         <span className="text-[10px] font-black text-gray-400">PH (+63)</span>
