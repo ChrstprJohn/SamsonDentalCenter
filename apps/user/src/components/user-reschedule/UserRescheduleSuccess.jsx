@@ -205,14 +205,14 @@ const UserRescheduleSuccess = ({ result, appointment, onReset }) => {
                         className='flex-1 group flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all shadow-theme-xs'
                     >
                         <HomeIcon size={18} className="sm:size-[22px]" />
-                        <span className="text-[11px] sm:text-base font-black uppercase tracking-widest">Home</span>
+                        <span className="text-[11px] sm:text-base font-black">Home</span>
                     </button>
                     <button
                         onClick={() => { onReset(); navigate('/patient/appointments'); }}
                         className='flex-[2] flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black transition-all shadow-lg shadow-brand-500/20'
                     >
                         <LayoutDashboard size={20} className="sm:size-6" />
-                        <span className="text-[11px] sm:text-lg font-black uppercase tracking-widest">Go to Dashboard</span>
+                        <span className="text-[11px] sm:text-lg font-black">Go to Dashboard</span>
                     </button>
                 </div>
             </div>
