@@ -19,9 +19,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../utils/api';
+import { useToast } from '../../context/ToastContext';
 
 const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     const { user, token } = useAuth();
+    const toast = useToast();
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
@@ -110,6 +112,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                 booked_for_sex: normalizeSex(user?.sex),
                 booked_for_phone: user?.phone || ''
             };
+            toast.info('Profile selected! Information auto-filled from your account.');
         } else if (profileId === 'new') {
             newData = {
                 patient_profile_id: 'new',
@@ -136,6 +139,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     booked_for_sex: normalizeSex(profile.sex),
                     booked_for_phone: user?.phone || ''
                 };
+                toast.info(`Profile selected! Information auto-filled for ${profile.first_name}.`);
             }
         }
 
