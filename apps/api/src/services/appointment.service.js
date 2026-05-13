@@ -705,6 +705,7 @@ export const bookAppointment = async (
             start_time: appointment.start_time,
             end_time: appointment.end_time,
             service: appointment.service?.name,
+            patient_name: bookedForName
         }).catch(err => console.error('[Notification] Failed to send request receipt:', err.message));
 
         return {
@@ -1002,7 +1003,8 @@ export const bookAppointment = async (
         const isLastMinute = hoursUntil < 24; // Less than 24 hours notice
 
         // ── 4. Determine status: LATE_CANCEL (<24h) vs CANCELLED (≥24h) ──
-        const cancelStatus = isLastMinute
+        const isRequest = appointment.status === APPOINTMENT_STATUS.PENDING;
+        const cancelStatus = isLastMinute && !isRequest
             ? APPOINTMENT_STATUS.LATE_CANCEL
             : APPOINTMENT_STATUS.CANCELLED;
 
@@ -1045,7 +1047,7 @@ export const bookAppointment = async (
                 start_time: appointment.start_time,
                 service: service?.name || 'Dental appointment',
                 isLastMinute,
-            });
+            }, isRequest);
         }
 
         // ── 5c. In-app notification ──
@@ -1054,7 +1056,7 @@ export const bookAppointment = async (
             start_time: appointment.start_time,
             end_time: appointment.end_time,
             service: service?.name || 'Dental appointment',
-        });
+        }, isRequest);
 
         // ── 6. If late cancel, increment patient's late cancel tracking ──
         if (isLastMinute) {
@@ -1217,12 +1219,14 @@ export const bookAppointment = async (
                     date: original.appointment_date,
                     start_time: original.start_time,
                     end_time: original.end_time,
-                    service: original.service?.name || 'Dental'
+                    service: original.service?.name || 'Dental',
+                    patient_name: original.booked_for_name
                 };
                 const newDetails = {
                     date: newBooking.appointment.appointment_date,
                     start_time: newBooking.appointment.start_time,
-                    end_time: newBooking.appointment.end_time
+                    end_time: newBooking.appointment.end_time,
+                    patient_name: original.booked_for_name
                 };
                 await sendRescheduleNotice(patientId, oldDetails, newDetails);
             } catch (notifError) {
