@@ -1,41 +1,26 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { api } from '../utils/api';
+import { createContext, useContext, useState } from 'react';
 
 const ServicesContext = createContext();
 
+const MOCK_SERVICES = [
+    { id: 'mock-service-1', name: 'Tooth Extraction', price: 1500 },
+    { id: 'mock-service-2', name: 'General Consultation', price: 500 },
+    { id: 'mock-service-3', name: 'Dental Cleaning', price: 1000 },
+    { id: 'mock-service-4', name: 'Root Canal', price: 8000 },
+    { id: 'mock-service-5', name: 'Braces Adjustment', price: 2000 },
+];
+
 export const ServicesProvider = ({ children }) => {
-    const [services, setServices] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [isCached, setIsCached] = useState(false);
-
-    useEffect(() => {
-        // Only fetch once (on mount)
-        if (!isCached) {
-            fetchServices();
-        }
-    }, [isCached]);
-
-    const fetchServices = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const data = await api.get('/services');
-            setServices(data.services || []);
-            setIsCached(true);
-        } catch (err) {
-            setError(err.message);
-            setServices([]);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // SIMULATION MODE: All data is mock and API calls are disabled.
+    const [services] = useState(MOCK_SERVICES);
+    const [loading] = useState(false);
+    const [error] = useState(null);
 
     const value = {
         services,
         loading,
         error,
-        refetch: fetchServices,
+        refetch: () => console.log('Simulation: Refetching mock services...'),
     };
 
     return <ServicesContext.Provider value={value}>{children}</ServicesContext.Provider>;

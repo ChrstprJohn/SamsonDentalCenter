@@ -23,6 +23,8 @@ import settingsRoutes from './routes/settings.routes.js';
 import emailTemplateRoutes from './routes/email-template.routes.js';
 import webhookRoutes from './routes/webhook.routes.js';
 import appointmentAdminRoutes from './routes/appointment-admin.routes.js';
+import invoiceRoutes from './routes/invoice.routes.js';
+
 
 const app = express();
 
@@ -149,7 +151,9 @@ v1Router.use('/doctor', doctorRoutes);
 v1Router.use('/profiles', profilesRoutes);
 v1Router.use('/settings', settingsRoutes);
 v1Router.use('/email-templates', emailTemplateRoutes);
+v1Router.use('/invoices', invoiceRoutes);
 v1Router.use('/webhooks', webhookRoutes);
+
 
 // Apply rate limiting to hold routes
 v1Router.use('/appointments/slots/hold', holdLimiter);

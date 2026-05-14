@@ -1383,11 +1383,25 @@ export const markAppointmentComplete = async (appointmentId) => {
     ) {
         throw {
             status: 400,
-            message: `Cannot complete appointment.Current status: ${appt.status}. Must be CONFIRMED or IN_PROGRESS.`,
+            message: `Cannot complete appointment. Current status: ${appt.status}. Must be CONFIRMED or IN_PROGRESS.`,
         };
     }
 
+    // 🚨 INVOICE LOCK: If IN_PROGRESS, must have an invoice to complete
+    if (appt.status === APPOINTMENT_STATUS.IN_PROGRESS) {
+        const { data: invoice } = await supabaseAdmin
+            .from('invoices')
+            .select('id')
+            .eq('appointment_id', appointmentId)
+            .single();
+
+        if (!invoice) {
+            throw new AppError('Cannot complete appointment. An invoice must be created for in-progress treatments.', 400);
+        }
+    }
+
     const { data, error } = await supabaseAdmin
+
         .from('appointments')
         .update({
             status: APPOINTMENT_STATUS.COMPLETED,
