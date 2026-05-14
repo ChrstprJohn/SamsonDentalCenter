@@ -19,6 +19,7 @@ import BookingPage from "../pages/secretary/BookingPage";
 import PatientsPage from "../pages/secretary/PatientsPage";
 import DisplacedQueuePage from "../pages/secretary/DisplacedQueuePage";
 import UpcomingAppointmentsPage from "../pages/secretary/UpcomingAppointmentsPage";
+import AppointmentHistoryPage from "../pages/secretary/AppointmentHistoryPage";
 import AuditLogs from "../pages/secretary/AuditLogs";
 
 
@@ -45,7 +46,7 @@ const AppRoutes = () => {
           <Route path="calendar/:tab" element={<CalendarPage />} />
           <Route path="calendar/:tab/:id" element={<CalendarPage />} />
           <Route path="approvals" element={<ApprovalsPage />} />
-          <Route path="booking" element={<BookingPage />} />
+          <Route path="history" element={<AppointmentHistoryPage />} />
           <Route path="patients">
             <Route index element={<Navigate to="profile" replace />} />
             <Route path=":tab/:id?" element={<PatientsPage />} />
