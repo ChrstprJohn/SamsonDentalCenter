@@ -23,7 +23,7 @@ export const getPendingRequests = async () => {
         .select(
             `
       *,
-      patient:profiles!appointments_patient_id_fkey(id, full_name, email, phone, no_show_count, cancellation_count, is_booking_restricted),
+      patient:profiles!patient_id(id, full_name, email, phone, no_show_count, cancellation_count, is_booking_restricted, primary_profile_id, is_registered),
       service:services(name, duration_minutes, price, tier),
       dentist:dentists(id, profile:profiles(full_name, first_name, last_name, middle_name, suffix))
     `,
@@ -683,13 +683,24 @@ export const approveRequest = async (appointmentId, supervisorId, dentistId = nu
         .eq('id', appointmentId)
         .select(`
             *,
-            patient:profiles!appointments_patient_id_fkey(full_name, email, phone),
+            patient:profiles!patient_id(id, full_name, email, phone, primary_profile_id, is_registered),
             service:services(name, price),
             dentist:dentists(id, profile:profiles(full_name, first_name, last_name, middle_name, suffix))
         `)
         .single();
 
     if (updateErr) throw { status: 500, message: updateErr.message };
+
+    // ── FALLBACK: Ensure patient profile is resolved even if join failed ──
+    if (!updated.patient && updated.patient_id) {
+        console.log(`[AdminService:Approve] Join failed for patient ${updated.patient_id}. Performing fallback lookup.`);
+        const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('id, full_name, email, phone, primary_profile_id, is_registered')
+            .eq('id', updated.patient_id)
+            .single();
+        updated.patient = profile;
+    }
 
     // ── 4. VOID linked waitlist entries ──
     try {
@@ -768,13 +779,24 @@ export const rejectRequest = async (appointmentId, supervisorId, reason, suggest
         .select(
             `
         *,
-        patient: profiles!appointments_patient_id_fkey(full_name, email),
+        patient: profiles!patient_id(id, full_name, email, phone, primary_profile_id, is_registered),
             service: services(name)
                 `,
         )
         .single();
 
     if (error) throw new AppError(error.message, 500);
+
+    // ── FALLBACK: Ensure patient profile is resolved even if join failed ──
+    if (!updated.patient && updated.patient_id) {
+        console.log(`[AdminService:Reject] Join failed for patient ${updated.patient_id}. Performing fallback lookup.`);
+        const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('id, full_name, email, phone, primary_profile_id, is_registered')
+            .eq('id', updated.patient_id)
+            .single();
+        updated.patient = profile;
+    }
 
     // ── Trigger waitlist notification ──
     try {
@@ -947,7 +969,7 @@ export const getDentistDaySchedule = async (dentistId, date) => {
                 start_time, 
                 end_time, 
                 status, 
-                patient:profiles!appointments_patient_id_fkey(full_name),
+                patient:profiles!patient_id(full_name),
                 service:services(name)
             `)
             .eq('dentist_id', dentistId)
@@ -1230,7 +1252,7 @@ export const getPatientAppointmentHistory = async (patientId) => {
         .select(
             `
                     *,
-                    patient: profiles!appointments_patient_id_fkey(full_name, email, phone),
+                    patient: profiles!patient_id(full_name, email, phone),
                     service: services(name, price, tier),
                     dentist: dentists(profile: profiles(full_name, first_name, last_name, middle_name, suffix))
             `,
@@ -1659,7 +1681,7 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
         .select(
             `
         *,
-        patient: profiles!appointments_patient_id_fkey(full_name, email, phone),
+        patient: profiles!patient_id(full_name, email, phone),
             service: services(name, duration_minutes, price, tier),
                 dentist: dentists(profile: profiles(full_name, first_name, last_name, middle_name, suffix))
                     `,
@@ -1745,7 +1767,7 @@ export const getTodayAppointmentsFiltered = async () => {
         .select(
             `
                     *,
-                    patient: profiles!appointments_patient_id_fkey(full_name, phone),
+                    patient: profiles!patient_id(full_name, phone),
                         service: services(name, tier),
                             dentist: dentists(profile: profiles(full_name, first_name, last_name, middle_name, suffix))
     `,
@@ -2003,7 +2025,7 @@ export const replaceDentistServices = async (dentistId, serviceIds) => {
             .select(
                 `
                 *,
-                patient: profiles!appointments_patient_id_fkey(id, full_name, email),
+                patient: profiles!patient_id(id, full_name, email),
                 service: services(id, name)
             `,
             )
@@ -2585,7 +2607,7 @@ export const reassignAppointmentToDentist = async (appointmentId, newDentistId, 
         .select(
             `
         *,
-        patient: profiles!appointments_patient_id_fkey(full_name, email),
+        patient: profiles!patient_id(full_name, email),
         service: services(name, price),
         dentist: dentists(profile: profiles(full_name, first_name, last_name, middle_name, suffix))
             `,

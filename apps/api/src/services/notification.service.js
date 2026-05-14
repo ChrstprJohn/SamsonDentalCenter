@@ -121,7 +121,7 @@ export const sendApprovalNotice = async (userId, appointmentDetails, phone = nul
     // 1. In-App Notification
     const inAppResult = await sendNotification(
         userId,
-        'CONFIRMATION',
+        'APPROVAL',
         'Appointment Approved!',
         message,
         'in_app',
@@ -144,7 +144,7 @@ export const sendRejectionNotice = async (userId, appointmentDetails, reason) =>
 
     return sendNotification(
         userId,
-        'CANCELLATION',
+        'REJECTION',
         'Appointment Declined',
         `Your request for a ${service} appointment for ${pName} on ${formattedRange} was declined. Reason: ${reason}. If you have questions, please contact our clinic.`,
         'in_app',

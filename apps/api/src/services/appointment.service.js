@@ -1712,7 +1712,7 @@ export const bookAppointment = async (
             .select(`
             *,
             service:services(id, name, duration_minutes),
-            patient:profiles!appointments_patient_id_fkey(id, full_name, first_name, last_name, email)
+            patient:profiles!patient_id(id, full_name, first_name, last_name, email)
         `)
             .eq('id', appointmentId)
             .single();

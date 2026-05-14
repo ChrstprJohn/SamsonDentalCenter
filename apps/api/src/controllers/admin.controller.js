@@ -366,7 +366,21 @@ export const approve = async (req, res, next) => {
         // 1. Email Notification
         let emailResult = null;
         try {
-            emailResult = await sendBookingSuccessEmail(appointment.patient?.email || appointment.guest_email, appointment.patient?.full_name || appointment.guest_name, {
+            // Resolve recipient email (Primary for dependents)
+            const isDependent = appointment.patient?.primary_profile_id && !appointment.patient?.is_registered;
+            let recipientEmail = appointment.patient?.email || appointment.guest_email;
+            
+            if (!recipientEmail && isDependent) {
+                console.log(`[AdminController] Fetching primary email for dependent ${appointment.patient_id}`);
+                const { data: primary } = await supabaseAdmin
+                    .from('profiles')
+                    .select('email')
+                    .eq('id', appointment.patient.primary_profile_id)
+                    .single();
+                recipientEmail = primary?.email;
+            }
+
+            emailResult = await sendBookingSuccessEmail(recipientEmail, appointment.patient?.full_name || appointment.guest_name, {
                 date: appointment.appointment_date,
                 start_time: appointment.start_time,
                 end_time: appointment.end_time,
@@ -383,13 +397,18 @@ export const approve = async (req, res, next) => {
         let inAppSmsResult = null;
         const recipientPhone = appointment.patient?.phone || appointment.guest_phone;
         
+        // Resolve notify user (Primary for dependents)
+        const isDependent = appointment.patient?.primary_profile_id && !appointment.patient?.is_registered;
+        const notifyUserId = isDependent ? appointment.patient.primary_profile_id : appointment.patient_id;
+
         // Always try to send approval notice — the service will handle the patient vs guest distinction
         // (Skipping in-app for guests, but sending SMS if phone is available)
-        inAppSmsResult = await sendApprovalNotice(appointment.patient_id, {
+        inAppSmsResult = await sendApprovalNotice(notifyUserId, {
             date: appointment.appointment_date,
             start_time: appointment.start_time,
             end_time: appointment.end_time,
             service: appointment.service?.name,
+            patient_name: appointment.patient?.full_name || appointment.guest_name
         }, recipientPhone);
 
         res.json({ 
@@ -431,22 +450,41 @@ export const reject = async (req, res, next) => {
 
         // Notify patient/guest
         try {
-            await sendBookingRejectedEmail(result.appointment.patient?.email || result.appointment.guest_email, result.appointment.patient?.full_name || result.appointment.guest_name, {
+            // Resolve recipient email (Primary for dependents)
+            const isDependent = result.appointment.patient?.primary_profile_id && !result.appointment.patient?.is_registered;
+            let recipientEmail = result.appointment.patient?.email || result.appointment.guest_email;
+
+            if (!recipientEmail && isDependent) {
+                console.log(`[AdminController:Reject] Fetching primary email for dependent ${result.appointment.patient_id}`);
+                const { data: primary } = await supabaseAdmin
+                    .from('profiles')
+                    .select('email')
+                    .eq('id', result.appointment.patient.primary_profile_id)
+                    .single();
+                recipientEmail = primary?.email;
+            }
+
+            await sendBookingRejectedEmail(recipientEmail, result.appointment.patient?.full_name || result.appointment.guest_name, {
                 service: result.appointment.service?.name,
                 reason,
-                suggestedDate
+                suggestedDate: suggested_date
             });
         } catch (e) {
             console.error('Failed to send rejection email:', e);
         }
 
         // In-app notification
+        let inAppResult = null;
         if (result.appointment.patient_id) {
-            await sendRejectionNotice(result.appointment.patient_id, {
+            const isDependent = result.appointment.patient?.primary_profile_id && !result.appointment.patient?.is_registered;
+            const notifyUserId = isDependent ? result.appointment.patient.primary_profile_id : result.appointment.patient_id;
+
+            inAppResult = await sendRejectionNotice(notifyUserId, {
                 date: result.appointment.appointment_date,
                 start_time: result.appointment.start_time,
                 end_time: result.appointment.end_time,
                 service: result.appointment.service?.name,
+                patient_name: result.appointment.patient?.full_name || result.appointment.guest_name
             }, reason);
         }
 
@@ -461,6 +499,9 @@ export const reject = async (req, res, next) => {
                 service: result.appointment.service?.name,
             },
             suggested_date: result.suggested_date,
+            notifications: {
+                inApp: inAppResult
+            }
         });
     } catch (err) {
         next(err);
