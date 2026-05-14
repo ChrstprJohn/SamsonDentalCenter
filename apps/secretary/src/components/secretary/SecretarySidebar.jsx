@@ -99,7 +99,7 @@ const navItems = [
     },
     {
         icon: <DeskIcon />,
-        name: 'Front Desk',
+        name: 'Check-in',
         path: '/front-desk',
     },
     {
@@ -114,7 +114,7 @@ const navItems = [
     },
     {
         icon: <CheckIcon />,
-        name: 'Approvals',
+        name: 'Appointment Request',
         path: '/approvals',
     },
     {

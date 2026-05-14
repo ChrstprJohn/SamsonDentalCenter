@@ -1,469 +1,460 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import Badge from '../../components/ui/Badge';
-import { Calendar as CalendarIcon, ChevronDown, Plus, Search, ChevronLeft, ChevronRight, Users, Tag, ShieldCheck, Eye, MousePointer2 } from 'lucide-react';
+import { 
+    Search, 
+    Calendar, 
+    Users, 
+    Filter, 
+    Clock, 
+    ArrowUpDown, 
+    ChevronLeft, 
+    ChevronRight, 
+    Eye, 
+    Plus,
+    Tag,
+    ShieldCheck,
+    SearchX
+} from 'lucide-react';
 
 const DOCTORS = [
-    'All',
+    'All Doctors',
     'Dr. James Thompson',
     'Dr. Emily Chen',
     'Dr. Sarah Smith',
     'Dr. John Doe',
 ];
 
-const SERVICE_TYPES = ['All', 'General', 'Specialized'];
+const SERVICES = [
+    'All Services',
+    'Routine Cleaning',
+    'Orthodontic Checkup',
+    'Root Canal',
+    'Consultation',
+    'Tooth Extraction',
+    'Cavity Filling',
+    'Teeth Whitening',
+    'Dental Implants'
+];
 
-const STATUSES = ['All', 'Displaced', 'Upcoming', 'In Progress', 'Completed', 'Pending', 'Cancelled'];
-const SOURCES = ['All', 'Walk-in', 'Guest Booking', 'Account Booking'];
+const STATUSES = ['All Statuses', 'Upcoming', 'In Progress', 'Completed', 'Pending', 'Cancelled', 'Displaced'];
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 8;
 
 const APPOINTMENTS_DATA = [
     {
         id: 1,
         time: '9:00 AM',
-        date: 'May 14',
+        date: '2026-05-14',
         patient: { name: 'Sarah Mitchell', avatar: 'https://i.pravatar.cc/150?u=sarah' },
         doctor: { name: 'Dr. James Thompson', avatar: 'https://i.pravatar.cc/150?u=james' },
         service: { name: 'Routine Cleaning', type: 'General' },
-        status: 'Completed'
+        status: 'Completed',
+        source: 'Account Booking'
     },
     {
         id: 2,
         time: '11:00 AM',
-        date: 'May 14',
+        date: '2026-05-14',
         patient: { name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=jamesw' },
         doctor: { name: 'Dr. Emily Chen', avatar: 'https://i.pravatar.cc/150?u=emily' },
         service: { name: 'Orthodontic Checkup', type: 'Specialized' },
-        status: 'Completed'
+        status: 'Completed',
+        source: 'Guest Booking'
     },
     {
         id: 3,
         time: '2:30 PM',
-        date: 'May 14',
+        date: '2026-05-14',
         patient: { name: 'Elena Rodriguez', avatar: 'https://i.pravatar.cc/150?u=elena' },
         doctor: { name: 'Dr. Sarah Smith', avatar: 'https://i.pravatar.cc/150?u=sarah2' },
         service: { name: 'Root Canal', type: 'Specialized' },
-        status: 'In Progress'
+        status: 'In Progress',
+        source: 'Walk-in'
     },
     {
         id: 4,
         time: '4:00 PM',
-        date: 'May 14',
+        date: '2026-05-14',
         patient: { name: 'Michael Chang', avatar: 'https://i.pravatar.cc/150?u=michael' },
         doctor: { name: 'Dr. John Doe', avatar: 'https://i.pravatar.cc/150?u=john' },
         service: { name: 'Consultation', type: 'General' },
-        status: 'Upcoming'
+        status: 'Upcoming',
+        source: 'Account Booking'
     },
     {
         id: 5,
         time: '9:00 AM',
-        date: 'May 15',
+        date: '2026-05-15',
         patient: { name: 'Sophia Martinez', avatar: 'https://i.pravatar.cc/150?u=sophia' },
         doctor: { name: 'Dr. James Thompson', avatar: 'https://i.pravatar.cc/150?u=james' },
         service: { name: 'Tooth Extraction', type: 'Specialized' },
-        status: 'Upcoming'
+        status: 'Upcoming',
+        source: 'Guest Booking'
     },
     {
         id: 6,
         time: '10:30 AM',
-        date: 'May 15',
+        date: '2026-05-15',
         patient: { name: 'David Miller', avatar: 'https://i.pravatar.cc/150?u=david' },
         doctor: { name: 'Dr. Emily Chen', avatar: 'https://i.pravatar.cc/150?u=emily' },
         service: { name: 'Cavity Filling', type: 'General' },
-        status: 'Pending'
+        status: 'Pending',
+        source: 'Walk-in'
     },
     {
         id: 7,
         time: '1:00 PM',
-        date: 'May 15',
+        date: '2026-05-15',
         patient: { name: 'Isabella Garcia', avatar: 'https://i.pravatar.cc/150?u=isabella' },
         doctor: { name: 'Dr. John Doe', avatar: 'https://i.pravatar.cc/150?u=john' },
         service: { name: 'Teeth Whitening', type: 'General' },
-        status: 'Cancelled'
+        status: 'Cancelled',
+        source: 'Account Booking'
     },
     {
         id: 8,
         time: '3:30 PM',
-        date: 'May 15',
+        date: '2026-05-15',
         patient: { name: 'Robert Taylor', avatar: 'https://i.pravatar.cc/150?u=robert' },
         doctor: { name: 'Dr. Sarah Smith', avatar: 'https://i.pravatar.cc/150?u=sarah2' },
         service: { name: 'Dental Implants', type: 'Specialized' },
-        status: 'Displaced'
-    },
-    {
-        id: 9,
-        time: '8:30 AM',
-        date: 'May 16',
-        patient: { name: 'Olivia Brown', avatar: 'https://i.pravatar.cc/150?u=olivia' },
-        doctor: { name: 'Dr. Emily Chen', avatar: 'https://i.pravatar.cc/150?u=emily' },
-        service: { name: 'Checkup', type: 'General' },
-        status: 'Upcoming'
-    },
-    {
-        id: 10,
-        time: '10:00 AM',
-        date: 'May 16',
-        patient: { name: 'William Jones', avatar: 'https://i.pravatar.cc/150?u=william' },
-        doctor: { name: 'Dr. James Thompson', avatar: 'https://i.pravatar.cc/150?u=james' },
-        service: { name: 'Bridge Work', type: 'Specialized' },
-        status: 'Upcoming'
-    },
-    {
-        id: 11,
-        time: '11:30 AM',
-        date: 'May 16',
-        patient: { name: 'Emily Davis', avatar: 'https://i.pravatar.cc/150?u=emilyd' },
-        doctor: { name: 'Dr. John Doe', avatar: 'https://i.pravatar.cc/150?u=john' },
-        service: { name: 'Routine Cleaning', type: 'General' },
-        status: 'Pending'
-    },
-    {
-        id: 12,
-        time: '2:00 PM',
-        date: 'May 16',
-        patient: { name: 'Liam Wilson', avatar: 'https://i.pravatar.cc/150?u=liam' },
-        doctor: { name: 'Dr. Sarah Smith', avatar: 'https://i.pravatar.cc/150?u=sarah2' },
-        service: { name: 'Wisdom Tooth Removal', type: 'Specialized' },
-        status: 'In Progress'
-    },
-    {
-        id: 13,
-        time: '4:30 PM',
-        date: 'May 16',
-        patient: { name: 'Ava Johnson', avatar: 'https://i.pravatar.cc/150?u=ava' },
-        doctor: { name: 'Dr. Emily Chen', avatar: 'https://i.pravatar.cc/150?u=emily' },
-        service: { name: 'Consultation', type: 'General' },
-        status: 'Completed'
-    },
-    {
-        id: 14,
-        time: '9:30 AM',
-        date: 'May 17',
-        patient: { name: 'Noah Martinez', avatar: 'https://i.pravatar.cc/150?u=noah' },
-        doctor: { name: 'Dr. James Thompson', avatar: 'https://i.pravatar.cc/150?u=james' },
-        service: { name: 'X-Ray Scan', type: 'General' },
-        status: 'Upcoming'
-    },
-    {
-        id: 15,
-        time: '1:30 PM',
-        date: 'May 17',
-        patient: { name: 'Charlotte Clark', avatar: 'https://i.pravatar.cc/150?u=charlotte' },
-        doctor: { name: 'Dr. John Doe', avatar: 'https://i.pravatar.cc/150?u=john' },
-        service: { name: 'Periodontal Therapy', type: 'Specialized' },
-        status: 'Upcoming',
+        status: 'Displaced',
         source: 'Guest Booking'
     }
 ];
 
-// Helper to assign random sources to initial data for demo
-APPOINTMENTS_DATA.forEach((apt, i) => {
-    if (!apt.source) {
-        const sources = ['Walk-in', 'Guest Booking', 'Account Booking'];
-        apt.source = sources[i % sources.length];
-    }
-});
-
 const AppointmentsPage = () => {
-    const [selectedDate, setSelectedDate] = useState('2026-05-14');
-    const [selectedDoctor, setSelectedDoctor] = useState('All');
-    const [selectedServiceType, setSelectedServiceType] = useState('All');
-    const [selectedStatus, setSelectedStatus] = useState('All');
-    const [selectedSource, setSelectedSource] = useState('All');
+    const [search, setSearch] = useState('');
+    const [selectedDoctor, setSelectedDoctor] = useState('All Doctors');
+    const [selectedService, setSelectedService] = useState('All Services');
+    const [selectedStatus, setSelectedStatus] = useState('All Statuses');
+    const [specificDate, setSpecificDate] = useState('2026-05-14');
     const [currentPage, setCurrentPage] = useState(1);
 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [selectedDate, selectedDoctor, selectedServiceType, selectedStatus, selectedSource]);
+    const filtered = useMemo(() => {
+        return APPOINTMENTS_DATA.filter(apt => {
+            const matchesSearch = apt.patient.name.toLowerCase().includes(search.toLowerCase()) || 
+                                apt.service.name.toLowerCase().includes(search.toLowerCase());
+            const matchesDoctor = selectedDoctor === 'All Doctors' || apt.doctor.name === selectedDoctor;
+            const matchesService = selectedService === 'All Services' || apt.service.name === selectedService;
+            const matchesStatus = selectedStatus === 'All Statuses' || apt.status === selectedStatus;
+            const matchesDate = !specificDate || apt.date === specificDate;
 
-    const getStatusBadge = (status) => {
-        const colorMap = {
-            'In Progress': 'warning',
-            'Upcoming': 'info',
-            'Completed': 'success',
-            'Displaced': 'secondary',
-            'Pending': 'warning',
-            'Cancelled': 'error',
-        };
-        const color = colorMap[status] || 'light';
-        
-        return (
-            <Badge variant="light" color={color} size="sm" className="sm:size-auto">
-                <span className="px-1 py-0.5 font-bold tracking-wide text-[9px] sm:text-[10px] uppercase">{status}</span>
-            </Badge>
-        );
+            return matchesSearch && matchesDoctor && matchesService && matchesStatus && matchesDate;
+        });
+    }, [search, selectedDoctor, selectedService, selectedStatus, specificDate]);
+
+    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+    const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case 'Completed': return { color: 'success', label: 'Completed' };
+            case 'In Progress': return { color: 'warning', label: 'In Progress' };
+            case 'Upcoming': return { color: 'info', label: 'Upcoming' };
+            case 'Pending': return { color: 'warning', label: 'Pending' };
+            case 'Cancelled': return { color: 'error', label: 'Cancelled' };
+            case 'Displaced': return { color: 'secondary', label: 'Displaced' };
+            default: return { color: 'info', label: status };
+        }
     };
 
-    const filteredAppointments = APPOINTMENTS_DATA.filter((apt) => {
-        const matchDoctor = selectedDoctor === 'All' ? true : apt.doctor.name === selectedDoctor;
-        const matchService = selectedServiceType === 'All' ? true : apt.service.type === selectedServiceType;
-        const matchStatus = selectedStatus === 'All' ? true : apt.status === selectedStatus;
-        const matchSource = selectedSource === 'All' ? true : apt.source === selectedSource;
-        
-        return matchDoctor && matchService && matchStatus && matchSource;
-    }).sort((a, b) => {
-        const dateA = new Date(`${a.date}, 2026 ${a.time}`);
-        const dateB = new Date(`${b.date}, 2026 ${b.time}`);
-        return dateA - dateB;
-    });
+    const getInitial = (name = '') => name.charAt(0).toUpperCase();
 
-    const totalPages = Math.ceil(filteredAppointments.length / ITEMS_PER_PAGE) || 1;
-    const currentAppointments = filteredAppointments.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
+    const formatDateStr = (dateStr) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    };
 
     return (
-        <div className="flex flex-col h-full w-full max-w-full overflow-x-hidden pb-8">
-            {/* Page Header Outside Container */}
+        <div className="flex flex-col h-full w-full overflow-x-hidden pb-8">
             <PageBreadcrumb 
                 pageTitle="Appointments" 
-                subtitle="Manage clinic schedule and bookings."
             />
 
-            <div className="grow flex flex-col bg-white dark:bg-white/[0.03] sm:rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
-                {/* Header Section (Filters Only) */}
-                <div className="p-4 sm:p-6 lg:p-8 border-b border-gray-100 dark:border-gray-800 space-y-4">
+            <div className="flex-1 min-h-0 flex flex-col sm:mb-6">
+                <div className='flex-grow flex flex-col h-full bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-200 dark:border-gray-700/60 overflow-hidden shadow-sm'>
+                        
+                        {/* Aligned Toolbar - One to One with User Portal MyAppointments */}
+                        <div className='border-b border-gray-200 dark:border-gray-700/60 bg-white dark:bg-transparent'>
+                            
+                            {/* Row 1: Search & Action */}
+                            <div className='px-4 sm:px-6 pt-5 flex flex-col sm:flex-row items-center gap-3 sm:gap-4'>
+                                <div className='relative flex-grow w-full'>
+                                    <span className='absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400'>
+                                        <Search size={18} />
+                                    </span>
+                                    <input
+                                        type='text'
+                                        placeholder='Search by patient or service...'
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium dark:text-white'
+                                    />
+                                </div>
 
-                    {/* Quick Filters */}
-                    {/* Quick Filters */}
-                    <div className="flex flex-row flex-wrap items-center gap-3">
-                        <div className="relative group w-full xs:w-[calc(50%-6px)] md:w-[200px] lg:flex-1 min-w-[140px]">
-                            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors z-10">
-                                <CalendarIcon size={16} />
-                            </div>
-                            <input 
-                                type="date" 
-                                value={selectedDate}
-                                onChange={(e) => setSelectedDate(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#0B1120]/80 backdrop-blur-xl border border-gray-200 dark:border-gray-800 hover:border-brand-500/50 dark:hover:border-brand-500/50 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
-                            />
-                        </div>
-
-                        <div className="relative group w-full xs:w-[calc(50%-6px)] md:w-[220px] lg:flex-1 min-w-[160px]">
-                            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors z-10">
-                                <Users size={16} />
-                            </div>
-                            <select 
-                                value={selectedDoctor}
-                                onChange={(e) => setSelectedDoctor(e.target.value)}
-                                className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-[#0B1120]/80 backdrop-blur-xl border border-gray-200 dark:border-gray-800 hover:border-brand-500/50 dark:hover:border-brand-500/50 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 shadow-sm hover:shadow-md transition-all duration-300 appearance-none cursor-pointer"
-                            >
-                                {DOCTORS.map(doc => (
-                                    <option key={doc} value={doc}>{doc === 'All' ? 'All Doctors' : doc}</option>
-                                ))}
-                            </select>
-                            <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors" />
-                        </div>
-
-                        <div className="relative group w-full xs:w-[calc(50%-6px)] md:w-[180px] lg:flex-1 min-w-[150px]">
-                            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors z-10">
-                                <Tag size={16} />
-                            </div>
-                            <select 
-                                value={selectedServiceType}
-                                onChange={(e) => setSelectedServiceType(e.target.value)}
-                                className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-[#0B1120]/80 backdrop-blur-xl border border-gray-200 dark:border-gray-800 hover:border-brand-500/50 dark:hover:border-brand-500/50 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 shadow-sm hover:shadow-md transition-all duration-300 appearance-none cursor-pointer"
-                            >
-                                {SERVICE_TYPES.map(type => (
-                                    <option key={type} value={type}>{type === 'All' ? 'All Services' : type}</option>
-                                ))}
-                            </select>
-                            <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors" />
-                        </div>
-
-                        <div className="relative group w-full xs:w-[calc(50%-6px)] md:w-[170px] lg:flex-1 min-w-[140px]">
-                            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors z-10">
-                                <ShieldCheck size={16} />
-                            </div>
-                            <select 
-                                value={selectedStatus}
-                                onChange={(e) => setSelectedStatus(e.target.value)}
-                                className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-[#0B1120]/80 backdrop-blur-xl border border-gray-200 dark:border-gray-800 hover:border-brand-500/50 dark:hover:border-brand-500/50 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 shadow-sm hover:shadow-md transition-all duration-300 appearance-none cursor-pointer"
-                            >
-                                {STATUSES.map(status => (
-                                    <option key={status} value={status}>{status === 'All' ? 'All Status' : status}</option>
-                                ))}
-                            </select>
-                            <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors" />
-                        </div>
-
-                        <div className="relative group w-full xs:w-[calc(50%-6px)] md:w-[180px] lg:flex-1 min-w-[150px]">
-                            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors z-10">
-                                <MousePointer2 size={16} />
-                            </div>
-                            <select 
-                                value={selectedSource}
-                                onChange={(e) => setSelectedSource(e.target.value)}
-                                className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-[#0B1120]/80 backdrop-blur-xl border border-gray-200 dark:border-gray-800 hover:border-brand-500/50 dark:hover:border-brand-500/50 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 shadow-sm hover:shadow-md transition-all duration-300 appearance-none cursor-pointer"
-                            >
-                                {SOURCES.map(source => (
-                                    <option key={source} value={source}>{source === 'All' ? 'All Sources' : source}</option>
-                                ))}
-                            </select>
-                            <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors" />
-                        </div>
-
-                        <div className="w-full lg:w-auto lg:ml-auto">
-                            <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-sm font-bold transition-all active:scale-95 shadow-sm hover:shadow-md w-full lg:w-auto">
-                                <Plus size={18} />
-                                <span>New Appointment</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Content Area */}
-                <div className="grow flex flex-col overflow-y-auto no-scrollbar">
-                    <div className="flex flex-col gap-4 p-4 sm:p-6 lg:p-8 pb-24">
-                        {currentAppointments.length > 0 ? (
-                            currentAppointments.map((apt) => (
-                                <div 
-                                    key={apt.id} 
-                                    className="flex flex-col sm:flex-row bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group cursor-pointer"
+                                <button
+                                    className='hidden sm:flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-sm font-bold transition-all shadow-md shadow-brand-500/20 shrink-0 whitespace-nowrap active:scale-95'
                                 >
-                                    {/* Left Time/Date Column */}
-                                    <div className="flex flex-row sm:flex-col w-full sm:w-[130px] bg-gray-50/50 dark:bg-gray-800/20 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0">
-                                        <div className="flex-1 flex flex-col justify-center px-4 py-3 border-r sm:border-r-0 sm:border-b border-gray-200 dark:border-gray-800">
-                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Time</span>
-                                            <span className="text-sm sm:text-base font-semibold text-[#0B1120] dark:text-white font-outfit truncate">{apt.time}</span>
+                                    <Plus size={18} />
+                                    <span>New Appointment</span>
+                                </button>
+                            </div>
+
+                            {/* Row 2: Filters */}
+                            <div className='px-4 sm:px-6 pb-5 pt-2'>
+                                <div className='flex flex-nowrap items-center gap-3 overflow-x-auto no-scrollbar py-2'>
+                                    
+                                    {/* 1. Doctor Filter */}
+                                    <div className='relative w-[170px] sm:w-[210px] shrink-0'>
+                                        <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
+                                            <Users size={16} />
                                         </div>
-                                        <div className="flex-1 flex flex-col justify-center px-4 py-3">
-                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Date</span>
-                                            <span className="text-sm sm:text-base font-medium text-gray-500 dark:text-gray-400 font-outfit truncate">{apt.date}</span>
-                                        </div>
+                                        <select
+                                            value={selectedDoctor}
+                                            onChange={(e) => setSelectedDoctor(e.target.value)}
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
+                                        >
+                                            {DOCTORS.map(doc => <option key={doc} value={doc} className='dark:bg-gray-900'>{doc}</option>)}
+                                        </select>
+                                        <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                                     </div>
 
-                                    {/* Main Content Area */}
-                                    <div className="flex-1 flex flex-col md:flex-row items-start md:items-center justify-between p-4 sm:p-5 lg:px-6 gap-4 md:gap-6 min-w-0 w-full">
-                                        
-                                        {/* Patient Info */}
-                                        <div className="flex items-center gap-4 w-full lg:w-[260px] shrink-0">
-                                            <div className="relative shrink-0">
-                                                <img 
-                                                    src={apt.patient.avatar} 
-                                                    alt={apt.patient.name} 
-                                                    className="w-11 h-11 sm:w-13 sm:h-13 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm object-cover" 
-                                                />
-                                                <div className={`absolute bottom-0.5 right-0.5 w-3.5 h-3.5 border-2 border-white dark:border-[#111827] rounded-full shadow-sm ${
-                                                    apt.status === 'In Progress' ? 'bg-amber-500 animate-pulse' : 
-                                                    apt.status === 'Completed' ? 'bg-emerald-500' : 'bg-blue-500'
-                                                }`}></div>
-                                            </div>
-                                            <div className="flex flex-col min-w-0">
-                                                <span className="font-bold text-[#0B1120] dark:text-white text-base sm:text-lg font-outfit group-hover:text-brand-500 transition-colors truncate">
-                                                    {apt.patient.name}
-                                                </span>
-                                                <div className="flex items-center gap-2 mt-0.5">
-                                                    <Badge variant="soft" color={apt.source === 'Walk-in' ? 'secondary' : apt.source === 'Guest Booking' ? 'info' : 'primary'} size="xs">
-                                                        <span className="text-[9px] leading-none uppercase font-bold tracking-tight">{apt.source}</span>
-                                                    </Badge>
-                                                </div>
-                                            </div>
+                                    {/* 2. Service Filter */}
+                                    <div className='relative w-[150px] sm:w-[190px] shrink-0'>
+                                        <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
+                                            <Tag size={16} />
                                         </div>
+                                        <select
+                                            value={selectedService}
+                                            onChange={(e) => setSelectedService(e.target.value)}
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
+                                        >
+                                            {SERVICES.map(s => <option key={s} value={s} className='dark:bg-gray-900'>{s}</option>)}
+                                        </select>
+                                        <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
+                                    </div>
 
-                                        {/* Appointment Details */}
-                                        <div className="flex flex-col lg:flex-row lg:items-center gap-y-4 gap-x-6 xl:gap-x-12 w-full lg:flex-1 min-w-0">
-                                            {/* Service & Doctor */}
-                                            <div className="flex-[1.5] flex flex-row gap-6 min-w-0">
-                                                <div className="flex-[1.3] flex flex-col min-w-0">
-                                                    <span className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${
-                                                        apt.service.type === 'Specialized' ? 'text-brand-500' : 'text-gray-400 dark:text-gray-500'
-                                                    }`}>
-                                                        {apt.service.type} Service
-                                                    </span>
-                                                    <span className="text-xs sm:text-sm font-bold text-[#0B1120] dark:text-white truncate" title={apt.service.name}>{apt.service.name}</span>
-                                                </div>
-                                                <div className="flex-1 flex flex-col min-w-0">
-                                                    <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">Doctor</span>
-                                                    <div className="flex items-center gap-2 truncate">
-                                                        <img src={apt.doctor.avatar} alt="" className="w-5 h-5 rounded-full shrink-0" />
-                                                        <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate" title={apt.doctor.name}>{apt.doctor.name}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Status */}
-                                            <div className="flex-1 flex flex-row gap-6 min-w-0">
-                                                <div className="flex flex-col min-w-0">
-                                                    <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">Status</span>
-                                                    <div className="flex items-center">
-                                                        {getStatusBadge(apt.status)}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    {/* 3. Status Filter */}
+                                    <div className='relative w-[150px] sm:w-[170px] shrink-0'>
+                                        <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
+                                            <ShieldCheck size={16} />
                                         </div>
+                                        <select
+                                            value={selectedStatus}
+                                            onChange={(e) => setSelectedStatus(e.target.value)}
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
+                                        >
+                                            {STATUSES.map(st => <option key={st} value={st} className='dark:bg-gray-900'>{st}</option>)}
+                                        </select>
+                                        <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
+                                    </div>
 
-                                        {/* Actions */}
-                                        <div className="flex items-center justify-end w-full lg:w-[100px] mt-2 lg:mt-0 shrink-0">
-                                            <button 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    // Handle View Details logic if needed
-                                                }}
-                                                className="flex items-center justify-center p-3 bg-gray-50/80 dark:bg-white/[0.03] backdrop-blur-sm text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-blue-100 dark:hover:border-blue-500/20 transition-all duration-300 active:scale-95 group/eye shadow-sm hover:shadow-md" 
-                                                title="View Details"
+                                    {/* 4. Date Picker */}
+                                    <div className='relative w-[150px] sm:w-[190px] shrink-0'>
+                                        <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
+                                            <Calendar size={16} />
+                                        </div>
+                                        <input
+                                            type='date'
+                                            value={specificDate}
+                                            onChange={(e) => setSpecificDate(e.target.value)}
+                                            onClick={(e) => e.target.showPicker?.()}
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all cursor-pointer color-scheme-dark'
+                                        />
+                                        {specificDate && (
+                                            <button
+                                                onClick={() => setSpecificDate('')}
+                                                className='absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-brand-500 transition-colors'
                                             >
-                                                <Eye size={19} className="group-hover/eye:scale-110 transition-transform duration-300" />
+                                                <span className='text-[10px] font-black bg-gray-100 dark:bg-white/10 w-5 h-5 flex items-center justify-center rounded-full'>✕</span>
                                             </button>
-                                        </div>
+                                        )}
+                                    </div>
+
+                                    <div className='hidden lg:block ml-auto text-[10px] font-black text-gray-400 uppercase tracking-widest opacity-60'>
+                                        Total: {filtered.length}
                                     </div>
                                 </div>
-                            ))
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-                                <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center text-gray-400 mb-4">
-                                    <Search size={32} />
+                            </div>
+                        </div>
+
+                        {/* Appointment List - Matched to AppointmentTable */}
+                        <div className='overflow-y-auto grow pb-24 sm:pb-8 flex flex-col gap-0 sm:gap-4 p-0 sm:p-6 no-scrollbar'>
+                            {paginated.length > 0 ? (
+                                paginated.map((apt) => {
+                                    const { color: badgeColor, label: displayStatus } = getStatusStyle(apt.status);
+                                    return (
+                                        <div 
+                                            key={apt.id}
+                                            className='group relative bg-white dark:bg-white/[0.03] sm:rounded-xl border-b sm:border border-gray-100 dark:border-gray-800 sm:shadow-sm hover:shadow-md sm:hover:z-10 transition-all duration-300 cursor-pointer overflow-hidden flex flex-row items-center'
+                                        >
+                                            {/* 1. Left Side: Schedule Block (Desktop Only) */}
+                                            <div className='hidden sm:flex w-48 bg-gray-50/50 dark:bg-gray-800/20 border-r border-gray-200 dark:border-white/10 shrink-0 flex-col text-left py-1'>
+                                                <div className='px-6 py-3 flex-1 flex flex-col justify-center'>
+                                                    <p className='text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-0.5 tracking-wide'>Date</p>
+                                                    <p className='text-[16px] font-medium text-gray-900 dark:text-white leading-tight'>
+                                                        {formatDateStr(apt.date)}
+                                                    </p>
+                                                </div>
+                                                <div className='h-px w-full bg-gray-200 dark:bg-white/5' />
+                                                <div className='px-6 py-3 flex-1 flex flex-col justify-center'>
+                                                    <p className='text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-0.5 tracking-wide'>Time</p>
+                                                    <p className='text-[15px] font-medium text-brand-500 leading-tight'>
+                                                        {apt.time.split('-')[0].trim()}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* 2. Content Area */}
+                                            <div className='flex-grow flex items-center min-w-0'>
+                                                {/* Mobile View */}
+                                                <div className='flex sm:hidden gap-4 w-full pl-6 pr-4 py-4 items-center'>
+                                                    <div className='shrink-0'>
+                                                        <div className='w-12 h-12 rounded-full bg-brand-500 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-brand-500/20'>
+                                                            {getInitial(apt.patient.name)}
+                                                        </div>
+                                                    </div>
+                                                    <div className='flex-grow min-w-0 flex flex-col gap-0.5'>
+                                                        <div className='flex justify-between items-center min-w-0'>
+                                                            <span className='text-[17px] font-medium text-gray-900 dark:text-white tracking-tight truncate flex-grow min-w-0'>
+                                                                {apt.patient.name}
+                                                            </span>
+                                                            <div className='shrink-0 ml-2'>
+                                                                <Badge size='sm' color={badgeColor} className='font-medium text-[10px] px-2.5 py-0.5 rounded-md'>
+                                                                    {displayStatus}
+                                                                </Badge>
+                                                            </div>
+                                                        </div>
+                                                        <div className='text-[13px] truncate text-gray-500 dark:text-gray-400 font-medium leading-tight'>
+                                                            {apt.service.name}
+                                                        </div>
+                                                        <div className='flex justify-between items-end mt-0.5'>
+                                                            <div className='text-[11px] text-gray-700 dark:text-gray-400 font-medium truncate pr-4 flex items-center gap-1.5'>
+                                                                <span>{apt.date}</span>
+                                                                <span className='text-gray-400'>•</span>
+                                                                <span className='text-gray-500/80'>{apt.time.split('-')[0].trim()}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className='shrink-0 text-brand-500 ml-2'>
+                                                        <ChevronRight size={20} strokeWidth={3} />
+                                                    </div>
+                                                </div>
+
+                                                {/* Desktop View */}
+                                                <div className='hidden sm:flex flex-grow px-8 py-5 items-center gap-8 min-w-0'>
+                                                    <div className='shrink-0'>
+                                                        <img src={apt.patient.avatar} className='w-14 h-14 rounded-full border border-gray-100 shadow-sm object-cover' alt="" />
+                                                    </div>
+                                                    
+                                                    <div className='flex flex-grow items-center min-w-0'>
+                                                        <div className='flex flex-col min-w-0 w-[220px] shrink-0'>
+                                                            <h3 className='text-[20px] font-medium text-gray-900 dark:text-white truncate leading-tight group-hover:text-brand-500 transition-colors'>
+                                                                {apt.patient.name}
+                                                            </h3>
+                                                            <p className='text-[13px] font-medium text-gray-700 dark:text-gray-400'>Source: {apt.source}</p>
+                                                        </div>
+
+                                                        <div className='flex flex-col min-w-0 w-[240px] shrink-0 px-8 border-l border-gray-100 dark:border-white/5'>
+                                                            <p className='text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-1'>Service & Doctor</p>
+                                                            <div className='flex flex-col min-w-0'>
+                                                                <span className='text-[16px] font-medium truncate text-gray-900 dark:text-white'>
+                                                                    {apt.service.name}
+                                                                </span>
+                                                                <span className='text-[13px] font-medium text-gray-500 truncate italic'>
+                                                                    with {apt.doctor.name}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className='flex flex-col min-w-0 w-[140px] shrink-0 px-8 border-l border-gray-100 dark:border-white/5'>
+                                                            <p className='text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-1'>Status</p>
+                                                            <div>
+                                                                <Badge size='sm' color={badgeColor} className='font-medium text-[11px] px-3.5 py-1 rounded-md'>
+                                                                    {displayStatus}
+                                                                </Badge>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className='flex-grow' />
+
+                                                        <div className='shrink-0 ml-4 flex items-center justify-center p-3 bg-gray-50/80 dark:bg-white/[0.03] text-gray-400 hover:text-brand-500 rounded-xl border border-gray-100 dark:border-gray-800 transition-all active:scale-95'>
+                                                            <Eye size={20} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <div className='flex flex-col items-center justify-center py-20 px-6 text-center animate-in fade-in zoom-in duration-300'>
+                                    <div className='w-20 h-20 bg-gray-50 dark:bg-white/[0.03] rounded-[32px] flex items-center justify-center mb-6'>
+                                        <SearchX className='text-gray-300 dark:text-gray-700' size={32} />
+                                    </div>
+                                    <h3 className='text-lg font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight'>No appointments found</h3>
+                                    <p className='text-sm text-gray-400 max-w-[280px] font-medium leading-relaxed'>
+                                        Refine your filters or search query to find specific clinic bookings.
+                                    </p>
                                 </div>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">No appointments found</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mt-1">
-                                    Try adjusting your filters or search query to find what you're looking for.
-                                </p>
+                            )}
+                        </div>
+
+                        {/* Pagination matched to User Portal style */}
+                        {(totalPages > 1 || filtered.length > 0) && (
+                            <div className='relative z-30 bg-white dark:bg-gray-900 px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between shrink-0'>
+                                <div className='flex flex-row items-center justify-between w-full'>
+                                    <div className='hidden sm:block text-[10px] font-black text-gray-400 uppercase tracking-widest'>
+                                        Page {currentPage} of {totalPages}
+                                    </div>
+
+                                    <div className='flex items-center gap-2 mx-auto sm:mx-0'>
+                                        <button 
+                                            onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                                            className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
+                                            disabled={currentPage === 1}
+                                        >
+                                            <ChevronLeft size={20} />
+                                        </button>
+                                        
+                                        {[...Array(totalPages)].map((_, i) => {
+                                            const pageNum = i + 1;
+                                            if (totalPages > 5 && pageNum !== 1 && pageNum !== totalPages && Math.abs(pageNum - currentPage) > 1) return null;
+                                            return (
+                                                <button 
+                                                    key={pageNum}
+                                                    onClick={() => setCurrentPage(pageNum)}
+                                                    className={`w-10 h-10 flex items-center justify-center text-sm font-bold rounded-xl transition-all ${
+                                                        currentPage === pageNum 
+                                                        ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
+                                                        : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'
+                                                    }`}
+                                                >
+                                                    {pageNum}
+                                                </button>
+                                            );
+                                        })}
+
+                                        <button 
+                                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                            className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            <ChevronRight size={20} />
+                                        </button>
+                                    </div>
+
+                                    <div className='hidden sm:block w-[100px]' />
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
-
-                {/* Pagination Footer */}
-                {filteredAppointments.length > 0 && (
-                    <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md px-4 sm:px-6 py-4 sm:py-5 border-t border-gray-100 dark:border-gray-800 mt-auto">
-                        <div className="flex items-center justify-center gap-2">
-                            <button 
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                className="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-all"
-                            >
-                                <ChevronLeft size={18} />
-                            </button>
-                            <div className="flex items-center gap-1.5">
-                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                                    <button 
-                                        key={page}
-                                        onClick={() => setCurrentPage(page)}
-                                        className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all shadow-sm ${
-                                            currentPage === page 
-                                                ? 'bg-brand-500 text-white' 
-                                                : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-brand-500 hover:text-brand-500'
-                                        }`}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
-                            </div>
-                            <button 
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                                className="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-all"
-                            >
-                                <ChevronRight size={18} />
-                            </button>
-                        </div>
-                    </div>
-                )}
             </div>
-        </div>
-    );
-};
+        );
+    };
 
 export default AppointmentsPage;
