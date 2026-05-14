@@ -20,7 +20,7 @@ export const getTodaySchedule = async (dentistId) => {
         .select(
             `
       *,
-      patient:profiles!appointments_patient_id_fkey(id, full_name, first_name, last_name, middle_name, suffix, phone, no_show_count, is_booking_restricted, medical_alerts, allergies),
+      patient:profiles!patient_id(id, full_name, first_name, last_name, middle_name, suffix, phone, no_show_count, is_booking_restricted, medical_alerts, allergies),
       service:services(name, duration_minutes, price, tier)
     `,
         )
@@ -66,7 +66,7 @@ export const getScheduleRange = async (dentistId, startDate, endDate) => {
         .select(
             `
       *,
-      patient:profiles!appointments_patient_id_fkey(full_name, first_name, last_name, middle_name, suffix, no_show_count),
+      patient:profiles!patient_id(full_name, first_name, last_name, middle_name, suffix, no_show_count),
       service:services(name, duration_minutes, tier)
     `,
         )
@@ -417,7 +417,7 @@ export const createFollowUp = async (dentistId, followUpData) => {
         .from('appointments')
         .select(`
             id, dentist_id, patient_id, booked_for_name,
-            patient:profiles!appointments_patient_id_fkey(full_name, first_name, last_name)
+            patient:profiles!patient_id(full_name, first_name, last_name)
         `)
         .eq('id', followUpData.appointment_id)
         .eq('dentist_id', dentistId)
@@ -474,7 +474,7 @@ export const reportDelay = async (dentistId, appointmentId, delayMinutes, reason
         .from('appointments')
         .select(`
             id, dentist_id, patient_id, start_time, appointment_date, booked_for_name,
-            patient:profiles!appointments_patient_id_fkey(full_name, first_name, last_name),
+            patient:profiles!patient_id(full_name, first_name, last_name),
             dentist:dentists(profile:profiles(full_name, first_name, last_name, middle_name, suffix)),
             service:services(name)
         `)

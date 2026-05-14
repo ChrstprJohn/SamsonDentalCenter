@@ -16,7 +16,7 @@ export const markNoShow = async (appointmentId) => {
         .from('appointments')
         .select(`
             *,
-            patient:profiles!appointments_patient_id_fkey(full_name, first_name, last_name, email),
+            patient:profiles!patient_id(full_name, first_name, last_name, email),
             service:services(name)
         `)
         .eq('id', appointmentId)

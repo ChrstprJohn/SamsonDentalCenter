@@ -26,7 +26,8 @@ export const approveRequest = async (req, res, next) => {
         );
         res.json({
             message: 'Appointment request approved successfully.',
-            appointment
+            appointment: appointment,
+            notifications: appointment.notification_log
         });
     } catch (err) {
         next(err);
@@ -46,7 +47,8 @@ export const rejectRequest = async (req, res, next) => {
         );
         res.json({
             message: 'Appointment request rejected.',
-            appointment
+            appointment: appointment,
+            notifications: appointment.notification_log
         });
     } catch (err) {
         next(err);

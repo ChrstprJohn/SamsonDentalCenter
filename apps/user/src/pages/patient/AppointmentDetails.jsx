@@ -155,7 +155,7 @@ const AppointmentDetails = () => {
         <>
             <PageBreadcrumb
                 pageTitle='Appointment Details'
-                parentName={isPending || (raw.approval_status || '').toLowerCase() === 'rejected' ? 'My Requests' : 'My Appointments'}
+                parentName={isPending || (raw.approval_status || '').toLowerCase() === 'rejected' ? 'My Requests' : 'Upcoming Appointments'}
                 parentPath={isPending || (raw.approval_status || '').toLowerCase() === 'rejected' ? '/patient/requests' : '/patient/appointments'}
             />
 

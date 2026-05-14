@@ -32,10 +32,13 @@ export const sendNotification = async (
     // ── 1. Save to Database (if userId exists) ──
     let data = null;
     if (userId) {
+        console.log(`[Notification:DEBUG] userId: ${userId}, type: ${type}, channel: ${channel}, title: ${title}`);
+        
         const messageContent = metadata
             ? JSON.stringify({ ...metadata, _isJSON: true, _title: title, _fallback: message })
             : message;
 
+        console.log(`[Notification:Insert] Attempting insert into 'notifications' table...`);
         const { data: insertData, error } = await supabaseAdmin
             .from('notifications')
             .insert({
@@ -50,11 +53,13 @@ export const sendNotification = async (
             .single();
 
         if (error) {
-            console.error('Failed to send notification record:', error.message);
-            // We continue so SMS can still be attempted if applicable
+            console.error('[Notification:Insert] FAILED:', error.message, error.details, error.hint);
         } else {
+            console.log('[Notification:Insert] SUCCESS:', insertData.id);
             data = insertData;
         }
+    } else {
+        console.log(`[Notification:SKIP] No userId for type: ${type}, channel: ${channel}`);
     }
 
     // ── 2. External Channels (SMS/Email) ──
@@ -121,13 +126,16 @@ export const sendApprovalNotice = async (userId, appointmentDetails, phone = nul
     // 1. In-App Notification
     const inAppResult = await sendNotification(
         userId,
-        'CONFIRMATION',
+        'APPROVAL',
         'Appointment Approved!',
         message,
         'in_app',
         { service, date, start_time, end_time, action: 'approved', patient_name: pName },
     );
 
+    // ── 2. SMS Disabled ──
+    // SMS is currently disabled for approvals per business requirements.
+    // Email is handled separately via sendBookingSuccessEmail in the service layer.
     return { inAppResult, smsResult: null };
 };
 
@@ -141,7 +149,7 @@ export const sendRejectionNotice = async (userId, appointmentDetails, reason) =>
 
     return sendNotification(
         userId,
-        'CANCELLATION',
+        'REJECTION',
         'Appointment Declined',
         `Your request for a ${service} appointment for ${pName} on ${formattedRange} was declined. Reason: ${reason}. If you have questions, please contact our clinic.`,
         'in_app',

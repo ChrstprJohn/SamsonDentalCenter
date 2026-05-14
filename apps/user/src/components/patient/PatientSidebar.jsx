@@ -204,7 +204,7 @@ const navItems = [
     },
     {
         icon: <CalendarIcon />,
-        name: 'My Appointments',
+        name: 'Upcoming Appointments',
         path: '/patient/appointments',
     },
     {
