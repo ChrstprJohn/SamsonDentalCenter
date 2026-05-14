@@ -36,6 +36,7 @@ export const sendNotification = async (
             ? JSON.stringify({ ...metadata, _isJSON: true, _title: title, _fallback: message })
             : message;
 
+        console.log(`[Notification:Insert] Attempting insert for User: ${userId}, Type: ${type}, Channel: ${channel}`);
         const { data: insertData, error } = await supabaseAdmin
             .from('notifications')
             .insert({
@@ -50,9 +51,10 @@ export const sendNotification = async (
             .single();
 
         if (error) {
-            console.error('Failed to send notification record:', error.message);
+            console.error('[Notification:Insert] FAILED:', error.message, error.details, error.hint);
             // We continue so SMS can still be attempted if applicable
         } else {
+            console.log('[Notification:Insert] SUCCESS:', insertData.id);
             data = insertData;
         }
     }

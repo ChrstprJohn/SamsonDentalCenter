@@ -210,34 +210,33 @@ export const approveAppointment = async (appointmentId, adminId, dentistId = nul
 
     if (updateErr) throw new AppError(updateErr.message, 500);
 
-    // ── 3. Profile Discovery Fallback (Fix for missing notifications) ──
-    if (!updated.patient && updated.patient_id) {
-        console.log(`[ApprovalService] Join failed for patient ${updated.patient_id}. Performing explicit lookup.`);
-        const { data: profile } = await supabaseAdmin
+    // ── 4. Notify Primary for Dependents ──
+    let targetPatient = updated.patient;
+    if (!targetPatient?.primary_profile_id && updated.patient_id) {
+        const { data: latestProfile } = await supabaseAdmin
             .from('profiles')
-            .select('id, full_name, email, phone, primary_profile_id, is_registered')
+            .select('id, primary_profile_id, is_registered')
             .eq('id', updated.patient_id)
             .single();
-        updated.patient = profile;
+        if (latestProfile) targetPatient = latestProfile;
     }
 
-    // 3. Notifications & Cleanup
-    const isDependent = updated.patient?.primary_profile_id && !updated.patient?.is_registered;
-    const notifyUserId = isDependent ? updated.patient.primary_profile_id : updated.patient_id;
-
+    const isDependent = !!(targetPatient?.primary_profile_id && !targetPatient?.is_registered);
+    const notifyUserId = isDependent ? targetPatient.primary_profile_id : updated.patient_id;
+    
     // Fetch Primary Email if needed
     let recipientEmail = updated.patient?.email || updated.guest_email;
     if (!recipientEmail && isDependent) {
         const { data: primary } = await supabaseAdmin
             .from('profiles')
             .select('email')
-            .eq('id', updated.patient.primary_profile_id)
+            .eq('id', targetPatient.primary_profile_id)
             .single();
         recipientEmail = primary?.email;
     }
 
     const notificationLog = { email: 'SKIPPED', inApp: 'SKIPPED' };
-    console.log(`[ApprovalService] START Notifications for ${appointmentId}. Target User: ${notifyUserId}, Email: ${recipientEmail}`);
+    console.log(`[ApprovalService] Routing: User ${notifyUserId} (isDep: ${isDependent}), Email: ${recipientEmail}`);
 
     // Channel 1: Email
     try {
@@ -337,34 +336,33 @@ export const rejectAppointment = async (appointmentId, adminId, reason) => {
 
     if (error) throw new AppError(error.message, 500);
 
-    // ── 3. Profile Discovery Fallback ──
-    if (!updated.patient && updated.patient_id) {
-        console.log(`[RejectionService] Join failed for patient ${updated.patient_id}. Performing explicit lookup.`);
-        const { data: profile } = await supabaseAdmin
+    // 3. Notify Primary for Dependents
+    let targetPatient = updated.patient;
+    if (!targetPatient?.primary_profile_id && updated.patient_id) {
+        const { data: latestProfile } = await supabaseAdmin
             .from('profiles')
-            .select('id, full_name, email, phone, primary_profile_id, is_registered')
+            .select('id, primary_profile_id, is_registered')
             .eq('id', updated.patient_id)
             .single();
-        updated.patient = profile;
+        if (latestProfile) targetPatient = latestProfile;
     }
 
-    // 3. Notify & Trigger Waitlist
-    const isDependent = updated.patient?.primary_profile_id && !updated.patient?.is_registered;
-    const notifyUserId = isDependent ? updated.patient.primary_profile_id : updated.patient_id;
+    const isDependent = !!(targetPatient?.primary_profile_id && !targetPatient?.is_registered);
+    const notifyUserId = isDependent ? targetPatient.primary_profile_id : updated.patient_id;
     
-    // Fetch Primary Email if needed (since dependents don't have email)
+    // Fetch Primary Email if needed
     let recipientEmail = updated.patient?.email || updated.guest_email;
     if (!recipientEmail && isDependent) {
         const { data: primary } = await supabaseAdmin
             .from('profiles')
             .select('email')
-            .eq('id', updated.patient.primary_profile_id)
+            .eq('id', targetPatient.primary_profile_id)
             .single();
         recipientEmail = primary?.email;
     }
 
     const notificationLog = { email: 'SKIPPED', inApp: 'SKIPPED' };
-    console.log(`[RejectionService] START Notifications for ${appointmentId}. Target User: ${notifyUserId}, Email: ${recipientEmail}`);
+    console.log(`[RejectionService] Routing: User ${notifyUserId} (isDep: ${isDependent}), Email: ${recipientEmail}`);
 
     // Channel 1: Email
     try {

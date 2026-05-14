@@ -398,8 +398,26 @@ export const approve = async (req, res, next) => {
         const recipientPhone = appointment.patient?.phone || appointment.guest_phone;
         
         // Resolve notify user (Primary for dependents)
-        const isDependent = appointment.patient?.primary_profile_id && !appointment.patient?.is_registered;
-        const notifyUserId = isDependent ? appointment.patient.primary_profile_id : appointment.patient_id;
+        // ── Resolve notify user (Primary for dependents) ──
+        let notifyUserId = appointment.patient_id;
+        
+        // Ensure we have the latest profile data for routing
+        let targetPatient = appointment.patient;
+        if (!targetPatient?.primary_profile_id && appointment.patient_id) {
+            const { data: latestProfile } = await supabaseAdmin
+                .from('profiles')
+                .select('id, primary_profile_id, is_registered')
+                .eq('id', appointment.patient_id)
+                .single();
+            if (latestProfile) targetPatient = latestProfile;
+        }
+
+        const isDep = !!(targetPatient?.primary_profile_id && !targetPatient?.is_registered);
+        if (isDep) {
+            notifyUserId = targetPatient.primary_profile_id;
+        }
+        
+        console.log(`[AdminController:Approve] Notification Routing -> User: ${notifyUserId} (isDep: ${isDep})`);
 
         // Always try to send approval notice — the service will handle the patient vs guest distinction
         // (Skipping in-app for guests, but sending SMS if phone is available)
@@ -476,8 +494,19 @@ export const reject = async (req, res, next) => {
         // In-app notification
         let inAppResult = null;
         if (result.appointment.patient_id) {
-            const isDependent = result.appointment.patient?.primary_profile_id && !result.appointment.patient?.is_registered;
-            const notifyUserId = isDependent ? result.appointment.patient.primary_profile_id : result.appointment.patient_id;
+            let targetPatient = result.appointment.patient;
+            if (!targetPatient?.primary_profile_id) {
+                const { data: latestProfile } = await supabaseAdmin
+                    .from('profiles')
+                    .select('id, primary_profile_id, is_registered')
+                    .eq('id', result.appointment.patient_id)
+                    .single();
+                if (latestProfile) targetPatient = latestProfile;
+            }
+
+            const isDep = !!(targetPatient?.primary_profile_id && !targetPatient?.is_registered);
+            const notifyUserId = isDep ? targetPatient.primary_profile_id : result.appointment.patient_id;
+            console.log(`[AdminController:Reject] Notification Routing -> User: ${notifyUserId} (isDep: ${isDep})`);
 
             inAppResult = await sendRejectionNotice(notifyUserId, {
                 date: result.appointment.appointment_date,
