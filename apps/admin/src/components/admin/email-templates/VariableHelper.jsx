@@ -11,7 +11,7 @@ const VariableHelper = ({ required = [], optional = [], description }) => {
 
     const globalVars = [
         { key: 'clinicName', desc: 'Samson Dental Center' },
-        { key: 'clinicAddress', desc: '7 Himalayan Rd, Tandang Sora...' },
+        { key: 'clinicAddress', desc: 'Upper Session Road, Baguio City' },
         { key: 'clinicPhone', desc: 'Primary contact number' },
         { key: 'clinicYear', desc: 'Current year (2026)' },
     ];

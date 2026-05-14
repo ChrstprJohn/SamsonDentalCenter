@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MessageCircle, Send, X, Loader2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import { api } from '../../utils/api';
 
 const DEFAULT_MESSAGES = [
@@ -142,10 +144,24 @@ const ChatBot = () => {
                                             className={
                                                 isUser
                                                     ? 'bg-red-600 text-white rounded-2xl rounded-tr-none px-4 py-3.5 max-w-[85%] text-sm font-semibold leading-relaxed shadow-lg shadow-red-500/10'
-                                                    : 'rounded-2xl rounded-tl-none px-4 py-3.5 max-w-[85%] text-sm font-medium leading-relaxed bg-stone-50 text-stone-700 border border-stone-100 whitespace-pre-wrap'
+                                                    : 'rounded-2xl rounded-tl-none px-4 py-3.5 max-w-[85%] text-sm font-medium leading-relaxed bg-stone-50 text-stone-700 border border-stone-100 whitespace-pre-wrap break-words prose prose-sm'
                                             }
                                         >
-                                            {m.content}
+                                            {isUser ? (
+                                                m.content
+                                            ) : (
+                                                <ReactMarkdown 
+                                                    rehypePlugins={[rehypeRaw]}
+                                                    components={{
+                                                        a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-red-600 underline" />,
+                                                        p: ({node, ...props}) => <p {...props} className="m-0" />,
+                                                        ul: ({node, ...props}) => <ul {...props} className="list-disc pl-4 my-2" />,
+                                                        li: ({node, ...props}) => <li {...props} className="mb-1" />,
+                                                    }}
+                                                >
+                                                    {m.content}
+                                                </ReactMarkdown>
+                                            )}
                                         </div>
                                     </div>
                                 );

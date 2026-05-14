@@ -51,7 +51,7 @@ const EmailTemplateEditor = ({ template, onSave, onRestore }) => {
             name: 'John Doe',
             otpCode: '123456',
             clinicName: 'Samson Dental Center',
-            clinicAddress: '7 Himalayan Rd, Tandang Sora, Quezon City',
+            clinicAddress: 'Upper Session Road, Baguio City',
             clinicPhone: '+63 917 123 4567',
             service: 'Dental Cleaning & Consultation',
             serviceName: 'Dental Cleaning',

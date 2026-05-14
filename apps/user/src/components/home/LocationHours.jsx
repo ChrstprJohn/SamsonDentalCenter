@@ -190,18 +190,18 @@ const LocationHours = ({ variant = 'light' }) => {
                                 <p
                                     className={`text-2xl font-black leading-[1.2] mb-3 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}
                                 >
-                                    7 Himalayan Rd, <br />
-                                    Tandang Sora, QC.
+                                    Upper Session Road, <br />
+                                    Baguio City.
                                 </p>
                                 <p
                                     className={`text-[13px] font-medium leading-relaxed mb-10 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}
                                 >
-                                    Accessible via Commonwealth Ave. <br />
-                                    Near major Metro Manila transit links.
+                                    Centrally located in the heart of <br />
+                                    Baguio City, Benguet.
                                 </p>
 
                                 <a
-                                    href='https://maps.google.com/maps?q=7%20Himalayan%20Road,%20Tandang%20Sora,%20Quezon%20City'
+                                    href='https://www.google.com/maps/place/Samson+Dental+Center/@16.4059113,120.5991796,795m/data=!3m2!1e3!4b1!4m6!3m5!1s0x3391a1415b12503d:0x91fc42fcfb4a069f!8m2!3d16.4059113!4d120.6017545!16s%2Fg%2F11c2prstv6'
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className={`group/btn flex items-center justify-between w-full p-5 rounded-2xl text-[13px] font-bold transition-all duration-300 ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-slate-900 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/5 hover:shadow-blue-500/20'}`}
@@ -254,7 +254,7 @@ const LocationHours = ({ variant = 'light' }) => {
                             </div>
 
                             <iframe
-                                src='https://maps.google.com/maps?q=7%20Himalayan%20Road,%20Tandang%20Sora,%20Quezon%20City&t=&z=15&ie=UTF8&iwloc=&output=embed'
+                                src='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3637.9970398878745!2d120.60175450000001!3d16.4059113!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3391a1415b12503d%3A0x91fc42fcfb4a069f!2sSamson%20Dental%20Center!5e1!3m2!1sen!2sph!4v1778790675419!5m2!1sen!2sph'
                                 width='100%'
                                 height='100%'
                                 style={{ border: 0 }}
