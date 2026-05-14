@@ -259,7 +259,7 @@ const handleClinicInfoIntent = async (msg) => {
         .map(s => `• **${days[s.day_of_week]}:** ${s.open_time.substring(0, 5)} - ${s.close_time.substring(0, 5)}`)
         .join('\n');
 
-    let response = `**Samson Dental Center**\n\n📍 **Location:** 2nd Floor, Unit 201, Samson Bldg, 123 Quezon Ave, Quezon City\n\n📞 **Contacts:**\n- **Phone:** ${settings.phone || '0917-XXX-XXXX'}\n- **Email:** ${settings.email || 'info@samsondental.com'}\n- **Website:** samsondental.com`;
+    let response = `**Samson Dental Center**\n\n📍 **Location:** **[Samson Dental Center in Baguio](https://www.google.com/maps/place/Samson+Dental+Center/@16.4059113,120.5991796,795m/data=!3m2!1e3!4b1!4m6!3m5!1s0x3391a1415b12503d:0x91fc42fcfb4a069f!8m2!3d16.4059113!4d120.6017545!16s%2Fg%2F11c2prstv6?entry=ttu&g_ep=EgoyMDI2MDUxMi4wIKXMDSoASAFQAw%3D%3D)**\n\n📞 **Contacts:**\n- **Phone:** ${settings.phone || '09454921251'}\n- **Email:** ${settings.email || 'samsondental@gmail.com'}\n- **Website:** samsondental.com`;
     
     if (formattedSchedule) {
         response += `\n\n⏰ **Clinical Hours:**\n${formattedSchedule}`;
@@ -270,5 +270,3 @@ const handleClinicInfoIntent = async (msg) => {
         suggestedActions: ["Check Availability", "Our Services", "Our Amenities"]
     };
 };
-
-
