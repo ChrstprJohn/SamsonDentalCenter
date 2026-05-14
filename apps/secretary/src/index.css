@@ -2,6 +2,34 @@
 
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+html, body {
+    scrollbar-gutter: stable;
+}
+
+.dark {
+    /* Facebook-inspired "Deep Slate" Palette - Readability Optimized */
+    --gray-900: #18191a !important; /* FB Main Background */
+    --gray-800: #242526 !important; /* FB Card / Surface background */
+    --gray-700: #3a3b3c !important; /* FB Hover / Secondary areas */
+    --gray-600: #8a8d91 !important; /* Boosted for readability */
+    --gray-500: #b0b3b8 !important; /* Standard secondary text - Boosted */
+    --gray-400: #ced0d4 !important; /* Tertiary / Captions - Boosted */
+    --gray-50: #ffffff !important;
+
+    /* Soften shadows for Deep Slate */
+    --shadow-theme-sm: 0px 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-theme-md: 0px 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-theme-lg: 0px 12px 24px rgba(0, 0, 0, 0.6);
+}
+
+.theme-toggling,
+.theme-toggling * {
+    transition: none !important;
+    animation: none !important;
+}
+
 /* 
   ─── GLOBAL THEME CONFIGURATION ───
   Edit the variables below to change the look and feel of the entire website.

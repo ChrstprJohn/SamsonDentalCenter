@@ -9,16 +9,16 @@ const FamilyTab = ({ patient, dependents, navigate, onManageDependents, onAddDep
             <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
                     <div>
-                        <h4 className='text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        <h4 className='text-base sm:text-lg font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                             Family Ecosystem
                         </h4>
-                        <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
+                        <p className='text-[11px] sm:text-[12px] text-gray-500 dark:text-gray-400 capitalize mt-0.5 font-bold'>
                             Managing dependents and household members
                         </p>
                     </div>
                     <Button 
                         onClick={onAddDependent}
-                        className='h-9 sm:h-10 px-4 sm:px-5 bg-brand-500 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-lg shadow-brand-500/20 hover:bg-brand-600 transition-all active:scale-95 flex items-center gap-2 rounded-xl'
+                        className='h-9 sm:h-10 px-4 sm:px-5 bg-brand-500 text-white text-[12px] sm:text-xs font-medium capitalize shadow-lg shadow-brand-500/20 hover:bg-brand-600 transition-all active:scale-95 flex items-center gap-2 rounded-xl'
                     >
                         <UserPlus size={14} />
                         <span>Add Dependent</span>
@@ -44,14 +44,14 @@ const FamilyTab = ({ patient, dependents, navigate, onManageDependents, onAddDep
                                 </div>
                                 <div className='min-w-0'>
                                     <div className='flex items-center gap-2 mb-0.5'>
-                                        <p className='text-[11px] sm:text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-tight truncate'>{dep.full_name}</p>
+                                        <p className='text-[11px] sm:text-[13px] font-medium text-gray-900 dark:text-white capitalize truncate'>{dep.full_name}</p>
                                         {dep.relationship_to_primary && (
-                                            <span className='px-1.5 py-0.5 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[7px] font-black uppercase tracking-widest'>
+                                            <span className='px-1.5 py-0.5 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[7px] font-medium capitalize'>
                                                 {dep.relationship_to_primary}
                                             </span>
                                         )}
                                     </div>
-                                    <p className='text-[9px] font-black text-gray-400 uppercase tracking-widest truncate'>
+                                    <p className='text-[11px] font-medium text-gray-400 capitalize truncate'>
                                         {dep.phone || 'NO CONTACT SET'}
                                     </p>
                                 </div>
@@ -63,12 +63,12 @@ const FamilyTab = ({ patient, dependents, navigate, onManageDependents, onAddDep
                         <div className='w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-300 dark:text-gray-700 mb-6'>
                             <Users size={32} />
                         </div>
-                        <h4 className='text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit mb-2'>Isolated Account</h4>
-                        <p className='text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest font-bold max-w-xs mx-auto leading-relaxed'>
+                        <h4 className='text-sm font-medium text-gray-900 dark:text-white capitalize font-outfit mb-2'>Isolated Account</h4>
+                        <p className='text-[12px] text-gray-500 dark:text-gray-400 capitalize font-bold max-w-xs mx-auto leading-relaxed'>
                             There are currently no linked dependents or family members associated with this primary profile.
                         </p>
                         <div className='mt-8'>
-                            <Button onClick={onAddDependent} className="h-10 px-6 text-[10px] font-black uppercase tracking-widest rounded-xl">Initialize Dependent</Button>
+                            <Button onClick={onAddDependent} className="h-10 px-6 text-[12px] font-medium capitalize rounded-xl">Initialize Dependent</Button>
                         </div>
                     </div>
                 )}
@@ -80,8 +80,8 @@ const FamilyTab = ({ patient, dependents, navigate, onManageDependents, onAddDep
                         <ShieldAlert size={20} />
                     </div>
                     <div>
-                        <p className='text-[10px] sm:text-xs text-amber-800 dark:text-amber-200 font-black uppercase tracking-tight mb-1'>Administrative Restriction</p>
-                        <p className='text-[9px] sm:text-[11px] text-amber-700 dark:text-amber-400/80 font-bold leading-relaxed uppercase tracking-wide opacity-80'>
+                        <p className='text-[12px] sm:text-xs text-amber-800 dark:text-amber-200 font-medium capitalize mb-1'>Administrative Restriction</p>
+                        <p className='text-[11px] sm:text-[11px] text-amber-700 dark:text-amber-400/80 font-bold leading-relaxed capitalize tracking-wide opacity-80'>
                             This profile lacks a registered email. Linking existing accounts requires OTP verification via email. Stub records can still be created manually.
                         </p>
                     </div>

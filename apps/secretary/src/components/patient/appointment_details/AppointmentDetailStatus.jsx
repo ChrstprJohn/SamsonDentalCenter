@@ -122,7 +122,7 @@ const AppointmentDetailStatus = ({
     return (
         <div className='mb-12 sm:mb-16 animate-[fadeIn_0.2s_ease-out]'>
             <div className='flex items-center gap-4 mb-8 sm:mb-10'>
-                <h2 className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest'>
+                <h2 className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-bold capitalize'>
                     Event Timeline
                 </h2>
                 <div className='h-px grow bg-gray-200 dark:bg-gray-800'></div>
@@ -163,7 +163,7 @@ const AppointmentDetailStatus = ({
                             >
                                 <div className='flex-1 max-w-lg'>
                                     <h4
-                                        className={`text-base sm:text-lg font-bold tracking-tight mb-2 ${item.status === 'error' ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}
+                                        className={`text-base sm:text-lg font-bold  mb-2 ${item.status === 'error' ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}
                                     >
                                         {item.title}
                                     </h4>
@@ -172,7 +172,7 @@ const AppointmentDetailStatus = ({
                                     </p>
                                 </div>
                                 <div className='sm:text-right mt-2 sm:mt-0'>
-                                    <div className='text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold mb-1'>
+                                    <div className='text-xs text-gray-400 dark:text-gray-500 capitalize font-bold mb-1'>
                                         {item.timeTitle}
                                     </div>
                                     <div className='text-sm sm:text-base text-gray-900 dark:text-gray-200 font-mono font-medium'>

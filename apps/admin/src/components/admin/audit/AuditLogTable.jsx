@@ -27,7 +27,7 @@ const AuditLogTable = ({ logs, onViewDetails, loading }) => {
             <div className='grow flex items-center justify-center'>
                 <div className='flex flex-col items-center gap-3'>
                     <div className='w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin' />
-                    <p className='text-xs text-gray-500 font-medium uppercase tracking-widest'>Loading Timeline...</p>
+                    <p className='text-xs text-gray-500 font-medium capitalize'>Loading Timeline...</p>
                 </div>
             </div>
         );
@@ -36,7 +36,7 @@ const AuditLogTable = ({ logs, onViewDetails, loading }) => {
     if (logs.length === 0) {
         return (
             <div className='grow flex items-center justify-center opacity-40'>
-                <p className='text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]'>No Activity Logged</p>
+                <p className='text-[12px] font-medium text-gray-400 capitalize'>No Activity Logged</p>
             </div>
         );
     }
@@ -60,15 +60,15 @@ const AuditLogTable = ({ logs, onViewDetails, loading }) => {
                         <div className='grow grid grid-cols-1 lg:grid-cols-4 items-center gap-8 py-2'>
                             {/* Actor Details */}
                             <div className='lg:col-span-1'>
-                                <h4 className='text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit leading-tight'>
+                                <h4 className='text-sm sm:text-lg font-medium text-gray-900 dark:text-white capitalize font-outfit leading-tight'>
                                     {log.actor_name || 'System / Guest'}
                                 </h4>
                                 <div className='flex items-center gap-3 mt-1.5'>
-                                    <span className='text-[9px] font-black text-brand-500 dark:text-brand-400 uppercase tracking-[0.2em]'>
+                                    <span className='text-[11px] font-medium text-brand-500 dark:text-brand-400 capitalize'>
                                         {log.actor_role || 'Auto'}
                                     </span>
                                     <div className='w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700' />
-                                    <span className='text-[10px] font-bold text-gray-400 uppercase tracking-widest'>
+                                    <span className='text-[12px] font-bold text-gray-400 capitalize'>
                                         {formatTimestamp(log.created_at)}
                                     </span>
                                 </div>
@@ -77,16 +77,16 @@ const AuditLogTable = ({ logs, onViewDetails, loading }) => {
                             {/* Action Summary (Friendly) */}
                             <div className='lg:col-span-2 bg-gray-50/50 dark:bg-white/[0.01] p-4 rounded-2xl border border-gray-100 dark:border-white/5'>
                                 <div className='flex flex-wrap items-center gap-2'>
-                                    <span className='text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]'>
+                                    <span className='text-[12px] font-medium text-gray-400 capitalize'>
                                         Successfully
                                     </span>
-                                    <span className='text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight'>
+                                    <span className='text-sm font-medium text-gray-900 dark:text-white capitalize'>
                                         {getFriendlyAction(log.action)}
                                     </span>
-                                    <span className='text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]'>
+                                    <span className='text-[12px] font-medium text-gray-400 capitalize'>
                                         for
                                     </span>
-                                    <span className='text-[11px] font-black text-brand-600 dark:text-brand-400 bg-brand-500/10 px-3 py-1 rounded-lg uppercase tracking-widest'>
+                                    <span className='text-[11px] font-medium text-brand-600 dark:text-brand-400 bg-brand-500/10 px-3 py-1 rounded-lg capitalize'>
                                         {log.resource_name}
                                     </span>
                                 </div>
@@ -98,7 +98,7 @@ const AuditLogTable = ({ logs, onViewDetails, loading }) => {
                                     variant='outline'
                                     size='sm'
                                     onClick={() => onViewDetails(log)}
-                                    className='text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-white/5 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 px-6 h-11 rounded-xl transition-all shadow-sm'
+                                    className='text-[12px] font-medium capitalize border-gray-200 dark:border-white/5 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 px-6 h-11 rounded-xl transition-all shadow-sm'
                                 >
                                     Review Activity
                                 </Button>

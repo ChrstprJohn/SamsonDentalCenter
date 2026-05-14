@@ -7,7 +7,7 @@ const StaffRow = ({ person, onClick, activeTab }) => {
     const renderColumnContent = (isMobile = false) => {
         if (activeTab === 'security') {
             return (
-                <div className={`flex items-center gap-1.5 ${isMobile ? 'text-[10px]' : 'text-xs'} font-bold ${is_active ? 'text-success-600 dark:text-success-400' : 'text-gray-500'}`}>
+                <div className={`flex items-center gap-1.5 ${isMobile ? 'text-[12px]' : 'text-xs'} font-bold ${is_active ? 'text-success-600 dark:text-success-400' : 'text-gray-500'}`}>
                     <ShieldCheck size={isMobile ? 12 : 14} /> 
                     {is_active ? 'Account Secured' : 'Access Restricted'}
                 </div>
@@ -16,7 +16,7 @@ const StaffRow = ({ person, onClick, activeTab }) => {
 
         if (activeTab === 'activity') {
             return (
-                <div className={`flex items-center gap-1.5 font-bold text-gray-700 dark:text-gray-300 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
+                <div className={`flex items-center gap-1.5 font-bold text-gray-700 dark:text-gray-300 ${isMobile ? 'text-[12px]' : 'text-xs'}`}>
                     <Activity size={isMobile ? 12 : 14} className="text-brand-500"/>
                     Active Now
                 </div>
@@ -26,7 +26,7 @@ const StaffRow = ({ person, onClick, activeTab }) => {
         // Default 'profile'
         return (
             <div className='flex items-center gap-6 shrink-0 min-w-[120px] justify-end sm:justify-start flex-grow sm:flex-grow-0'>
-                <span className={`group-hover:hidden ${isMobile ? 'text-[10px]' : 'text-xs'} text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1`}>
+                <span className={`group-hover:hidden ${isMobile ? 'text-[12px]' : 'text-xs'} text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1`}>
                     Joined {join_date || 'N/A'}
                 </span>
                 {!isMobile && (
@@ -64,7 +64,7 @@ const StaffRow = ({ person, onClick, activeTab }) => {
                             <UserRound size={20} />
                         )}
                     </div>
-                    <span className={`text-sm sm:text-lg uppercase tracking-tight truncate font-outfit ${!is_active ? 'text-gray-500 font-black' : 'text-gray-900 dark:text-white font-black'}`}>
+                    <span className={`text-sm sm:text-lg capitalize  truncate font-outfit ${!is_active ? 'text-gray-500 font-medium' : 'text-gray-900 dark:text-white font-medium'}`}>
                         {full_name}
                     </span>
                 </div>
@@ -99,14 +99,14 @@ const StaffRow = ({ person, onClick, activeTab }) => {
                 </div>
                 <div className='flex-grow min-w-0 flex flex-col gap-0.5 justify-center'>
                     <div className='flex justify-between items-center'>
-                        <span className={`text-sm tracking-tight truncate ${!is_active ? 'text-gray-500' : 'text-gray-900 dark:text-white font-bold'}`}>
+                        <span className={`text-sm  truncate ${!is_active ? 'text-gray-500' : 'text-gray-900 dark:text-white font-bold'}`}>
                             {full_name}
                         </span>
-                        <span className='text-[10px] text-gray-400 font-medium bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded'>{role}</span>
+                        <span className='text-[12px] text-gray-400 font-medium bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded'>{role}</span>
                     </div>
                     <div className='text-xs truncate text-gray-500'>{email}</div>
                     <div className='flex justify-between items-end mt-1'>
-                        <div className='text-[10px] text-gray-400 truncate pr-4 flex items-center gap-1'><Phone size={10}/> {phone}</div>
+                        <div className='text-[12px] text-gray-400 truncate pr-4 flex items-center gap-1'><Phone size={10}/> {phone}</div>
                         {renderColumnContent(true)}
                     </div>
                 </div>

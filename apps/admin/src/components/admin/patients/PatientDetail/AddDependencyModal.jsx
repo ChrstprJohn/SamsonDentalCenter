@@ -85,11 +85,11 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
         if (step === 'relationship') {
             return (
                 <>
-                    <Button variant='outline' onClick={handleClose} className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl">Cancel</Button>
+                    <Button variant='outline' onClick={handleClose} className="h-9 sm:h-10 px-5 text-[12px] sm:text-xs font-medium capitalize rounded-xl">Cancel</Button>
                     <Button 
                         disabled={!relationship} 
                         onClick={() => setStep('search')}
-                        className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl shadow-lg shadow-brand-500/20"
+                        className="h-9 sm:h-10 px-5 text-[12px] sm:text-xs font-medium capitalize rounded-xl shadow-lg shadow-brand-500/20"
                     >
                         Continue
                         <ChevronRight size={14} className="ml-2" />
@@ -100,12 +100,12 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
         if (step === 'search') {
             return (
                 <>
-                    <Button variant='outline' onClick={() => setStep('relationship')} className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl">Back</Button>
+                    <Button variant='outline' onClick={() => setStep('relationship')} className="h-9 sm:h-10 px-5 text-[12px] sm:text-xs font-medium capitalize rounded-xl">Back</Button>
                     {selectedPatient ? (
                         <Button 
                             onClick={handleSendOtp} 
                             loading={loading}
-                            className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl bg-brand-500 shadow-lg shadow-brand-500/20"
+                            className="h-9 sm:h-10 px-5 text-[12px] sm:text-xs font-medium capitalize rounded-xl bg-brand-500 shadow-lg shadow-brand-500/20"
                         >
                             Send OTP
                         </Button>
@@ -114,7 +114,7 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
                             onClick={handleSearch} 
                             loading={loading} 
                             disabled={!searchQuery}
-                            className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl"
+                            className="h-9 sm:h-10 px-5 text-[12px] sm:text-xs font-medium capitalize rounded-xl"
                         >
                             <Search size={14} className="mr-2" />
                             Search
@@ -126,12 +126,12 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
         if (step === 'otp') {
             return (
                 <>
-                    <Button variant='outline' onClick={() => setStep('search')} disabled={loading} className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl">Back</Button>
+                    <Button variant='outline' onClick={() => setStep('search')} disabled={loading} className="h-9 sm:h-10 px-5 text-[12px] sm:text-xs font-medium capitalize rounded-xl">Back</Button>
                     <Button 
                         onClick={handleVerifyAndLink} 
                         loading={loading} 
                         disabled={otp.length !== 6}
-                        className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl bg-success-600 hover:bg-success-700 shadow-lg shadow-success-500/20"
+                        className="h-9 sm:h-10 px-5 text-[12px] sm:text-xs font-medium capitalize rounded-xl bg-success-600 hover:bg-success-700 shadow-lg shadow-success-500/20"
                     >
                         Verify & Link
                     </Button>
@@ -153,7 +153,7 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
                 {error && (
                     <div className='p-4 bg-error-50 dark:bg-error-500/10 border border-error-100 dark:border-error-500/20 rounded-2xl flex items-center gap-3 text-error-600 dark:text-error-400 text-xs animate-in fade-in slide-in-from-top-2'>
                         <AlertCircle size={16} className="shrink-0" />
-                        <p className='font-bold uppercase tracking-tight'>{error}</p>
+                        <p className='font-bold capitalize'>{error}</p>
                     </div>
                 )}
 
@@ -164,8 +164,8 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
                                 <Link2 size={16} />
                             </div>
                             <div>
-                                <h6 className='text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-tight mb-0.5'>1. Define Relationship</h6>
-                                <p className='text-[9px] text-gray-500 font-medium leading-relaxed uppercase tracking-wider'>
+                                <h6 className='text-[12px] font-medium text-gray-900 dark:text-white capitalize mb-0.5'>1. Define Relationship</h6>
+                                <p className='text-[11px] text-gray-500 font-medium leading-relaxed capitalize'>
                                     Select how this dependent is related.
                                 </p>
                             </div>
@@ -182,7 +182,7 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
                                             : 'border-gray-100 dark:border-white/5 hover:border-brand-500/30'
                                     }`}
                                 >
-                                    <p className={`text-[9px] font-black uppercase tracking-widest ${relationship === rel ? 'text-brand-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                                    <p className={`text-[11px] font-medium capitalize  ${relationship === rel ? 'text-brand-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
                                         {rel}
                                     </p>
                                 </button>
@@ -194,7 +194,7 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
                 {step === 'search' && (
                     <div className='space-y-4'>
                         <div className='space-y-1.5'>
-                            <label className='text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1'>Search Profile</label>
+                            <label className='text-[11px] font-medium capitalize text-gray-400 ml-1'>Search Profile</label>
                             <div className='relative'>
                                 <Search size={14} className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400' />
                                 <input
@@ -224,9 +224,9 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
                                                 <User size={16} className='text-gray-400 group-hover:text-brand-500' />
                                             </div>
                                             <div>
-                                                <p className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>{p.full_name}</p>
+                                                <p className='text-[11px] font-medium text-gray-900 dark:text-white capitalize'>{p.full_name}</p>
                                                 <div className='flex items-center gap-3 mt-0.5'>
-                                                    <p className='text-[8px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1'>
+                                                    <p className='text-[11px] text-gray-400 font-bold capitalize flex items-center gap-1'>
                                                         <Phone size={8} /> {p.phone || 'No phone'}
                                                     </p>
                                                 </div>
@@ -244,13 +244,13 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
                                     <UserSearch size={20} />
                                 </div>
                                 <div className='space-y-1'>
-                                    <p className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>Profile Not Found?</p>
-                                    <p className='text-[9px] text-gray-500 font-medium px-4 uppercase tracking-wider'>Create a new record for them.</p>
+                                    <p className='text-[11px] font-medium text-gray-900 dark:text-white capitalize'>Profile Not Found?</p>
+                                    <p className='text-[11px] text-gray-500 font-medium px-4 capitalize'>Create a new record for them.</p>
                                 </div>
                                 <Button 
                                     variant='outline' 
                                     onClick={() => window.location.href = '/patients'}
-                                    className='text-[9px] font-black uppercase tracking-widest h-8 px-5 rounded-lg'
+                                    className='text-[11px] font-medium capitalize h-8 px-5 rounded-lg'
                                 >
                                     Quick Register
                                 </Button>
@@ -265,21 +265,21 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
                                             <User size={24} />
                                         </div>
                                         <div>
-                                            <h6 className='text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight'>{selectedPatient.full_name}</h6>
-                                            <p className='text-[10px] text-brand-600 dark:text-brand-400 font-black uppercase tracking-[0.2em] mt-0.5'>Selected Dependent</p>
+                                            <h6 className='text-sm font-medium text-gray-900 dark:text-white capitalize'>{selectedPatient.full_name}</h6>
+                                            <p className='text-[12px] text-brand-600 dark:text-brand-400 font-medium capitalize mt-0.5'>Selected Dependent</p>
                                         </div>
                                     </div>
                                     <button 
                                         onClick={() => setSelectedPatient(null)}
-                                        className='text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-error-500 transition-colors'
+                                        className='text-[12px] font-medium text-gray-400 capitalize hover:text-error-500 transition-colors'
                                     >
                                         Change
                                     </button>
                                 </div>
                                 
                                 <div className='pt-4 border-t border-brand-500/10 flex items-center justify-between'>
-                                    <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest'>Relationship</p>
-                                    <p className='text-xs font-black text-brand-600 dark:text-brand-400 uppercase tracking-tight'>{relationship}</p>
+                                    <p className='text-[12px] font-medium text-gray-400 capitalize'>Relationship</p>
+                                    <p className='text-xs font-medium text-brand-600 dark:text-brand-400 capitalize'>{relationship}</p>
                                 </div>
                             </div>
                         )}
@@ -293,27 +293,27 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
                                 <CheckCircle2 size={24} />
                             </div>
                             <div className='space-y-1'>
-                                <h3 className='text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight'>Authorization</h3>
-                                <p className='text-[10px] text-gray-500 font-bold px-8 leading-relaxed uppercase tracking-wider'>
+                                <h3 className='text-lg font-medium text-gray-900 dark:text-white capitalize'>Authorization</h3>
+                                <p className='text-[12px] text-gray-500 font-bold px-8 leading-relaxed capitalize'>
                                     Sent to <span className='text-brand-500'>{primaryPatient.email}</span>
                                 </p>
                             </div>
                         </div>
                         <div className='space-y-1.5'>
-                            <label className='text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1'>Enter 6-Digit OTP</label>
+                            <label className='text-[11px] font-medium capitalize text-gray-400 ml-1'>Enter 6-Digit OTP</label>
                             <input 
                                 type='text'
                                 placeholder='000000'
                                 maxLength={6}
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                                className='w-full h-12 text-center text-2xl font-black tracking-[0.5em] rounded-xl border-2 border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 focus:border-success-500 transition-all outline-none text-gray-900 dark:text-white'
+                                className='w-full h-12 text-center text-2xl font-medium rounded-xl border-2 border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 focus:border-success-500 transition-all outline-none text-gray-900 dark:text-white'
                             />
                         </div>
                         
                         <div className='p-3 rounded-xl bg-brand-50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 flex items-start gap-3'>
                             <AlertCircle size={14} className='text-brand-500 shrink-0 mt-0.5' />
-                            <p className='text-[9px] text-brand-800 dark:text-brand-400 font-bold leading-relaxed uppercase tracking-tight'>
+                            <p className='text-[11px] text-brand-800 dark:text-brand-400 font-bold leading-relaxed capitalize'>
                                 Authorization ensures account holder approval.
                             </p>
                         </div>

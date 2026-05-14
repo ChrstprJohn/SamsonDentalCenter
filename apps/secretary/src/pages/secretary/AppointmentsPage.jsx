@@ -190,7 +190,7 @@ const AppointmentsPage = () => {
         
         return (
             <Badge variant="light" color={color} size="sm" className="sm:size-auto">
-                <span className="px-1 py-0.5 font-bold tracking-wide text-[9px] sm:text-[10px] uppercase">{status}</span>
+                <span className="px-1 py-0.5 font-bold tracking-wide text-[11px] sm:text-[12px] capitalize">{status}</span>
             </Badge>
         );
     };
@@ -326,11 +326,11 @@ const AppointmentsPage = () => {
                                     {/* Left Time/Date Column */}
                                     <div className="flex flex-row sm:flex-col w-full sm:w-[130px] bg-gray-50/50 dark:bg-gray-800/20 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0">
                                         <div className="flex-1 flex flex-col justify-center px-4 py-3 border-r sm:border-r-0 sm:border-b border-gray-200 dark:border-gray-800">
-                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Time</span>
+                                            <span className="text-[12px] font-semibold capitalize text-gray-400 dark:text-gray-500 mb-0.5">Time</span>
                                             <span className="text-sm sm:text-base font-semibold text-[#0B1120] dark:text-white font-outfit truncate">{apt.time}</span>
                                         </div>
                                         <div className="flex-1 flex flex-col justify-center px-4 py-3">
-                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Date</span>
+                                            <span className="text-[12px] font-semibold capitalize text-gray-400 dark:text-gray-500 mb-0.5">Date</span>
                                             <span className="text-sm sm:text-base font-medium text-gray-500 dark:text-gray-400 font-outfit truncate">{apt.date}</span>
                                         </div>
                                     </div>
@@ -357,7 +357,7 @@ const AppointmentsPage = () => {
                                                 </span>
                                                 <div className="flex items-center gap-2 mt-0.5">
                                                     <Badge variant="soft" color={apt.source === 'Walk-in' ? 'secondary' : apt.source === 'Guest Booking' ? 'info' : 'primary'} size="xs">
-                                                        <span className="text-[9px] leading-none uppercase font-bold tracking-tight">{apt.source}</span>
+                                                        <span className="text-[11px] leading-none capitalize font-bold">{apt.source}</span>
                                                     </Badge>
                                                 </div>
                                             </div>
@@ -368,7 +368,7 @@ const AppointmentsPage = () => {
                                             {/* Service & Doctor */}
                                             <div className="flex-[1.5] flex flex-row gap-6 min-w-0">
                                                 <div className="flex-[1.3] flex flex-col min-w-0">
-                                                    <span className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${
+                                                    <span className={`text-[12px] font-semibold capitalize  mb-1 ${
                                                         apt.service.type === 'Specialized' ? 'text-brand-500' : 'text-gray-400 dark:text-gray-500'
                                                     }`}>
                                                         {apt.service.type} Service
@@ -376,7 +376,7 @@ const AppointmentsPage = () => {
                                                     <span className="text-xs sm:text-sm font-bold text-[#0B1120] dark:text-white truncate" title={apt.service.name}>{apt.service.name}</span>
                                                 </div>
                                                 <div className="flex-1 flex flex-col min-w-0">
-                                                    <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">Doctor</span>
+                                                    <span className="text-[12px] font-semibold capitalize text-gray-400 dark:text-gray-500 mb-1">Doctor</span>
                                                     <div className="flex items-center gap-2 truncate">
                                                         <img src={apt.doctor.avatar} alt="" className="w-5 h-5 rounded-full shrink-0" />
                                                         <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate" title={apt.doctor.name}>{apt.doctor.name}</span>
@@ -387,7 +387,7 @@ const AppointmentsPage = () => {
                                             {/* Status */}
                                             <div className="flex-1 flex flex-row gap-6 min-w-0">
                                                 <div className="flex flex-col min-w-0">
-                                                    <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">Status</span>
+                                                    <span className="text-[12px] font-semibold capitalize text-gray-400 dark:text-gray-500 mb-1">Status</span>
                                                     <div className="flex items-center">
                                                         {getStatusBadge(apt.status)}
                                                     </div>
@@ -432,7 +432,7 @@ const AppointmentsPage = () => {
                             <button 
                                 disabled={currentPage === 1}
                                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                className="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-all"
+                                className="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-all"
                             >
                                 <ChevronLeft size={18} />
                             </button>
@@ -454,7 +454,7 @@ const AppointmentsPage = () => {
                             <button 
                                 disabled={currentPage === totalPages}
                                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                                className="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-all"
+                                className="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-all"
                             >
                                 <ChevronRight size={18} />
                             </button>

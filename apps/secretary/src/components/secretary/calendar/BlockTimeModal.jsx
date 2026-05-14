@@ -111,7 +111,7 @@ const BlockTimeModal = ({ isOpen, onClose, doctor, appointments = [], blocks = [
             <div className="no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white dark:bg-gray-900 p-6 sm:p-8 max-h-[90vh] flex flex-col shadow-2xl">
                 
                 <div className="mb-6 shrink-0">
-                    <h4 className="text-[clamp(18px,2.5vw,22px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight">
+                    <h4 className="text-[clamp(18px,2.5vw,22px)] font-medium text-gray-900 dark:text-white font-outfit capitalize">
                         Manage Blocked Times
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -126,20 +126,20 @@ const BlockTimeModal = ({ isOpen, onClose, doctor, appointments = [], blocks = [
                         <div className="-mx-5 sm:mx-0 border-y sm:border border-gray-200 dark:border-gray-800 sm:rounded-xl overflow-hidden bg-gray-50/50 dark:bg-white/[0.01]">
                             <div className="grid grid-cols-2 gap-4 p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                                 <div>
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Select Date</label>
+                                    <label className="text-[12px] font-medium capitalize text-gray-400 mb-1.5 block">Select Date</label>
                                     <input 
                                         type="date" 
                                         value={selectedDate}
                                         onChange={(e) => setSelectedDate(e.target.value)}
-                                        className="w-full h-11 px-3 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-lg text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
+                                        className="w-full h-11 px-3 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 block">Interval Gap</label>
+                                    <label className="text-[12px] font-medium capitalize text-gray-400 mb-1.5 block">Interval Gap</label>
                                     <select 
                                         value={intervalGap}
                                         onChange={(e) => setIntervalGap(Number(e.target.value))}
-                                        className="w-full h-11 px-3 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-lg text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
+                                        className="w-full h-11 px-3 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
                                     >
                                         <option value={30}>30 Minutes</option>
                                         <option value={60}>1 Hour</option>
@@ -194,7 +194,7 @@ const BlockTimeModal = ({ isOpen, onClose, doctor, appointments = [], blocks = [
                                                 <div className="flex flex-col items-start min-w-0">
                                                     <div className="flex items-center gap-2">
                                                         <div className={dotClass} strokeWidth={0} />
-                                                        <span className="text-[10px] font-black tabular-nums whitespace-nowrap uppercase">{time}</span>
+                                                        <span className="text-[12px] font-medium tabular-nums whitespace-nowrap capitalize">{time}</span>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center justify-center shrink-0 ml-1">
@@ -215,7 +215,7 @@ const BlockTimeModal = ({ isOpen, onClose, doctor, appointments = [], blocks = [
                     {/* RIGHT COLUMN: Controls */}
                     <div className="md:w-[40%] flex flex-col gap-6 md:pl-2 bg-white dark:bg-gray-900">
                         <div className="shrink-0">
-                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest">Action Mode</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block capitalize">Action Mode</label>
                             <div className="flex flex-col gap-2">
                                 <Button 
                                     variant={actionMode === 'add' ? 'primary' : 'outline'} 
@@ -237,11 +237,11 @@ const BlockTimeModal = ({ isOpen, onClose, doctor, appointments = [], blocks = [
                         </div>
 
                         <div className={`transition-all duration-300 flex-grow flex flex-col ${actionMode === 'add' ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
-                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest shrink-0">Block Reason</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block capitalize shrink-0">Block Reason</label>
                             <select 
                                 value={reason}
                                 onChange={(e) => setReason(e.target.value)}
-                                className="w-full h-11 shrink-0 px-3 rounded-lg border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
+                                className="w-full h-11 shrink-0 px-3 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
                             >
                                 <option value="leave">Vacation / Leave</option>
                                 <option value="emergency">Emergency Closure</option>
@@ -254,14 +254,14 @@ const BlockTimeModal = ({ isOpen, onClose, doctor, appointments = [], blocks = [
                                         placeholder="Type custom reason..."
                                         value={otherReason}
                                         onChange={(e) => setOtherReason(e.target.value)}
-                                        className="w-full h-full flex-grow text-sm font-bold bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 rounded-lg px-3 py-2 text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all resize-none"
+                                        className="w-full h-full flex-grow text-sm font-bold bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all resize-none"
                                     />
                                 </div>
                             )}
                         </div>
 
                         <div className="mt-auto shrink-0">
-                            <span className="text-[11px] uppercase tracking-widest font-black text-gray-400 mb-3 block text-right">
+                            <span className="text-[11px] capitalize font-medium text-gray-400 mb-3 block text-right">
                                 {(draftBlockedSlots.size > 0 || draftUnblockedSlots.size > 0) ? `${draftBlockedSlots.size > 0 ? `+${draftBlockedSlots.size} To Block` : ''} ${draftUnblockedSlots.size > 0 ? `-${draftUnblockedSlots.size} To Remove` : ''}` : 'No Pending Changes'}
                             </span>
                             <div className="flex items-center gap-3 w-full">
@@ -280,7 +280,7 @@ const BlockTimeModal = ({ isOpen, onClose, doctor, appointments = [], blocks = [
                 </div>
 
                 <button onClick={onClose} className="absolute top-4 right-4 md:hidden p-2 bg-gray-100 dark:bg-gray-800 rounded-full transition-colors hover:bg-gray-200 dark:hover:bg-white/10">
-                    <X size={16} className="text-gray-500" />
+                    <X size={16} className="text-gray-500 dark:text-gray-400" />
                 </button>
             </div>
         </Modal>

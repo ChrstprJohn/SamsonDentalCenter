@@ -56,7 +56,7 @@ const RescheduleReviewStep = ({ appointment, formData, result, dentists }) => {
                 <div className='w-20 h-20 bg-success-50 dark:bg-success-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-success-500/10'>
                     <CheckCircle2 size={40} className='text-success-500' />
                 </div>
-                <h3 className='text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2'>
+                <h3 className='text-xl font-medium text-gray-900 dark:text-white capitalize mb-2'>
                     Rescheduled Successfully
                 </h3>
                 <p className='text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-8 leading-relaxed font-medium'>
@@ -66,15 +66,15 @@ const RescheduleReviewStep = ({ appointment, formData, result, dentists }) => {
                     <div className='grid grid-cols-1 gap-4 text-left'>
                         <div className='flex items-center gap-4'>
                             <Calendar size={16} className='text-brand-500 shrink-0' />
-                            <span className='text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest'>{formatDateLong(formData.date)}</span>
+                            <span className='text-xs font-medium text-gray-700 dark:text-gray-300 capitalize'>{formatDateLong(formData.date)}</span>
                         </div>
                         <div className='flex items-center gap-4'>
                             <Clock size={16} className='text-brand-500 shrink-0' />
-                            <span className='text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest'>{formatFullTimeRange(formData.time, serviceDuration)}</span>
+                            <span className='text-xs font-medium text-gray-700 dark:text-gray-300 capitalize'>{formatFullTimeRange(formData.time, serviceDuration)}</span>
                         </div>
                         <div className='flex items-center gap-4'>
                             <UserCheck size={16} className='text-brand-500 shrink-0' />
-                            <span className='text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest'>{newDoctorName}</span>
+                            <span className='text-xs font-medium text-gray-700 dark:text-gray-300 capitalize'>{newDoctorName}</span>
                         </div>
                     </div>
                 </div>
@@ -89,26 +89,26 @@ const RescheduleReviewStep = ({ appointment, formData, result, dentists }) => {
                 <div className='p-6 rounded-[2rem] bg-gray-50/50 dark:bg-white/[0.01] border border-gray-100 dark:border-gray-800 relative group overflow-hidden'>
                     <div className='absolute -right-4 -top-4 w-20 h-20 bg-gray-100 dark:bg-gray-800/50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700' />
                     
-                    <label className='text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] block mb-6 relative'>
+                    <label className='text-[12px] font-medium text-gray-400 capitalize block mb-6 relative'>
                         Current Appointment
                     </label>
                     
                     <div className='space-y-4 relative'>
                         <div className='flex items-center gap-3 opacity-60 line-through decoration-gray-400/50 decoration-2'>
                             <Calendar size={14} className='text-gray-400 shrink-0' />
-                            <span className='text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest'>
+                            <span className='text-[11px] font-bold text-gray-500 dark:text-gray-400 capitalize'>
                                 {formatDateLong(appointment?.appointment_date)}
                             </span>
                         </div>
                         <div className='flex items-center gap-3 opacity-60 line-through decoration-gray-400/50 decoration-2'>
                             <Clock size={14} className='text-gray-400 shrink-0' />
-                            <span className='text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest'>
+                            <span className='text-[11px] font-bold text-gray-500 dark:text-gray-400 capitalize'>
                                 {formatFullTimeRange(appointment?.start_time, serviceDuration)}
                             </span>
                         </div>
                         <div className='flex items-center gap-3 opacity-60'>
                             <UserCheck size={14} className='text-gray-400 shrink-0' />
-                            <span className='text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest'>
+                            <span className='text-[11px] font-bold text-gray-500 dark:text-gray-400 capitalize'>
                                 {oldDoctorName}
                             </span>
                         </div>
@@ -116,7 +116,7 @@ const RescheduleReviewStep = ({ appointment, formData, result, dentists }) => {
 
                     <div className='mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3 opacity-40'>
                          <Stethoscope size={14} className='text-gray-400' />
-                         <span className='text-[10px] font-black text-gray-400 uppercase tracking-widest'>{serviceName}</span>
+                         <span className='text-[12px] font-medium text-gray-400 capitalize'>{serviceName}</span>
                     </div>
                 </div>
 
@@ -124,26 +124,26 @@ const RescheduleReviewStep = ({ appointment, formData, result, dentists }) => {
                 <div className='p-6 rounded-[2rem] bg-brand-50/30 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/20 relative group overflow-hidden shadow-theme-sm'>
                     <div className='absolute -right-4 -top-4 w-20 h-20 bg-brand-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700' />
 
-                    <label className='text-[10px] font-black text-brand-500 uppercase tracking-[0.2em] block mb-6 relative'>
+                    <label className='text-[12px] font-medium text-brand-500 capitalize block mb-6 relative'>
                         Proposed New Schedule
                     </label>
 
                     <div className='space-y-4 relative'>
                         <div className='flex items-center gap-3'>
                             <Calendar size={14} className='text-brand-500 shrink-0' />
-                            <span className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-widest'>
+                            <span className='text-[11px] font-medium text-gray-900 dark:text-white capitalize'>
                                 {formatDateLong(formData.date)}
                             </span>
                         </div>
                         <div className='flex items-center gap-3'>
                             <Clock size={14} className='text-brand-500 shrink-0' />
-                            <span className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-widest'>
+                            <span className='text-[11px] font-medium text-gray-900 dark:text-white capitalize'>
                                 {formatFullTimeRange(formData.time, serviceDuration)}
                             </span>
                         </div>
                         <div className='flex items-center gap-3'>
                             <UserCheck size={14} className='text-brand-500 shrink-0' />
-                            <span className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-widest'>
+                            <span className='text-[11px] font-medium text-gray-900 dark:text-white capitalize'>
                                 {newDoctorName}
                             </span>
                         </div>
@@ -151,14 +151,14 @@ const RescheduleReviewStep = ({ appointment, formData, result, dentists }) => {
 
                     <div className='mt-8 pt-6 border-t border-brand-100 dark:border-brand-500/10 flex items-center gap-3'>
                          <Stethoscope size={14} className='text-brand-500' />
-                         <span className='text-[10px] font-black text-brand-500 uppercase tracking-widest'>{serviceName}</span>
+                         <span className='text-[12px] font-medium text-brand-500 capitalize'>{serviceName}</span>
                     </div>
                 </div>
             </div>
             
             <div className='flex items-center justify-center gap-4 py-2 opacity-50'>
                 <div className='flex-1 h-px bg-gray-100 dark:bg-gray-800' />
-                <div className='flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-[9px] font-black text-gray-400 uppercase tracking-widest'>
+                <div className='flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-[11px] font-medium text-gray-400 capitalize'>
                     <RefreshCw size={10} /> Confirm Changes Below
                 </div>
                 <div className='flex-1 h-px bg-gray-100 dark:bg-gray-800' />
@@ -302,10 +302,10 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                             <RefreshCw size={28} />
                         </div>
                         <div>
-                            <p className='text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] leading-none mb-2'>
+                            <p className='text-[11px] font-medium text-gray-400 capitalize leading-none mb-2'>
                                 Admin Wizard
                             </p>
-                            <h3 className='text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-display'>
+                            <h3 className='text-xl font-medium text-gray-900 dark:text-white capitalize font-display'>
                                 Reschedule Visit
                             </h3>
                         </div>
@@ -327,14 +327,14 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                             const isActive = i === step && !result?.success;
                             return (
                                 <div key={s.id} className='flex items-center gap-4 relative'>
-                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-[11px] font-black transition-all duration-500 ${
+                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-[11px] font-medium transition-all duration-500 ${
                                         isCompleted ? 'bg-success-500 text-white shadow-lg shadow-success-500/20' :
                                         isActive ? 'bg-brand-500 text-white shadow-xl shadow-brand-500/30 scale-110' :
                                         'bg-gray-100 dark:bg-white/5 text-gray-400'
                                     }`}>
                                         {isCompleted ? <CheckCircle2 size={18} /> : i + 1}
                                     </div>
-                                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+                                    <span className={`text-[12px] font-medium capitalize  ${
                                         isActive ? 'text-gray-900 dark:text-white' : 'text-gray-400'
                                     }`}>
                                         {s.label}
@@ -360,7 +360,7 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                                     <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 shadow-sm">
                                         <AlertCircle size={20} />
                                     </div>
-                                    <h3 className="text-sm sm:text-base font-black text-red-600 dark:text-red-400 uppercase tracking-tight">
+                                    <h3 className="text-sm sm:text-base font-medium text-red-600 dark:text-red-400 capitalize">
                                         {errorDetails.headline}
                                     </h3>
                                 </div>
@@ -378,7 +378,7 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                                         {errorDetails.solution && (
                                             <li className="flex items-start gap-3">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 shrink-0 opacity-40" />
-                                                <p className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed uppercase tracking-wide">
+                                                <p className="text-[12px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed capitalize tracking-wide">
                                                     {errorDetails.solution}
                                                 </p>
                                             </li>
@@ -390,7 +390,7 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                                             type="button"
                                             onClick={submit}
                                             disabled={submitting}
-                                            className="flex items-center justify-center gap-2 rounded-full border border-red-200 bg-white dark:bg-red-900/10 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95 shrink-0 disabled:opacity-50"
+                                            className="flex items-center justify-center gap-2 rounded-full border border-red-200 bg-white dark:bg-red-900/10 px-5 py-2.5 text-[12px] font-medium capitalize text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95 shrink-0 disabled:opacity-50"
                                         >
                                             <RefreshCw size={12} className={submitting ? 'animate-spin' : ''} />
                                             Retry
@@ -400,7 +400,7 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                                             <button
                                                 type="button"
                                                 onClick={errorDetails.action.onClick}
-                                                className="flex items-center justify-center gap-2 rounded-full bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all shadow-theme-md active:scale-95 shrink-0"
+                                                className="flex items-center justify-center gap-2 rounded-full bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 text-[12px] font-medium capitalize transition-all shadow-theme-md active:scale-95 shrink-0"
                                             >
                                                 {errorDetails.action.label}
                                                 <ArrowRight size={12} className="opacity-80" />
@@ -451,7 +451,7 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                         <div className='flex w-full justify-end'>
                             <button
                                 onClick={handleClose}
-                                className='h-14 px-12 rounded-[1.5rem] bg-brand-500 text-white text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-brand-500/20 hover:bg-brand-600 hover:scale-105 active:scale-95 transition-all'
+                                className='h-14 px-12 rounded-[1.5rem] bg-brand-500 text-white text-[11px] font-medium capitalize shadow-xl shadow-brand-500/20 hover:bg-brand-600 hover:scale-105 active:scale-95 transition-all'
                             >
                                 Finish Wizard
                             </button>
@@ -461,7 +461,7 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                             <button
                                 onClick={prevStep}
                                 disabled={step === 0 || submitting}
-                                className='h-14 px-8 rounded-[1.5rem] border border-gray-100 dark:border-gray-800 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-all flex items-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed group'
+                                className='h-14 px-8 rounded-[1.5rem] border border-gray-100 dark:border-gray-800 text-[12px] font-medium capitalize text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-all flex items-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed group'
                             >
                                 <ChevronLeft size={18} className='group-hover:-translate-x-1 transition-transform' /> Previous
                             </button>
@@ -469,7 +469,7 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                             <button
                                 onClick={handleNextOrSubmit}
                                 disabled={!canProceed() || submitting}
-                                className='h-14 px-12 rounded-[1.5rem] bg-brand-500 text-white text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-brand-500/30 hover:bg-brand-600 hover:scale-105 active:scale-95 transition-all flex items-center gap-4 disabled:opacity-50 disabled:cursor-not-allowed group'
+                                className='h-14 px-12 rounded-[1.5rem] bg-brand-500 text-white text-[11px] font-medium capitalize shadow-xl shadow-brand-500/30 hover:bg-brand-600 hover:scale-105 active:scale-95 transition-all flex items-center gap-4 disabled:opacity-50 disabled:cursor-not-allowed group'
                             >
                                 {submitting ? (
                                     <><Loader2 size={18} className='animate-spin' /> Processing Request...</>
@@ -492,7 +492,7 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                         <div className='w-20 h-20 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-8 mx-auto shadow-inner'>
                             <X size={36} className='text-red-500' />
                         </div>
-                        <h3 className='text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-4'>
+                        <h3 className='text-xl font-medium text-gray-900 dark:text-white capitalize mb-4'>
                             Abort Changes?
                         </h3>
                         <p className='text-sm text-gray-500 dark:text-gray-400 mb-10 leading-relaxed font-medium'>
@@ -501,13 +501,13 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                         <div className='flex flex-col gap-3'>
                             <button
                                 onClick={handleClose}
-                                className='w-full py-4 rounded-2xl bg-red-500 text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95'
+                                className='w-full py-4 rounded-2xl bg-red-500 text-white text-[12px] font-medium capitalize hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95'
                             >
                                 Yes, Abandon
                             </button>
                             <button
                                 onClick={() => setShowExitConfirm(false)}
-                                className='w-full py-4 rounded-2xl border border-gray-200 dark:border-gray-700 text-[10px] font-black text-gray-600 dark:text-gray-300 uppercase tracking-[0.2em] hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95'
+                                className='w-full py-4 rounded-2xl border border-gray-200 dark:border-gray-700 text-[12px] font-medium text-gray-600 dark:text-gray-300 capitalize hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95'
                             >
                                 Stay in Wizard
                             </button>

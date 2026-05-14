@@ -51,18 +51,18 @@ const DisplacedQueuePage = () => {
                             <CheckCircle className="w-8 h-8 text-gray-400" />
                         </div>
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">Active Queue is Empty</h3>
-                        <p className="text-sm text-gray-500 mt-1">There are no displaced appointments pending action.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">There are no displaced appointments pending action.</p>
                     </div>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {appointments.map(appt => (
                             <div key={appt.id} className="bg-white dark:bg-gray-900 border border-red-200 dark:border-red-900/30 shadow-theme-xs rounded-2xl overflow-hidden flex flex-col">
                                 <div className="bg-red-50 dark:bg-red-500/10 p-4 border-b border-red-100 dark:border-red-900/20 flex flex-col gap-1">
-                                    <div className="flex items-center gap-2 text-red-700 dark:text-red-400 font-bold uppercase tracking-widest text-[10px]">
+                                    <div className="flex items-center gap-2 text-red-700 dark:text-red-400 font-bold capitalize text-[12px]">
                                         <AlertCircle className="w-3.5 h-3.5" />
                                         System Displaced
                                     </div>
-                                    <h4 className="text-lg font-black text-gray-900 dark:text-white mt-1">
+                                    <h4 className="text-lg font-medium text-gray-900 dark:text-white mt-1">
                                         {appt.patient?.full_name || 'Guest'}
                                     </h4>
                                     {appt.patient?.phone && (
@@ -85,7 +85,7 @@ const DisplacedQueuePage = () => {
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                                         <User className="w-4 h-4 text-gray-400 shrink-0" />
-                                        <span className="font-medium opacity-80 text-xs uppercase">Dr. {appt.dentist?.profile?.last_name || 'Unassigned'}</span>
+                                        <span className="font-medium opacity-80 text-xs capitalize">Dr. {appt.dentist?.profile?.last_name || 'Unassigned'}</span>
                                     </div>
                                     
                                     <div className="mt-auto pt-4 flex items-center justify-between gap-3 border-t border-gray-100 dark:border-gray-800">

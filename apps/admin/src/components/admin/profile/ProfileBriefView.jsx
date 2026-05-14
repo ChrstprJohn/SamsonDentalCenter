@@ -65,10 +65,10 @@ const ProfileBriefView = () => {
                     </svg>
                 )}
             </div>
-            <h3 className='text-xl font-bold text-gray-900 dark:text-white mb-1 font-outfit uppercase tracking-tight'>
+            <h3 className='text-xl font-bold text-gray-900 dark:text-white mb-1 font-outfit capitalize'>
                 {user.first_name} {user.last_name}
             </h3>
-            <p className='text-xs font-bold text-brand-500 uppercase tracking-widest mb-3'>
+            <p className='text-xs font-bold text-brand-500 capitalize mb-3'>
                 {user.role}
             </p>
             <p className='text-sm text-gray-500 dark:text-gray-400 max-w-sm leading-relaxed'>
@@ -85,7 +85,7 @@ const ProfileBriefView = () => {
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} className='max-w-[720px] w-[95%]'>
                 <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-6 dark:bg-gray-900 sm:p-10'>
                     <div className='mb-8'>
-                        <h4 className='text-2xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                        <h4 className='text-2xl font-medium text-gray-900 dark:text-white font-outfit capitalize'>
                             Edit Account Settings
                         </h4>
                         <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
@@ -111,7 +111,7 @@ const ProfileBriefView = () => {
                                 </div>
                                 
                                 <div className='w-full'>
-                                    <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block text-center'>
+                                    <Label className='text-[12px] font-bold capitalize text-gray-400 mb-3 block text-center'>
                                         Available Profiles
                                     </Label>
                                     <div className='grid grid-cols-3 gap-2 px-2'>
@@ -141,7 +141,7 @@ const ProfileBriefView = () => {
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
                                             </svg>
-                                            <span className='text-[8px] font-bold uppercase'>Custom</span>
+                                            <span className='text-[11px] font-bold capitalize'>Custom</span>
                                         </button>
                                     </div>
                                 </div>
@@ -151,7 +151,7 @@ const ProfileBriefView = () => {
                             <div className='lg:col-span-8 space-y-5'>
                                 <div className='grid grid-cols-2 gap-4'>
                                     <div className='col-span-1'>
-                                        <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block'>
+                                        <Label className='text-[12px] font-bold capitalize text-gray-400 mb-2 block'>
                                             First Name
                                         </Label>
                                         <Input 
@@ -163,7 +163,7 @@ const ProfileBriefView = () => {
                                         />
                                     </div>
                                     <div className='col-span-1'>
-                                        <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block'>
+                                        <Label className='text-[12px] font-bold capitalize text-gray-400 mb-2 block'>
                                             Last Name
                                         </Label>
                                         <Input 
@@ -177,7 +177,7 @@ const ProfileBriefView = () => {
                                 </div>
 
                                 <div>
-                                    <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block'>
+                                    <Label className='text-[12px] font-bold capitalize text-gray-400 mb-2 block'>
                                         Email Address
                                     </Label>
                                     <Input 

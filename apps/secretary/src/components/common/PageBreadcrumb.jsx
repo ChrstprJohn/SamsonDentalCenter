@@ -12,7 +12,7 @@ const PageBreadcrumb = ({
       className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${className}`}
     >
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight font-outfit">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white font-outfit">
           {pageTitle}
         </h1>
         {subtitle && (

@@ -3,9 +3,17 @@ import { Outlet } from 'react-router-dom';
 import SecretaryHeader from '../components/secretary/SecretaryHeader';
 import Backdrop from '../components/secretary/Backdrop';
 import SecretarySidebar from '../components/secretary/SecretarySidebar';
+import { useTheme } from '../context/ThemeContext';
+import { useLayoutEffect } from 'react';
 
 const LayoutContent = () => {
     const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+    const { setIsDarkModeAllowed } = useTheme();
+
+    useLayoutEffect(() => {
+        setIsDarkModeAllowed(true);
+        return () => setIsDarkModeAllowed(false);
+    }, [setIsDarkModeAllowed]);
 
     return (
         <div className='min-h-screen xl:flex bg-white sm:bg-transparent dark:bg-gray-900 dark:sm:bg-transparent'>

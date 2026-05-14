@@ -9,7 +9,7 @@ const AuditLogPagination = ({ metadata, onPageChange }) => {
 
     return (
         <div className='flex items-center justify-between mt-8 px-4 py-6 border-t border-gray-100 dark:border-gray-800'>
-            <p className='text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]'>
+            <p className='text-[12px] font-medium text-gray-400 capitalize'>
                 Page <span className='text-gray-900 dark:text-white'>{page}</span> of <span className='text-gray-900 dark:text-white'>{totalPages}</span>
             </p>
             <div className='flex items-center gap-2'>

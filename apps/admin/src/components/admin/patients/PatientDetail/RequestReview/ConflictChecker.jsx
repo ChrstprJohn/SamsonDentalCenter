@@ -5,17 +5,17 @@ const ConflictChecker = ({ schedule, requestedSlot, loading }) => {
     return (
         <div className='space-y-4'>
             <div className='flex items-center justify-between'>
-                <h4 className='text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2'>
+                <h4 className='text-[12px] font-medium text-gray-400 capitalize flex items-center gap-2'>
                     <Activity size={14} /> Conflict Checker
                 </h4>
                 <div className='flex items-center gap-4'>
                     <div className='flex items-center gap-1.5'>
                         <div className='w-2 h-2 rounded-full bg-brand-500' />
-                        <span className='text-[9px] font-bold text-gray-400 uppercase'>Request</span>
+                        <span className='text-[11px] font-bold text-gray-400 capitalize'>Request</span>
                     </div>
                     <div className='flex items-center gap-1.5'>
                         <div className='w-2 h-2 rounded-full bg-gray-300' />
-                        <span className='text-[9px] font-bold text-gray-400 uppercase'>Booked</span>
+                        <span className='text-[11px] font-bold text-gray-400 capitalize'>Booked</span>
                     </div>
                 </div>
             </div>
@@ -27,7 +27,7 @@ const ConflictChecker = ({ schedule, requestedSlot, loading }) => {
                     </div>
                 ) : (
                     <div className='h-full flex flex-col justify-center'>
-                        <div className='flex justify-between text-[7px] font-black text-gray-400 uppercase tracking-widest mb-3'>
+                        <div className='flex justify-between text-[7px] font-medium text-gray-400 capitalize mb-3'>
                             <span>8AM</span>
                             <span>9AM</span>
                             <span>10AM</span>
@@ -88,7 +88,7 @@ const ConflictChecker = ({ schedule, requestedSlot, loading }) => {
                         </div>
                         <div className='mt-4 flex items-center gap-2 text-gray-500'>
                             <Info size={12} className='text-brand-500' />
-                            <p className='text-[10px] font-bold uppercase tracking-widest'>
+                            <p className='text-[12px] font-bold capitalize'>
                                 {schedule?.appointments?.length || 0} Scheduled bookings for this doctor today.
                             </p>
                         </div>

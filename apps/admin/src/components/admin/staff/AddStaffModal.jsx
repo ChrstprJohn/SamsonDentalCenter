@@ -88,7 +88,7 @@ const AddStaffModal = ({ isOpen, onClose, onStaffAdded, token }) => {
                     {step === 'form' && (
                         <form onSubmit={handleCreateStaff} className="space-y-4">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">Full Name</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize ml-1">Full Name</label>
                                 <input 
                                     required
                                     name="full_name"
@@ -100,7 +100,7 @@ const AddStaffModal = ({ isOpen, onClose, onStaffAdded, token }) => {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">Email Address</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize ml-1">Email Address</label>
                                 <input 
                                     required
                                     type="email"
@@ -113,7 +113,7 @@ const AddStaffModal = ({ isOpen, onClose, onStaffAdded, token }) => {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">Phone Number</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize ml-1">Phone Number</label>
                                 <input 
                                     name="phone"
                                     value={formData.phone}
@@ -124,7 +124,7 @@ const AddStaffModal = ({ isOpen, onClose, onStaffAdded, token }) => {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">System Role</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize ml-1">System Role</label>
                                 <select 
                                     name="role"
                                     value={formData.role}
@@ -146,7 +146,7 @@ const AddStaffModal = ({ isOpen, onClose, onStaffAdded, token }) => {
                                     {loading ? <Loader2 size={20} className="animate-spin" /> : <UserPlus size={20} />}
                                     <span>Create System Account</span>
                                 </button>
-                                <p className="text-[10px] text-gray-400 text-center mt-3 italic">
+                                <p className="text-[12px] text-gray-400 text-center mt-3 italic">
                                     * An invitation email will be sent to the staff member to set up their password.
                                 </p>
                             </div>

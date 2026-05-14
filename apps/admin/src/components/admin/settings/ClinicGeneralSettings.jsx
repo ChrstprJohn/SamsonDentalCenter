@@ -53,7 +53,7 @@ const ClinicGeneralSettings = () => {
                         <h4 className='text-lg font-bold text-gray-900 dark:text-white'>
                             General Clinic Identity
                         </h4>
-                        <p className='text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1 font-bold'>
+                        <p className='text-[12px] text-gray-500 dark:text-gray-400 capitalize mt-1 font-bold'>
                             Powers the patient-facing website and communications
                         </p>
                     </div>
@@ -62,7 +62,7 @@ const ClinicGeneralSettings = () => {
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
                     <div className='space-y-5'>
                         <div>
-                            <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block'>
+                            <Label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block'>
                                 Clinic Name
                             </Label>
                             <Input 
@@ -74,7 +74,7 @@ const ClinicGeneralSettings = () => {
                             />
                         </div>
                         <div>
-                            <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block'>
+                            <Label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block'>
                                 Website Announcement Banner
                             </Label>
                             <Input 
@@ -88,7 +88,7 @@ const ClinicGeneralSettings = () => {
                     </div>
                     <div className='space-y-5'>
                         <div>
-                            <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block'>
+                            <Label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block'>
                                 Contact Email
                             </Label>
                             <Input 
@@ -101,7 +101,7 @@ const ClinicGeneralSettings = () => {
                             />
                         </div>
                         <div>
-                            <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block'>
+                            <Label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block'>
                                 Hotline / Phone
                             </Label>
                             <Input 
@@ -116,7 +116,7 @@ const ClinicGeneralSettings = () => {
                 </div>
 
                 <div className='mt-8'>
-                    <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block'>
+                    <Label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block'>
                         Physical Address
                     </Label>
                     <textarea 
@@ -133,7 +133,7 @@ const ClinicGeneralSettings = () => {
                     <Button 
                         onClick={handleSubmit}
                         disabled={updating}
-                        className='px-10 h-12 rounded-xl text-sm font-black bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-md shadow-brand-500/20 disabled:opacity-50'
+                        className='px-10 h-12 rounded-xl text-sm font-medium bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-md shadow-brand-500/20 disabled:opacity-50'
                     >
                         {updating ? 'Updating...' : 'Save Identity Changes'}
                     </Button>

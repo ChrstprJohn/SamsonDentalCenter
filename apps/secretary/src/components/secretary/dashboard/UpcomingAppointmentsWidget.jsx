@@ -64,7 +64,7 @@ const UpcomingAppointmentsWidget = () => {
               <span className="text-sm font-extrabold text-gray-900 dark:text-white">
                 {apt.time.split(" ")[0]}
               </span>
-              <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">
+              <span className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize">
                 {apt.time.split(" ")[1]}
               </span>
             </div>
@@ -75,11 +75,11 @@ const UpcomingAppointmentsWidget = () => {
                   {apt.patient}
                 </p>
                 {apt.status === "checked-in" ? (
-                   <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+                   <span className="shrink-0 text-[12px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
                      Checked In
                    </span>
                 ) : apt.status === "unconfirmed" ? (
-                  <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400">
+                  <span className="shrink-0 text-[12px] font-bold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400">
                     Unconfirmed
                   </span>
                 ) : null}
@@ -91,11 +91,11 @@ const UpcomingAppointmentsWidget = () => {
 
             <div className="shrink-0">
               {apt.status !== "checked-in" && (
-                <button className="hidden sm:block text-xs font-bold bg-gray-100 hover:bg-[#00a884] hover:text-white text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-[#00a884] dark:hover:text-white px-3 py-1.5 rounded-lg transition-colors">
+                <button className="hidden sm:block text-xs font-bold bg-gray-100 hover:bg-[#00a884] hover:text-white text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-[#00a884] dark:hover:text-white px-3 py-1.5 rounded-xl transition-colors">
                   Check In
                 </button>
               )}
-              <button className="sm:hidden p-2 text-gray-400 hover:text-gray-600 rounded-lg">
+              <button className="sm:hidden p-2 text-gray-400 hover:text-gray-600 rounded-xl">
                 <MoreVertical size={16} />
               </button>
             </div>

@@ -31,7 +31,7 @@ const ApprovalContextView = ({ request, onApprove, onReject, onClose }) => {
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white font-outfit">Request Details</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-gray-500 transition-colors"
+                        className="p-2 hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 transition-colors"
                     >
                         <X className="size-5" />
                     </button>
@@ -44,7 +44,7 @@ const ApprovalContextView = ({ request, onApprove, onReject, onClose }) => {
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white font-outfit">{patient.name}</h2>
-                            <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-gray-500 border-t border-gray-100 dark:border-gray-800 pt-2">
+                            <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800 pt-2">
                                 <span className="flex items-center gap-1.5"><Phone className="size-3.5" /> {patient.phone}</span>
                                 <span className="flex items-center gap-1.5"><Mail className="size-3.5" /> {patient.email}</span>
                             </div>
@@ -64,11 +64,11 @@ const ApprovalContextView = ({ request, onApprove, onReject, onClose }) => {
                 <section>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-gray-50 dark:bg-white/[0.02] p-3 rounded-xl">
-                            <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-0.5">Service</p>
+                            <p className="text-[12px] capitalize font-bold text-gray-400 mb-0.5">Service</p>
                             <p className="font-bold text-sm text-gray-900 dark:text-white">{service}</p>
                         </div>
                         <div className="bg-gray-50 dark:bg-white/[0.02] p-3 rounded-xl border border-brand-100 dark:border-brand-900/30">
-                            <p className="text-[10px] uppercase tracking-wider font-bold text-brand-500 mb-0.5">Date & Time</p>
+                            <p className="text-[12px] capitalize font-bold text-brand-500 mb-0.5">Date & Time</p>
                             <p className="font-bold text-sm text-gray-900 dark:text-white">{new Date(requestedDate).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})} • {requestedTime}</p>
                         </div>
                     </div>
@@ -77,12 +77,12 @@ const ApprovalContextView = ({ request, onApprove, onReject, onClose }) => {
                 {/* Dynamic Timeline */}
                 <section>
                     <div className="flex items-center justify-between mb-3 px-1">
-                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Dentist Availability</h3>
-                        <span className="text-[10px] font-bold text-brand-500 bg-brand-50 px-2 py-0.5 rounded ml-2">{dentist}</span>
+                        <h3 className="text-[12px] font-bold capitalize text-gray-400">Dentist Availability</h3>
+                        <span className="text-[12px] font-bold text-brand-500 bg-brand-50 px-2 py-0.5 rounded ml-2">{dentist}</span>
                     </div>
                     
                     <div className="border border-gray-100 dark:border-gray-800 rounded-xl p-3 overflow-visible">
-                        <div className="relative h-16 bg-gray-50/50 dark:bg-gray-800/20 rounded-lg flex items-center overflow-visible border border-gray-100/50 dark:border-gray-800/50">
+                        <div className="relative h-16 bg-gray-50/50 dark:bg-gray-800/20 rounded-xl flex items-center overflow-visible border border-gray-100/50 dark:border-gray-800/50">
                             
                             {/* Dummy Busy Block */}
                             {busySlotPosition >= 0 && busySlotPosition <= 80 && (
@@ -90,28 +90,28 @@ const ApprovalContextView = ({ request, onApprove, onReject, onClose }) => {
                                     className="absolute h-[80%] top-[10%] w-[12%] bg-gray-200 dark:bg-gray-700/50 rounded flex items-center justify-center opacity-70"
                                     style={{ left: `${busySlotPosition}%` }}
                                 >
-                                    <span className="text-[8px] text-gray-500 font-bold uppercase">Busy</span>
+                                    <span className="text-[11px] text-gray-500 dark:text-gray-400 font-bold capitalize">Busy</span>
                                 </div>
                             )}
 
                             {/* Requested Ghost Block */}
                             {slotPosition >= 0 && slotPosition <= 90 && (
                                 <div 
-                                    className="absolute h-[120%] top-[-10%] w-[12.5%] bg-brand-50 border-2 border-brand-500 rounded-md flex flex-col items-center justify-center shadow-md z-10 transition-all duration-500 ease-out"
+                                    className="absolute h-[120%] top-[-10%] w-[12.5%] bg-brand-50 border-2 border-brand-500 rounded-lg flex flex-col items-center justify-center shadow-sm-md z-10 transition-all duration-500 ease-out"
                                     style={{ left: `${slotPosition}%` }}
                                 >
-                                    <span className="text-[9px] text-brand-600 font-bold uppercase tracking-tighter">Req</span>
+                                    <span className="text-[11px] text-brand-600 font-bold capitalize tracking-tighter">Req</span>
                                 </div>
                             )}
 
                             {/* Time markers */}
                             <div className="absolute -bottom-5 left-0 w-full flex justify-between px-1">
                                 {[9,11,1,3,5].map(h => (
-                                    <span key={h} className="text-[8px] font-medium text-gray-400">{h}</span>
+                                    <span key={h} className="text-[11px] font-medium text-gray-400">{h}</span>
                                 ))}
                             </div>
                         </div>
-                        <p className="text-[10px] text-gray-500 mt-6 text-center">
+                        <p className="text-[12px] text-gray-500 dark:text-gray-400 mt-6 text-center">
                             No conflict detected with {dentist}'s schedule.
                         </p>
                     </div>
@@ -143,7 +143,7 @@ const ApprovalContextView = ({ request, onApprove, onReject, onClose }) => {
                             <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Reason</label>
                             <button 
                                 onClick={() => setIsRejecting(false)}
-                                className="text-[10px] font-bold text-gray-400 hover:text-gray-600 uppercase tracking-wider"
+                                className="text-[12px] font-bold text-gray-400 hover:text-gray-600 capitalize"
                             >
                                 Cancel
                             </button>

@@ -78,7 +78,7 @@ const ApprovalDetailViewer = ({ appointmentId, onBack, onStatusChange }) => {
         return (
             <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-900 rounded-2xl">
                 <Loader2 className="animate-spin text-brand-500 mb-4" size={32} />
-                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Aggregating Context...</p>
+                <p className="text-[12px] font-medium text-gray-500 capitalize">Aggregating Context...</p>
             </div>
         );
     }
@@ -111,10 +111,10 @@ const ApprovalDetailViewer = ({ appointmentId, onBack, onStatusChange }) => {
                     <ChevronLeft size={20} />
                 </button>
                 <div>
-                    <h4 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                    <h4 className="text-sm sm:text-lg font-medium text-gray-900 dark:text-white capitalize">
                         Review Approval Request
                     </h4>
-                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                    <p className="text-[11px] font-bold text-gray-400 capitalize">
                         Verify Patient Integrity & Provider Availability
                     </p>
                 </div>
@@ -149,7 +149,7 @@ const ApprovalDetailViewer = ({ appointmentId, onBack, onStatusChange }) => {
 
                         {/* Patient Request Notes */}
                         <div className="p-6 rounded-2xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01] space-y-3">
-                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                            <h4 className="text-[12px] font-medium text-gray-400 capitalize flex items-center gap-2">
                                 <MessageSquare size={14} /> Patient Request Notes
                             </h4>
                             <p className="text-xs text-gray-600 dark:text-gray-400 italic font-medium leading-relaxed">

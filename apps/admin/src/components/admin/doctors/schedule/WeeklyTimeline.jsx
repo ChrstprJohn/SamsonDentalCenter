@@ -70,10 +70,10 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
             {/* Main Header: Title & Block Action (Matches WeeklyRoutine) */}
             <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h4 className="text-base sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit">
+                    <h4 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white capitalize font-outfit">
                         {daysToShow === 3 ? '3-Day Timeline' : 'Upcoming Schedule'}
                     </h4>
-                    <p className="text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold">
+                    <p className="text-[11px] sm:text-[12px] text-gray-500 dark:text-gray-400 capitalize mt-0.5 font-bold">
                         {daysToShow === 3 ? 'Granular view for the next 72 hours.' : 'Clinical availability and reserved blocks.'}
                     </p>
                 </div>
@@ -81,7 +81,7 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
                     <Button 
                         variant="soft" 
                         onClick={onBlockClick} 
-                        className="h-9 px-5 text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"
+                        className="h-9 px-5 text-[12px] font-medium capitalize bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"
                     >
                         <CalendarOff size={14} className="mr-2" />
                         Block Slot
@@ -95,7 +95,7 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
                 {/* Grid Header: Date Range & Nav (Matches WeeklyRoutine Month Nav) */}
                 <div className='flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01] gap-4'>
                     <div>
-                        <h3 className='text-[11px] sm:text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                        <h3 className='text-[11px] sm:text-[13px] font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                             {daysToShow === 3 
                                 ? `${format(startDate, 'MMM d')} - ${format(addDays(startDate, 2), 'd, yyyy')}`
                                 : `Week of ${format(startDate, 'MMMM d, yyyy')}`
@@ -103,7 +103,7 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
                         </h3>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Button variant="outline" size="sm" onClick={goToday} className="text-[10px] font-black uppercase tracking-widest px-4 h-8 border-gray-200 dark:border-white/5 rounded-lg">Today</Button>
+                        <Button variant="outline" size="sm" onClick={goToday} className="text-[12px] font-medium capitalize px-4 h-8 border-gray-200 dark:border-white/5 rounded-lg">Today</Button>
                         <div className="flex items-center gap-2">
                             <button onClick={() => nav(-7)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-800 text-gray-500 transition-all">
                                 <ChevronLeft size={16} />
@@ -123,10 +123,10 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
                         const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
                         return (
                             <div key={i} className={`flex flex-col items-center sm:items-start justify-center sm:justify-start p-2 sm:p-3 border-r border-gray-200 dark:border-gray-800 last:border-r-0 ${isToday ? 'bg-brand-50/30 dark:bg-brand-500/5' : ''}`}>
-                                <span className={`text-[10px] sm:text-base font-black ${isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
+                                <span className={`text-[12px] sm:text-base font-medium ${isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
                                      {format(date, 'd')}
                                 </span>
-                                <span className={`text-[7px] sm:text-[9px] font-bold uppercase tracking-tight sm:tracking-widest mt-0.5 ${isToday ? 'text-brand-500 opacity-80' : 'text-gray-400'}`}>
+                                <span className={`text-[7px] sm:text-[11px] font-bold capitalize  sm: mt-0.5 ${isToday ? 'text-brand-500 opacity-80' : 'text-gray-400'}`}>
                                     {format(date, 'EEE')}
                                 </span>
                             </div>
@@ -150,7 +150,7 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
                                 const topPx = SPACER_PX + i * ROW_PX;
                                 return (
                                     <span key={i}
-                                          className={`absolute left-0 right-0 text-center text-[8px] sm:text-[11px] font-black tabular-nums -translate-y-1/2 select-none uppercase tracking-tighter ${isHalf ? 'text-gray-300' : 'text-gray-900 dark:text-gray-100'}`}
+                                          className={`absolute left-0 right-0 text-center text-[11px] sm:text-[11px] font-medium tabular-nums -translate-y-1/2 select-none capitalize tracking-tighter ${isHalf ? 'text-gray-300' : 'text-gray-900 dark:text-gray-100'}`}
                                           style={{ top: `${topPx}px` }}>
                                         {format(new Date().setHours(h, m), isHalf ? 'h:mm' : 'h a')}
                                     </span>
@@ -179,7 +179,7 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
                                     return (
                                         <div 
                                             key={i}
-                                            className={`absolute left-0.5 right-0.5 rounded-lg text-[10px] flex flex-row overflow-hidden shadow-sm transition-all hover:scale-[1.01] hover:shadow-md hover:z-20 box-border`}
+                                            className={`absolute left-0.5 right-0.5 rounded-lg text-[12px] flex flex-row overflow-hidden shadow-sm transition-all hover:scale-[1.01] hover:shadow-md hover:z-20 box-border`}
                                             style={{
                                                 ...styles,
                                                 maxHeight: `calc(${GRID_HEIGHT}px - ${styles.top})`,
@@ -187,13 +187,13 @@ const WeeklyTimeline = ({ doctor, events = [], timeBounds = { minStart: 8, maxEn
                                             }}
                                         >
                                             <div className="flex flex-col flex-1 p-1 sm:p-1.5 justify-center min-w-0">
-                                                <div className='font-black truncate leading-none text-[8px] sm:text-[11px] mb-0.5 sm:mb-1 uppercase tracking-tight'>
+                                                <div className='font-medium truncate leading-none text-[11px] sm:text-[11px] mb-0.5 sm:mb-1 capitalize'>
                                                     {isBlocked ? 'Blocked: ' + event.service : event.service}
                                                 </div>
-                                                <div className='font-bold truncate opacity-90 text-[7px] sm:text-[10px] mb-0.5 sm:mb-1'>
+                                                <div className='font-bold truncate opacity-90 text-[7px] sm:text-[12px] mb-0.5 sm:mb-1'>
                                                     {event.patient}
                                                 </div>
-                                                <div className='opacity-80 text-[6px] sm:text-[9px] font-bold flex items-center gap-1 sm:gap-1.5'>
+                                                <div className='opacity-80 text-[6px] sm:text-[11px] font-bold flex items-center gap-1 sm:gap-1.5'>
                                                     <span className="whitespace-nowrap">{getTimeRange(event.start, event.duration)}</span>
                                                     <span className="opacity-40">•</span>
                                                     <span className="whitespace-nowrap">{event.duration}m</span>

@@ -13,7 +13,7 @@ const NotificationDetailView = ({ notification, onBack, onToggleStar, onToggleRe
             <div className='px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between'>
                 <button 
                     onClick={onBack}
-                    className='p-2 rounded-xl bg-gray-100 dark:bg-white/[0.05] text-gray-500 hover:bg-gray-200 dark:hover:bg-white/[0.1] transition-colors'
+                    className='p-2 rounded-xl bg-gray-100 dark:bg-white/[0.05] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.1] transition-colors'
                 >
                     <ChevronLeft size={20} />
                 </button>
@@ -26,13 +26,13 @@ const NotificationDetailView = ({ notification, onBack, onToggleStar, onToggleRe
                         <Star size={18} fill={isStarred ? 'currentColor' : 'none'} />
                     </button>
                     <button 
-                        className='p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-colors'
+                        className='p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/[0.05] transition-colors'
                         onClick={() => onDelete(id)}
                     >
                         <Trash2 size={18} />
                     </button>
                     <button 
-                        className='p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-colors'
+                        className='p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/[0.05] transition-colors'
                         onClick={() => onToggleRead(id)}
                     >
                         <Mail size={18} />
@@ -43,7 +43,7 @@ const NotificationDetailView = ({ notification, onBack, onToggleStar, onToggleRe
             {/* Content Area */}
             <div className='p-5 sm:p-8 md:p-10 overflow-y-auto grow no-scrollbar pb-24 sm:pb-8 md:pb-10'>
                 <div className='space-y-4 sm:space-y-6'>
-                    <h2 className='text-[22px] sm:text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white font-outfit leading-tight tracking-tight'>
+                    <h2 className='text-[22px] sm:text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white font-outfit leading-tight'>
                         {title}
                     </h2>
                     <div className='flex items-center justify-between border-b border-gray-100/50 dark:border-gray-800 pb-6'>
@@ -53,10 +53,10 @@ const NotificationDetailView = ({ notification, onBack, onToggleStar, onToggleRe
                             </div>
                             <div>
                                 <p className='text-[13px] sm:text-sm font-bold text-gray-900 dark:text-white'>{category} Team</p>
-                                <p className='text-[10px] sm:text-[11px] text-gray-400 font-medium'>To: Patient Account</p>
+                                <p className='text-[12px] sm:text-[11px] text-gray-400 font-medium'>To: Patient Account</p>
                             </div>
                         </div>
-                        <span className='text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider'>{time}</span>
+                        <span className='text-[12px] sm:text-xs text-gray-400 dark:text-gray-500 font-bold capitalize'>{time}</span>
                     </div>
                 </div>
 

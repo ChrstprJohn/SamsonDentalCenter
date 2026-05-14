@@ -57,12 +57,12 @@ const FrontDeskWidget = () => {
         {activePatients.map((apt) => (
           <div
             key={apt.id}
-            className="flex flex-col sm:flex-row bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden group cursor-pointer"
+            className="flex flex-col sm:flex-row bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden group cursor-pointer"
           >
             {/* Left Time Column */}
             <div className="flex flex-row sm:flex-col w-full sm:w-[85px] bg-gray-50/50 dark:bg-gray-800/20 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0">
               <div className="flex-1 flex flex-col justify-center px-3 py-3 sm:py-0">
-                <span className="text-[9px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 whitespace-nowrap">
+                <span className="text-[11px] font-semibold capitalize text-gray-400 dark:text-gray-500 whitespace-nowrap">
                   Start Time
                 </span>
                 <span className="text-xs font-semibold text-[#0B1120] dark:text-white font-outfit truncate mt-0.5">
@@ -75,7 +75,7 @@ const FrontDeskWidget = () => {
             <div className="flex-1 flex flex-row items-center p-3 sm:p-4 gap-4 min-w-0 w-full">
               {/* Patient Name */}
               <div className="flex flex-col min-w-0 flex-1">
-                <span className="text-[9px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">
+                <span className="text-[11px] font-semibold capitalize text-gray-400 dark:text-gray-500 mb-0.5">
                   Patient
                 </span>
                 <span className="font-semibold text-[#0B1120] dark:text-white text-sm font-outfit group-hover:text-brand-500 transition-colors truncate">
@@ -85,7 +85,7 @@ const FrontDeskWidget = () => {
 
               {/* Service */}
               <div className="flex flex-col min-w-0 flex-1">
-                <span className="text-[9px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">
+                <span className="text-[11px] font-semibold capitalize text-gray-400 dark:text-gray-500 mb-0.5">
                   Service
                 </span>
                 <span className="text-[11px] sm:text-xs font-semibold text-[#0B1120] dark:text-white truncate" title={apt.procedure}>

@@ -53,13 +53,13 @@ const MiniCalendar = ({ selectedDate, onDateChange, requestDates }) => {
             <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-bold text-gray-900 dark:text-white">{monthName} {currentYear}</span>
                 <div className="flex gap-1">
-                    <button onClick={prevMonth} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-500 transition-colors"><ChevronLeft size={16} /></button>
-                    <button onClick={nextMonth} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-500 transition-colors"><ChevronRight size={16} /></button>
+                    <button onClick={prevMonth} className="p-1 hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-gray-800 rounded-xl text-gray-500 dark:text-gray-400 transition-colors"><ChevronLeft size={16} /></button>
+                    <button onClick={nextMonth} className="p-1 hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-gray-800 rounded-xl text-gray-500 dark:text-gray-400 transition-colors"><ChevronRight size={16} /></button>
                 </div>
             </div>
             <div className="grid grid-cols-7 gap-1 text-center mb-1">
                 {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-                    <span key={`${d}-${i}`} className="text-[10px] font-bold text-gray-400 py-1">{d}</span>
+                    <span key={`${d}-${i}`} className="text-[12px] font-bold text-gray-400 py-1">{d}</span>
                 ))}
             </div>
             <div className="grid grid-cols-7 gap-1">
@@ -173,7 +173,7 @@ const ApprovalInbox = ({
                                 <Filter size={16} />
                                 <span>Filters {(selectedService !== 'All Services' || selectedDoctor !== 'All Doctors' || selectedDate) && '•'}</span>
                                 {selectedDate && (
-                                    <span className="ml-1 px-2 py-0.5 bg-brand-500 text-white rounded-full text-[9px] font-black uppercase">
+                                    <span className="ml-1 px-2 py-0.5 bg-brand-500 text-white rounded-full text-[11px] font-medium capitalize">
                                         {new Date(selectedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                     </span>
                                 )}
@@ -188,7 +188,7 @@ const ApprovalInbox = ({
                                         <div className="flex h-[440px]">
                                             {/* COLUMN 1: Calendar */}
                                             <div className="w-[280px] bg-gray-50/50 dark:bg-gray-800/20 border-r border-gray-100 dark:border-gray-800 p-6 flex flex-col h-full">
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 block">Appointment Date</label>
+                                                <label className="text-[12px] font-medium capitalize text-gray-400 mb-4 block">Appointment Date</label>
                                                 <div className="flex-grow">
                                                     <MiniCalendar
                                                         selectedDate={localDate}
@@ -197,17 +197,17 @@ const ApprovalInbox = ({
                                                     />
                                                 </div>
                                                 <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 shrink-0">
-                                                    <div className="flex items-center gap-2 mb-1.5 font-black">
+                                                    <div className="flex items-center gap-2 mb-1.5 font-medium">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-error-500 animate-pulse" />
-                                                        <span className="text-[9px] text-gray-500 uppercase tracking-wider">Pending Approvals</span>
+                                                        <span className="text-[11px] text-gray-500 dark:text-gray-400 capitalize">Pending Approvals</span>
                                                     </div>
-                                                    <p className="text-[9px] leading-relaxed text-gray-400 font-bold uppercase tracking-tighter">Dots mark dates needing attention</p>
+                                                    <p className="text-[11px] leading-relaxed text-gray-400 font-bold capitalize tracking-tighter">Dots mark dates needing attention</p>
                                                 </div>
                                             </div>
 
                                             {/* COLUMN 2: Service Type */}
                                             <div className="w-[260px] border-r border-gray-100 dark:border-gray-800 p-6 flex flex-col">
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 block">Service Type</label>
+                                                <label className="text-[12px] font-medium capitalize text-gray-400 mb-4 block">Service Type</label>
                                                 <div className="flex-1 overflow-y-auto no-scrollbar space-y-1 pr-2">
                                                     {SERVICES.map(s => (
                                                         <button
@@ -226,7 +226,7 @@ const ApprovalInbox = ({
 
                                             {/* COLUMN 3: Dentist */}
                                             <div className="flex-1 p-6 flex flex-col bg-gray-50/30 dark:bg-gray-800/10">
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 block">Dentist</label>
+                                                <label className="text-[12px] font-medium capitalize text-gray-400 mb-4 block">Dentist</label>
                                                 <div className="flex-1 overflow-y-auto no-scrollbar space-y-1 mb-6 pr-2">
                                                     {DOCTORS.map(d => (
                                                         <button
@@ -240,7 +240,7 @@ const ApprovalInbox = ({
                                                             <div className="flex items-center justify-between">
                                                                 <span>{d}</span>
                                                                 {d !== 'All Doctors' && (
-                                                                    <span className={`text-[9px] uppercase tracking-tighter px-1.5 py-0.5 rounded-md font-black ${
+                                                                    <span className={`text-[11px] capitalize tracking-tighter px-1.5 py-0.5 rounded-md font-medium ${
                                                                         localDoctor === d 
                                                                         ? 'bg-white/20 text-white' 
                                                                         : 'bg-brand-50 text-brand-500 dark:bg-brand-500/10'
@@ -255,7 +255,7 @@ const ApprovalInbox = ({
 
                                                 <button
                                                     onClick={handleApplyFilters}
-                                                    className="w-full bg-gray-900 dark:bg-brand-500 hover:bg-gray-800 dark:hover:bg-brand-600 text-white font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest shadow-xl transition-all active:scale-95 group flex items-center justify-center gap-2"
+                                                    className="w-full bg-gray-900 dark:bg-brand-500 hover:bg-gray-800 dark:hover:bg-brand-600 text-white font-medium py-4 rounded-2xl text-[12px] capitalize shadow-xl transition-all active:scale-95 group flex items-center justify-center gap-2"
                                                 >
                                                     <span>Apply Filters</span>
                                                     <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -271,34 +271,34 @@ const ApprovalInbox = ({
                                         
                                         <div className="space-y-8">
                                             <div className="flex items-center justify-between">
-                                                <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">Filter Options</h3>
-                                                <button onClick={() => setShowFilters(false)} className="p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-full transition-colors">
+                                                <h3 className="text-sm font-medium capitalize text-gray-900 dark:text-white">Filter Options</h3>
+                                                <button onClick={() => setShowFilters(false)} className="p-2 hover:bg-gray-50 dark:bg-white/[0.01] dark:hover:bg-gray-800 rounded-full transition-colors">
                                                     <ChevronDown className="text-gray-400" />
                                                 </button>
                                             </div>
 
                                             <div className="space-y-6">
                                                 <div>
-                                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block px-1 mb-3">Appointment Date</label>
+                                                    <label className="text-[12px] font-medium capitalize text-gray-400 block px-1 mb-3">Appointment Date</label>
                                                     <input type="date" value={localDate} onChange={(e) => setLocalDate(e.target.value)} className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none outline-none text-sm font-bold shadow-inner" />
                                                 </div>
 
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="space-y-3">
-                                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block px-1">Service</label>
-                                                        <select value={localService} onChange={(e) => setLocalService(e.target.value)} className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none outline-none text-[10px] font-bold shadow-sm">
+                                                        <label className="text-[12px] font-medium capitalize text-gray-400 block px-1">Service</label>
+                                                        <select value={localService} onChange={(e) => setLocalService(e.target.value)} className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none outline-none text-[12px] font-bold shadow-sm">
                                                             {SERVICES.map(s => <option key={s} value={s}>{s}</option>)}
                                                         </select>
                                                     </div>
                                                     <div className="space-y-3">
-                                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block px-1">Dentist</label>
-                                                        <select value={localDoctor} onChange={(e) => setLocalDoctor(e.target.value)} className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none outline-none text-[10px] font-bold shadow-sm">
+                                                        <label className="text-[12px] font-medium capitalize text-gray-400 block px-1">Dentist</label>
+                                                        <select value={localDoctor} onChange={(e) => setLocalDoctor(e.target.value)} className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none outline-none text-[12px] font-bold shadow-sm">
                                                             {DOCTORS.map(d => <option key={d} value={d}>{d}</option>)}
                                                         </select>
                                                     </div>
                                                 </div>
 
-                                                <button onClick={handleApplyFilters} className="w-full bg-brand-500 text-white font-black py-5 rounded-2xl text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-brand-500/25 active:scale-[0.98] transition-all mt-4">
+                                                <button onClick={handleApplyFilters} className="w-full bg-brand-500 text-white font-medium py-5 rounded-2xl text-[12px] capitalize shadow-xl shadow-brand-500/25 active:scale-[0.98] transition-all mt-4">
                                                     Apply Filters
                                                 </button>
                                             </div>
@@ -348,7 +348,7 @@ const ApprovalInbox = ({
                         <div className='w-20 h-20 bg-gray-50 dark:bg-white/[0.03] rounded-[32px] flex items-center justify-center mb-6'>
                             <SearchX className='text-gray-300 dark:text-gray-700' size={32} />
                         </div>
-                        <h3 className='text-lg font-black text-gray-900 dark:text-white mb-2'>No requests found</h3>
+                        <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>No requests found</h3>
                         <p className='text-sm text-gray-400 max-w-[280px] font-medium leading-relaxed'>
                             Try adjusting your search or filters to find what you're looking for.
                         </p>
@@ -365,7 +365,7 @@ const ApprovalInbox = ({
                     <Filter size={18} />
                     <span className='text-xs font-bold'>Filters</span>
                     {(selectedService !== 'All Services' || selectedDoctor !== 'All Doctors' || selectedDate) && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-white dark:bg-white/[0.03] animate-pulse" />
                     )}
                 </button>
             )}
@@ -376,7 +376,7 @@ const ApprovalInbox = ({
                     <div className='flex flex-row items-center justify-between w-full gap-2 sm:gap-0'>
                         {/* Left: Results text */}
                         <div className='w-auto sm:w-1/3 text-left'>
-                            <span className='text-[10px] sm:text-[11px] text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap'>
+                            <span className='text-[12px] sm:text-[11px] text-gray-400 font-bold capitalize whitespace-nowrap'>
                                 Showing {requests.length} results
                             </span>
                         </div>
@@ -387,19 +387,19 @@ const ApprovalInbox = ({
                                 {totalPages > 1 && (
                                     <button 
                                         onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-                                        className='w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] disabled:opacity-30'
+                                        className='w-8 h-8 flex items-center justify-center rounded-xl transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/[0.05] disabled:opacity-30'
                                         disabled={currentPage === 1}
                                     >
                                         <ChevronLeft size={16} />
                                     </button>
                                 )}
-                                <button className='w-8 h-8 flex items-center justify-center text-sm font-bold rounded-lg transition-colors bg-brand-500 text-white shadow-md shadow-brand-500/20'>
+                                <button className='w-8 h-8 flex items-center justify-center text-sm font-bold rounded-xl transition-colors bg-brand-500 text-white shadow-sm-md shadow-sm-brand-500/20'>
                                     {currentPage}
                                 </button>
                                 {totalPages > currentPage && (
                                     <button 
                                         onClick={() => onPageChange(currentPage + 1)}
-                                        className='w-8 h-8 flex items-center justify-center text-sm font-bold rounded-lg transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05]'
+                                        className='w-8 h-8 flex items-center justify-center text-sm font-bold rounded-xl transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/[0.05]'
                                     >
                                         {currentPage + 1}
                                     </button>
@@ -407,7 +407,7 @@ const ApprovalInbox = ({
                                 {totalPages > currentPage + 1 && (
                                     <button 
                                         onClick={() => onPageChange(currentPage + 1)}
-                                        className='w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05]'
+                                        className='w-8 h-8 flex items-center justify-center rounded-xl transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/[0.05]'
                                     >
                                         <ChevronRight size={16} />
                                     </button>

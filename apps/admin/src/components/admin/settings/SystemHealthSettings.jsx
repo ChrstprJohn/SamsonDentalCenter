@@ -61,16 +61,16 @@ const SystemHealthSettings = () => {
             <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10'>
                     <div>
-                        <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        <h4 className='text-lg sm:text-2xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                             System Integrity Monitor
                         </h4>
-                        <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
+                        <p className='text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 capitalize mt-0.5 font-bold'>
                             Real-time infrastructure health tracking
                         </p>
                     </div>
                     <div className={`flex items-center gap-3 px-4 py-2 rounded-xl border ${health?.status === 'ok' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border-emerald-100 dark:border-emerald-500/20' : 'bg-red-50 text-red-600 border-red-100'}`}>
                         <div className={`w-2 h-2 rounded-full ${health?.status === 'ok' ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500'}`} />
-                        <span className='text-[10px] font-black uppercase tracking-widest'>
+                        <span className='text-[12px] font-medium capitalize'>
                             {health?.status === 'ok' ? 'All Systems Operational' : 'System Degraded'}
                         </span>
                     </div>
@@ -81,7 +81,7 @@ const SystemHealthSettings = () => {
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 mb-4">
                             <Activity size={16} className="text-brand-500" />
-                            <h6 className="text-xs font-black uppercase text-gray-400 tracking-widest">Active Services</h6>
+                            <h6 className="text-xs font-medium capitalize text-gray-400">Active Services</h6>
                         </div>
 
                         {loading && !health ? (
@@ -95,17 +95,17 @@ const SystemHealthSettings = () => {
                                                 {service.icon}
                                             </div>
                                             <div>
-                                                <h5 className='text-[10px] sm:text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>{service.name}</h5>
+                                                <h5 className='text-[12px] sm:text-xs font-medium text-gray-900 dark:text-white capitalize'>{service.name}</h5>
                                                 <div className='flex items-center gap-1.5 mt-0.5'>
                                                     <div className={`w-1.5 h-1.5 rounded-full ${service.isOk ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                                                    <p className={`text-[8px] sm:text-[9px] font-black uppercase tracking-widest ${service.isOk ? 'text-emerald-600' : 'text-red-600'}`}>
+                                                    <p className={`text-[11px] sm:text-[11px] font-medium capitalize  ${service.isOk ? 'text-emerald-600' : 'text-red-600'}`}>
                                                         {service.status}
                                                     </p>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className='mt-auto pt-4 border-t border-gray-200 dark:border-white/5'>
-                                            <p className='text-[8px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-widest'>
+                                            <p className='text-[11px] sm:text-[12px] text-gray-400 font-bold capitalize'>
                                                 Metric: <span className="text-gray-900 dark:text-white">{service.metric}</span>
                                             </p>
                                         </div>
@@ -119,7 +119,7 @@ const SystemHealthSettings = () => {
                     <div className='flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-800'>
                         <div className="flex items-center gap-3">
                             <RefreshCcw size={14} className="text-gray-400" />
-                            <p className='text-[10px] text-gray-400 font-bold uppercase tracking-widest'>
+                            <p className='text-[12px] text-gray-400 font-bold capitalize'>
                                 Last scanned: <span className="text-gray-600 dark:text-gray-300">{lastScan.toLocaleTimeString()}</span>
                             </p>
                         </div>
@@ -127,7 +127,7 @@ const SystemHealthSettings = () => {
                             variant="outline"
                             onClick={fetchHealth}
                             disabled={loading}
-                            className="h-9 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-white/10 flex items-center gap-2 transition-all active:scale-95"
+                            className="h-9 px-4 rounded-xl text-[12px] font-medium capitalize border-gray-200 dark:border-white/10 flex items-center gap-2 transition-all active:scale-95"
                         >
                             <RefreshCcw size={12} className={loading ? 'animate-spin' : ''} />
                             Force Refresh

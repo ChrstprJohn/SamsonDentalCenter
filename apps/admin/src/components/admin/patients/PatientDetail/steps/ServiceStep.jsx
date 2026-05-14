@@ -26,7 +26,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, allowSpecialized = true }) =
     return (
         <div className="pb-4">
             <div className='mb-8 sm:mb-10'>
-                <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
+                <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 capitalize'>
                     Select a Service
                 </h2>
                 <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed'>
@@ -59,7 +59,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, allowSpecialized = true }) =
 
             {fetchError && (
                 <div className='bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 text-red-600 dark:text-red-400 p-6 rounded-2xl text-center'>
-                    <p className='font-bold mb-2 uppercase tracking-widest text-xs'>Failed to load services</p>
+                    <p className='font-bold mb-2 capitalize text-xs'>Failed to load services</p>
                     <p className='text-sm opacity-80'>{fetchError}</p>
                 </div>
             )}
@@ -87,13 +87,13 @@ const ServiceStep = ({ selectedServiceId, onSelect, allowSpecialized = true }) =
 
                             <div className='flex items-center justify-between mt-auto pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-800'>
                                 <div className='flex items-center gap-2 sm:gap-3'>
-                                    <div className='flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[11px] font-bold text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs'>
+                                    <div className='flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-[11px] font-bold text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs'>
                                         <Clock size={12} className="sm:hidden text-brand-500" />
                                         <Clock size={14} className="hidden sm:block text-brand-500" />
                                         {service.duration_minutes}m
                                     </div>
                                     {service.tier?.toLowerCase() === 'specialized' && !allowSpecialized && (
-                                        <div className='flex items-center gap-1.5 text-[9px] sm:text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest'>
+                                        <div className='flex items-center gap-1.5 text-[11px] sm:text-[12px] font-medium text-amber-600 dark:text-amber-400 capitalize'>
                                             <ShieldCheck size={12} />
                                             Specialized
                                         </div>

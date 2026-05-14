@@ -18,7 +18,7 @@ const SessionTimeoutWarning = ({ secondsRemaining, onExtend, onLogout }) => {
                     </div>
                 </div>
 
-                <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">
+                <h2 className="text-2xl font-medium text-gray-900 dark:text-white mb-2 capitalize">
                     Session Expiring
                 </h2>
                 
@@ -26,7 +26,7 @@ const SessionTimeoutWarning = ({ secondsRemaining, onExtend, onLogout }) => {
                     Your administrative session is about to expire due to inactivity. For your security, you will be logged out in:
                 </p>
 
-                <div className="text-5xl font-black text-brand-500 font-mono mb-10 tabular-nums">
+                <div className="text-5xl font-medium text-brand-500 font-mono mb-10 tabular-nums">
                     {Math.floor(secondsRemaining / 60)}:{String(secondsRemaining % 60).padStart(2, '0')}
                 </div>
 
@@ -34,7 +34,7 @@ const SessionTimeoutWarning = ({ secondsRemaining, onExtend, onLogout }) => {
                     <Button 
                         variant="outline"
                         onClick={onLogout}
-                        className="h-14 rounded-2xl font-black flex items-center justify-center gap-2"
+                        className="h-14 rounded-2xl font-medium flex items-center justify-center gap-2"
                     >
                         <LogOut size={18} />
                         Log Out
@@ -42,7 +42,7 @@ const SessionTimeoutWarning = ({ secondsRemaining, onExtend, onLogout }) => {
                     <Button 
                         variant="primary"
                         onClick={onExtend}
-                        className="h-14 rounded-2xl font-black shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2"
+                        className="h-14 rounded-2xl font-medium shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2"
                     >
                         <ShieldCheck size={18} />
                         Stay Active

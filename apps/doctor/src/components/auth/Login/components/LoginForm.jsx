@@ -8,7 +8,7 @@ const InputGroup = ({ label, icon: Icon, error, children }) => (
     <div className='space-y-1.5 group text-left'>
         <label
             className={cn(
-                'block text-[11px] font-bold uppercase tracking-[0.05em] transition-colors',
+                'block text-[11px] font-bold capitalize  transition-colors',
                 error ? 'text-red-500' : 'text-slate-500 group-focus-within:text-red-600',
             )}
         >
@@ -83,16 +83,16 @@ const LoginForm = ({ onSubmit, loading = false, error = null, showSignUpLink = t
                         />
                     </div>
                     <div className='flex flex-col items-start justify-center'>
-                        <span className='font-black text-[20px] tracking-[-0.04em] leading-none text-slate-900 whitespace-nowrap uppercase'>
-                            SAMSON
+                        <span className='font-medium text-[20px] leading-none text-slate-900 whitespace-nowrap capitalize'>
+                            Samson
                         </span>
-                        <span className='text-[9px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-600 whitespace-nowrap'>
+                        <span className='text-[11px] capitalize font-bold mt-[1px] text-red-600 whitespace-nowrap'>
                             Dental Center
                         </span>
                     </div>
                 </div>
 
-                <h2 className='text-2xl md:text-3xl font-black text-slate-900 mb-2 tracking-tight'>
+                <h2 className='text-2xl md:text-3xl font-medium text-slate-900 mb-2'>
                     Welcome Back!
                 </h2>
                 <p className='text-slate-500 text-sm font-medium'>Sign in to your account to continue.</p>
@@ -137,7 +137,7 @@ const LoginForm = ({ onSubmit, loading = false, error = null, showSignUpLink = t
                 </InputGroup>
 
                 {error && (
-                    <div className='p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-xs font-medium flex items-center justify-between shadow-sm'>
+                    <div className='p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-xs font-medium flex items-center justify-between shadow-sm'>
                         <span>{error}</span>
                         <AlertCircle size={14} />
                     </div>

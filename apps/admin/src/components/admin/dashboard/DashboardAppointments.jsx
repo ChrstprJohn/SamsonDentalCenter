@@ -69,10 +69,10 @@ const DashboardAppointments = () => {
                 <table className='w-full text-left border-collapse'>
                     <thead>
                         <tr className='border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01]'>
-                            <th className='px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider'>Date & Time</th>
-                            <th className='px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider'>Service</th>
-                            <th className='px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider'>Dentist</th>
-                            <th className='px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right'>Status</th>
+                            <th className='px-6 py-3 text-[12px] font-bold text-gray-400 capitalize'>Date & Time</th>
+                            <th className='px-6 py-3 text-[12px] font-bold text-gray-400 capitalize'>Service</th>
+                            <th className='px-6 py-3 text-[12px] font-bold text-gray-400 capitalize'>Dentist</th>
+                            <th className='px-6 py-3 text-[12px] font-bold text-gray-400 capitalize text-right'>Status</th>
                         </tr>
                     </thead>
                     <tbody className='divide-y divide-gray-50 dark:divide-gray-800/50'>
@@ -91,7 +91,7 @@ const DashboardAppointments = () => {
                                     <span className='text-sm text-gray-600 dark:text-gray-400'>{app.dentist}</span>
                                 </td>
                                 <td className='px-6 py-4 text-right'>
-                                    <span className={`inline-flex px-2 py-1 text-[10px] font-bold rounded-lg uppercase tracking-wider ${
+                                    <span className={`inline-flex px-2 py-1 text-[12px] font-bold rounded-lg capitalize  ${
                                         app.color === 'success' 
                                         ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-400' 
                                         : 'bg-warning-50 text-warning-600 dark:bg-warning-500/10 dark:text-warning-400'

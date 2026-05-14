@@ -56,7 +56,7 @@ const DoctorServicesDetail = ({ doctor, updateDoctorServices }) => {
                     />
                     <div className="min-w-0 max-w-full">
                         <p className={`text-[clamp(11px,1.2vw,13px)] font-bold text-gray-800 dark:text-white/90 truncate transition-all duration-300`}>{service.name}</p>
-                        <span className={`text-[clamp(9px,1vw,10px)] font-bold uppercase tracking-widest transition-colors block truncate ${isChecked ? 'text-brand-500/70' : 'text-gray-400 group-hover:text-brand-500/70'}`}>
+                        <span className={`text-[clamp(9px,1vw,10px)] font-bold capitalize  transition-colors block truncate ${isChecked ? 'text-brand-500/70' : 'text-gray-400 group-hover:text-brand-500/70'}`}>
                             {service.category || 'Clinical'}
                         </span>
                     </div>
@@ -105,10 +105,10 @@ const DoctorServicesDetail = ({ doctor, updateDoctorServices }) => {
         <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
             <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
                 <div>
-                    <h4 className='text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                    <h4 className='text-base sm:text-lg font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                         Authorized Services
                     </h4>
-                    <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
+                    <p className='text-[11px] sm:text-[12px] text-gray-500 dark:text-gray-400 capitalize mt-0.5 font-bold'>
                         {selectedServices.length} Clinical Tasks currently authorized
                     </p>
                 </div>
@@ -117,14 +117,14 @@ const DoctorServicesDetail = ({ doctor, updateDoctorServices }) => {
                     <Button 
                         variant='outline'
                         onClick={() => setIsEditing(true)}
-                        className='h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
+                        className='h-9 sm:h-10 px-5 text-[12px] sm:text-xs font-medium capitalize shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
                     >
                         Edit Registry
                     </Button>
                 ) : (
                     <div className='flex items-center gap-2 text-brand-500 bg-brand-500/10 px-3 py-1.5 rounded-lg'>
                         <Info size={12} strokeWidth={3} />
-                        <span className='text-[10px] font-black uppercase tracking-widest'>Edit Mode Active</span>
+                        <span className='text-[12px] font-medium capitalize'>Edit Mode Active</span>
                     </div>
                 )}
             </div>
@@ -133,7 +133,7 @@ const DoctorServicesDetail = ({ doctor, updateDoctorServices }) => {
                 <div className='space-y-8 animate-in fade-in duration-300'>
                     {categorizedServices.authorized.length > 0 && (
                         <div className='space-y-3'>
-                            <h5 className='text-[9px] font-black uppercase tracking-widest text-brand-500 flex items-center gap-2'>
+                            <h5 className='text-[11px] font-medium capitalize text-brand-500 flex items-center gap-2'>
                                 <CheckCircle2 size={10} strokeWidth={3} />
                                 Currently Authorized
                             </h5>
@@ -152,14 +152,14 @@ const DoctorServicesDetail = ({ doctor, updateDoctorServices }) => {
                         <Button 
                             variant='outline' 
                             onClick={handleCancel}
-                            className='h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl'
+                            className='h-9 sm:h-10 px-5 text-[12px] sm:text-xs font-medium capitalize rounded-xl'
                         >
                             Cancel
                         </Button>
                         <Button 
                             onClick={handleSave} 
                             disabled={isSaving}
-                            className='h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
+                            className='h-9 sm:h-10 px-6 text-[12px] sm:text-xs font-medium capitalize bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
                         >
                             {isSaving ? 'Saving...' : 'Save Registry'}
                         </Button>
@@ -173,14 +173,14 @@ const DoctorServicesDetail = ({ doctor, updateDoctorServices }) => {
                                 <CheckCircle2 size={12} strokeWidth={3} />
                             </div>
                             <div className="min-w-0">
-                                <p className='text-[11px] sm:text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-tight truncate'>{service}</p>
-                                <span className='text-[7px] font-black uppercase tracking-widest text-brand-500/70'>Authorized Task</span>
+                                <p className='text-[11px] sm:text-[13px] font-medium text-gray-900 dark:text-white capitalize truncate'>{service}</p>
+                                <span className='text-[7px] font-medium capitalize text-brand-500/70'>Authorized Task</span>
                             </div>
                         </div>
                     )) : (
                         <div className='col-span-full py-12 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl'>
                             <AlertCircle size={24} className='text-gray-300 mb-3' />
-                            <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest'>No services configured</p>
+                            <p className='text-[12px] font-medium text-gray-400 capitalize'>No services configured</p>
                         </div>
                     )}
                 </div>

@@ -105,27 +105,27 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
         const s = source?.toLowerCase() || '';
         if (s.includes('guest')) {
             return (
-                <span className="px-1.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-500/10 text-[9px] font-black text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 uppercase tracking-tighter">
+                <span className="px-1.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-500/10 text-[11px] font-medium text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 capitalize tracking-tighter">
                     Guest
                 </span>
             );
         }
         if (s.includes('user')) {
             return (
-                <span className="px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/10 text-[9px] font-black text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 uppercase tracking-tighter">
+                <span className="px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/10 text-[11px] font-medium text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 capitalize tracking-tighter">
                     Patient
                 </span>
             );
         }
         if (s.includes('admin')) {
             return (
-                <span className="px-1.5 py-0.5 rounded-md bg-gray-50 dark:bg-gray-500/10 text-[9px] font-black text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-500/20 uppercase tracking-tighter">
+                <span className="px-1.5 py-0.5 rounded-md bg-gray-50 dark:bg-gray-500/10 text-[11px] font-medium text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-500/20 capitalize tracking-tighter">
                     Admin
                 </span>
             );
         }
         return (
-            <span className="px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/10 text-[9px] font-black text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 uppercase tracking-tighter">
+            <span className="px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/10 text-[11px] font-medium text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 capitalize tracking-tighter">
                 Patient
             </span>
         );
@@ -238,10 +238,10 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
             <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
                     <div>
-                        <h4 className='text-base sm:text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        <h4 className='text-base sm:text-xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                             Appointment Registry
                         </h4>
-                        <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5 font-bold'>
+                        <p className='text-[11px] sm:text-[12px] text-gray-500 dark:text-gray-400 capitalize mt-0.5 font-bold'>
                             {filterMode === 'request' ? 'Reviewing pending booking requests' : 
                              filterMode === 'attendance' ? 'Managing today\'s patient traffic' : 
                              filterMode === 'upcoming' ? 'Monitoring future schedule volume' : 'Auditing historical clinical records'}
@@ -289,7 +289,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
             {loading ? (
                 <div className='flex flex-col items-center justify-center py-20 bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-300 dark:border-gray-800 shadow-sm'>
                     <Loader2 className='animate-spin text-brand-500 mb-4' size={40} />
-                    <p className='text-xs font-black text-gray-400 uppercase tracking-widest'>Synchronizing Data...</p>
+                    <p className='text-xs font-medium text-gray-400 capitalize'>Synchronizing Data...</p>
                 </div>
             ) : filteredAppointments.length > 0 ? (
                 <div className='space-y-2 sm:space-y-3'>
@@ -306,7 +306,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
                                 {/* Sidebar: Schedule & Time Slot */}
                                 <div className='flex flex-row sm:flex-col w-full sm:w-[140px] bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0'>
                                     <div className='flex-1 flex flex-col justify-center px-4 py-3 border-r sm:border-r-0 sm:border-b border-gray-200 dark:border-gray-800'>
-                                        <span className='text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1'>
+                                        <span className='text-[12px] font-bold capitalize text-gray-400 dark:text-gray-500 mb-1'>
                                             Schedule
                                         </span>
                                         <span className='text-xs sm:text-xs font-bold text-[#0B1120] dark:text-white font-outfit truncate'>
@@ -314,7 +314,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
                                         </span>
                                     </div>
                                     <div className='flex-1 flex flex-col justify-center px-4 py-3'>
-                                        <span className='text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1'>
+                                        <span className='text-[12px] font-bold capitalize text-gray-400 dark:text-gray-500 mb-1'>
                                             Time Slot
                                         </span>
                                         <span className='text-xs sm:text-xs font-bold text-brand-600 dark:text-brand-400 font-outfit truncate'>
@@ -332,7 +332,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
                                                 {app.patient?.avatar_url ? (
                                                     <img src={app.patient.avatar_url} alt='' className='w-full h-full object-cover' />
                                                 ) : (
-                                                    <span className='text-sm font-black'>{getInitials(app.patient?.full_name)}</span>
+                                                    <span className='text-sm font-medium'>{getInitials(app.patient?.full_name)}</span>
                                                 )}
                                             </div>
                                             <div className='absolute bottom-0.5 right-0.5 w-3.5 h-3.5 border-2 border-white dark:border-[#111827] rounded-full shadow-sm bg-emerald-500'></div>
@@ -351,7 +351,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
                                     <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-4 w-full flex-1 min-w-0'>
                                         {/* Service */}
                                         <div className='flex flex-col min-w-0'>
-                                            <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                            <span className='text-[12px] font-bold capitalize mb-1 text-gray-400 dark:text-gray-500'>
                                                 Service
                                             </span>
                                             <span className='text-xs sm:text-sm font-bold text-[#0B1120] dark:text-white truncate' title={app.service?.name}>
@@ -361,7 +361,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
 
                                         {/* Doctor */}
                                         <div className='flex flex-col min-w-0'>
-                                            <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                            <span className='text-[12px] font-bold capitalize mb-1 text-gray-400 dark:text-gray-500'>
                                                 Doctor
                                             </span>
                                             <span className='text-xs sm:text-sm font-bold text-[#0B1120] dark:text-white truncate' title={app.dentist?.profile?.last_name}>
@@ -371,7 +371,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
 
                                         {/* Contact */}
                                         <div className='flex flex-col min-w-0'>
-                                            <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                            <span className='text-[12px] font-bold capitalize mb-1 text-gray-400 dark:text-gray-500'>
                                                 Contact
                                             </span>
                                             <div className='flex items-center gap-1.5 min-w-0'>
@@ -384,7 +384,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
 
                                         {/* Status */}
                                         <div className='flex flex-col min-w-0'>
-                                            <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                            <span className='text-[12px] font-bold capitalize mb-1 text-gray-400 dark:text-gray-500'>
                                                 Status
                                             </span>
                                             <div className='flex items-center gap-1.5'>
@@ -393,7 +393,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
                                                     app.status === 'CANCELLED' || app.status === 'LATE_CANCEL' || app.status === 'REJECTED' ? 'bg-red-500' :
                                                     'bg-amber-500'
                                                 }`} />
-                                                <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider ${
+                                                <span className={`text-[12px] sm:text-[11px] font-bold capitalize  ${
                                                     app.status === 'CONFIRMED' || app.status === 'CHECKED_IN' ? 'text-emerald-600 dark:text-emerald-500' :
                                                     app.status === 'CANCELLED' || app.status === 'LATE_CANCEL' || app.status === 'REJECTED' ? 'text-red-600 dark:text-red-500' :
                                                     'text-amber-600 dark:text-amber-500'
@@ -414,10 +414,10 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
                     <div className='w-20 h-20 bg-gray-100 dark:bg-white/5 rounded-3xl flex items-center justify-center text-gray-300 dark:text-gray-700 mb-6 border border-gray-200 dark:border-white/5'>
                         <Calendar size={40} />
                     </div>
-                    <h5 className='text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit mb-2'>
+                    <h5 className='text-lg font-medium text-gray-900 dark:text-white capitalize font-outfit mb-2'>
                         No Records Found
                     </h5>
-                    <p className='text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest font-bold max-w-sm leading-relaxed'>
+                    <p className='text-[12px] text-gray-500 dark:text-gray-400 capitalize font-bold max-w-sm leading-relaxed'>
                         {filterMode === 'request' ? 'All appointment requests for this family have been processed or none have been submitted.' : 
                          filterMode === 'attendance' ? 'There are no confirmed appointments scheduled for today.' :
                          'No historical visits or cancelled appointments on record for this profile.'}

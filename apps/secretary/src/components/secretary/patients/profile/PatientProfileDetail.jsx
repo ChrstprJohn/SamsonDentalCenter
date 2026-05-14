@@ -18,20 +18,20 @@ const PatientProfileDetail = ({ patient }) => {
                 </div>
 
                 <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
-                    <div className='p-3 sm:p-4 rounded-lg border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
-                        <p className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1'>Gender</p>
+                    <div className='p-3 sm:p-4 rounded-xl border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
+                        <p className='text-[12px] font-bold capitalize text-gray-400 mb-1'>Gender</p>
                         <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{patient.gender || 'Not specified'}</p>
                     </div>
-                    <div className='p-3 sm:p-4 rounded-lg border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
-                        <p className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1'>Age</p>
+                    <div className='p-3 sm:p-4 rounded-xl border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
+                        <p className='text-[12px] font-bold capitalize text-gray-400 mb-1'>Age</p>
                         <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{patient.age || 'N/A'} years old</p>
                     </div>
-                    <div className='p-3 sm:p-4 rounded-lg border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
-                        <p className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1'>Birthday</p>
+                    <div className='p-3 sm:p-4 rounded-xl border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
+                        <p className='text-[12px] font-bold capitalize text-gray-400 mb-1'>Birthday</p>
                         <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{patient.birthday || 'Not specified'}</p>
                     </div>
-                    <div className='p-3 sm:p-4 rounded-lg border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
-                        <p className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1'>Blood Type</p>
+                    <div className='p-3 sm:p-4 rounded-xl border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
+                        <p className='text-[12px] font-bold capitalize text-gray-400 mb-1'>Blood Type</p>
                         <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{patient.blood_type || 'Unknown'}</p>
                     </div>
                 </div>
@@ -51,8 +51,8 @@ const PatientProfileDetail = ({ patient }) => {
                 </div>
 
                 <div className='space-y-4'>
-                    <div className='p-4 rounded-lg border border-amber-100 dark:border-amber-500/20 bg-amber-50/30 dark:bg-amber-500/5'>
-                        <h5 className='text-xs font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 flex items-center gap-2 mb-2'>
+                    <div className='p-4 rounded-xl border border-amber-100 dark:border-amber-500/20 bg-amber-50/30 dark:bg-amber-500/5'>
+                        <h5 className='text-xs font-medium capitalize text-amber-600 dark:text-amber-400 flex items-center gap-2 mb-2'>
                             <Heart size={14} strokeWidth={3} />
                             Allergies & Conditions
                         </h5>
@@ -62,8 +62,8 @@ const PatientProfileDetail = ({ patient }) => {
                     </div>
 
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                        <div className='p-4 rounded-lg border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
-                            <h5 className='text-xs font-black uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3'>
+                        <div className='p-4 rounded-xl border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
+                            <h5 className='text-xs font-medium capitalize text-gray-400 flex items-center gap-2 mb-3'>
                                 <FileText size={14} />
                                 Previous Treatments
                             </h5>
@@ -81,8 +81,8 @@ const PatientProfileDetail = ({ patient }) => {
                             </ul>
                         </div>
 
-                        <div className='p-4 rounded-lg border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
-                            <h5 className='text-xs font-black uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3'>
+                        <div className='p-4 rounded-xl border border-gray-100 dark:border-gray-800/80 bg-gray-50/50 dark:bg-white/[0.01]'>
+                            <h5 className='text-xs font-medium capitalize text-gray-400 flex items-center gap-2 mb-3'>
                                 <Shield size={14} />
                                 Insurance Info
                             </h5>

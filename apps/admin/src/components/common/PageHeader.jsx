@@ -140,7 +140,7 @@ const PageHeader = ({ overline, title, subtitle }) => {
         <div className="md:hidden flex flex-col items-center justify-center text-center min-h-[300px]">
           <h1
             ref={(el) => (textElementsRef.current[0] = el)}
-            className="text-5xl sm:text-6xl font-black leading-tight tracking-tight text-white max-w-2xl mb-8"
+            className="text-5xl sm:text-6xl font-medium leading-tight text-white max-w-2xl mb-8"
           >
             {pageName}
           </h1>
@@ -160,7 +160,7 @@ const PageHeader = ({ overline, title, subtitle }) => {
           <div className="flex flex-col items-start justify-center text-left">
             <h1
               ref={(el) => (textElementsRef.current[0] = el)}
-              className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight text-white max-w-3xl mb-8"
+              className="text-5xl md:text-6xl lg:text-7xl font-medium leading-tight text-white max-w-3xl mb-8"
             >
               {pageName}
             </h1>

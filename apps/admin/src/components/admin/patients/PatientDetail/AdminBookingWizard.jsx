@@ -148,10 +148,10 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
                             <Calendar size={24} />
                         </div>
                         <div>
-                            <p className='text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mb-1.5'>
+                            <p className='text-[12px] font-medium text-gray-400 capitalize leading-none mb-1.5'>
                                 Internal Scheduling
                             </p>
-                            <h3 className='text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight'>
+                            <h3 className='text-lg font-medium text-gray-900 dark:text-white capitalize'>
                                 Book Appointment
                             </h3>
                         </div>
@@ -173,14 +173,14 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
                             const isActive = i === step && !result?.success;
                             return (
                                 <div key={s.id} className='flex items-center gap-3 relative'>
-                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black transition-all ${
+                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[12px] font-medium transition-all ${
                                         isCompleted ? 'bg-success-500 text-white' : 
                                         isActive ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20 scale-110' : 
                                         'bg-gray-100 dark:bg-white/5 text-gray-400'
                                     }`}>
                                         {isCompleted ? <CheckCircle2 size={16} /> : i + 1}
                                     </div>
-                                    <span className={`text-[10px] font-black uppercase tracking-widest ${
+                                    <span className={`text-[12px] font-medium capitalize  ${
                                         isActive ? 'text-gray-900 dark:text-white' : 'text-gray-400'
                                     }`}>
                                         {s.label}
@@ -197,7 +197,7 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
                 {/* Content */}
                 <div className='p-8 overflow-y-auto grow custom-scrollbar'>
                     {error && (
-                        <div className='mb-6 p-4 rounded-2xl bg-error-50 dark:bg-error-500/5 border border-error-100 dark:border-error-500/10 text-error-600 dark:text-error-400 text-xs font-bold uppercase tracking-tight flex items-center gap-3'>
+                        <div className='mb-6 p-4 rounded-2xl bg-error-50 dark:bg-error-500/5 border border-error-100 dark:border-error-500/10 text-error-600 dark:text-error-400 text-xs font-bold capitalize flex items-center gap-3'>
                             <X size={16} className='shrink-0' />
                             {error}
                         </div>
@@ -212,7 +212,7 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
                         <div className="flex w-full justify-end">
                             <button 
                                 onClick={handleClose}
-                                className='h-12 px-10 rounded-2xl bg-brand-500 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-brand-500/20 hover:bg-brand-600 active:scale-95 transition-all'
+                                className='h-12 px-10 rounded-2xl bg-brand-500 text-white text-xs font-medium capitalize shadow-lg shadow-brand-500/20 hover:bg-brand-600 active:scale-95 transition-all'
                             >
                                 Done
                             </button>
@@ -222,7 +222,7 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
                             <button 
                                 onClick={prevStep}
                                 disabled={step === 0 || submitting}
-                                className='h-12 px-8 rounded-2xl border border-gray-100 dark:border-gray-800 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-all flex items-center gap-2 disabled:opacity-50'
+                                className='h-12 px-8 rounded-2xl border border-gray-100 dark:border-gray-800 text-[12px] font-medium capitalize text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-all flex items-center gap-2 disabled:opacity-50'
                             >
                                 <ChevronLeft size={16} /> Back
                             </button>
@@ -230,7 +230,7 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
                             <button 
                                 onClick={handleNextOrSubmit}
                                 disabled={!canProceed() || submitting}
-                                className='h-12 px-10 rounded-2xl bg-brand-500 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-brand-500/20 hover:bg-brand-600 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed'
+                                className='h-12 px-10 rounded-2xl bg-brand-500 text-white text-xs font-medium capitalize shadow-lg shadow-brand-500/20 hover:bg-brand-600 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed'
                             >
                                 {submitting ? (
                                     <><Loader2 size={16} className='animate-spin' /> Processing...</>
@@ -253,7 +253,7 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
                         <div className='w-14 h-14 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-6 mx-auto'>
                             <X size={28} className='text-red-500' />
                         </div>
-                        <h3 className='text-lg font-black text-center text-gray-900 dark:text-white uppercase tracking-tight mb-2'>
+                        <h3 className='text-lg font-medium text-center text-gray-900 dark:text-white capitalize mb-2'>
                             Cancel Booking?
                         </h3>
                         <p className='text-sm text-center text-gray-500 dark:text-gray-400 mb-8 leading-relaxed'>
@@ -262,13 +262,13 @@ const AdminBookingWizard = ({ isOpen, onClose, primaryPatient, dependents, token
                         <div className='flex gap-3'>
                             <button 
                                 onClick={() => setShowExitConfirm(false)}
-                                className='flex-1 py-3 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors'
+                                className='flex-1 py-3 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-600 dark:text-gray-300 capitalize hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors'
                             >
                                 Continue Booking
                             </button>
                             <button 
                                 onClick={handleClose}
-                                className='flex-1 py-3 rounded-xl bg-red-500 text-white text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20'
+                                className='flex-1 py-3 rounded-xl bg-red-500 text-white text-xs font-medium capitalize hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20'
                             >
                                 Yes, Exit
                             </button>

@@ -134,7 +134,7 @@ const AppointmentDetailView = ({
                         </button>
                         
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">Request Details</span>
+                            <span className="text-[12px] sm:text-xs font-bold text-gray-400 capitalize">Request Details</span>
                         </div>
                     </div>
 
@@ -169,14 +169,14 @@ const AppointmentDetailView = ({
                                                         </div>
                                                     </div>
                                                     <div className="px-1 sm:px-2">
-                                                        <h4 className="text-[11px] sm:text-[13px] font-black text-gray-900 dark:text-white mb-0.5 sm:mb-1 tracking-tight">
+                                                        <h4 className="text-[11px] sm:text-[13px] font-medium text-gray-900 dark:text-white mb-0.5 sm:mb-1">
                                                             {step.title}
                                                         </h4>
-                                                        <p className="text-[9px] sm:text-[11px] font-bold text-gray-500 dark:text-gray-400 leading-tight max-w-[120px] mx-auto opacity-80">
+                                                        <p className="text-[11px] sm:text-[11px] font-bold text-gray-500 dark:text-gray-400 leading-tight max-w-[120px] mx-auto opacity-80">
                                                             {step.desc}
                                                         </p>
                                                         {step.time && (
-                                                            <div className="mt-1 sm:mt-2 text-[8px] sm:text-[9px] font-bold text-brand-500/60 uppercase tracking-widest font-mono">
+                                                            <div className="mt-1 sm:mt-2 text-[11px] sm:text-[11px] font-bold text-brand-500/60 capitalize font-mono">
                                                                 {step.time}
                                                             </div>
                                                         )}
@@ -201,7 +201,7 @@ const AppointmentDetailView = ({
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                                                    <span className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 sm:py-1 rounded-lg uppercase tracking-wider ${
+                                                    <span className={`text-[11px] sm:text-[12px] font-bold px-2 py-0.5 sm:py-1 rounded-lg capitalize  ${
                                                         isGuest ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-brand-100 text-brand-700 border border-brand-200'
                                                     }`}>
                                                         {isGuest ? 'Guest Booking' : 'Registered Patient'}
@@ -224,18 +224,18 @@ const AppointmentDetailView = ({
                                                 {/* Patient Statistics */}
                                                 <div className="flex items-center gap-6 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800/50">
                                                     <div className="flex flex-col">
-                                                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Completed</span>
-                                                        <span className="text-sm font-black text-success-600 dark:text-success-400">{completedCount}</span>
+                                                        <span className="text-[11px] font-bold text-gray-400 capitalize mb-0.5">Completed</span>
+                                                        <span className="text-sm font-medium text-success-600 dark:text-success-400">{completedCount}</span>
                                                     </div>
                                                     <div className="w-px h-6 bg-gray-100 dark:bg-gray-800" />
                                                     <div className="flex flex-col">
-                                                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">No-Shows</span>
-                                                        <span className="text-sm font-black text-error-600 dark:text-error-400">{patient.noShowCount || 0}</span>
+                                                        <span className="text-[11px] font-bold text-gray-400 capitalize mb-0.5">No-Shows</span>
+                                                        <span className="text-sm font-medium text-error-600 dark:text-error-400">{patient.noShowCount || 0}</span>
                                                     </div>
                                                     <div className="w-px h-6 bg-gray-100 dark:bg-gray-800" />
                                                     <div className="flex flex-col">
-                                                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Cancelled</span>
-                                                        <span className="text-sm font-black text-gray-600 dark:text-gray-400">{patient.cancellationCount || 0}</span>
+                                                        <span className="text-[11px] font-bold text-gray-400 capitalize mb-0.5">Cancelled</span>
+                                                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{patient.cancellationCount || 0}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -246,7 +246,7 @@ const AppointmentDetailView = ({
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         {/* Doctor */}
                                         <div className="bg-gray-50/50 dark:bg-gray-900/30 border border-gray-100 dark:border-gray-800 rounded-3xl p-5 sm:p-6 transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/20">
-                                            <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-4">Assigned Doctor</span>
+                                            <span className="text-[11px] sm:text-[12px] font-bold text-gray-400 capitalize block mb-4">Assigned Doctor</span>
                                             <div className="flex items-center gap-3">
                                                 <div className="p-2.5 sm:p-3 bg-brand-50 dark:bg-brand-900/30 rounded-xl shrink-0">
                                                     <User className="size-5 sm:size-6 text-brand-500" />
@@ -254,11 +254,11 @@ const AppointmentDetailView = ({
                                                 <div className="flex flex-col min-w-0">
                                                     <span className="text-sm font-bold text-gray-900 dark:text-white truncate">{dentist}</span>
                                                     <div className="flex flex-col gap-0.5 mt-1">
-                                                        <div className="flex items-center gap-2 text-[9px] sm:text-[10px] text-gray-500 font-medium">
+                                                        <div className="flex items-center gap-2 text-[11px] sm:text-[12px] text-gray-500 dark:text-gray-400 font-medium">
                                                             <Phone className="size-2.5 sm:size-3 text-emerald-500 shrink-0" />
                                                             <span className="tabular-nums truncate">{dentistPhone || 'N/A'}</span>
                                                         </div>
-                                                        <div className="flex items-center gap-2 text-[9px] sm:text-[10px] text-gray-500 font-medium">
+                                                        <div className="flex items-center gap-2 text-[11px] sm:text-[12px] text-gray-500 dark:text-gray-400 font-medium">
                                                             <Mail className="size-2.5 sm:size-3 text-blue-500 shrink-0" />
                                                             <span className="truncate">{dentistEmail || 'N/A'}</span>
                                                         </div>
@@ -269,38 +269,38 @@ const AppointmentDetailView = ({
 
                                         {/* Appointment Info */}
                                         <div className="bg-gray-50/50 dark:bg-gray-900/30 border border-gray-100 dark:border-gray-800 rounded-3xl p-5 sm:p-6 transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/20">
-                                            <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-4">Appointment Info</span>
+                                            <span className="text-[11px] sm:text-[12px] font-bold text-gray-400 capitalize block mb-4">Appointment Info</span>
                                             <div className="space-y-4">
                                                 <div className="flex items-center justify-between gap-2">
                                                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                                                        <div className="p-2 sm:p-2.5 bg-gray-100 dark:bg-gray-800 rounded-lg shrink-0"><Timer className="size-3.5 sm:size-4 text-gray-500" /></div>
+                                                        <div className="p-2 sm:p-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl shrink-0"><Timer className="size-3.5 sm:size-4 text-gray-500 dark:text-gray-400" /></div>
                                                         <div className="flex flex-col gap-0.5 min-w-0">
-                                                            <span className="text-[7px] sm:text-[8px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 border border-brand-100 dark:border-brand-500/20 tracking-widest w-fit">
+                                                            <span className="text-[7px] sm:text-[11px] font-medium capitalize px-1.5 sm:px-2 py-0.5 rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 border border-brand-100 dark:border-brand-500/20 w-fit">
                                                                 {serviceTier || 'General'}
                                                             </span>
                                                             <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white leading-tight truncate">{service}</span>
                                                         </div>
                                                     </div>
                                                     <div className="text-right shrink-0">
-                                                        <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase block mb-0.5">Duration</span>
-                                                        <span className="text-[10px] sm:text-xs font-bold text-gray-900 dark:text-white">60m</span>
+                                                        <span className="text-[11px] sm:text-[11px] font-bold text-gray-400 capitalize block mb-0.5">Duration</span>
+                                                        <span className="text-[12px] sm:text-xs font-bold text-gray-900 dark:text-white">60m</span>
                                                     </div>
                                                 </div>
                                                 
                                                 <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
                                                     <div className="flex items-center justify-between gap-4">
                                                         <div className="flex flex-col min-w-0">
-                                                            <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Date</span>
-                                                            <span className="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 tabular-nums truncate">{requestedDate}</span>
+                                                            <span className="text-[11px] sm:text-[11px] font-bold text-gray-400 capitalize mb-1">Date</span>
+                                                            <span className="text-[12px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 tabular-nums truncate">{requestedDate}</span>
                                                         </div>
                                                         <div className="flex items-center gap-3 sm:gap-4 text-right shrink-0">
                                                             <div className="flex flex-col">
-                                                                <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Start</span>
-                                                                <span className="text-[10px] sm:text-xs font-black text-brand-600 dark:text-brand-400 tabular-nums">{requestedTime}</span>
+                                                                <span className="text-[11px] sm:text-[11px] font-bold text-gray-400 capitalize mb-1">Start</span>
+                                                                <span className="text-[12px] sm:text-xs font-medium text-brand-600 dark:text-brand-400 tabular-nums">{requestedTime}</span>
                                                             </div>
                                                             <div className="flex flex-col">
-                                                                <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">End</span>
-                                                                <span className="text-[10px] sm:text-xs font-bold text-gray-600 dark:text-gray-400 tabular-nums">{endTime}</span>
+                                                                <span className="text-[11px] sm:text-[11px] font-bold text-gray-400 capitalize mb-1">End</span>
+                                                                <span className="text-[12px] sm:text-xs font-bold text-gray-600 dark:text-gray-400 tabular-nums">{endTime}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -315,19 +315,19 @@ const AppointmentDetailView = ({
                                     <div className="lg:absolute lg:inset-0 bg-gray-50/50 dark:bg-gray-900/30 border border-gray-100 dark:border-gray-800 rounded-3xl p-5 sm:p-6 flex flex-col h-full overflow-hidden">
                                         <div className="flex items-center justify-between mb-4 sm:mb-6 shrink-0">
                                             <div className="flex flex-col gap-1">
-                                                <h3 className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400">Recent Appointments</h3>
+                                                <h3 className="text-[11px] sm:text-[12px] font-bold capitalize text-gray-400">Recent Appointments</h3>
                                                 {formattedHistory.length === 0 && (
-                                                    <span className="text-[7px] sm:text-[8px] text-amber-500 font-bold uppercase tracking-tighter">Displaying Sample Data</span>
+                                                    <span className="text-[7px] sm:text-[11px] text-amber-500 font-bold capitalize tracking-tighter">Displaying Sample Data</span>
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-1.5">
-                                                <div title={`${completedCount} Completed`} className="p-1.5 rounded-lg bg-success-50 text-success-600 border border-success-100 opacity-30">
+                                                <div title={`${completedCount} Completed`} className="p-1.5 rounded-xl bg-success-50 text-success-600 border border-success-100 opacity-30">
                                                     <Shield size={12} />
                                                 </div>
-                                                <div title={`${patient.noShowCount || 0} No-Shows`} className="p-1.5 rounded-lg bg-error-50 text-error-600 border border-error-100">
+                                                <div title={`${patient.noShowCount || 0} No-Shows`} className="p-1.5 rounded-xl bg-error-50 text-error-600 border border-error-100">
                                                     <OctagonAlert size={12} />
                                                 </div>
-                                                <div title={`${patient.cancellationCount || 0} Cancellations`} className="p-1.5 rounded-lg bg-gray-50 text-gray-400">
+                                                <div title={`${patient.cancellationCount || 0} Cancellations`} className="p-1.5 rounded-xl bg-gray-50 dark:bg-white/[0.01] text-gray-400">
                                                     <CalendarX size={12} />
                                                 </div>
                                             </div>
@@ -341,24 +341,24 @@ const AppointmentDetailView = ({
                                                         <div className="flex flex-row h-full">
                                                             <div className="flex flex-col w-[60px] sm:w-[70px] bg-gray-50/50 dark:bg-gray-800/20 border-r border-gray-100 dark:border-gray-800 shrink-0">
                                                                 <div className="flex-1 flex flex-col justify-center px-1 sm:px-2 py-1.5 sm:py-2 border-b border-gray-100 dark:border-gray-800 text-center">
-                                                                    <span className="text-[6px] sm:text-[7px] font-bold uppercase text-gray-400">Start</span>
-                                                                    <span className="text-[9px] sm:text-[10px] font-bold text-gray-900 dark:text-white tabular-nums">{apt.startTime}</span>
+                                                                    <span className="text-[6px] sm:text-[7px] font-bold capitalize text-gray-400">Start</span>
+                                                                    <span className="text-[11px] sm:text-[12px] font-bold text-gray-900 dark:text-white tabular-nums">{apt.startTime}</span>
                                                                 </div>
                                                                 <div className="flex-1 flex flex-col justify-center px-1 sm:px-2 py-1.5 sm:py-2 text-center">
-                                                                    <span className="text-[6px] sm:text-[7px] font-bold uppercase text-gray-400">End</span>
-                                                                    <span className="text-[9px] sm:text-[10px] font-medium text-gray-500 tabular-nums">{apt.endTime}</span>
+                                                                    <span className="text-[6px] sm:text-[7px] font-bold capitalize text-gray-400">End</span>
+                                                                    <span className="text-[11px] sm:text-[12px] font-medium text-gray-500 dark:text-gray-400 tabular-nums">{apt.endTime}</span>
                                                                 </div>
                                                             </div>
                                                             <div className="flex-1 p-2 sm:p-3 min-w-0">
                                                                 <div className="flex items-center justify-between mb-1 gap-2">
-                                                                    <span className="text-[7px] sm:text-[8px] font-bold text-gray-400 uppercase tracking-widest tabular-nums truncate">{apt.date}</span>
-                                                                    <span className={`px-1 py-0.5 rounded-[4px] text-[6px] sm:text-[7px] font-bold uppercase shrink-0 ${apt.source === 'Walk-in' ? 'text-amber-500 bg-amber-50' : 'text-brand-500 bg-brand-50'}`}>{apt.source}</span>
+                                                                    <span className="text-[7px] sm:text-[11px] font-bold text-gray-400 capitalize tabular-nums truncate">{apt.date}</span>
+                                                                    <span className={`px-1 py-0.5 rounded-[4px] text-[6px] sm:text-[7px] font-bold capitalize shrink-0 ${apt.source === 'Walk-in' ? 'text-amber-500 bg-amber-50' : 'text-brand-500 bg-brand-50'}`}>{apt.source}</span>
                                                                 </div>
                                                                 <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-                                                                    <span className="text-[10px] sm:text-[11px] font-bold text-gray-900 dark:text-white truncate">{apt.service}</span>
-                                                                    <span className="text-[6px] sm:text-[7px] font-black uppercase text-brand-500 tracking-tighter shrink-0 border border-brand-100 dark:border-brand-500/20 px-1 rounded-sm">{apt.type}</span>
+                                                                    <span className="text-[12px] sm:text-[11px] font-bold text-gray-900 dark:text-white truncate">{apt.service}</span>
+                                                                    <span className="text-[6px] sm:text-[7px] font-medium capitalize text-brand-500 tracking-tighter shrink-0 border border-brand-100 dark:border-brand-500/20 px-1 rounded-sm">{apt.type}</span>
                                                                 </div>
-                                                                <div className="flex items-center gap-1 text-[8px] sm:text-[9px] text-gray-500 truncate">
+                                                                <div className="flex items-center gap-1 text-[11px] sm:text-[11px] text-gray-500 dark:text-gray-400 truncate">
                                                                     <User size={8} className="text-brand-500 shrink-0" />
                                                                     <span className="truncate">{apt.doctor}</span>
                                                                 </div>
@@ -376,12 +376,12 @@ const AppointmentDetailView = ({
                             <div className="shrink-0 space-y-4 pt-2">
                                 <div className="flex items-center justify-between px-2">
                                     <div className="flex flex-col gap-0.5">
-                                        <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400">Scheduling Verification</span>
-                                        <p className="text-[8px] sm:text-[9px] font-bold text-gray-400 opacity-60">Visualizing 8:00 AM - 5:00 PM clinical shift</p>
+                                        <span className="text-[11px] sm:text-[12px] font-medium capitalize text-gray-400">Scheduling Verification</span>
+                                        <p className="text-[11px] sm:text-[11px] font-bold text-gray-400 opacity-60">Visualizing 8:00 AM - 5:00 PM clinical shift</p>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors duration-500 ${isConflict ? 'bg-error-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-success-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]'}`} />
-                                        <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-tighter ${isConflict ? 'text-error-500' : 'text-success-500'}`}>
+                                        <span className={`text-[11px] sm:text-[12px] font-medium capitalize tracking-tighter ${isConflict ? 'text-error-500' : 'text-success-500'}`}>
                                             {isConflict ? 'Schedule Conflict' : 'Clear Availability'}
                                         </span>
                                     </div>
@@ -419,7 +419,7 @@ const AppointmentDetailView = ({
                                                 }`}
                                                 style={{ left: `${pos}%` }}
                                             >
-                                                <span className={`text-[5px] sm:text-[6px] font-black uppercase tracking-tighter hidden sm:block ${isSlotConflict ? 'text-error-600 dark:text-error-400' : 'text-gray-300'}`}>
+                                                <span className={`text-[5px] sm:text-[6px] font-medium capitalize tracking-tighter hidden sm:block ${isSlotConflict ? 'text-error-600 dark:text-error-400' : 'text-gray-300'}`}>
                                                     {isSlotConflict ? 'Conflict' : 'Busy'}
                                                 </span>
                                             </div>
@@ -434,13 +434,13 @@ const AppointmentDetailView = ({
                                             }`}
                                             style={{ left: `${slotPosition}%` }}
                                         >
-                                            <span className="text-[7px] sm:text-[8px] font-black tabular-nums tracking-tighter leading-none">{timeStr}</span>
-                                            <span className="text-[5px] sm:text-[6px] font-black uppercase opacity-60 mt-0.5 hidden sm:block">Req</span>
+                                            <span className="text-[7px] sm:text-[11px] font-medium tabular-nums tracking-tighter leading-none">{timeStr}</span>
+                                            <span className="text-[5px] sm:text-[6px] font-medium capitalize opacity-60 mt-0.5 hidden sm:block">Req</span>
                                         </div>
                                     )}
                                     <div className="absolute -bottom-4 sm:-bottom-5 left-0 w-full flex justify-between px-2 sm:px-4">
                                         {[9,11,1,3,5].map(h => (
-                                            <span key={h} className="text-[7px] sm:text-[8px] font-bold text-gray-300 tracking-tighter tabular-nums uppercase">
+                                            <span key={h} className="text-[7px] sm:text-[11px] font-bold text-gray-300 tracking-tighter tabular-nums capitalize">
                                                 {h}{h > 8 && h < 12 ? 'am' : 'pm'}
                                             </span>
                                         ))}
@@ -451,10 +451,10 @@ const AppointmentDetailView = ({
                             {/* Internal Notes (Optimistic) */}
                             <div className="shrink-0 pt-6 mt-6 border-t border-gray-100 dark:border-gray-800">
                                 <div className="flex items-center justify-between px-2 mb-3">
-                                    <h3 className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                                    <h3 className="text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 flex items-center gap-2">
                                         <StickyNote size={12} className="text-amber-500" /> Internal Notes
                                     </h3>
-                                    <span className={`text-[8px] sm:text-[9px] font-bold uppercase tracking-wider transition-opacity duration-300 ${isSavingNote ? 'text-brand-500 opacity-100' : saveSuccess ? 'text-success-500 opacity-100' : 'opacity-0'}`}>
+                                    <span className={`text-[11px] sm:text-[11px] font-bold capitalize  transition-opacity duration-300 ${isSavingNote ? 'text-brand-500 opacity-100' : saveSuccess ? 'text-success-500 opacity-100' : 'opacity-0'}`}>
                                         {isSavingNote ? 'Saving...' : 'Saved'}
                                     </span>
                                 </div>
@@ -469,7 +469,7 @@ const AppointmentDetailView = ({
                                     <div className="absolute bottom-3 right-3 transition-opacity">
                                         <button 
                                             onClick={handleSaveNote}
-                                            className="px-3 py-1.5 bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 font-bold text-[10px] sm:text-xs uppercase tracking-widest rounded-lg hover:bg-brand-100 dark:hover:bg-brand-500/20 active:scale-95 transition-all shadow-theme-sm border border-brand-100 dark:border-brand-500/20"
+                                            className="px-3 py-1.5 bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 font-bold text-[12px] sm:text-xs capitalize rounded-xl hover:bg-brand-100 dark:hover:bg-brand-500/20 active:scale-95 transition-all shadow-theme-sm border border-brand-100 dark:border-brand-500/20"
                                         >
                                             Save
                                         </button>
@@ -505,12 +505,12 @@ const AppointmentDetailView = ({
                             <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{isBookingMode ? 'Cancel Appointment' : 'Reject Request'}</h3>
                             <button 
                                 onClick={() => setIsRejecting(false)} 
-                                className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 hover:text-gray-900 dark:text-white dark:hover:text-white transition-colors"
                             >
                                 <X className="size-5" />
                             </button>
                         </div>
-                        <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-4 font-bold uppercase tracking-widest leading-relaxed">
+                        <p className="text-[12px] sm:text-xs text-gray-500 dark:text-gray-400 mb-4 font-bold capitalize leading-relaxed">
                             Please provide a reason for declining this appointment request. This will be sent to the patient.
                         </p>
                         <textarea 

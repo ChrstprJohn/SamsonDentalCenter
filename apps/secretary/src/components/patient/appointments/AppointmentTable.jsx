@@ -22,7 +22,7 @@ const AppointmentTable = ({ appointments, loading, error, user, openDropdown, on
                         <Calendar size={32} />
                     </div>
                     <h4 className='text-lg font-bold text-gray-800 dark:text-white mb-1'>No appointments found</h4>
-                    <p className='text-sm text-gray-500'>Your schedule is looking clear!</p>
+                    <p className='text-sm text-gray-500 dark:text-gray-400'>Your schedule is looking clear!</p>
                 </div>
             )}
 

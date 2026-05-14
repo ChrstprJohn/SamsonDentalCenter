@@ -29,7 +29,7 @@ const TimeOffBlocks = ({ blocks = [] }) => {
                             <div className='space-y-1.5'>
                                 <div className='flex items-center gap-2'>
                                     <div className='w-2 h-2 rounded-full bg-amber-500' />
-                                    <p className='text-[10px] font-bold uppercase tracking-widest text-amber-600/80 dark:text-amber-500/70'>
+                                    <p className='text-[12px] font-bold capitalize text-amber-600/80 dark:text-amber-500/70'>
                                         Upcoming Exception
                                     </p>
                                 </div>

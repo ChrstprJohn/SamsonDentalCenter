@@ -11,10 +11,10 @@ const EditProfileModal = ({ isOpen, onClose, formData, setFormData, onSave }) =>
 
     const footer = (
         <>
-            <Button variant='outline' onClick={onClose} className="h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl">
+            <Button variant='outline' onClick={onClose} className="h-9 sm:h-10 px-6 text-[12px] sm:text-xs font-medium capitalize rounded-xl">
                 Cancel
             </Button>
-            <Button onClick={onSave} className="h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl shadow-lg shadow-brand-500/20">
+            <Button onClick={onSave} className="h-9 sm:h-10 px-6 text-[12px] sm:text-xs font-medium capitalize rounded-xl shadow-lg shadow-brand-500/20">
                 <Save size={14} className="mr-2" />
                 Save Changes
             </Button>
@@ -34,7 +34,7 @@ const EditProfileModal = ({ isOpen, onClose, formData, setFormData, onSave }) =>
             <div className='space-y-4'>
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                     <div>
-                        <label className='text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-1 block'>First Name</label>
+                        <label className='text-[11px] font-medium capitalize text-gray-400 ml-1 mb-1 block'>First Name</label>
                         <input
                             type='text'
                             name='first_name'
@@ -45,7 +45,7 @@ const EditProfileModal = ({ isOpen, onClose, formData, setFormData, onSave }) =>
                         />
                     </div>
                     <div>
-                        <label className='text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-1 block'>Last Name</label>
+                        <label className='text-[11px] font-medium capitalize text-gray-400 ml-1 mb-1 block'>Last Name</label>
                         <input
                             type='text'
                             name='last_name'
@@ -59,7 +59,7 @@ const EditProfileModal = ({ isOpen, onClose, formData, setFormData, onSave }) =>
 
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                     <div>
-                        <label className='text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-1 block'>Middle Name</label>
+                        <label className='text-[11px] font-medium capitalize text-gray-400 ml-1 mb-1 block'>Middle Name</label>
                         <input
                             type='text'
                             name='middle_name'
@@ -70,7 +70,7 @@ const EditProfileModal = ({ isOpen, onClose, formData, setFormData, onSave }) =>
                         />
                     </div>
                     <div>
-                        <label className='text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-1 block'>Suffix</label>
+                        <label className='text-[11px] font-medium capitalize text-gray-400 ml-1 mb-1 block'>Suffix</label>
                         <input
                             type='text'
                             name='suffix'

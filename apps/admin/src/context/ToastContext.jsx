@@ -48,7 +48,7 @@ export const ToastProvider = ({ children }) => {
                             {toast.type === 'notice' && <Info size={20} className="sm:w-6 sm:h-6" />}
                         </div>
                         <div className="flex-grow min-w-0">
-                            <h4 className="text-[9px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 sm:mb-1">
+                            <h4 className="text-[11px] sm:text-[11px] font-medium text-gray-400 dark:text-gray-500 capitalize mb-0.5 sm:mb-1">
                                 {toast.title || (toast.type === 'success' ? 'Success' : 'Attention Required')}
                             </h4>
                             <p className="text-[12px] sm:text-[14px] font-bold text-gray-900 dark:text-white leading-tight break-words">

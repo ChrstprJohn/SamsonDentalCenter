@@ -15,7 +15,7 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
             <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
                     <div>
-                        <h4 className='text-sm sm:text-base font-bold text-[#0B1120] dark:text-white uppercase tracking-wider font-outfit'>
+                        <h4 className='text-sm sm:text-base font-bold text-[#0B1120] dark:text-white capitalize font-outfit'>
                             Patient Demographics
                         </h4>
                         <p className='text-[clamp(10px,1.1vw,12px)] text-gray-500 dark:text-gray-400'>
@@ -25,7 +25,7 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                     <Button
                         variant='outline'
                         onClick={onEditAvatar}
-                        className='h-9 sm:h-10 px-4 sm:px-5 text-[10px] sm:text-xs font-black tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
+                        className='h-9 sm:h-10 px-4 sm:px-5 text-[12px] sm:text-xs font-medium hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
                     >
                         <Camera size={14} className="sm:w-4 sm:h-4" />
                         <span>Update Avatar</span>
@@ -57,11 +57,11 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                                 {patient.full_name}
                             </h3>
                             <div className='flex flex-wrap items-center justify-center xl:justify-start gap-2'>
-                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${patient.is_registered && patient.is_active !== false ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400'}`}>
+                                <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium capitalize  ${patient.is_registered && patient.is_active !== false ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400'}`}>
                                     {patient.is_registered && patient.is_active !== false ? 'Verified' : 'Guest'}
                                 </span>
                                 <span className="text-gray-300 dark:text-gray-700 hidden sm:block">•</span>
-                                <p className='text-[9px] text-brand-600 dark:text-brand-400 font-black uppercase tracking-widest'>
+                                <p className='text-[11px] text-brand-600 dark:text-brand-400 font-medium capitalize'>
                                     ID: {patient.id?.slice(0, 8).toUpperCase()}
                                 </p>
                             </div>
@@ -73,8 +73,8 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                                     <Mail size={14} />
                                 </div>
                                 <div className='min-w-0'>
-                                    <p className='text-[7px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Primary Email</p>
-                                    <p className='text-[10px] sm:text-xs font-bold text-[#0B1120] dark:text-white truncate'>{patient.email || '—'}</p>
+                                    <p className='text-[7px] font-medium text-gray-400 capitalize leading-none mb-1'>Primary Email</p>
+                                    <p className='text-[12px] sm:text-xs font-bold text-[#0B1120] dark:text-white truncate'>{patient.email || '—'}</p>
                                 </div>
                             </div>
                             <div className='flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]'>
@@ -82,8 +82,8 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                                     <Phone size={14} />
                                 </div>
                                 <div className='min-w-0'>
-                                    <p className='text-[7px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Phone Number</p>
-                                    <p className='text-[10px] sm:text-xs font-bold text-[#0B1120] dark:text-white truncate'>{patient.phone || '—'}</p>
+                                    <p className='text-[7px] font-medium text-gray-400 capitalize leading-none mb-1'>Phone Number</p>
+                                    <p className='text-[12px] sm:text-xs font-bold text-[#0B1120] dark:text-white truncate'>{patient.phone || '—'}</p>
                                 </div>
                             </div>
                         </div>
@@ -95,7 +95,7 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
             <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
                     <div>
-                        <h4 className='text-sm sm:text-base font-bold text-[#0B1120] dark:text-white uppercase tracking-wider font-outfit'>
+                        <h4 className='text-sm sm:text-base font-bold text-[#0B1120] dark:text-white capitalize font-outfit'>
                             Personal Details
                         </h4>
                         <p className='text-[clamp(10px,1.1vw,12px)] text-gray-500 dark:text-gray-400'>
@@ -105,7 +105,7 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                     <Button
                         variant='outline'
                         onClick={onEditProfile}
-                        className='h-9 sm:h-10 px-4 sm:px-5 text-[10px] sm:text-xs font-black tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
+                        className='h-9 sm:h-10 px-4 sm:px-5 text-[12px] sm:text-xs font-medium hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
                     >
                         <Edit3 size={14} className="sm:w-4 sm:h-4" />
                         <span>Edit Name</span>
@@ -120,8 +120,8 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                         { label: 'Suffix', value: patient?.suffix, color: 'text-gray-900' },
                     ].map((item, idx) => (
                         <div key={idx} className='p-3 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]'>
-                            <p className='text-[7px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>{item.label}</p>
-                            <p className='text-[10px] sm:text-xs font-bold text-[#0B1120] dark:text-white truncate'>{item.value || '—'}</p>
+                            <p className='text-[7px] font-medium text-gray-400 capitalize leading-none mb-1.5'>{item.label}</p>
+                            <p className='text-[12px] sm:text-xs font-bold text-[#0B1120] dark:text-white truncate'>{item.value || '—'}</p>
                         </div>
                     ))}
                 </div>
@@ -131,7 +131,7 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
             <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
                     <div>
-                        <h4 className='text-sm sm:text-base font-bold text-[#0B1120] dark:text-white uppercase tracking-wider font-outfit'>
+                        <h4 className='text-sm sm:text-base font-bold text-[#0B1120] dark:text-white capitalize font-outfit'>
                             Contact Channels
                         </h4>
                         <p className='text-[clamp(10px,1.1vw,12px)] text-gray-500 dark:text-gray-400'>
@@ -141,7 +141,7 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                     <Button
                         variant='outline'
                         onClick={onEditContact}
-                        className='h-9 sm:h-10 px-4 sm:px-5 text-[10px] sm:text-xs font-black tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
+                        className='h-9 sm:h-10 px-4 sm:px-5 text-[12px] sm:text-xs font-medium hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0 flex items-center gap-2 rounded-xl'
                     >
                         <Mail size={14} className="sm:w-4 sm:h-4" />
                         <span>Edit Contact</span>
@@ -154,8 +154,8 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                             <Mail size={16} />
                         </div>
                         <div className='min-w-0'>
-                            <p className='text-[8px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1'>Official Email</p>
-                            <p className='text-[10px] sm:text-xs font-bold text-[#0B1120] dark:text-white truncate'>{patient?.email || 'Not Registered'}</p>
+                            <p className='text-[11px] font-medium text-gray-400 capitalize mb-1'>Official Email</p>
+                            <p className='text-[12px] sm:text-xs font-bold text-[#0B1120] dark:text-white truncate'>{patient?.email || 'Not Registered'}</p>
                         </div>
                     </div>
                     <div className='p-4 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01] flex items-center gap-4'>
@@ -163,8 +163,8 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                             <Phone size={16} />
                         </div>
                         <div className='min-w-0'>
-                            <p className='text-[8px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1'>Primary Phone</p>
-                            <p className='text-[10px] sm:text-xs font-bold text-[#0B1120] dark:text-white truncate'>{patient?.phone || 'Not Set'}</p>
+                            <p className='text-[11px] font-medium text-gray-400 capitalize mb-1'>Primary Phone</p>
+                            <p className='text-[12px] sm:text-xs font-bold text-[#0B1120] dark:text-white truncate'>{patient?.phone || 'Not Set'}</p>
                         </div>
                     </div>
                 </div>

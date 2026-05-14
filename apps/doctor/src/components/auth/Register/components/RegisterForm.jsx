@@ -8,7 +8,7 @@ const InputGroup = ({ label, icon: Icon, error, children }) => (
     <div className='space-y-1.5 group text-left'>
         <label
             className={cn(
-                'block text-xs font-semibold uppercase tracking-wide transition-colors',
+                'block text-xs font-semibold capitalize tracking-wide transition-colors',
                 error ? 'text-red-500' : 'text-slate-500 group-focus-within:text-blue-600',
             )}
         >
@@ -103,7 +103,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
     return (
         <div className='flex flex-col h-full'>
             <div className='mb-6 text-center flex-shrink-0'>
-                <h2 className='text-2xl md:text-3xl font-bold text-slate-900 mb-2 tracking-tight'>
+                <h2 className='text-2xl md:text-3xl font-bold text-slate-900 mb-2'>
                     Join Us
                 </h2>
                 <p className='text-slate-500 text-sm'>Register for a premium experience.</p>
@@ -119,7 +119,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                     <div className='space-y-5'>
                         <div className='flex items-center gap-3 opacity-60'>
                             <div className='h-px flex-1 bg-slate-200'></div>
-                            <span className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>
+                            <span className='text-[12px] font-bold text-slate-400 capitalize'>
                                 Personal Identity
                             </span>
                             <div className='h-px flex-1 bg-slate-200'></div>
@@ -190,9 +190,9 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                                     <option value=''>None</option>
                                     <option value='Jr.'>Jr.</option>
                                     <option value='Sr.'>Sr.</option>
-                                    <option value='II'>II</option>
-                                    <option value='III'>III</option>
-                                    <option value='IV'>IV</option>
+                                    <option value='II'>Ii</option>
+                                    <option value='III'>Iii</option>
+                                    <option value='IV'>Iv</option>
                                 </select>
                                 <div className='absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400'>
                                     <ChevronRight
@@ -221,7 +221,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                     <div className='space-y-5'>
                         <div className='flex items-center gap-3 opacity-60'>
                             <div className='h-px flex-1 bg-slate-200'></div>
-                            <span className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>
+                            <span className='text-[12px] font-bold text-slate-400 capitalize'>
                                 Contact Info
                             </span>
                             <div className='h-px flex-1 bg-slate-200'></div>
@@ -261,7 +261,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                     <div className='space-y-5'>
                         <div className='flex items-center gap-3 opacity-60'>
                             <div className='h-px flex-1 bg-slate-200'></div>
-                            <span className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>
+                            <span className='text-[12px] font-bold text-slate-400 capitalize'>
                                 Security
                             </span>
                             <div className='h-px flex-1 bg-slate-200'></div>
@@ -307,7 +307,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
 
             <div className='flex-shrink-0 pt-6 border-t border-slate-100 text-center mt-2'>
                 {error && (
-                    <div className='mb-4 p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-xs font-medium text-right'>
+                    <div className='mb-4 p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-xs font-medium text-right'>
                         {error}
                     </div>
                 )}

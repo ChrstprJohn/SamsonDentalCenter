@@ -56,10 +56,10 @@ const RecordsTab = ({ patient, token }) => {
         <div className='space-y-6'>
             {/* Header */}
             <div className='flex flex-col'>
-                <h4 className='text-xs font-black uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2'>
+                <h4 className='text-xs font-medium capitalize text-gray-400 flex items-center gap-2'>
                     <History size={14} /> Medical & Treatment Records
                 </h4>
-                <p className='text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest'>
+                <p className='text-[12px] font-bold text-gray-400 mt-1 capitalize'>
                     Consolidated history for {patient.full_name} and family members
                 </p>
             </div>
@@ -67,7 +67,7 @@ const RecordsTab = ({ patient, token }) => {
             {loading ? (
                 <div className='flex flex-col items-center justify-center py-20 bg-gray-50/50 dark:bg-white/[0.01] rounded-2xl border border-dashed border-gray-200 dark:border-gray-800'>
                     <Loader2 className='animate-spin text-brand-500 mb-4' size={32} />
-                    <p className='text-xs font-bold text-gray-400 uppercase tracking-widest'>Retrieving historical data...</p>
+                    <p className='text-xs font-bold text-gray-400 capitalize'>Retrieving historical data...</p>
                 </div>
             ) : historicalRecords.length > 0 ? (
                 <div className='overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-white/[0.02]'>
@@ -75,46 +75,46 @@ const RecordsTab = ({ patient, token }) => {
                         <table className='w-full text-left border-collapse'>
                             <thead>
                                 <tr className='border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01]'>
-                                    <th className='px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider'>Date</th>
-                                    <th className='px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider'>Patient</th>
-                                    <th className='px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider'>Service</th>
-                                    <th className='px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider'>Result</th>
-                                    <th className='px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right'>Status</th>
+                                    <th className='px-6 py-4 text-[12px] font-bold text-gray-400 capitalize'>Date</th>
+                                    <th className='px-6 py-4 text-[12px] font-bold text-gray-400 capitalize'>Patient</th>
+                                    <th className='px-6 py-4 text-[12px] font-bold text-gray-400 capitalize'>Service</th>
+                                    <th className='px-6 py-4 text-[12px] font-bold text-gray-400 capitalize'>Result</th>
+                                    <th className='px-6 py-4 text-[12px] font-bold text-gray-400 capitalize text-right'>Status</th>
                                 </tr>
                             </thead>
                             <tbody className='divide-y divide-gray-50 dark:divide-gray-800/50'>
                                 {historicalRecords.map((app) => (
                                     <tr key={app.id} className='group hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors'>
                                         <td className='px-6 py-4'>
-                                            <span className='text-xs font-bold text-gray-900 dark:text-white uppercase tracking-tight'>
+                                            <span className='text-xs font-bold text-gray-900 dark:text-white capitalize'>
                                                 {new Date(app.appointment_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                             </span>
                                         </td>
                                         <td className='px-6 py-4'>
                                             <div className='flex items-center gap-2'>
-                                                <div className='w-6 h-6 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-[10px] font-black text-gray-400'>
+                                                <div className='w-6 h-6 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-[12px] font-medium text-gray-400'>
                                                     <User size={12} />
                                                 </div>
-                                                <span className='text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight'>
+                                                <span className='text-xs font-bold text-gray-700 dark:text-gray-300 capitalize'>
                                                     {app.patient?.full_name}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className='px-6 py-4'>
-                                            <span className='text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest'>
+                                            <span className='text-xs font-bold text-brand-600 dark:text-brand-400 capitalize'>
                                                 {app.service?.name}
                                             </span>
                                         </td>
                                         <td className='px-6 py-4'>
                                             <div className='flex items-center gap-2'>
                                                 <FileText size={12} className='text-gray-400' />
-                                                <span className='text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tight'>
+                                                <span className='text-[12px] font-bold text-gray-500 dark:text-gray-400 capitalize'>
                                                     {app.status === 'COMPLETED' ? 'Session Finished' : 'Visit Incomplete'}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className='px-6 py-4 text-right'>
-                                            <span className={`inline-flex px-2 py-1 text-[9px] font-black rounded-lg uppercase tracking-widest shadow-sm ${getStatusStyle(app.status)}`}>
+                                            <span className={`inline-flex px-2 py-1 text-[11px] font-medium rounded-lg capitalize  shadow-sm ${getStatusStyle(app.status)}`}>
                                                 {app.status}
                                             </span>
                                         </td>
@@ -129,7 +129,7 @@ const RecordsTab = ({ patient, token }) => {
                     <div className='w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm flex items-center justify-center text-gray-200 dark:text-gray-700 mb-4'>
                         <History size={32} />
                     </div>
-                    <h5 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight'>No Historical Records</h5>
+                    <h5 className='text-sm font-bold text-gray-900 dark:text-white capitalize'>No Historical Records</h5>
                     <p className='text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs'>
                         Treatment history will appear here once visits are completed, cancelled, or marked as no-show.
                     </p>

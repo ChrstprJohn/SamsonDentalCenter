@@ -14,7 +14,7 @@ const Switch = ({ checked, onChange, label, className = '' }) => {
                 <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 shadow-sm ${checked ? 'translate-x-4' : ''}`}></div>
             </div>
             {label && (
-                <span className="ml-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-brand-500 transition-colors">
+                <span className="ml-3 text-[12px] font-bold capitalize text-gray-500 group-hover:text-brand-500 transition-colors">
                     {label}
                 </span>
             )}

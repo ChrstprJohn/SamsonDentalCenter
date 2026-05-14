@@ -11,8 +11,8 @@ const StatCard = ({ label, value, colorClass, icon: Icon, animate = true }) => (
                 <Icon size={14} className={`${colorClass} ${label === 'Urgent' ? 'animate-pulse' : ''}`} />
             </div>
             <div>
-                <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 mb-0.5">{label}</p>
-                <p className={`text-2xl sm:text-3xl font-black tracking-tighter ${colorClass}`}>{value}</p>
+                <p className="text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-0.5">{label}</p>
+                <p className={`text-2xl sm:text-3xl font-medium tracking-tighter ${colorClass}`}>{value}</p>
             </div>
         </div>
     </div>

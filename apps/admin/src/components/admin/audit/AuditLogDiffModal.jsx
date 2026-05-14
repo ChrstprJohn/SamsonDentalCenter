@@ -35,10 +35,10 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                 {/* Header */}
                 <div className='px-10 py-8 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gray-50/30 dark:bg-transparent'>
                     <div>
-                        <h4 className='text-xl sm:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                        <h4 className='text-xl sm:text-2xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                             Change Analysis
                         </h4>
-                        <p className='text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1'>
+                        <p className='text-[12px] font-medium text-gray-400 capitalize mt-1'>
                             Audit Sequence Log ID: {log.id}
                         </p>
                     </div>
@@ -61,7 +61,7 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                                 <div className='space-y-6'>
                                     <div className='flex items-center gap-3'>
                                         <div className='h-4 w-1.5 bg-brand-500 rounded-full' />
-                                        <h5 className='text-[11px] font-black uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400'>
+                                        <h5 className='text-[11px] font-medium capitalize text-brand-600 dark:text-brand-400'>
                                             Human-Readable Analysis
                                         </h5>
                                     </div>
@@ -69,7 +69,7 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                                         {smartChanges.map((change, idx) => (
                                             <div key={idx} className='flex items-start gap-4 p-5 bg-white dark:bg-white/[0.01] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:border-brand-500/30 transition-all'>
                                                 <div className='mt-2 w-2 h-2 rounded-full bg-brand-500 shrink-0 shadow-lg shadow-brand-500/50' />
-                                                <span className='text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-bold uppercase tracking-tight'>{change}</span>
+                                                <span className='text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-bold capitalize'>{change}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -79,14 +79,14 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                             <div>
                                 <div className='flex items-center gap-3 mb-6'>
                                     <div className='h-4 w-1.5 bg-gray-300 dark:bg-gray-700 rounded-full' />
-                                    <h5 className='text-[11px] font-black uppercase tracking-[0.2em] text-gray-400'>
+                                    <h5 className='text-[11px] font-medium capitalize text-gray-400'>
                                         Raw Structural Comparison
                                     </h5>
                                 </div>
                                 <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
                                     {/* Old Values */}
                                     <div className='space-y-4'>
-                                        <h5 className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 opacity-60'>
+                                        <h5 className='text-[12px] font-medium capitalize text-gray-400 opacity-60'>
                                             Original State (Baseline)
                                         </h5>
                                         <div className='p-6 bg-gray-50 dark:bg-white/[0.01] rounded-2xl border border-gray-200 dark:border-gray-800 min-h-[200px] overflow-auto shadow-inner'>
@@ -96,7 +96,7 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
 
                                     {/* New Values */}
                                     <div className='space-y-4 relative'>
-                                        <h5 className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 opacity-60'>
+                                        <h5 className='text-[12px] font-medium capitalize text-gray-400 opacity-60'>
                                             Revised State (Modified)
                                         </h5>
                                         <div className='p-6 bg-brand-50/30 dark:bg-brand-500/5 rounded-2xl border border-brand-200 dark:border-brand-500/20 min-h-[200px] overflow-auto shadow-inner'>
@@ -118,7 +118,7 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
 
                 {/* Footer */}
                 <div className='px-10 py-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01] flex justify-end'>
-                    <Button onClick={onClose} className='px-10 rounded-xl font-black text-[11px] uppercase tracking-widest h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg active:scale-95 transition-all'>
+                    <Button onClick={onClose} className='px-10 rounded-xl font-medium text-[11px] capitalize h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg active:scale-95 transition-all'>
                         Close Analysis View
                     </Button>
                 </div>

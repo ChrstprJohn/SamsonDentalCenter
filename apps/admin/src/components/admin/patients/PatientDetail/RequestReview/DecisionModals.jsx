@@ -73,7 +73,7 @@ const DecisionModals = ({
                             </p>
                         </div>
                         <div className='space-y-2'>
-                            <label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>Approval Notes (Optional)</label>
+                            <label className='text-[12px] font-medium capitalize text-gray-400'>Approval Notes (Optional)</label>
                             <textarea
                                 placeholder='Type any instructions or special notes for the patient...'
                                 className='w-full h-40 p-5 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-gray-800 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none resize-none transition-all'
@@ -106,7 +106,7 @@ const DecisionModals = ({
                         </div>
                         {reason === 'Other' && (
                             <div className='space-y-2 animate-in slide-in-from-top-2'>
-                                <label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>Specific Reason</label>
+                                <label className='text-[12px] font-medium capitalize text-gray-400'>Specific Reason</label>
                                 <textarea
                                     placeholder='Specify the exact reason for rejection...'
                                     className='w-full h-32 p-5 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-gray-800 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 outline-none resize-none'

@@ -98,7 +98,7 @@ const CalendarPage = () => {
                                                 <button 
                                                     key={v}
                                                     onClick={() => navigate(`/calendar/${v}/${selectedDoctorId}`)}
-                                                    className={`px-4 py-2 text-xs font-bold rounded-lg uppercase transition-all ${activeView === v ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-gray-400'}`}
+                                                    className={`px-4 py-2 text-xs font-bold rounded-lg capitalize transition-all ${activeView === v ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-gray-400'}`}
                                                 >
                                                     {v}
                                                 </button>

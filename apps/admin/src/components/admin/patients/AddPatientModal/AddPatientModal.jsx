@@ -256,7 +256,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token, initialData =
                         <Button 
                             onClick={() => handleCreatePatient()} 
                             loading={loading}
-                            className="shadow-xl shadow-brand-500/25 px-8 font-black uppercase tracking-tight"
+                            className="shadow-xl shadow-brand-500/25 px-8 font-medium capitalize"
                         >
                             Continue Registration
                             <ArrowRight size={18} className="ml-2" />
@@ -339,7 +339,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token, initialData =
                         <Button 
                             onClick={() => handleCreatePatient(null, 'NAME_OVERRIDE')}
                             loading={loading}
-                            className="bg-brand-600 hover:bg-brand-700 shadow-lg shadow-brand-600/20 font-black uppercase tracking-widest"
+                            className="bg-brand-600 hover:bg-brand-700 shadow-lg shadow-brand-600/20 font-medium capitalize"
                         >
                             Proceed Registration
                         </Button>
@@ -351,7 +351,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token, initialData =
                         <UserSearch size={32} />
                     </div>
                     <div className="space-y-2">
-                        <h6 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight">Confirm Data Accuracy</h6>
+                        <h6 className="text-sm font-medium text-gray-900 dark:text-white capitalize">Confirm Data Accuracy</h6>
                         <p className="text-xs text-gray-600 dark:text-gray-300 font-bold leading-relaxed px-4">
                             You are about to create a new profile for <span className="text-brand-500">{formData.first_name} {formData.last_name}</span>. 
                             <br/><br/>

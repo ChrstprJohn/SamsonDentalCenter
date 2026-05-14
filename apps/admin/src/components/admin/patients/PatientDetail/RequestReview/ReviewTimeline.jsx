@@ -30,8 +30,8 @@ const ReviewTimeline = ({ createdAt, status = 'PENDING', updatedAt }) => {
                     <div className='w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center shadow-lg shadow-brand-500/20'>
                         <Calendar size={14} />
                     </div>
-                    <span className='text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>Requested</span>
-                    <span className='text-[9px] font-bold text-gray-400 uppercase'>
+                    <span className='text-[12px] font-medium text-gray-900 dark:text-white capitalize'>Requested</span>
+                    <span className='text-[11px] font-bold text-gray-400 capitalize'>
                         {formatDate(createdAt)}
                     </span>
                 </div>
@@ -53,12 +53,12 @@ const ReviewTimeline = ({ createdAt, status = 'PENDING', updatedAt }) => {
                             <Clock size={14} />
                         </div>
                     )}
-                    <span className={`text-[10px] font-black uppercase tracking-tight ${
+                    <span className={`text-[12px] font-medium capitalize  ${
                         isApproved ? 'text-brand-600' : (isRejected || isCancelled) ? 'text-red-600' : 'text-amber-600'
                     }`}>
                         {isApproved ? 'Approved' : isRejected ? 'Rejected' : isCancelled ? 'Cancelled' : 'In Review'}
                     </span>
-                    <span className='text-[9px] font-bold text-gray-400 uppercase text-center'>
+                    <span className='text-[11px] font-bold text-gray-400 capitalize text-center'>
                         {(isApproved || isRejected || isCancelled) ? formatDate(updatedAt) : 'Awaiting Action'}
                     </span>
                 </div>
@@ -74,11 +74,11 @@ const ReviewTimeline = ({ createdAt, status = 'PENDING', updatedAt }) => {
                     }`}>
                         {isNoShow ? <UserX size={14} /> : <Check size={14} />}
                     </div>
-                    <span className={`text-[10px] font-black uppercase tracking-tight ${isNoShow ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
+                    <span className={`text-[12px] font-medium capitalize  ${isNoShow ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
                         {isNoShow ? 'No-Show' : s === 'CHECKED_IN' ? 'Checked-In' : 'Completed'}
                     </span>
                     {(isFinalized || isNoShow) && (
-                        <span className='text-[9px] font-bold text-gray-400 uppercase'>
+                        <span className='text-[11px] font-bold text-gray-400 capitalize'>
                             {formatDate(updatedAt)}
                         </span>
                     )}

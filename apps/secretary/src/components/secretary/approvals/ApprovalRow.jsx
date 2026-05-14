@@ -62,7 +62,7 @@ const ApprovalRow = ({ request, onClick }) => {
                 </div>
 
                 <div className='flex items-center gap-4 shrink-0 min-w-[150px] justify-end'>
-                    <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${statusClass}`}>
+                    <div className={`px-2 py-0.5 rounded text-[12px] font-bold capitalize  ${statusClass}`}>
                         {statusText}
                     </div>
 
@@ -71,7 +71,7 @@ const ApprovalRow = ({ request, onClick }) => {
                     </span>
                     
                     <div className='hidden group-hover:flex items-center gap-2 w-16 justify-end'>
-                        <div className='p-1.5 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-500/10 text-brand-500/70 hover:text-brand-600'>
+                        <div className='p-1.5 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-500/10 text-brand-500/70 hover:text-brand-600'>
                             <Eye size={18} strokeWidth={2.5} />
                         </div>
                     </div>
@@ -87,10 +87,10 @@ const ApprovalRow = ({ request, onClick }) => {
                 </div>
                 <div className='flex-grow min-w-0 flex flex-col gap-0.5'>
                     <div className='flex justify-between items-center'>
-                        <span className={`text-sm tracking-tight truncate font-bold ${isTomorrow ? 'text-error-700 dark:text-error-400' : 'text-gray-900 dark:text-white'}`}>
+                        <span className={`text-sm  truncate font-bold ${isTomorrow ? 'text-error-700 dark:text-error-400' : 'text-gray-900 dark:text-white'}`}>
                             {patient.name}
                         </span>
-                        <span className='text-[10px] text-gray-400 font-medium'>{hoursDiff < 1 ? 'Just now' : `${Math.floor(hoursDiff)}h ago`}</span>
+                        <span className='text-[12px] text-gray-400 font-medium'>{hoursDiff < 1 ? 'Just now' : `${Math.floor(hoursDiff)}h ago`}</span>
                     </div>
                     <div className='text-sm truncate text-gray-700 dark:text-gray-300 font-medium'>
                         {service}
@@ -99,7 +99,7 @@ const ApprovalRow = ({ request, onClick }) => {
                         <div className='text-xs text-gray-400 truncate pr-4 grow'>
                             {new Date(requestedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {requestedTime}
                         </div>
-                        <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${statusClass}`}>
+                        <div className={`px-1.5 py-0.5 rounded text-[11px] font-bold capitalize  ${statusClass}`}>
                             {statusText}
                         </div>
                     </div>

@@ -23,7 +23,7 @@ const ApprovalRequestItem = ({ request, isActive, onClick }) => {
                 <h3 className={`font-bold text-sm transition-colors ${isActive ? 'text-brand-600' : 'text-gray-900 dark:text-white'}`}>
                     {patient.name}
                 </h3>
-                <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                <div className={`px-1.5 py-0.5 rounded text-[11px] font-bold capitalize  ${
                     isStale ? 'bg-error-50 text-error-600' : 'bg-warning-50 text-warning-600'
                 }`}>
                     {isStale ? 'Stale' : 'New'}
@@ -34,7 +34,7 @@ const ApprovalRequestItem = ({ request, isActive, onClick }) => {
                 {service}
             </p>
             
-            <div className="flex items-center justify-between text-[11px] text-gray-500">
+            <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400">
                 <div className="flex items-center gap-1">
                     <Calendar className="size-3 text-gray-400" />
                     <span>{new Date(requestedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>

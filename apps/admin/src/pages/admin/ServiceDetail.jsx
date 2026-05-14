@@ -15,7 +15,7 @@ const ServiceDetail = () => {
     if (loading) {
         return (
             <div className='flex items-center justify-center h-full'>
-                <div className='animate-pulse text-gray-400 font-black uppercase tracking-widest text-xs'>
+                <div className='animate-pulse text-gray-400 font-medium capitalize text-xs'>
                     Fetching Service...
                 </div>
             </div>
@@ -25,7 +25,7 @@ const ServiceDetail = () => {
     if (!service) {
         return (
             <div className='flex flex-col items-center justify-center h-full text-center'>
-                <h2 className='text-2xl font-black text-gray-900 dark:text-white font-outfit uppercase'>
+                <h2 className='text-2xl font-medium text-gray-900 dark:text-white font-outfit capitalize'>
                     Service Not Found
                 </h2>
                 <button

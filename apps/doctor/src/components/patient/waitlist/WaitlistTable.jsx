@@ -51,16 +51,16 @@ const WaitlistTable = ({ activeFilter, onClaim }) => {
                 <table className='w-full text-left border-collapse'>
                     <thead>
                         <tr className='border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01]'>
-                            <th className='px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider'>Service & Dentist</th>
-                            <th className='px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider'>Pref. Time</th>
-                            <th className='px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider'>Requested On</th>
-                            <th className='px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider'>Status</th>
-                            <th className='px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider text-right'>Action</th>
+                            <th className='px-6 py-4 text-[11px] font-bold text-gray-400 capitalize'>Service & Dentist</th>
+                            <th className='px-6 py-4 text-[11px] font-bold text-gray-400 capitalize'>Pref. Time</th>
+                            <th className='px-6 py-4 text-[11px] font-bold text-gray-400 capitalize'>Requested On</th>
+                            <th className='px-6 py-4 text-[11px] font-bold text-gray-400 capitalize'>Status</th>
+                            <th className='px-6 py-4 text-[11px] font-bold text-gray-400 capitalize text-right'>Action</th>
                         </tr>
                     </thead>
                     <tbody className='divide-y divide-gray-50 dark:divide-gray-800/50'>
                         {filtered.map((item) => (
-                            <tr key={item.id} className='hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors'>
+                            <tr key={item.id} className='hover:bg-gray-50/50 dark:hover:bg-white dark:bg-white/[0.03]/[0.01] transition-colors'>
                                 <td className='px-6 py-4'>
                                     <div className='flex flex-col'>
                                         <span className='text-sm font-semibold text-gray-800 dark:text-white/90'>{item.service}</span>

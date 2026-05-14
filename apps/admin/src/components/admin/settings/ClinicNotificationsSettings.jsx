@@ -49,10 +49,10 @@ const ClinicNotificationsSettings = () => {
             <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10'>
                     <div>
-                        <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        <h4 className='text-lg sm:text-2xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                             Notification Channels
                         </h4>
-                        <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
+                        <p className='text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 capitalize mt-0.5 font-bold'>
                             Global toggles for automated patient communications
                         </p>
                     </div>
@@ -62,7 +62,7 @@ const ClinicNotificationsSettings = () => {
                                 setIsEditing(true);
                                 showToast('Entering Notification Edit Mode', 'info');
                             }}
-                            className="bg-brand-500 hover:bg-brand-600 text-white rounded-xl px-4 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95"
+                            className="bg-brand-500 hover:bg-brand-600 text-white rounded-xl px-4 sm:px-6 h-9 sm:h-11 text-[12px] sm:text-xs font-medium capitalize flex items-center gap-2 transition-all active:scale-95"
                         >
                             <Bell size={12} className="sm:w-3.5 sm:h-3.5" />
                             Manage Channels
@@ -84,14 +84,14 @@ const ClinicNotificationsSettings = () => {
                                     }
                                     showToast('Changes discarded', 'info');
                                 }}
-                                className="rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest border-gray-200 dark:border-white/10 dark:text-gray-400"
+                                className="rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[12px] sm:text-xs font-medium capitalize border-gray-200 dark:border-white/10 dark:text-gray-400"
                             >
                                 Discard Changes
                             </Button>
                             <Button 
                                 onClick={handleSubmit}
                                 disabled={updating}
-                                className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-lg shadow-green-500/20 transition-all active:scale-95"
+                                className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[12px] sm:text-xs font-medium capitalize shadow-lg shadow-green-500/20 transition-all active:scale-95"
                             >
                                 {updating ? 'Saving...' : 'Save Config'}
                             </Button>
@@ -101,7 +101,7 @@ const ClinicNotificationsSettings = () => {
                 {isEditing && (
                     <div className="mb-10 p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
                         <AlertTriangle size={18} className="text-amber-500 shrink-0" />
-                        <p className="text-[10px] sm:text-xs font-black text-amber-800 dark:text-amber-200 uppercase tracking-wide">
+                        <p className="text-[12px] sm:text-xs font-medium text-amber-800 dark:text-amber-200 capitalize tracking-wide">
                             You are in edit mode. Changes will be saved globally for all patients.
                         </p>
                     </div>
@@ -112,7 +112,7 @@ const ClinicNotificationsSettings = () => {
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 mb-4">
                             <ShieldAlert size={16} className="text-amber-500" />
-                            <h6 className="text-xs font-black uppercase text-gray-400 tracking-widest">Gateway Control</h6>
+                            <h6 className="text-xs font-medium capitalize text-gray-400">Gateway Control</h6>
                         </div>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6'>
                             {/* SMS Gateway */}
@@ -124,7 +124,7 @@ const ClinicNotificationsSettings = () => {
                                         </div>
                                         <div>
                                             <h5 className='text-xs sm:text-sm font-bold text-gray-900 dark:text-white'>SMS Gateway</h5>
-                                            <p className='text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5'>Automated text reminders</p>
+                                            <p className='text-[12px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5'>Automated text reminders</p>
                                         </div>
                                     </div>
                                     <Switch 
@@ -137,7 +137,7 @@ const ClinicNotificationsSettings = () => {
                                 {!formData.sms_notifications_enabled && (
                                     <div className='p-2.5 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl flex gap-2 items-start animate-in fade-in slide-in-from-top-1'>
                                         <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={12} />
-                                        <p className='text-[9px] text-red-600 dark:text-red-400 font-bold leading-tight uppercase'>
+                                        <p className='text-[11px] text-red-600 dark:text-red-400 font-bold leading-tight capitalize'>
                                             Reminders and alerts will NOT be sent via text.
                                         </p>
                                     </div>
@@ -153,7 +153,7 @@ const ClinicNotificationsSettings = () => {
                                         </div>
                                         <div>
                                             <h5 className='text-xs sm:text-sm font-bold text-gray-900 dark:text-white'>Email Gateway</h5>
-                                            <p className='text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5'>Confirmations & newsletters</p>
+                                            <p className='text-[12px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5'>Confirmations & newsletters</p>
                                         </div>
                                     </div>
                                     <Switch 
@@ -166,7 +166,7 @@ const ClinicNotificationsSettings = () => {
                                 {!formData.email_notifications_enabled && (
                                     <div className='p-2.5 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl flex gap-2 items-start animate-in fade-in slide-in-from-top-1'>
                                         <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={12} />
-                                        <p className='text-[9px] text-red-600 dark:text-red-400 font-bold leading-tight uppercase'>
+                                        <p className='text-[11px] text-red-600 dark:text-red-400 font-bold leading-tight capitalize'>
                                             Critical OTP and confirmations will be disabled.
                                         </p>
                                     </div>
@@ -179,7 +179,7 @@ const ClinicNotificationsSettings = () => {
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 mb-4">
                             <Clock size={16} className="text-brand-500" />
-                            <h6 className="text-xs font-black uppercase text-gray-400 tracking-widest">Reminder Schedule</h6>
+                            <h6 className="text-xs font-medium capitalize text-gray-400">Reminder Schedule</h6>
                         </div>
                         <div className='grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6'>
                             <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -194,8 +194,8 @@ const ClinicNotificationsSettings = () => {
                                         className={!isEditing ? 'opacity-50' : 'scale-75 sm:scale-100'}
                                     />
                                 </div>
-                                <h5 className='text-[9px] sm:text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>48h Reminder</h5>
-                                <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-bold'>2 days before appt.</p>
+                                <h5 className='text-[11px] sm:text-xs font-medium text-gray-900 dark:text-white capitalize'>48h Reminder</h5>
+                                <p className='text-[11px] sm:text-[12px] text-gray-500 dark:text-gray-400 mt-1 font-bold'>2 days before appt.</p>
                             </div>
 
                             <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -210,8 +210,8 @@ const ClinicNotificationsSettings = () => {
                                         className={!isEditing ? 'opacity-50' : 'scale-75 sm:scale-100'}
                                     />
                                 </div>
-                                <h5 className='text-[9px] sm:text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>24h Reminder</h5>
-                                <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-bold'>1 day before appt.</p>
+                                <h5 className='text-[11px] sm:text-xs font-medium text-gray-900 dark:text-white capitalize'>24h Reminder</h5>
+                                <p className='text-[11px] sm:text-[12px] text-gray-500 dark:text-gray-400 mt-1 font-bold'>1 day before appt.</p>
                             </div>
 
                             <div className={`col-span-2 lg:col-span-1 flex flex-col p-4 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
@@ -219,16 +219,16 @@ const ClinicNotificationsSettings = () => {
                                     <div className='p-1.5 sm:p-2.5 rounded-lg bg-slate-50 dark:bg-slate-500/10 text-slate-600'>
                                         <Clock size={14} className="sm:w-[18px] sm:h-[18px]" />
                                     </div>
-                                    <h5 className='text-[9px] sm:text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>Daily Send Time</h5>
+                                    <h5 className='text-[11px] sm:text-xs font-medium text-gray-900 dark:text-white capitalize'>Daily Send Time</h5>
                                 </div>
                                 <input 
                                     type="time" 
                                     disabled={!isEditing}
                                     value={formData.reminder_send_time}
                                     onChange={(e) => setFormData(p => ({ ...p, reminder_send_time: e.target.value }))}
-                                    className="w-full bg-transparent border-none p-0 text-sm sm:text-lg font-black text-gray-900 dark:text-white focus:ring-0 disabled:text-gray-400"
+                                    className="w-full bg-transparent border-none p-0 text-sm sm:text-lg font-medium text-gray-900 dark:text-white focus:ring-0 disabled:text-gray-400"
                                 />
-                                <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-bold'>Executes reminder batch</p>
+                                <p className='text-[11px] sm:text-[12px] text-gray-500 dark:text-gray-400 mt-1 font-bold'>Executes reminder batch</p>
                             </div>
                         </div>
                     </div>

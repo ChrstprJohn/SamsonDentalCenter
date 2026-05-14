@@ -34,7 +34,7 @@ const SectionHeading = ({
                 >
                     <span className={`h-px w-8 ${light ? 'bg-blue-400/50' : 'bg-blue-600'}`}></span>
                     <span
-                        className={`text-[10px] font-bold uppercase tracking-[0.2em] ${
+                        className={`text-[12px] font-bold capitalize  ${
                             light ? 'text-blue-400' : 'text-blue-600'
                         }`}
                     >
@@ -44,7 +44,7 @@ const SectionHeading = ({
             )}
 
             <h2
-                className={`text-[clamp(2.25rem,6vw+0.5rem,4rem)] font-bold leading-[1.1] tracking-tight mb-6 sm:mb-8 ${
+                className={`text-[clamp(2.25rem,6vw+0.5rem,4rem)] font-bold leading-[1.1]  mb-6 sm:mb-8 ${
                     light ? 'text-white' : 'text-slate-900'
                 }`}
             >

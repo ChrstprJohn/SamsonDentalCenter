@@ -86,25 +86,25 @@ const TeamGrid = () => {
             id: 1,
             name: 'Dr. Mae Angelica Garcellano',
             role: 'Lead Dentist',
-            image: '/images/about/team-dr-samson.jpg',
+            image: '/images/about/mae.jpg',
         },
         {
             id: 2,
             name: 'Dr Maria Cheyenne Deniece Marasigan',
             role: 'Dentist',
-            image: '/images/about/team-staff.jpg',
+            image: '/images/about/maria.jpg',
         },
         {
             id: 3,
             name: 'Dr. Sarah Samson',
             role: 'Dentist',
-            image: '/images/about/team-technicians.jpg',
+            image: '/images/about/sarah.jpg',
         },
         {
             id: 4,
             name: 'Dr. Silvestre Samson',
             role: 'Dental Hygienist',
-            image: '/images/about/team-founders.jpg',
+            image: '/images/about/silvestre.jpg',
         },
     ];
 

@@ -16,17 +16,17 @@ const RequestDetailsCard = ({ appointment }) => {
             {/* Service & Time Card */}
             <div className='p-6 rounded-2xl bg-brand-500/5 border border-brand-500/10 flex items-start justify-between'>
                 <div className='space-y-1'>
-                    <span className='block text-[10px] font-black text-brand-600 uppercase tracking-widest'>Requested Service</span>
-                    <h3 className='text-xl font-bold text-gray-900 dark:text-white tracking-tight'>{appointment.service?.name}</h3>
+                    <span className='block text-[12px] font-medium text-brand-600 capitalize'>Requested Service</span>
+                    <h3 className='text-xl font-bold text-gray-900 dark:text-white'>{appointment.service?.name}</h3>
                 </div>
                 <div className='text-right flex flex-col items-end gap-1'>
                     <div className='flex items-center gap-2 px-3 py-1.5 bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'>
                         <Clock size={14} />
-                        <span className='text-[11px] font-bold uppercase tracking-tight'>
+                        <span className='text-[11px] font-bold capitalize'>
                             {formatTime12h(appointment.start_time)} - {formatTime12h(appointment.end_time)}
                         </span>
                     </div>
-                    <span className='text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1'>
+                    <span className='text-[12px] font-bold text-gray-400 capitalize mt-1'>
                         {new Date(appointment.appointment_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                     </span>
                 </div>
@@ -39,14 +39,14 @@ const RequestDetailsCard = ({ appointment }) => {
                         <UserCheck size={20} />
                     </div>
                     <div>
-                        <span className='block text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-0.5'>Assigned Specialist</span>
-                        <h4 className='text-sm font-bold text-gray-900 dark:text-white tracking-tight'>
+                        <span className='block text-[11px] font-medium text-gray-400 capitalize mb-0.5'>Assigned Specialist</span>
+                        <h4 className='text-sm font-bold text-gray-900 dark:text-white'>
                             {appointment.dentist?.profile?.full_name || 'Unassigned'}
                         </h4>
                     </div>
                 </div>
                 <div className='text-right'>
-                    <span className='px-2.5 py-1 rounded-lg bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[9px] font-black uppercase tracking-widest'>
+                    <span className='px-2.5 py-1 rounded-lg bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[11px] font-medium capitalize'>
                         {appointment.dentist?.specialization || 'General'}
                     </span>
                 </div>

@@ -43,10 +43,10 @@ const Settings = () => {
                                 </button>
                             </div>
                             <div>
-                                <h3 className='text-[clamp(14px,1.5vw,18px)] font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit leading-tight'>
+                                <h3 className='text-[clamp(14px,1.5vw,18px)] font-medium text-gray-900 dark:text-white capitalize font-outfit leading-tight'>
                                     Clinic Settings
                                 </h3>
-                                <p className='text-[clamp(9px,1vw,10px)] font-black text-brand-500 dark:text-brand-400 uppercase tracking-[0.15em] mt-1'>
+                                <p className='text-[clamp(9px,1vw,10px)] font-medium text-brand-500 dark:text-brand-400 capitalize mt-1'>
                                     {tabs.find(t => t.id === activeTab)?.label} Configuration Registry
                                 </p>
                             </div>
@@ -61,7 +61,7 @@ const Settings = () => {
                             <button
                                 key={t.id}
                                 onClick={() => navigate(`/settings/${t.id}`)}
-                                className={`pt-4 pb-3 text-[clamp(9px,1.1vw,11px)] font-black uppercase tracking-[0.1em] transition-all relative whitespace-nowrap ${
+                                className={`pt-4 pb-3 text-[14px] font-medium capitalize transition-all relative whitespace-nowrap ${
                                     activeTab === t.id
                                         ? 'text-brand-500'
                                         : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'

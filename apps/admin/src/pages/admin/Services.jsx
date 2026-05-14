@@ -33,7 +33,7 @@ const Services = () => {
 
     if (loading) return (
         <div className='flex items-center justify-center h-full'>
-            <div className='animate-pulse text-gray-400 font-black uppercase tracking-widest text-xs'>
+            <div className='animate-pulse text-gray-400 font-medium capitalize text-xs'>
                 Loading Catalog...
             </div>
         </div>
@@ -113,7 +113,7 @@ const Services = () => {
                                     <div className='mt-8 flex justify-center pb-6'>
                                         <button
                                             onClick={() => setVisibleCount((prev) => prev + 6)}
-                                            className='flex items-center gap-2 px-8 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm active:scale-95'
+                                            className='flex items-center gap-2 px-8 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-medium capitalize text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm active:scale-95'
                                         >
                                             Load More Services
                                         </button>
@@ -125,7 +125,7 @@ const Services = () => {
                                 <div className='w-24 h-24 bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-full flex items-center justify-center text-gray-300 dark:text-gray-600 mb-6 shadow-sm'>
                                     <Search size={40} />
                                 </div>
-                                <h4 className='text-lg font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                                <h4 className='text-lg font-medium text-gray-900 dark:text-white font-outfit capitalize'>
                                     No Services Found
                                 </h4>
                                 <p className='text-xs text-gray-400 mt-2 max-w-[280px] font-medium leading-relaxed'>
@@ -143,7 +143,7 @@ const Services = () => {
                 onClick={() => {/* Trigger Add Service Modal */ }}
             >
                 <Plus size={18} strokeWidth={3} />
-                <span className='font-black uppercase tracking-widest text-[10px]'>Add Service</span>
+                <span className='font-medium capitalize text-[12px]'>Add Service</span>
             </button>
         </div>
     );

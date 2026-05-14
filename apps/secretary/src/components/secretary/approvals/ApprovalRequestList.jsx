@@ -38,7 +38,7 @@ const ApprovalRequestList = ({ requests, selectedId, onSelect }) => {
                     Object.entries(groupedRequests).map(([dateLabel, items]) => (
                         <div key={dateLabel} className="mb-6 last:mb-0">
                             <div className="sticky top-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm z-10 py-2 mb-2 flex items-center gap-3">
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">{dateLabel}</h3>
+                                <h3 className="text-xs font-bold capitalize text-gray-400">{dateLabel}</h3>
                                 <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800"></div>
                             </div>
                             <div className="flex flex-col gap-2">

@@ -232,11 +232,11 @@ const BookingPage = () => {
                                 {/* Time Sidebar */}
                                 <div className="flex flex-row sm:flex-col w-full sm:w-[130px] bg-gray-50/50 dark:bg-gray-800/20 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0">
                                     <div className="flex-1 flex flex-col justify-center px-4 py-3 border-r sm:border-r-0 sm:border-b border-gray-200 dark:border-gray-800">
-                                        <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Start Time</span>
+                                        <span className="text-[12px] font-semibold capitalize text-gray-400 dark:text-gray-500 mb-0.5">Start Time</span>
                                         <span className="text-sm sm:text-base font-semibold text-[#0B1120] dark:text-white font-outfit truncate">{booking.startTime}</span>
                                     </div>
                                     <div className="flex-1 flex flex-col justify-center px-4 py-3">
-                                        <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">End Time</span>
+                                        <span className="text-[12px] font-semibold capitalize text-gray-400 dark:text-gray-500 mb-0.5">End Time</span>
                                         <span className="text-sm sm:text-base font-medium text-gray-500 dark:text-gray-400 font-outfit truncate">{booking.endTime}</span>
                                     </div>
                                 </div>
@@ -258,19 +258,19 @@ const BookingPage = () => {
                                     {/* Details Grid */}
                                     <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-2 xl:flex-1 gap-y-4 gap-x-4 xl:gap-x-6 min-w-0">
                                         <div className="flex flex-col min-w-0">
-                                            <span className={`text-[10px] font-semibold uppercase tracking-wider mb-0.5 ${booking.service.type === 'Specialized' ? 'text-brand-500' : 'text-gray-400'}`}>
+                                            <span className={`text-[12px] font-semibold capitalize  mb-0.5 ${booking.service.type === 'Specialized' ? 'text-brand-500' : 'text-gray-400'}`}>
                                                 {booking.service.type} Service
                                             </span>
                                             <span className="text-xs sm:text-sm font-semibold text-[#0B1120] dark:text-white truncate" title={booking.service.name}>{booking.service.name}</span>
                                         </div>
                                         
                                         <div className="flex flex-col min-w-0">
-                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Doctor</span>
+                                            <span className="text-[12px] font-semibold capitalize text-gray-400 dark:text-gray-500 mb-0.5">Doctor</span>
                                             <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate" title={booking.doctor}>{booking.doctor}</span>
                                         </div>
 
                                         <div className="flex flex-col min-w-0">
-                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Contact</span>
+                                            <span className="text-[12px] font-semibold capitalize text-gray-400 dark:text-gray-500 mb-0.5">Contact</span>
                                             <div className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">
                                                 <Phone size={14} className="text-emerald-500 shrink-0" />
                                                 <span className="truncate" title={booking.contact}>{booking.contact}</span>
@@ -278,9 +278,9 @@ const BookingPage = () => {
                                         </div>
 
                                         <div className="flex flex-col min-w-0">
-                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Source</span>
+                                            <span className="text-[12px] font-semibold capitalize text-gray-400 dark:text-gray-500 mb-0.5">Source</span>
                                             <div className="truncate">
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter inline-block truncate max-w-full ${
+                                                <span className={`px-2 py-0.5 rounded text-[12px] font-bold capitalize tracking-tighter inline-block truncate max-w-full ${
                                                     booking.source === 'Walk-in' ? 'text-amber-500 bg-amber-50 dark:bg-amber-500/10' : 
                                                     booking.source === 'Account User' ? 'text-brand-500 bg-brand-50 dark:bg-brand-500/10' : 'text-purple-500 bg-purple-50 dark:bg-purple-500/10'
                                                 }`} title={booking.source}>
@@ -297,7 +297,7 @@ const BookingPage = () => {
                                                 e.stopPropagation();
                                                 console.log('Cancel clicked');
                                             }}
-                                            className="flex-1 sm:flex-none px-4 py-2 text-red-500 dark:text-red-400 text-xs sm:text-sm font-bold rounded-lg border border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95"
+                                            className="flex-1 sm:flex-none px-4 py-2 text-red-500 dark:text-red-400 text-xs sm:text-sm font-bold rounded-xl border border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95"
                                         >
                                             Cancel
                                         </button>
@@ -306,7 +306,7 @@ const BookingPage = () => {
                                                 e.stopPropagation();
                                                 console.log('Reschedule clicked');
                                             }}
-                                            className="flex-1 sm:flex-none px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold rounded-lg shadow-sm hover:shadow transition-all active:scale-95"
+                                            className="flex-1 sm:flex-none px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm hover:shadow transition-all active:scale-95"
                                         >
                                             Reschedule
                                         </button>
@@ -316,7 +316,7 @@ const BookingPage = () => {
                         ))
                     ) : (
                         <div className="py-20 text-center bg-gray-50 dark:bg-white/[0.01] border border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
-                            <p className="text-gray-500 font-medium font-outfit">No bookings found for the selected criteria</p>
+                            <p className="text-gray-500 dark:text-gray-400 font-medium font-outfit">No bookings found for the selected criteria</p>
                         </div>
                     )}
 
@@ -324,13 +324,13 @@ const BookingPage = () => {
                     {totalPages > 1 && (
                         <div className="flex flex-col items-center justify-center mt-10 pb-8 gap-4 border-t border-gray-100 dark:border-gray-800 pt-10 shrink-0">
                             <div className="flex items-center justify-center gap-2">
-                                <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-all shadow-sm"><ChevronLeft size={18} /></button>
+                                <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-all shadow-sm"><ChevronLeft size={18} /></button>
                                 <div className="flex items-center gap-1.5">
                                     {[...Array(totalPages)].map((_, i) => (
                                         <button key={i + 1} onClick={() => handlePageChange(i + 1)} className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all shadow-sm ${currentPage === i + 1 ? 'bg-brand-500 text-white' : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-brand-500 hover:text-brand-500'}`}>{i + 1}</button>
                                     ))}
                                 </div>
-                                <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-all shadow-sm"><ChevronRight size={18} /></button>
+                                <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 transition-all shadow-sm"><ChevronRight size={18} /></button>
                             </div>
                             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                                 Showing <span className="font-semibold text-gray-900 dark:text-white">{startIndex + 1}</span> to <span className="font-semibold text-gray-900 dark:text-white">{Math.min(startIndex + ITEMS_PER_PAGE, filteredBookings.length)}</span> of <span className="font-semibold text-gray-900 dark:text-white">{filteredBookings.length}</span> results

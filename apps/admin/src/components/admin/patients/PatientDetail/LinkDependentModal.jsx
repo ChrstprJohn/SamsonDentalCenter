@@ -97,12 +97,12 @@ const LinkDependentModal = ({ isOpen, onClose, patientId, patientEmail, token, o
                     <div className='space-y-6'>
                         <div className='p-5 rounded-2xl bg-brand-50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 flex items-start gap-4'>
                             <AlertCircle size={20} className='text-brand-500 shrink-0 mt-0.5' />
-                            <p className='text-xs text-brand-700 dark:text-brand-400 font-bold leading-relaxed uppercase tracking-tight'>
+                            <p className='text-xs text-brand-700 dark:text-brand-400 font-bold leading-relaxed capitalize'>
                                 To link a dependent, you must first find the primary account holder's registered email address.
                             </p>
                         </div>
                         <div className='space-y-2'>
-                            <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1'>Primary Email Address</label>
+                            <label className='text-[12px] font-medium capitalize text-gray-400 ml-1'>Primary Email Address</label>
                             <div className='relative'>
                                 <Mail size={18} className='absolute left-5 top-1/2 -translate-y-1/2 text-gray-400' />
                                 <input
@@ -123,12 +123,12 @@ const LinkDependentModal = ({ isOpen, onClose, patientId, patientEmail, token, o
                                 <UserSearch size={36} />
                             </div>
                             <div>
-                                <h5 className='text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight'>{foundAccount.full_name}</h5>
-                                <p className='text-sm text-gray-500 font-bold tracking-tight'>{foundAccount.email}</p>
+                                <h5 className='text-xl font-medium text-gray-900 dark:text-white capitalize'>{foundAccount.full_name}</h5>
+                                <p className='text-sm text-gray-500 font-bold'>{foundAccount.email}</p>
                             </div>
                         </div>
                         <div className='p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 flex flex-col items-center text-center space-y-2'>
-                            <p className='text-xs font-bold text-gray-400 uppercase tracking-widest'>Verification Required</p>
+                            <p className='text-xs font-bold text-gray-400 capitalize'>Verification Required</p>
                             <p className='text-xs text-gray-600 dark:text-gray-300 font-medium px-4'>
                                 A security code will be sent to the primary account to authorize this linkage.
                             </p>
@@ -141,21 +141,21 @@ const LinkDependentModal = ({ isOpen, onClose, patientId, patientEmail, token, o
                                 <CheckCircle2 size={36} />
                             </div>
                             <div className='space-y-2'>
-                                <h3 className='text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight'>Enter Authorization Code</h3>
+                                <h3 className='text-xl font-medium text-gray-900 dark:text-white capitalize'>Enter Authorization Code</h3>
                                 <p className='text-xs text-gray-500 font-bold px-8 leading-relaxed'>
                                     We've sent a 6-digit code to <span className='text-brand-500'>{foundAccount.email}</span>.
                                 </p>
                             </div>
                         </div>
                         <div className='space-y-2'>
-                            <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1'>OTP Verification</label>
+                            <label className='text-[12px] font-medium capitalize text-gray-400 ml-1'>OTP Verification</label>
                             <input 
                                 type='text'
                                 placeholder='000000'
                                 maxLength={6}
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                                className='w-full h-20 text-center text-4xl font-black tracking-[1em] rounded-3xl border-2 border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 focus:border-success-500 transition-all outline-none text-gray-900 dark:text-white'
+                                className='w-full h-20 text-center text-4xl font-medium rounded-3xl border-2 border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 focus:border-success-500 transition-all outline-none text-gray-900 dark:text-white'
                             />
                         </div>
                     </div>
@@ -164,7 +164,7 @@ const LinkDependentModal = ({ isOpen, onClose, patientId, patientEmail, token, o
                 {error && (
                     <div className='p-4 bg-error-50 dark:bg-error-500/10 border border-error-100 dark:border-error-500/20 rounded-2xl flex items-center gap-3 text-error-600 dark:text-error-400 text-sm animate-in fade-in slide-in-from-top-2'>
                         <AlertCircle size={18} />
-                        <p className='font-bold uppercase tracking-tight'>{error}</p>
+                        <p className='font-bold capitalize'>{error}</p>
                     </div>
                 )}
             </div>

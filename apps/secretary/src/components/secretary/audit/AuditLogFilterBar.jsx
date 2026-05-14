@@ -12,28 +12,28 @@ const AuditLogFilterBar = ({ filters, onFilterChange }) => {
 
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
                 <div className='space-y-1'>
-                    <Label className='text-[10px] uppercase font-bold text-gray-400'>Action Type</Label>
+                    <Label className='text-[12px] capitalize font-bold text-gray-400'>Action Type</Label>
                     <select
                         name='action'
                         value={filters.action}
                         onChange={handleChange}
-                        className='w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20'
+                        className='w-full h-10 px-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20'
                     >
                         <option value="">All Actions</option>
-                        <option value="CREATE">CREATE</option>
-                        <option value="UPDATE">UPDATE</option>
-                        <option value="DELETE">DELETE</option>
-                        <option value="LOGIN">LOGIN</option>
+                        <option value="CREATE">Create</option>
+                        <option value="UPDATE">Update</option>
+                        <option value="DELETE">Delete</option>
+                        <option value="LOGIN">Login</option>
                     </select>
                 </div>
 
                 <div className='space-y-1'>
-                    <Label className='text-[10px] uppercase font-bold text-gray-400'>Resource Type</Label>
+                    <Label className='text-[12px] capitalize font-bold text-gray-400'>Resource Type</Label>
                     <select
                         name='resource_type'
                         value={filters.resource_type}
                         onChange={handleChange}
-                        className='w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20'
+                        className='w-full h-10 px-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20'
                     >
                         <option value="">All Resources</option>
                         <option value="appointments">Appointments</option>
@@ -45,7 +45,7 @@ const AuditLogFilterBar = ({ filters, onFilterChange }) => {
                 </div>
 
                 <div className='space-y-1'>
-                    <Label className='text-[10px] uppercase font-bold text-gray-400'>From Date</Label>
+                    <Label className='text-[12px] capitalize font-bold text-gray-400'>From Date</Label>
                     <Input
                         type='date'
                         name='date_from'
@@ -56,7 +56,7 @@ const AuditLogFilterBar = ({ filters, onFilterChange }) => {
                 </div>
 
                 <div className='space-y-1'>
-                    <Label className='text-[10px] uppercase font-bold text-gray-400'>To Date</Label>
+                    <Label className='text-[12px] capitalize font-bold text-gray-400'>To Date</Label>
                     <Input
                         type='date'
                         name='date_to'

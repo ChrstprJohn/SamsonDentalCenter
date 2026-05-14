@@ -39,7 +39,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             <button
                 onClick={handlePrevious}
                 disabled={currentPage === 1}
-                className='flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all active:scale-95 w-full sm:w-auto justify-center shadow-sm'
+                className='flex items-center gap-2 px-4 py-2 bg-white dark:bg-white/[0.03] border border-slate-200 rounded-xl text-sm font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all active:scale-95 w-full sm:w-auto justify-center shadow-sm'
             >
                 <ChevronLeft size={16} strokeWidth={3} />
                 Previous
@@ -64,7 +64,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             <button
                 onClick={handleNext}
                 disabled={currentPage === totalPages}
-                className='flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all active:scale-95 w-full sm:w-auto justify-center shadow-sm'
+                className='flex items-center gap-2 px-4 py-2 bg-white dark:bg-white/[0.03] border border-slate-200 rounded-xl text-sm font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-all active:scale-95 w-full sm:w-auto justify-center shadow-sm'
             >
                 Next
                 <ChevronRight size={16} strokeWidth={3} />

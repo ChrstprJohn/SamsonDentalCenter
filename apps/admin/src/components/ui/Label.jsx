@@ -6,7 +6,7 @@ const Label = ({ htmlFor, children, className = '', optional = false }) => {
         >
             <span>{children}</span>
             {optional && (
-                <span className='text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider bg-gray-100 dark:bg-white/5 px-1.5 py-0.5 rounded'>
+                <span className='text-[12px] font-bold text-gray-400 dark:text-gray-500 capitalize bg-gray-100 dark:bg-white/5 px-1.5 py-0.5 rounded'>
                     Optional
                 </span>
             )}

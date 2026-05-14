@@ -186,14 +186,16 @@ const AdminSidebar = () => {
             onMouseEnter={() => !isExpanded && setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            {/* Logo */}
-            <div className={`py-6 lg:py-8 flex w-full transition-all duration-300 pl-[13px]`}>
+            <div className={`pt-5 pb-6 flex w-full transition-all duration-300 pl-[13px]`}>
                 <Link to='/' className="flex items-center min-h-[40px]">
-                    <div className="flex items-center">
-                        <span className="text-2xl font-black text-brand-500 font-outfit min-w-[24px] flex justify-center">S</span>
-                        <span className={`sidebar-text-base text-xl font-bold tracking-tight text-gray-900 dark:text-white uppercase font-outfit ${isExpanded || isHovered || isMobileOpen ? 'opacity-100 max-w-[200px] visible' : 'opacity-0 max-w-0 invisible ml-0'}`}>
-                            amson <span className='text-brand-500'>Dental</span>
-                        </span>
+                    <div className="flex items-center gap-3 transition-all duration-300 group flex-shrink-0">
+                        <div className="w-[24px] flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110">
+                            <img alt="Samson Dental Logo" className="w-10 h-auto min-w-[40px]" src="/images/logo/samson-logo.png" />
+                        </div>
+                        <div className={`flex flex-col items-start justify-center flex-shrink-0 transition-all duration-300 ${isExpanded || isHovered || isMobileOpen ? 'opacity-100 max-w-[200px] visible ml-1' : 'opacity-0 max-w-0 invisible ml-0'}`}>
+                            <span className="font-black text-[24px] tracking-[-0.01em] leading-[0.8] text-black dark:text-white uppercase whitespace-nowrap font-serif">SAMSON</span>
+                            <span className="text-[10px] uppercase tracking-[0.16em] font-black mt-0 text-gray-400 dark:text-gray-500 whitespace-nowrap font-serif block w-full text-center">DENTAL CENTER</span>
+                        </div>
                     </div>
                 </Link>
             </div>
@@ -203,7 +205,7 @@ const AdminSidebar = () => {
                 {navigationGroups.map((group, idx) => (
                     <nav key={group.title} className={idx === navigationGroups.length - 1 ? 'mb-2' : 'mb-6'}>
                         <div className='flex flex-col'>
-                            <h2 className={`mb-4 text-[10px] font-black uppercase flex items-center leading-[20px] text-gray-400 pl-[13px] transition-all duration-300 tracking-widest`}>
+                            <h2 className={`mb-4 text-[12px] font-medium capitalize flex items-center leading-[20px] text-gray-400 pl-[13px] transition-all duration-300 `}>
                                 <div className={`flex items-center transition-all duration-300 ${isExpanded || isHovered || isMobileOpen ? 'opacity-0 scale-50 w-0 overflow-hidden' : 'opacity-100 scale-100 w-[24px]'}`}>
                                     <HorizontalDots className='size-6' />
                                 </div>
@@ -236,7 +238,7 @@ const AdminSidebar = () => {
             {/* Sidebar Footer */}
             <div className='mt-auto pt-4 border-t border-gray-100 dark:border-gray-800'>
                 <ul className='flex flex-col gap-1'>
-                    <li className='px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center'>
+                    <li className='px-4 py-2 text-[12px] font-medium text-gray-400 capitalize text-center'>
                         <span className={`${isExpanded || isHovered || isMobileOpen ? 'opacity-100' : 'opacity-0'}`}>v1.1.0</span>
                     </li>
                 </ul>

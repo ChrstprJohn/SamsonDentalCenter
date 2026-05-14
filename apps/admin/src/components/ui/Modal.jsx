@@ -84,7 +84,7 @@ export const Modal = ({
                 {props.title && (
                     <div className='px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center bg-white dark:bg-gray-900 z-20 shrink-0'>
                         <div>
-                            <h3 className='text-xl font-black text-gray-900 dark:text-white leading-none mb-2'>
+                            <h3 className='text-xl font-medium text-gray-900 dark:text-white leading-none mb-2'>
                                 {props.title}
                             </h3>
                             {props.subtitle && (

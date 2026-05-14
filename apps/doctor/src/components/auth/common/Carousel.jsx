@@ -50,10 +50,10 @@ export const Carousel = ({ className }) => {
                         />
                     </div>
                     <div className='flex flex-col items-start justify-center flex-shrink-0'>
-                        <span className='font-black text-[22px] tracking-[-0.04em] leading-none text-white whitespace-nowrap'>
-                            SAMSON
+                        <span className='font-medium text-[22px] leading-none text-white whitespace-nowrap'>
+                            Samson
                         </span>
-                        <span className='text-[10px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-600 whitespace-nowrap drop-shadow-[0_0_12px_rgba(203,0,16,0.5)]'>
+                        <span className='text-[12px] capitalize font-bold mt-[1px] text-red-600 whitespace-nowrap drop-shadow-[0_0_12px_rgba(203,0,16,0.5)]'>
                             Dental Center
                         </span>
                     </div>
@@ -62,13 +62,13 @@ export const Carousel = ({ className }) => {
                 {/* Bottom Content */}
                 <div className='flex flex-col items-start'>
                     <div className='inline-flex px-4 py-1.5 bg-red-600/20 border border-red-500/30 rounded-full backdrop-blur-md shadow-sm mb-3'>
-                        <span className='text-[11px] font-bold text-white uppercase tracking-widest'>
+                        <span className='text-[11px] font-bold text-white capitalize'>
                             Doctor Portal
                         </span>
                     </div>
 
                     <div className='space-y-4 max-w-md'>
-                        <h1 className='text-4xl lg:text-5xl font-bold text-white leading-[1.1] tracking-tight'>
+                        <h1 className='text-4xl lg:text-5xl font-bold text-white leading-[1.1]'>
                             Modern Care,
                             <br />
                             Perfect Smiles.

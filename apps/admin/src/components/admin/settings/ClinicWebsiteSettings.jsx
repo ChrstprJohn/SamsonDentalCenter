@@ -82,10 +82,10 @@ const ClinicWebsiteSettings = () => {
             <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10'>
                     <div>
-                        <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        <h4 className='text-lg sm:text-2xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                             Clinic Identity & Contact
                         </h4>
-                        <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
+                        <p className='text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 capitalize mt-0.5 font-bold'>
                             Primary clinic branding and communication channels
                         </p>
                     </div>
@@ -95,7 +95,7 @@ const ClinicWebsiteSettings = () => {
                                 setIsEditing(true);
                                 showToast('Entering Global Edit Mode', 'info');
                             }}
-                            className="bg-brand-500 hover:bg-brand-600 text-white rounded-xl px-4 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95"
+                            className="bg-brand-500 hover:bg-brand-600 text-white rounded-xl px-4 sm:px-6 h-9 sm:h-11 text-[12px] sm:text-xs font-medium capitalize flex items-center gap-2 transition-all active:scale-95"
                         >
                             <Building2 size={12} className="sm:w-3.5 sm:h-3.5" />
                             Edit Website Info
@@ -128,14 +128,14 @@ const ClinicWebsiteSettings = () => {
                                     }
                                     showToast('Changes discarded', 'info');
                                 }}
-                                className="rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest border-gray-200 dark:border-white/10 dark:text-gray-400"
+                                className="rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[12px] sm:text-xs font-medium capitalize border-gray-200 dark:border-white/10 dark:text-gray-400"
                             >
                                 Discard Changes
                             </Button>
                             <Button 
                                 onClick={handleSubmit}
                                 disabled={updating}
-                                className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-lg shadow-green-500/20 transition-all active:scale-95"
+                                className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[12px] sm:text-xs font-medium capitalize shadow-lg shadow-green-500/20 transition-all active:scale-95"
                             >
                                 {updating ? 'Saving...' : 'Save Changes'}
                             </Button>
@@ -145,7 +145,7 @@ const ClinicWebsiteSettings = () => {
                 {isEditing && (
                     <div className="mb-10 p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
                         <AlertTriangle size={18} className="text-amber-500 shrink-0" />
-                        <p className="text-[10px] sm:text-xs font-black text-amber-800 dark:text-amber-200 uppercase tracking-wide">
+                        <p className="text-[12px] sm:text-xs font-medium text-amber-800 dark:text-amber-200 capitalize tracking-wide">
                             You are in edit mode. Changes will be saved globally for all patients.
                         </p>
                     </div>
@@ -156,11 +156,11 @@ const ClinicWebsiteSettings = () => {
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 mb-4">
                             <Building2 size={16} className="text-brand-500" />
-                            <h6 className="text-xs font-black uppercase text-gray-400 tracking-widest">Core Identity</h6>
+                            <h6 className="text-xs font-medium capitalize text-gray-400">Core Identity</h6>
                         </div>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6'>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Clinic Display Name</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Clinic Display Name</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.clinic_name}
@@ -170,7 +170,7 @@ const ClinicWebsiteSettings = () => {
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Short Description (SEO)</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Short Description (SEO)</Label>
                                 <textarea 
                                     disabled={!isEditing}
                                     value={formData.short_description}
@@ -186,11 +186,11 @@ const ClinicWebsiteSettings = () => {
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 mb-4">
                             <Phone size={16} className="text-green-500" />
-                            <h6 className="text-xs font-black uppercase text-gray-400 tracking-widest">Communication Channels</h6>
+                            <h6 className="text-xs font-medium capitalize text-gray-400">Communication Channels</h6>
                         </div>
                         <div className='grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6'>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Official Email</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Official Email</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.email_official}
@@ -200,7 +200,7 @@ const ClinicWebsiteSettings = () => {
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Primary Phone</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Primary Phone</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.phone_primary}
@@ -210,7 +210,7 @@ const ClinicWebsiteSettings = () => {
                                 />
                             </div>
                             <div className={`col-span-2 lg:col-span-1 flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Address</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Address</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.physical_address}
@@ -231,11 +231,11 @@ const ClinicWebsiteSettings = () => {
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 mb-4">
                             <MapPin size={16} className="text-orange-500" />
-                            <h6 className="text-xs font-black uppercase text-gray-400 tracking-widest">Presence & Accessibility</h6>
+                            <h6 className="text-xs font-medium capitalize text-gray-400">Presence & Accessibility</h6>
                         </div>
                         <div className='grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6'>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Business Hours Text</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Business Hours Text</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.business_hours_text}
@@ -245,7 +245,7 @@ const ClinicWebsiteSettings = () => {
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Closed Info</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Closed Info</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.closed_time_text}
@@ -255,7 +255,7 @@ const ClinicWebsiteSettings = () => {
                                 />
                             </div>
                             <div className={`col-span-2 lg:col-span-1 flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Maps Share Link</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Maps Share Link</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.google_maps_link}
@@ -271,11 +271,11 @@ const ClinicWebsiteSettings = () => {
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 mb-4">
                             <ImageIcon size={16} className="text-purple-500" />
-                            <h6 className="text-xs font-black uppercase text-gray-400 tracking-widest">Brand Assets</h6>
+                            <h6 className="text-xs font-medium capitalize text-gray-400">Brand Assets</h6>
                         </div>
                         <div className='grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6'>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Primary Logo</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Primary Logo</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.logo_primary_url}
@@ -285,7 +285,7 @@ const ClinicWebsiteSettings = () => {
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Dark-Mode Logo</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Dark-Mode Logo</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.logo_light_url}
@@ -295,7 +295,7 @@ const ClinicWebsiteSettings = () => {
                                 />
                             </div>
                             <div className={`col-span-2 lg:col-span-1 flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Favicon URL</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Favicon URL</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.favicon_url}
@@ -311,11 +311,11 @@ const ClinicWebsiteSettings = () => {
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 mb-4">
                             <Share2 size={16} className="text-blue-500" />
-                            <h6 className="text-xs font-black uppercase text-gray-400 tracking-widest">Social Presence</h6>
+                            <h6 className="text-xs font-medium capitalize text-gray-400">Social Presence</h6>
                         </div>
                         <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6'>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Facebook</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Facebook</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.facebook_url}
@@ -325,7 +325,7 @@ const ClinicWebsiteSettings = () => {
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Instagram</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Instagram</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.instagram_url}
@@ -335,7 +335,7 @@ const ClinicWebsiteSettings = () => {
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Twitter / X</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>Twitter / X</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.twitter_url}
@@ -345,7 +345,7 @@ const ClinicWebsiteSettings = () => {
                                 />
                             </div>
                             <div className={`flex flex-col p-3 sm:p-6 rounded-2xl border transition-all ${!isEditing ? 'border-gray-100 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01]' : 'border-brand-200 dark:border-brand-500/20 bg-white dark:bg-white/[0.03] shadow-sm'}`}>
-                                <Label className='text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>YouTube</Label>
+                                <Label className='text-[11px] sm:text-[12px] font-medium capitalize text-gray-400 mb-2'>YouTube</Label>
                                 <Input 
                                     disabled={!isEditing}
                                     value={formData.youtube_url}

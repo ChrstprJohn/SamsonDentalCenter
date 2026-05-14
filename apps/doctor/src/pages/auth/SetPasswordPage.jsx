@@ -70,16 +70,16 @@ const SetPasswordPage = () => {
                     {/* Header */}
                     <div className='bg-brand-500/10 px-8 py-6 border-b border-gray-800'>
                         <div className='flex items-center gap-3 mb-1'>
-                            <div className='bg-brand-500 w-8 h-8 rounded-lg flex items-center justify-center'>
+                            <div className='bg-brand-500 w-8 h-8 rounded-xl flex items-center justify-center'>
                                 <svg width='16' height='16' viewBox='0 0 24 24' fill='none'>
                                     <path d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z' fill='currentColor' className='text-white' />
                                 </svg>
                             </div>
                             <div>
-                                <h1 className='text-white font-black text-lg tracking-tight font-outfit'>
+                                <h1 className='text-white font-medium text-lg font-outfit'>
                                     Set Your Password
                                 </h1>
-                                <p className='text-gray-400 text-[11px] uppercase tracking-wider font-medium'>
+                                <p className='text-gray-400 text-[11px] capitalize font-medium'>
                                     Primera Dental — Doctor Portal
                                 </p>
                             </div>
@@ -92,7 +92,7 @@ const SetPasswordPage = () => {
                             // Invalid link state
                             <div className='text-center py-6'>
                                 <div className='text-red-400 text-sm font-medium mb-4'>{error}</div>
-                                <p className='text-gray-500 text-xs'>
+                                <p className='text-gray-500 dark:text-gray-400 text-xs'>
                                     Contact your administrator to resend the invitation.
                                 </p>
                             </div>
@@ -103,13 +103,13 @@ const SetPasswordPage = () => {
                                 </p>
 
                                 {error && (
-                                    <div className='bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 text-red-400 text-sm'>
+                                    <div className='bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm'>
                                         {error}
                                     </div>
                                 )}
 
                                 <div className='space-y-1.5'>
-                                    <label className='block text-[10px] font-bold uppercase tracking-widest text-gray-400'>
+                                    <label className='block text-[12px] font-bold capitalize text-gray-400'>
                                         New Password
                                     </label>
                                     <input
@@ -118,12 +118,12 @@ const SetPasswordPage = () => {
                                         onChange={e => setPassword(e.target.value)}
                                         placeholder='Minimum 8 characters'
                                         required
-                                        className='w-full bg-gray-800 border border-gray-700 rounded-lg px-4 h-11 text-white text-sm font-medium placeholder-gray-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 transition-all'
+                                        className='w-full bg-gray-800 border border-gray-700 rounded-xl px-4 h-11 text-white text-sm font-medium placeholder-gray-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 transition-all'
                                     />
                                 </div>
 
                                 <div className='space-y-1.5'>
-                                    <label className='block text-[10px] font-bold uppercase tracking-widest text-gray-400'>
+                                    <label className='block text-[12px] font-bold capitalize text-gray-400'>
                                         Confirm Password
                                     </label>
                                     <input
@@ -132,14 +132,14 @@ const SetPasswordPage = () => {
                                         onChange={e => setConfirm(e.target.value)}
                                         placeholder='Re-enter password'
                                         required
-                                        className='w-full bg-gray-800 border border-gray-700 rounded-lg px-4 h-11 text-white text-sm font-medium placeholder-gray-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 transition-all'
+                                        className='w-full bg-gray-800 border border-gray-700 rounded-xl px-4 h-11 text-white text-sm font-medium placeholder-gray-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 transition-all'
                                     />
                                 </div>
 
                                 <button
                                     type='submit'
                                     disabled={loading || !tokens.access_token}
-                                    className='w-full h-11 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 mt-2 font-outfit'
+                                    className='w-full h-11 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-xs capitalize rounded-xl transition-all active:scale-95 mt-2 font-outfit'
                                 >
                                     {loading ? 'Activating Account...' : 'Activate Account'}
                                 </button>

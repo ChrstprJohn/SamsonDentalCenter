@@ -72,7 +72,7 @@ const ServiceModal = ({ isOpen, onClose, initialData = null }) => {
                 {/* Left Side: Photo Management */}
                 <div className='w-full md:w-[300px] bg-gray-50 border-r border-gray-100 p-8 flex flex-col relative shrink-0 overflow-y-auto no-scrollbar'>
                     <div className='mt-4'>
-                        <h3 className='text-lg font-black text-gray-900 uppercase tracking-tight font-outfit mb-2'>
+                        <h3 className='text-lg font-medium text-gray-900 capitalize font-outfit mb-2'>
                             Service Identity
                         </h3>
                         <p className='text-xs text-gray-500 font-medium leading-relaxed mb-6'>
@@ -102,7 +102,7 @@ const ServiceModal = ({ isOpen, onClose, initialData = null }) => {
                         </div>
 
                         <div className='space-y-2'>
-                            <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
+                            <Label className='text-[12px] font-medium capitalize text-gray-400'>
                                 Or Use Image URL
                             </Label>
                             <Input
@@ -120,7 +120,7 @@ const ServiceModal = ({ isOpen, onClose, initialData = null }) => {
                     {/* Scrollable Canvas for Form */}
                     <div className='p-6 md:p-8 overflow-y-auto flex-1 min-h-0 no-scrollbar'>
                         <div className='mb-6'>
-                            <h2 className='text-xl font-black text-gray-900 font-outfit uppercase tracking-tight'>
+                            <h2 className='text-xl font-medium text-gray-900 font-outfit capitalize'>
                                 {initialData ? 'Edit Service' : 'Add New Service'}
                             </h2>
                         </div>
@@ -128,7 +128,7 @@ const ServiceModal = ({ isOpen, onClose, initialData = null }) => {
                         <div className='space-y-5'>
                             {/* Identity Group */}
                             <div className='space-y-2'>
-                                <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
+                                <Label className='text-[12px] font-medium capitalize text-gray-400'>
                                     Treatment Name
                                 </Label>
                                 <Input
@@ -140,7 +140,7 @@ const ServiceModal = ({ isOpen, onClose, initialData = null }) => {
                             </div>
 
                             <div className='space-y-2'>
-                                <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
+                                <Label className='text-[12px] font-medium capitalize text-gray-400'>
                                     Description
                                 </Label>
                                 <textarea
@@ -155,13 +155,13 @@ const ServiceModal = ({ isOpen, onClose, initialData = null }) => {
                             <div className='bg-gray-50/50 border border-gray-100 rounded-2xl p-5 space-y-5'>
                                 <div className='grid grid-cols-2 gap-5'>
                                     <div className='space-y-2'>
-                                        <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
+                                        <Label className='text-[12px] font-medium capitalize text-gray-400'>
                                             Category Tier
                                         </Label>
                                         <div className='flex gap-1 p-1 bg-gray-100 rounded-xl'>
                                             <button
                                                 onClick={() => setTier('general')}
-                                                className={`flex-1 h-9 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
+                                                className={`flex-1 h-9 rounded-lg text-xs font-medium capitalize  transition-all ${
                                                     tier === 'general'
                                                         ? 'bg-white shadow-sm text-brand-600'
                                                         : 'text-gray-500 hover:text-gray-900'
@@ -171,7 +171,7 @@ const ServiceModal = ({ isOpen, onClose, initialData = null }) => {
                                             </button>
                                             <button
                                                 onClick={() => setTier('specialized')}
-                                                className={`flex-1 h-9 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
+                                                className={`flex-1 h-9 rounded-lg text-xs font-medium capitalize  transition-all ${
                                                     tier === 'specialized'
                                                         ? 'bg-white shadow-sm text-purple-600'
                                                         : 'text-gray-500 hover:text-gray-900'
@@ -182,25 +182,25 @@ const ServiceModal = ({ isOpen, onClose, initialData = null }) => {
                                         </div>
                                     </div>
                                     <div className='space-y-2'>
-                                        <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
+                                        <Label className='text-[12px] font-medium capitalize text-gray-400'>
                                             Est. Cost (PHP)
                                         </Label>
                                         <div className='relative'>
-                                            <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-black'>
+                                            <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium'>
                                                 ₱
                                             </span>
                                             <Input
                                                 value={cost}
                                                 onChange={(e) => setCost(e.target.value)}
                                                 placeholder='0.00'
-                                                className='h-11 pl-8 font-black text-gray-900 bg-white border-gray-200 focus:border-brand-500 shadow-sm'
+                                                className='h-11 pl-8 font-medium text-gray-900 bg-white border-gray-200 focus:border-brand-500 shadow-sm'
                                             />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className='space-y-2 relative'>
-                                    <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
+                                    <Label className='text-[12px] font-medium capitalize text-gray-400'>
                                         Standard Duration
                                     </Label>
                                     <div className='flex flex-wrap gap-2'>
@@ -208,7 +208,7 @@ const ServiceModal = ({ isOpen, onClose, initialData = null }) => {
                                             <button
                                                 key={dur}
                                                 onClick={() => handleDurationSelect(dur)}
-                                                className={`px-5 h-10 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                                className={`px-5 h-10 rounded-xl text-xs font-medium capitalize  transition-all ${
                                                     modalDuration === dur
                                                         ? 'bg-gray-900 text-white shadow-md'
                                                         : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300 shadow-sm'
@@ -219,7 +219,7 @@ const ServiceModal = ({ isOpen, onClose, initialData = null }) => {
                                         ))}
                                         <button
                                             onClick={handleCustomDurationSelect}
-                                            className={`px-5 h-10 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                            className={`px-5 h-10 rounded-xl text-xs font-medium capitalize  transition-all ${
                                                 modalIsCustomDuration
                                                     ? 'bg-brand-50 border border-brand-200 text-brand-600'
                                                     : 'bg-white border border-gray-200 text-gray-600 shadow-sm hover:bg-gray-50'
@@ -252,13 +252,13 @@ const ServiceModal = ({ isOpen, onClose, initialData = null }) => {
                         <Button
                             variant='outline'
                             onClick={onClose}
-                            className='h-11 px-6 rounded-xl text-xs font-black uppercase tracking-widest border-gray-200 text-gray-600 bg-white hover:bg-gray-100 shadow-sm'
+                            className='h-11 px-6 rounded-xl text-xs font-medium capitalize border-gray-200 text-gray-600 bg-white hover:bg-gray-100 shadow-sm'
                         >
                             Cancel
                         </Button>
                         <Button
                             onClick={onClose}
-                            className='h-11 px-8 rounded-xl bg-brand-500 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-brand-500/20 hover:bg-brand-600'
+                            className='h-11 px-8 rounded-xl bg-brand-500 text-white text-xs font-medium capitalize shadow-lg shadow-brand-500/20 hover:bg-brand-600'
                         >
                             {initialData ? 'Update Action' : 'Save Service'}
                         </Button>

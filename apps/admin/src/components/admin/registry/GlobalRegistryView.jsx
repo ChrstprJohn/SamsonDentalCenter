@@ -192,21 +192,21 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
         const s = source?.toLowerCase() || '';
         if (s.includes('guest')) {
             return (
-                <span className="px-1.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-500/10 text-[9px] font-black text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 uppercase tracking-tighter">
+                <span className="px-1.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-500/10 text-[11px] font-medium text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 capitalize tracking-tighter">
                     Guest
                 </span>
             );
         }
         if (s.includes('user')) {
             return (
-                <span className="px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/10 text-[9px] font-black text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 uppercase tracking-tighter">
+                <span className="px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/10 text-[11px] font-medium text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 capitalize tracking-tighter">
                     Patient
                 </span>
             );
         }
         if (s.includes('admin')) {
             return (
-                <span className="px-1.5 py-0.5 rounded-md bg-gray-50 dark:bg-gray-500/10 text-[9px] font-black text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-500/20 uppercase tracking-tighter">
+                <span className="px-1.5 py-0.5 rounded-md bg-gray-50 dark:bg-gray-500/10 text-[11px] font-medium text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-500/20 capitalize tracking-tighter">
                     Admin
                 </span>
             );
@@ -275,7 +275,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                         >
                             {filter.label}
                             {activeFilter === filter.id && pagination.total > 0 && (
-                                <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white/20 text-[9px] font-black">
+                                <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white/20 text-[11px] font-medium">
                                     {pagination.total}
                                 </span>
                             )}
@@ -289,18 +289,18 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                 {isLoading ? (
                     <div className='py-20 flex flex-col items-center justify-center'>
                         <div className='w-10 h-10 border-4 border-brand-500/10 border-t-brand-500 rounded-full animate-spin mb-4' />
-                        <span className='text-[10px] font-black text-gray-500 uppercase tracking-widest'>
+                        <span className='text-[12px] font-medium text-gray-500 capitalize'>
                             Syncing Registry...
                         </span>
                     </div>
                 ) : error ? (
                     <div className='py-20 text-center px-4'>
-                        <p className='text-sm font-bold text-red-600 dark:text-red-400 mb-2 uppercase tracking-tight'>
+                        <p className='text-sm font-bold text-red-600 dark:text-red-400 mb-2 capitalize'>
                             {error}
                         </p>
                         <button
                             onClick={() => setCurrentPage((p) => p)}
-                            className='text-[10px] font-black text-brand-500 uppercase tracking-widest hover:underline'
+                            className='text-[12px] font-medium text-brand-500 capitalize hover:underline'
                         >
                             Retry Sync
                         </button>
@@ -320,7 +320,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                                     {/* Sidebar: Schedule & Time Slot */}
                                     <div className='flex flex-row sm:flex-col w-full sm:w-[140px] bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0'>
                                         <div className='flex-1 flex flex-col justify-center px-4 py-3 border-r sm:border-r-0 sm:border-b border-gray-200 dark:border-gray-800'>
-                                            <span className='text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1'>
+                                            <span className='text-[12px] font-bold capitalize text-gray-400 dark:text-gray-500 mb-1'>
                                                 Schedule
                                             </span>
                                             <span className='text-xs sm:text-xs font-bold text-[#0B1120] dark:text-white font-outfit truncate'>
@@ -330,7 +330,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                                             </span>
                                         </div>
                                         <div className='flex-1 flex flex-col justify-center px-4 py-3'>
-                                            <span className='text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1'>
+                                            <span className='text-[12px] font-bold capitalize text-gray-400 dark:text-gray-500 mb-1'>
                                                 Time Slot
                                             </span>
                                             <span className='text-xs sm:text-xs font-bold text-brand-600 dark:text-brand-400 font-outfit truncate'>
@@ -356,7 +356,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                                                             className='w-full h-full object-cover'
                                                         />
                                                     ) : (
-                                                        <span className='text-sm font-black'>
+                                                        <span className='text-sm font-medium'>
                                                             {(
                                                                 appt.patient?.name ||
                                                                 appt.guest_name ||
@@ -388,7 +388,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                                         <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-4 w-full flex-1 min-w-0'>
                                             {/* Service */}
                                             <div className='flex flex-col min-w-0'>
-                                                <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                                <span className='text-[12px] font-bold capitalize mb-1 text-gray-400 dark:text-gray-500'>
                                                     Service
                                                 </span>
                                                 <span
@@ -401,7 +401,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
 
                                             {/* Doctor */}
                                             <div className='flex flex-col min-w-0'>
-                                                <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                                <span className='text-[12px] font-bold capitalize mb-1 text-gray-400 dark:text-gray-500'>
                                                     Doctor
                                                 </span>
                                                 <span
@@ -416,7 +416,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
 
                                             {/* Contact */}
                                             <div className='flex flex-col min-w-0'>
-                                                <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                                <span className='text-[12px] font-bold capitalize mb-1 text-gray-400 dark:text-gray-500'>
                                                     Contact
                                                 </span>
                                                 <div className='flex items-center gap-1.5 min-w-0'>
@@ -434,7 +434,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
 
                                             {/* Status */}
                                             <div className='flex flex-col min-w-0'>
-                                                <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                                <span className='text-[12px] font-bold capitalize mb-1 text-gray-400 dark:text-gray-500'>
                                                     Status
                                                 </span>
                                                 <div className='flex items-center gap-1.5'>
@@ -443,7 +443,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                                                         appt.status === 'CANCELLED' ? 'bg-red-500' :
                                                         'bg-amber-500'
                                                     }`} />
-                                                    <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider ${
+                                                    <span className={`text-[12px] sm:text-[11px] font-bold capitalize  ${
                                                         appt.status === 'CONFIRMED' ? 'text-emerald-600 dark:text-emerald-500' :
                                                         appt.status === 'CANCELLED' ? 'text-red-600 dark:text-red-500' :
                                                         'text-amber-600 dark:text-amber-500'
@@ -471,7 +471,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                                         className='rotate-180'
                                     />
                                 </button>
-                                <span className='text-[10px] font-black uppercase tracking-widest text-gray-400 px-4'>
+                                <span className='text-[12px] font-medium capitalize text-gray-400 px-4'>
                                     Page {currentPage} of {pagination.pages}
                                 </span>
                                 <button
@@ -491,10 +491,10 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                         <div className='w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center text-gray-300 dark:text-gray-600 mb-6'>
                             <Filter size={32} />
                         </div>
-                        <h4 className='text-lg font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight mb-2'>
+                        <h4 className='text-lg font-medium text-gray-900 dark:text-white font-outfit capitalize mb-2'>
                             Registry Empty
                         </h4>
-                        <p className='text-xs text-gray-500 uppercase font-bold tracking-widest max-w-[280px]'>
+                        <p className='text-xs text-gray-500 capitalize font-bold max-w-[280px]'>
                             No matching records found for this global filter.
                         </p>
                     </div>

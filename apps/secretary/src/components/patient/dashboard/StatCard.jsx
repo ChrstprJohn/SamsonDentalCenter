@@ -20,7 +20,7 @@ const StatCard = ({ title, value, icon: Icon, color = 'brand' }) => {
                 <span className='text-[12px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium truncate mb-0.5'>
                     {title}
                 </span>
-                <h4 className='text-[clamp(1.5rem,2vw+1rem,2rem)] font-bold text-gray-900 dark:text-white truncate leading-tight tabular-nums tracking-tight font-outfit'>
+                <h4 className='text-[clamp(1.5rem,2vw+1rem,2rem)] font-bold text-gray-900 dark:text-white truncate leading-tight tabular-nums font-outfit'>
                     {value}
                 </h4>
             </div>

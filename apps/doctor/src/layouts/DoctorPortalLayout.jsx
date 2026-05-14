@@ -1,11 +1,19 @@
 import { SidebarProvider, useSidebar } from '../context/SidebarContext';
 import { Outlet } from 'react-router-dom';
+import { useLayoutEffect } from 'react';
 import DoctorHeader from '../components/patient/DoctorHeader';
 import Backdrop from '../components/patient/Backdrop';
 import DoctorSidebar from '../components/patient/DoctorSidebar';
+import { useTheme } from '../context/ThemeContext';
 
 const LayoutContent = () => {
     const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+    const { setIsDarkModeAllowed } = useTheme();
+
+    useLayoutEffect(() => {
+        setIsDarkModeAllowed(true);
+        return () => setIsDarkModeAllowed(false);
+    }, [setIsDarkModeAllowed]);
 
     return (
         <div className='min-h-screen xl:flex bg-white sm:bg-transparent dark:bg-gray-900 dark:sm:bg-transparent'>

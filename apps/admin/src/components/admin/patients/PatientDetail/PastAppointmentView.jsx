@@ -44,10 +44,10 @@ const PastAppointmentView = ({ appointment, token, onBack }) => {
             {/* Standard Tab Header */}
             <div className='flex items-center justify-between'>
                 <div className='flex flex-col'>
-                    <h4 className='text-xs font-black uppercase tracking-[0.2em] text-gray-400'>
+                    <h4 className='text-xs font-medium capitalize text-gray-400'>
                         Appointment History
                     </h4>
-                    <p className='text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest'>
+                    <p className='text-[12px] font-bold text-gray-400 mt-1 capitalize'>
                         Archived record of patient visit and outcome
                     </p>
                 </div>
@@ -85,7 +85,7 @@ const PastAppointmentView = ({ appointment, token, onBack }) => {
             <div className='sm:pt-8 sm:border-t border-gray-100 dark:border-gray-800 flex items-center sm:relative fixed bottom-0 left-0 right-0 sm:bg-transparent bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg sm:p-0 p-4 z-40 sm:border-t-0 border-t'>
                 <button 
                     onClick={onBack}
-                    className='h-10 sm:h-12 px-6 sm:px-8 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all bg-white dark:bg-white/5 border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 active:scale-95 flex items-center gap-2'
+                    className='h-10 sm:h-12 px-6 sm:px-8 rounded-xl sm:rounded-2xl text-[11px] sm:text-[11px] font-medium capitalize text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all bg-white dark:bg-white/5 border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 active:scale-95 flex items-center gap-2'
                 >
                     <ArrowLeft size={14} /> Return
                 </button>

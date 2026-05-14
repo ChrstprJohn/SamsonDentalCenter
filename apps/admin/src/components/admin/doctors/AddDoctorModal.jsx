@@ -25,7 +25,7 @@ const Toast = ({ toast, onDismiss }) => {
                     }
                 </div>
                 <div>
-                    <h4 className={`text-[9px] font-black uppercase tracking-widest ${isSuccess ? 'text-emerald-500' : 'text-red-500'}`}>
+                    <h4 className={`text-[11px] font-medium capitalize  ${isSuccess ? 'text-emerald-500' : 'text-red-500'}`}>
                         {isSuccess ? 'Success' : 'Error'}
                     </h4>
                     <p className='text-[13px] font-bold text-gray-900 dark:text-white leading-tight'>{toast.message}</p>
@@ -90,7 +90,7 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                             <div className='bg-brand-500/10 p-1 rounded-lg'>
                                 <CheckCircle size={16} className='text-brand-500' />
                             </div>
-                            <h4 className='text-base font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                            <h4 className='text-base font-medium text-gray-900 dark:text-white font-outfit capitalize'>
                                 Onboard Doctor
                             </h4>
                         </div>
@@ -103,7 +103,7 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                             <X size={16} />
                         </Button>
                     </div>
-                    <p className='text-[9px] text-gray-500 dark:text-gray-400 font-bold ml-8 uppercase tracking-widest opacity-80'>
+                    <p className='text-[11px] text-gray-500 dark:text-gray-400 font-bold ml-8 capitalize opacity-80'>
                         Professional Access Initialization
                     </p>
                 </div>
@@ -115,14 +115,14 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                         <div className='space-y-4'>
                             <div className='flex items-center gap-2'>
                                 <div className='h-3 w-1 bg-brand-500 rounded-full' />
-                                <h5 className='text-[9px] font-black uppercase tracking-[0.15em] text-gray-400'>
+                                <h5 className='text-[11px] font-medium capitalize text-gray-400'>
                                     Professional Identity
                                 </h5>
                             </div>
 
                             <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4'>
                                 <div className='space-y-1'>
-                                    <Label className='text-[9px] font-bold uppercase tracking-wider text-gray-400'>First Name</Label>
+                                    <Label className='text-[11px] font-bold capitalize text-gray-400'>First Name</Label>
                                     <Input 
                                         name='first_name' 
                                         value={formData.first_name} 
@@ -133,7 +133,7 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                                     />
                                 </div>
                                 <div className='space-y-1'>
-                                    <Label className='text-[9px] font-bold uppercase tracking-wider text-gray-400'>Last Name</Label>
+                                    <Label className='text-[11px] font-bold capitalize text-gray-400'>Last Name</Label>
                                     <Input 
                                         name='last_name' 
                                         value={formData.last_name} 
@@ -144,7 +144,7 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                                     />
                                 </div>
                                 <div className='space-y-1'>
-                                    <Label className='text-[9px] font-bold uppercase tracking-wider text-gray-400'>Middle Name</Label>
+                                    <Label className='text-[11px] font-bold capitalize text-gray-400'>Middle Name</Label>
                                     <Input 
                                         name='middle_name' 
                                         value={formData.middle_name} 
@@ -154,7 +154,7 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                                     />
                                 </div>
                                 <div className='space-y-1'>
-                                    <Label className='text-[9px] font-bold uppercase tracking-wider text-gray-400'>Suffix</Label>
+                                    <Label className='text-[11px] font-bold capitalize text-gray-400'>Suffix</Label>
                                     <Input 
                                         name='suffix' 
                                         value={formData.suffix} 
@@ -170,14 +170,14 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                         <div className='space-y-4'>
                             <div className='flex items-center gap-2'>
                                 <div className='h-3 w-1 bg-brand-500 rounded-full' />
-                                <h5 className='text-[9px] font-black uppercase tracking-[0.15em] text-gray-400'>
+                                <h5 className='text-[11px] font-medium capitalize text-gray-400'>
                                     Contact Credentials
                                 </h5>
                             </div>
 
                             <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
                                 <div className='space-y-1'>
-                                    <Label className='text-[9px] font-bold uppercase tracking-wider text-gray-400 text-brand-600 dark:text-brand-400'>Work Email</Label>
+                                    <Label className='text-[11px] font-bold capitalize text-gray-400 text-brand-600 dark:text-brand-400'>Work Email</Label>
                                     <Input 
                                         name='email' 
                                         type='email' 
@@ -189,7 +189,7 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                                     />
                                 </div>
                                 <div className='space-y-1'>
-                                    <Label className='text-[9px] font-bold uppercase tracking-wider text-gray-400'>Phone Number</Label>
+                                    <Label className='text-[11px] font-bold capitalize text-gray-400'>Phone Number</Label>
                                     <Input 
                                         name='phone' 
                                         value={formData.phone} 
@@ -209,7 +209,7 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                             type="button"
                             onClick={onClose}
                             disabled={isSaving}
-                            className='w-full sm:w-auto px-5 h-9 sm:h-10 rounded-xl text-[10px] font-black text-gray-400 dark:text-gray-500 hover:bg-white dark:hover:bg-gray-900 border-gray-200 dark:border-gray-800 active:scale-95 transition-all font-outfit uppercase tracking-widest'
+                            className='w-full sm:w-auto px-5 h-9 sm:h-10 rounded-xl text-[12px] font-medium text-gray-400 dark:text-gray-500 hover:bg-white dark:hover:bg-gray-900 border-gray-200 dark:border-gray-800 active:scale-95 transition-all font-outfit capitalize'
                         >
                             Cancel
                         </Button>
@@ -219,7 +219,7 @@ const AddDoctorModal = ({ isOpen, onClose, onAdd }) => {
                                 type="submit"
                                 loading={isSaving}
                                 disabled={!isValid}
-                                className='w-full sm:w-auto bg-brand-500 hover:bg-brand-600 text-white font-black text-[10px] sm:text-xs px-8 h-9 sm:h-10 rounded-xl min-w-[180px] active:scale-95 transition-all font-outfit shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 group uppercase tracking-widest'
+                                className='w-full sm:w-auto bg-brand-500 hover:bg-brand-600 text-white font-medium text-[12px] sm:text-xs px-8 h-9 sm:h-10 rounded-xl min-w-[180px] active:scale-95 transition-all font-outfit shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 group capitalize'
                             >
                                 Register Account <ArrowRight size={14} className='group-hover:translate-x-1 transition-transform' />
                             </Button>
