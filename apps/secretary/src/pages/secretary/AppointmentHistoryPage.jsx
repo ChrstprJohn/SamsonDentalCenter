@@ -225,7 +225,7 @@ const AppointmentHistoryPage = () => {
                                     const { color: badgeColor, label: displayStatus } = getStatusStyle(apt.status);
                                     const patientName = apt.patient?.full_name || apt.patient?.name || 'Unknown Patient';
                                     const doctorName = apt.dentist?.profile?.full_name || apt.dentist?.full_name || 'Unassigned';
-                                    const serviceName = apt.service || 'General Service';
+                                    const serviceName = apt.service?.name || apt.service || 'General Service';
                                     
                                     return (
                                         <div 
@@ -291,7 +291,7 @@ const AppointmentHistoryPage = () => {
                                                             <div className='flex items-center gap-2 mt-0.5'>
                                                                 <span className='text-[12px] font-bold text-gray-400 capitalize'>ID:</span>
                                                                 <span className='text-[11px] font-mono font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 px-1.5 py-0.5 rounded'>
-                                                                    {apt.id.substring(0, 8).toUpperCase()}
+                                                                    {apt.id?.toString().substring(0, 8).toUpperCase()}
                                                                 </span>
                                                             </div>
                                                         </div>

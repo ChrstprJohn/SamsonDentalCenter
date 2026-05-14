@@ -5,8 +5,8 @@ const DashboardWelcomeBanner = ({ firstName = "Lisa" }) => {
   return (
     <div className="relative overflow-hidden w-full rounded-2xl bg-gradient-to-br from-[#008f70] to-[#00a884] p-6 sm:p-8 md:p-10 mb-6 sm:mb-8 text-white shadow-sm-md border border-[#00a884]/20 flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8">
       {/* Decorative background elements */}
-      <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-white dark:bg-white/[0.03]/10 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-48 h-48 sm:w-64 sm:h-64 rounded-full bg-black/10 blur-2xl pointer-events-none" />
+      <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-white/5 blur-2xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-48 h-48 sm:w-64 sm:h-64 rounded-full bg-black/5 blur-xl pointer-events-none" />
 
       <div className="relative z-10 flex flex-col gap-2 max-w-2xl">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-outfit leading-tight drop-shadow-sm">

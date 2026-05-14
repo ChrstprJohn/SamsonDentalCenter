@@ -130,7 +130,7 @@ const UpcomingAppointmentsPage = () => {
         // Normalize for sub-components which expect the legacy/mock structure
         return {
             ...apt,
-            service: { name: apt.service || 'General Service' },
+            service: { name: apt.service?.name || apt.service || 'General Service' },
             doctor: { name: apt.dentist?.profile?.full_name || apt.dentist?.full_name || 'Unassigned' },
             patient: {
                 name: apt.patient?.full_name || apt.patient?.name || 'Unknown Patient',
@@ -267,7 +267,7 @@ const UpcomingAppointmentsPage = () => {
                                     const { color: badgeColor, label: displayStatus } = getStatusStyle(apt.status);
                                     const patientName = apt.patient?.full_name || apt.patient?.name || 'Unknown Patient';
                                     const doctorName = apt.dentist?.profile?.full_name || apt.dentist?.full_name || 'Unassigned';
-                                    const serviceName = apt.service || 'General Service';
+                                    const serviceName = apt.service?.name || apt.service || 'General Service';
                                     
                                     return (
                                         <div 
