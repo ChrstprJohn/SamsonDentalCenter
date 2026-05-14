@@ -210,81 +210,6 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                 </div>
             </div>
 
-            {/* Section 2: Contact Details */}
-            <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md mb-6 sm:mb-8 overflow-hidden'>
-                <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
-                    <Contact size={20} className="text-brand-500" />
-                    <h3 className="text-[15px] sm:text-lg font-bold text-gray-900 dark:text-white">Contact Details</h3>
-                </div>
-
-                <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
-                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6'>
-                        <div>
-                            <label className={labelClasses}>Email Address <span className='text-brand-500'>*</span></label>
-                            <input
-                                type='email'
-                                value={data.email}
-                                onChange={(e) => updateField('email', e.target.value)}
-                                className={getInputClasses(errors.email)}
-                                placeholder='juan@email.com'
-                            />
-                            {errors.email && <p className='text-red-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.email}</p>}
-                        </div>
-                        <div>
-                            <label className={labelClasses}>Phone Number <span className='text-brand-500'>*</span></label>
-                            <div className="relative">
-                                <input
-                                    type='tel'
-                                    value={data.phone}
-                                    onChange={(e) => handleFieldChange('phone', e.target.value)}
-                                    className={cn(getInputClasses(errors.phone), 'pr-20')}
-                                    placeholder='09XX XXXX XXXX'
-                                    maxLength={13}
-                                />
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                                    <span className="text-[10px] font-black text-gray-400">PH (+63)</span>
-                                </div>
-                            </div>
-                            {errors.phone && <p className='text-red-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.phone}</p>}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Section 3: Agreement & Privacy (Matches Guest Booking) */}
-            <div className={cn(
-                'w-full bg-white dark:bg-white/[0.03] border rounded-2xl sm:rounded-3xl shadow-theme-md mb-6 sm:mb-10 overflow-hidden transition-all',
-                errors.terms 
-                    ? 'border-red-200 dark:border-red-900/40 bg-red-50/30 dark:bg-red-900/5' 
-                    : 'border-gray-200 dark:border-gray-800'
-            )}>
-                <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
-                    <CheckCircle2 size={18} className="text-brand-500" />
-                    <h3 className="text-[15px] sm:text-lg font-bold text-gray-900 dark:text-white">Agreement & Privacy</h3>
-                </div>
-
-                <div className="px-5 py-6 sm:px-10 sm:py-8">
-                    <div className='flex items-start gap-4'>
-                        <div className="pt-0.5">
-                            <input
-                                type="checkbox"
-                                id="terms"
-                                checked={data.agreed_to_terms || false}
-                                onChange={(e) => updateField('agreed_to_terms', e.target.checked)}
-                                className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-2 border-gray-300 text-brand-500 focus:ring-brand-500/20 cursor-pointer transition-all accent-brand-500"
-                            />
-                        </div>
-                        <label htmlFor="terms" className="text-[12px] sm:text-[14px] text-gray-700 dark:text-gray-300 font-medium leading-relaxed cursor-pointer select-none">
-                            I agree to the <a href="/terms-of-service" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Terms of Service</a> and <a href="/privacy-policy" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Privacy Policy</a>.
-                            <span className="block mt-1.5 text-[10px] sm:text-[12px] text-gray-500 dark:text-gray-500 font-normal italic leading-snug">
-                                I understand my data will be handled securely per clinic policy.
-                            </span>
-                        </label>
-                    </div>
-                    {errors.terms && <p className='text-red-500 text-[10px] font-bold mt-4 ml-10'>{errors.terms}</p>}
-                </div>
-            </div>
-
             {/* Footer Navigation */}
             <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-8 sm:pt-4 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
                 <div className='flex items-center justify-between gap-4'>
@@ -303,12 +228,8 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                     <button
                         type="button"
                         onClick={onNext}
-                        disabled={!data.agreed_to_terms}
                         className={cn(
-                            'flex-1 sm:flex-none sm:min-w-[240px] font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-1 sm:gap-2.5 text-[11px] sm:text-base',
-                            data.agreed_to_terms 
-                                ? 'bg-brand-500 hover:bg-brand-600 active:scale-95 text-white' 
-                                : 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
+                            'flex-1 sm:flex-none sm:min-w-[240px] font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-1 sm:gap-2.5 text-[11px] sm:text-base bg-brand-500 hover:bg-brand-600 active:scale-95 text-white'
                         )}
                     >
                         Continue to Security
