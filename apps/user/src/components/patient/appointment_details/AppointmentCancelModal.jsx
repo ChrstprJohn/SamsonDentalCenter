@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronDown, MessageSquare, AlertCircle } from 'lucide-react';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from '../../ui/Modal';
+import Button from '../../ui/Button';
+import { AlertCircle, MessageSquare } from 'lucide-react';
 
 const CANCEL_REASONS = [
     "Schedule conflict",
@@ -9,7 +11,7 @@ const CANCEL_REASONS = [
     "Other"
 ];
 
-const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, rawId, cancelling, handleCancel }) => {
+const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, rawId, cancelling, handleCancel, isPending, isLate, serviceName }) => {
     const [reasonType, setReasonType] = useState("");
     const [showOthers, setShowOthers] = useState(false);
 
@@ -20,8 +22,6 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
             setCancelReason("");
         }
     }, [show, setCancelReason]);
-
-    if (!show) return null;
 
     const handleTypeChange = (e) => {
         const val = e.target.value;
@@ -37,57 +37,86 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
 
     const isReady = reasonType !== "" && (!showOthers || (showOthers && cancelReason.trim().length > 0));
 
-    return (
-        <div
-            className='fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm'
-            onClick={(e) => { if (e.target === e.currentTarget && !cancelling) { onClose(); } }}
-        >
-            <div className='relative w-full max-w-md bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 animate-[fadeIn_0.15s_ease-out] overflow-hidden'>
-                {/* Visual Header Bar */}
-                <div className='h-1.5 w-full bg-error-500' />
+    // Conditional Content
+    const title = isPending ? "Withdraw Request?" : "Cancel Appointment?";
+    const description = isPending 
+        ? `Stop your request for ${serviceName}? This removes it from our queue.`
+        : `Are you sure you want to cancel your ${serviceName}?`;
+    
+    const confirmLabel = isPending ? "Confirm Withdrawal" : "Confirm Cancellation";
+    const cancelLabel = isPending ? "Keep Request" : "Keep Appointment";
 
-                <div className='p-6 sm:px-10 sm:py-8 space-y-6'>
-                    {/* Centered Icon & Title */}
-                    <div className='flex flex-col items-center text-center space-y-4'>
-                        <div className='w-14 h-14 rounded-xl bg-error-50 dark:bg-error-500/10 flex items-center justify-center text-error-500'>
-                            <AlertCircle size={28} />
-                        </div>
-                        <div className='space-y-1.5'>
-                            <h3 className='text-xl sm:text-2xl font-black text-gray-900 dark:text-white font-outfit text-center'>
-                                Wait! Are you sure?
-                            </h3>
-                            <p className='mt-2 text-center text-[13px] sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed max-w-[280px] mx-auto'>
-                                We're sorry you can't make it. You can always reschedule for a better time.
+    return (
+        <Modal isOpen={show} onClose={onClose} isBottomSheet={true} className='sm:max-w-[500px] w-full' showCloseButton={false}>
+            <ModalHeader 
+                title={title}
+                description={description}
+                onClose={onClose}
+            />
+
+            <ModalBody>
+                <div className='space-y-6'>
+                    {/* Policy Notice Box */}
+                    {isPending ? (
+                        <div className='bg-warning-50 dark:bg-warning-500/10 border border-warning-100 dark:border-warning-500/20 rounded-xl p-4 space-y-2'>
+                            <div className='flex items-center gap-2 text-warning-700 dark:text-warning-400 font-black text-[11px] uppercase tracking-wider'>
+                                <AlertCircle size={14} />
+                                Fair Use Notice
+                            </div>
+                            <p className='text-[12px] font-semibold text-warning-600 dark:text-warning-300 leading-relaxed'>
+                                Frequent withdrawals may limit your online booking access. Please only request slots you intend to keep.
                             </p>
                         </div>
-                    </div>
-
-                    {/* Custom Selection Area */}
-                    <div className='space-y-4'>
-                        <div className='flex items-center justify-between mb-2 px-1'>
-                            <span className='text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500'>
-                                Cancellation Reason
-                            </span>
+                    ) : isLate ? (
+                        <div className='bg-error-50 dark:bg-error-500/10 border border-error-100 dark:border-error-500/20 rounded-xl p-4 space-y-2'>
+                            <div className='flex items-center gap-2 text-error-700 dark:text-error-400 font-black text-[11px] uppercase tracking-wider'>
+                                <AlertCircle size={14} />
+                                Late Policy
+                            </div>
+                            <p className='text-[12px] font-semibold text-error-600 dark:text-error-300 leading-relaxed'>
+                                Late cancellations may restrict your account from booking online. Please visit or call the clinic manually for future appointments.
+                            </p>
                         </div>
+                    ) : (
+                        <div className='bg-info-50 dark:bg-info-500/10 border border-info-100 dark:border-info-500/20 rounded-xl p-4 space-y-2'>
+                            <div className='flex items-center gap-2 text-info-700 dark:text-info-400 font-black text-[11px] uppercase tracking-wider'>
+                                <AlertCircle size={14} />
+                                Advance Notice
+                            </div>
+                            <p className='text-[12px] font-semibold text-info-600 dark:text-info-300 leading-relaxed'>
+                                Thank you for notifying us in advance. This allows other patients to utilize this slot. We hope to see you soon!
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Reason Selection */}
+                    <div className='space-y-3'>
+                        <label className='text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 block px-1'>
+                            Reason
+                        </label>
+                        
                         <div className='relative group'>
-                            <div className={`absolute inset-0 bg-gray-100 dark:bg-white/5 rounded-lg transition-all duration-300 group-hover:bg-gray-200 dark:group-hover:bg-white/10`} />
                             <select
                                 value={reasonType}
                                 onChange={handleTypeChange}
                                 disabled={cancelling}
-                                className={`relative w-full bg-transparent border-2 border-transparent text-gray-900 dark:text-white px-4 py-3.5 rounded-lg text-sm font-bold focus:outline-none focus:border-error-500 transition-all appearance-none outline-none ${
+                                className={`w-full bg-gray-50 dark:bg-white/5 border-2 border-transparent text-gray-900 dark:text-white px-4 py-3.5 rounded-xl text-sm font-bold focus:outline-none focus:border-brand-500 transition-all appearance-none outline-none shadow-theme-sm ${
                                     !reasonType ? 'text-gray-400 dark:text-gray-600' : ''
                                 }`}
                             >
                                 <option value="" disabled>Choose a reason...</option>
                                 {CANCEL_REASONS.map(r => <option key={r} value={r}>{r}</option>)}
                             </select>
-                            <ChevronDown size={18} className='absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none group-focus-within:text-error-500 transition-colors' />
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
                         </div>
 
                         {showOthers && (
-                            <div className='space-y-2 animate-[fadeIn_0.2s_ease-out]'>
-                                <div className='flex items-center justify-between'>
+                            <div className='space-y-2 animate-[fadeIn_0.2s_ease-out] mt-4'>
+                                <div className='flex items-center justify-between px-1'>
                                     <label className='flex items-center gap-2 text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest'>
                                         <MessageSquare size={14} />
                                         Please specify
@@ -99,38 +128,44 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                                     onChange={(e) => setCancelReason(e.target.value)}
                                     disabled={cancelling}
                                     placeholder='Briefly tell us why...'
-                                    rows={2}
+                                    rows={3}
                                     maxLength={300}
-                                    className='w-full px-5 py-3 border border-slate-100 dark:border-gray-800 rounded-lg text-[14px] bg-slate-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-error-500/50 resize-none transition-all'
+                                    className='w-full px-5 py-3 border border-gray-100 dark:border-gray-800 rounded-xl text-[14px] bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50 resize-none transition-all shadow-theme-sm'
                                 />
                             </div>
                         )}
                     </div>
-
-                    {/* Actions */}
-                    <div className='flex gap-3 pt-1'>
-                        <button
-                            onClick={onClose}
-                            disabled={cancelling}
-                            className='flex-1 py-3 text-sm font-bold rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors active:scale-95'
-                        >
-                            Keep It
-                        </button>
-                        <button
-                            onClick={handleCancel}
-                            disabled={cancelling || !isReady || (showOthers && cancelReason.trim().length < 2)}
-                            className='flex-1 px-6 py-3.5 bg-error-500 hover:bg-error-600 text-white rounded-lg text-[15px] font-black transition-all active:scale-95 disabled:opacity-50 disabled:grayscale flex items-center justify-center gap-2'
-                        >
-                            {cancelling ? (
-                                <div className='w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin' />
-                            ) : (
-                                'Confirm Cancel'
-                            )}
-                        </button>
-                    </div>
                 </div>
-            </div>
-        </div>
+            </ModalBody>
+
+            <ModalFooter>
+                <Button 
+                    variant='outline' 
+                    onClick={onClose} 
+                    disabled={cancelling}
+                    className="flex-1 h-11 px-6 rounded-xl font-black text-[11px] sm:text-sm"
+                >
+                    {cancelLabel}
+                </Button>
+                <Button 
+                    onClick={handleCancel}
+                    disabled={cancelling || !isReady || (showOthers && cancelReason.trim().length < 2)}
+                    className={`flex-1 h-11 text-white rounded-xl font-black text-[11px] sm:text-sm shadow-lg transition-all ${
+                        isPending 
+                            ? 'bg-warning-500 hover:bg-warning-600 shadow-warning-500/20' 
+                            : isLate
+                                ? 'bg-error-500 hover:bg-error-600 shadow-error-500/20'
+                                : 'bg-info-500 hover:bg-info-600 shadow-info-500/20'
+                    }`}
+                >
+                    {cancelling ? (
+                        <div className='w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin' />
+                    ) : (
+                        confirmLabel
+                    )}
+                </Button>
+            </ModalFooter>
+        </Modal>
     );
 };
 

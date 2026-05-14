@@ -19,9 +19,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../utils/api';
+import { useToast } from '../../context/ToastContext';
 
 const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     const { user, token } = useAuth();
+    const toast = useToast();
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
@@ -61,7 +63,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     // ✅ Auto-fill "Myself" as default if no selection exists
     useEffect(() => {
         if (user && !formData.patient_profile_id && !formData.booked_for_relationship) {
-            handleSelect('myself');
+            handleSelect('myself', false); // Don't toast on initial auto-fill
         }
     }, [user, formData.patient_profile_id, formData.booked_for_relationship]);
 
@@ -84,11 +86,20 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         return allowDots ? /^[a-zA-Z\s.-]*$/.test(name) : /^[a-zA-Z\s-]*$/.test(name);
     };
 
-    const handleSelect = (profileId) => {
+    const handleSelect = (profileId, shouldToast = true) => {
         setIsOpen(false);
         setErrors({});
 
         let newData = {};
+        // Helper to normalize sex values to 'Male'/'Female'
+        const normalizeSex = (val) => {
+            if (!val) return '';
+            const v = val.toString().toUpperCase();
+            if (v === 'M' || v === 'MALE') return 'Male';
+            if (v === 'F' || v === 'FEMALE') return 'Female';
+            return val;
+        };
+
         if (profileId === 'myself') {
             newData = {
                 patient_profile_id: '',
@@ -98,9 +109,10 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                 booked_for_suffix_name: user?.suffix || '',
                 booked_for_birthday: user?.date_of_birth || '',
                 booked_for_relationship: 'Self',
-                booked_for_sex: user?.sex || '',
+                booked_for_sex: normalizeSex(user?.sex),
                 booked_for_phone: user?.phone || ''
             };
+            if (shouldToast) toast.info('Profile selected! Information auto-filled from your account.');
         } else if (profileId === 'new') {
             newData = {
                 patient_profile_id: 'new',
@@ -124,9 +136,10 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     booked_for_suffix_name: profile.suffix,
                     booked_for_birthday: profile.date_of_birth,
                     booked_for_relationship: profile.relationship_to_primary || 'Dependent',
-                    booked_for_sex: profile.sex || '',
+                    booked_for_sex: normalizeSex(profile.sex),
                     booked_for_phone: user?.phone || ''
                 };
+                if (shouldToast) toast.info(`Profile selected! Information auto-filled for ${profile.first_name}.`);
             }
         }
 
@@ -161,22 +174,17 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
             newErrors.middle = 'Invalid characters in middle name.';
         }
 
-        if (!formData.booked_for_birthday) newErrors.birthday = 'Date of birth is required.';
-        if (!formData.booked_for_sex) newErrors.sex = 'Sex is required.';
-
-        if (formData.patient_profile_id === 'new' && !formData.booked_for_relationship) {
-            newErrors.relationship = 'Relationship is required.';
+        // Strict enforcement for birthday and sex
+        if (!formData.booked_for_birthday) {
+            newErrors.birthday = 'Date of birth is required for medical records.';
+        }
+        
+        if (!formData.booked_for_sex) {
+            newErrors.sex = 'Biological sex is required for clinical history.';
         }
 
-        if (!formData.booked_for_phone?.trim()) {
-            newErrors.phone = 'Phone number is required.';
-        } else {
-            const sanitizedPhone = formData.booked_for_phone.replace(/\D/g, '');
-            if (sanitizedPhone.length !== 11) {
-                newErrors.phone = 'Philippine mobile numbers must be exactly 11 digits.';
-            } else if (!sanitizedPhone.startsWith('09')) {
-                newErrors.phone = 'Philippine mobile numbers must start with 09.';
-            }
+        if (formData.patient_profile_id === 'new' && !formData.booked_for_relationship) {
+            newErrors.relationship = 'Relationship is required for family accounts.';
         }
 
         setErrors(newErrors);
@@ -259,13 +267,16 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         return p ? `${p.first_name} ${p.last_name} (${p.relationship_to_primary || 'Dependent'})` : 'Select Patient';
     };
 
-    const baseInput = "h-11 w-full rounded-xl border appearance-none px-4 py-2.5 text-[13px] sm:text-sm shadow-theme-sm placeholder:text-gray-400 focus:outline-hidden focus:ring-4 transition-all bg-white dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 font-medium";
+    const baseInput = "h-11 w-full rounded-xl border appearance-none px-4 py-2.5 text-[13px] sm:text-sm shadow-theme-sm placeholder:text-gray-400 focus:outline-hidden focus:ring-4 transition-all dark:placeholder:text-white/30 font-medium";
     
-    const getInputClasses = (fieldError) => {
+    const getInputClasses = (fieldError, isFieldReadOnly = false) => {
         if (fieldError) {
-            return `${baseInput} border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800`;
+            return `${baseInput} border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800 bg-white dark:bg-gray-900`;
         }
-        return `${baseInput} text-gray-800 border-gray-300 dark:border-gray-700 focus:border-brand-300 focus:ring-brand-500/15 hover:border-gray-400 dark:hover:border-gray-600 dark:text-white/90 dark:focus:border-brand-800 shadow-theme-xs hover:shadow-theme-sm`;
+        if (isFieldReadOnly) {
+            return `${baseInput} bg-gray-50/80 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800/50 text-gray-500 dark:text-white/40 cursor-not-allowed hover:cursor-not-allowed ring-0 focus:ring-0 focus:border-gray-100 dark:focus:border-gray-800/50`;
+        }
+        return `${baseInput} text-gray-800 border-gray-300 dark:border-gray-700 focus:border-brand-300 focus:ring-brand-500/15 hover:border-gray-400 dark:hover:border-gray-600 dark:text-white/90 dark:focus:border-brand-800 shadow-theme-xs hover:shadow-theme-sm bg-white dark:bg-gray-900`;
     };
 
     const labelClasses = "mb-2 block text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 leading-none";
@@ -326,9 +337,12 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
 
                 {isOpen && (
                     <>
-                        <div className='fixed inset-0 z-40' onClick={() => setIsOpen(false)} />
-                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200'>
-                            <div className='max-h-[320px] overflow-y-auto p-2 scrollbar-hide'>
+                        <div className='fixed inset-0 z-20' onClick={() => setIsOpen(false)} />
+                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-30 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200'>
+                            <div 
+                                className='max-h-[320px] overflow-y-auto p-2 overscroll-contain scroll-smooth'
+                                onWheel={(e) => e.stopPropagation()}
+                            >
                                 <button
                                     onClick={() => handleSelect('myself')}
                                     className={`w-full flex items-center gap-3.5 p-3 rounded-xl transition-all text-left mb-1 group ${
@@ -438,6 +452,21 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     </div>
 
                     <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
+                        {/* Auto-fill Notice Box */}
+                        {isReadOnly && (
+                            <div className='bg-info-50 dark:bg-info-500/10 border border-info-100 dark:border-info-500/20 rounded-xl p-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-500'>
+                                <div className='flex items-center gap-2 text-info-700 dark:text-info-400 font-black text-[11px] uppercase tracking-wider'>
+                                    <AlertCircle size={14} />
+                                    Profile Synchronization
+                                </div>
+                                <p className='text-[12px] font-semibold text-info-600 dark:text-info-300 leading-relaxed'>
+                                    {isSelf 
+                                        ? "Information auto-filled from your primary account profile." 
+                                        : `Information auto-filled from ${formData.booked_for_first_name}'s saved profile.`}
+                                </p>
+                            </div>
+                        )}
+
                         {/* Row 1: Primary Names */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6">
                             <div>
@@ -449,7 +478,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                     value={nameParts.last}
                                     onChange={(e) => handleNamePartChange('last', e.target.value)}
                                     placeholder='Dela Cruz'
-                                    className={getInputClasses(errors.last)}
+                                    className={getInputClasses(errors.last, isReadOnly)}
                                 />
                                 {errors.last && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.last}</p>}
                             </div>
@@ -463,7 +492,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                     value={nameParts.first}
                                     onChange={(e) => handleNamePartChange('first', e.target.value)}
                                     placeholder='Juan'
-                                    className={getInputClasses(errors.first)}
+                                    className={getInputClasses(errors.first, isReadOnly)}
                                 />
                                 {errors.first && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.first}</p>}
                             </div>
@@ -480,7 +509,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                     value={nameParts.middle}
                                     onChange={(e) => handleNamePartChange('middle', e.target.value)}
                                     placeholder='Santos'
-                                    className={getInputClasses(errors.middle)}
+                                    className={getInputClasses(errors.middle, isReadOnly)}
                                 />
                                 {errors.middle && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.middle}</p>}
                             </div>
@@ -500,7 +529,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                                     handleNamePartChange('suffix', e.target.value);
                                                 }
                                             }}
-                                            className={`${getInputClasses()} cursor-pointer pr-10 ${isReadOnly ? 'cursor-default opacity-100' : ''}`}
+                                            className={`${getInputClasses(null, isReadOnly)} cursor-pointer pr-10 ${isReadOnly ? 'cursor-not-allowed hover:cursor-not-allowed opacity-100' : ''}`}
                                         >
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -541,7 +570,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         {/* Row 3: DOB & Sex */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6 pt-4 sm:pt-0 sm:border-t-0 border-t border-gray-50 dark:border-gray-800/50 mt-2 sm:mt-0">
                             <div>
-                                <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
+                                <label className={labelClasses}>Date of Birth <span className='text-red-500'>*</span></label>
                                 <div className="relative group">
                                     <input
                                         id="field-birthday"
@@ -552,7 +581,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         onClick={(e) => {
                                             if (!isReadOnly) try { e.target.showPicker(); } catch (err) {}
                                         }}
-                                        className={`${getInputClasses(errors.birthday)} w-full ${!formData.booked_for_birthday ? 'text-transparent dark:text-transparent' : ''}`}
+                                        className={`${getInputClasses(errors.birthday, isReadOnly)} w-full ${!formData.booked_for_birthday ? 'text-transparent dark:text-transparent' : ''}`}
                                         max={new Date().toISOString().split('T')[0]}
                                     />
                                     {!formData.booked_for_birthday && (
@@ -565,9 +594,9 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             </div>
 
                             <div>
-                                <label className={labelClasses}>Sex <span className='text-brand-500'>*</span></label>
+                                <label className={labelClasses}>Biological Sex <span className='text-red-500'>*</span></label>
                                 <div className="grid grid-cols-2 gap-3">
-                                    {['M', 'F'].map((s) => (
+                                    {['Male', 'Female'].map((s) => (
                                         <button
                                             key={s}
                                             type="button"
@@ -578,9 +607,9 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                                 formData.booked_for_sex === s
                                                     ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 shadow-sm'
                                                     : 'border-gray-100 bg-gray-50/50 text-gray-500 hover:border-gray-200 dark:border-gray-800 dark:bg-transparent dark:text-gray-400'
-                                            } ${isReadOnly ? 'cursor-default opacity-100' : ''}`}
+                                            } ${isReadOnly ? 'cursor-not-allowed opacity-100' : ''}`}
                                         >
-                                            {s === 'M' ? 'Male' : 'Female'}
+                                            {s}
                                         </button>
                                     ))}
                                 </div>
@@ -597,7 +626,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         type="text" 
                                         readOnly 
                                         value={formData.booked_for_relationship}
-                                        className={getInputClasses()}
+                                        className={getInputClasses(null, true)}
                                     />
                                 ) : (
                                     <div className="relative group">
@@ -630,7 +659,18 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Contact Details</h3>
                     </div>
 
-                    <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
+                    <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
+                        {/* Auto-fill Notice Box for Contact */}
+                        <div className='bg-info-50 dark:bg-info-500/10 border border-info-100 dark:border-info-500/20 rounded-xl p-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-500'>
+                            <div className='flex items-center gap-2 text-info-700 dark:text-info-400 font-black text-[11px] uppercase tracking-wider'>
+                                <AlertCircle size={14} />
+                                Account Link Active
+                            </div>
+                            <p className='text-[12px] font-semibold text-info-600 dark:text-info-300 leading-relaxed'>
+                                Contact information is automatically linked to your primary account for verification purposes.
+                            </p>
+                        </div>
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
                             {/* Email Address */}
                             <div>
@@ -641,7 +681,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         type='email'
                                         readOnly
                                         value={user?.email || ''}
-                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed pr-10`}
+                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed hover:cursor-not-allowed pr-10`}
                                     />
                                     <Mail size={16} className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none' />
                                 </div>
@@ -649,22 +689,19 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
 
                             {/* Phone Number */}
                             <div>
-                                <label className={labelClasses}>Phone Number <span className='text-brand-500'>*</span></label>
+                                <label className={labelClasses}>Phone Number</label>
                                 <div className="relative">
                                     <input
                                         id="field-phone"
                                         type='tel'
-                                        value={formData.booked_for_phone}
-                                        onChange={(e) => handleFieldChange('booked_for_phone', e.target.value)}
-                                        placeholder='09XX XXXX XXXX'
-                                        maxLength={13}
-                                        className={`${getInputClasses(errors.phone)} pr-20`}
+                                        readOnly
+                                        value={user?.phone || ''}
+                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed hover:cursor-not-allowed pr-20`}
                                     />
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                         <span className="text-[10px] font-black text-gray-400">PH (+63)</span>
                                     </div>
                                 </div>
-                                {errors.phone && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.phone}</p>}
                             </div>
                         </div>
                     </div>
@@ -729,12 +766,14 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
             <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-8 sm:pt-4 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
                 <div className='flex items-center gap-3 w-full sm:justify-between'>
                     <button
+                        type="button"
                         onClick={onBack}
                         className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-2 py-3.5 sm:px-8 transition-colors bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs'
                     >
                         Back
                     </button>
                     <button
+                        type="button"
                         onClick={handleNext}
                         disabled={!formData.agreed_to_terms}
                         className={`flex-[2] sm:flex-none sm:min-w-[280px] font-black px-6 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-1 sm:gap-2.5 text-[12px] sm:text-base ${formData.agreed_to_terms

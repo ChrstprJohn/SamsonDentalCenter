@@ -45,6 +45,42 @@ export const sendOTPEmail = async (email, name, otpCode) => {
     }
 };
 
+/**
+ * Send an OTP code for new user registration.
+ *
+ * @param {string} email - Recipient email
+ * @param {string} name - Recipient name
+ * @param {string} otpCode - 6-digit code
+ */
+export const sendRegistrationOTPEmail = async (email, name, otpCode) => {
+    try {
+        const { html, subject } = await compileTemplate('registration-otp', {
+            name,
+            otpCode,
+        });
+
+        const result = await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'Samson Dental Center <noreply@mail.chrbuilds.dev>',
+            to: email,
+            subject: subject || `${otpCode} is your registration verification code`,
+            html,
+        });
+
+        await logCommunication({
+            recipient: email,
+            channel: 'email',
+            purpose: 'REGISTRATION_OTP',
+            status: 'sent',
+            provider_id: result.data?.id
+        });
+
+        console.log(`📧 Registration OTP email sent to ${email}`);
+    } catch (err) {
+        console.error('Failed to send registration OTP email:', err.message);
+        throw err;
+    }
+};
+
 
 
 /**
@@ -124,11 +160,12 @@ export const sendBookingRequestReceivedEmail = async (email, name, details) => {
  * @param {string} email - Patient/guest email
  * @param {string} name - Patient/guest name
  * @param {object} details - { date, start_time, service, isLastMinute }
+ * @param {boolean} isRequest - Whether this was a pending request
  */
-export const sendCancellationEmail = async (email, name, details) => {
+export const sendCancellationEmail = async (email, name, details, isRequest = false) => {
     const { date, start_time, service, isLastMinute } = details;
 
-    const lateNotice = isLastMinute
+    const lateNotice = isLastMinute && !isRequest
         ? `<p style="color: #f59e0b; font-weight: bold;">
                ⚠️ This was a late cancellation (less than ${CLINIC_CONFIG.LATE_CANCELLATION_HOURS} hours notice).
                Frequent late cancellations may affect your future booking requests.
@@ -142,12 +179,18 @@ export const sendCancellationEmail = async (email, name, details) => {
             appointmentDate: date,
             startTime: start_time,
             lateNotice,
+            isRequest,
+            title: isRequest ? 'Appointment Request Cancelled' : 'Appointment Cancelled'
         });
+
+        const defaultSubject = isRequest 
+            ? '❌ Appointment Request Cancelled — Samson Dental Center'
+            : (isLastMinute ? '⚠️ Late Cancellation — Samson Dental Center' : '❌ Appointment Cancelled — Samson Dental Center');
 
         await resend.emails.send({
             from: process.env.EMAIL_FROM || 'Samson Dental Center <noreply@mail.chrbuilds.dev>',
             to: email,
-            subject: subject || (isLastMinute ? '⚠️ Late Cancellation — Samson Dental Center' : '❌ Appointment Cancelled — Samson Dental Center'),
+            subject: subject || defaultSubject,
             html,
         });
         console.log(`📧 Cancellation email sent to ${email}`);

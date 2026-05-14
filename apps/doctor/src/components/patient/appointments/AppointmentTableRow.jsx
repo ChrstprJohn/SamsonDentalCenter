@@ -1,6 +1,7 @@
-import { Badge, Dropdown, DropdownItem } from '../../ui';
+import { Badge, Dropdown, DropdownItem, Button } from '../../ui';
 import { ThreeDotsIcon } from './AppointmentIcons';
 import { STATUS_LABEL, STATUS_COLOR, formatDate, formatTime } from '../../../hooks/useAppointments';
+
 
 const truncateText = (text, maxLength) => {
     if (!text) return '';
@@ -9,7 +10,16 @@ const truncateText = (text, maxLength) => {
 
 const getInitial = (name = '') => name.replace(/^Dr\.\s*/i, '').charAt(0).toUpperCase();
 
-const AppointmentTableRow = ({ appointment, user, openDropdown, onToggleDropdown, onViewDetails }) => {
+const AppointmentTableRow = ({ 
+    appointment, 
+    user, 
+    openDropdown, 
+    onToggleDropdown, 
+    onViewDetails,
+    onStartAppointment,
+    onCreateInvoice 
+}) => {
+
     const displayStatus = STATUS_LABEL[appointment.status] || appointment.status;
     const badgeColor = STATUS_COLOR[displayStatus] || 'primary';
     const dentistName = (typeof appointment.dentist === 'object' && appointment.dentist?.profile)
@@ -53,9 +63,30 @@ const AppointmentTableRow = ({ appointment, user, openDropdown, onToggleDropdown
                 </div>
 
                 <div className='flex items-center gap-4 shrink-0 min-w-[100px] justify-end' onClick={(e) => e.stopPropagation()}>
-                    <Badge size='sm' color={badgeColor}>
-                        {displayStatus}
-                    </Badge>
+                    <div className='flex items-center gap-2'>
+                        {appointment.status === 'CONFIRMED' && (
+                            <Button 
+                                size='sm' 
+                                className='h-8 px-3 text-xs font-bold'
+                                onClick={() => onStartAppointment(appointment.id)}
+                            >
+                                Start
+                            </Button>
+                        )}
+                        {appointment.status === 'IN_PROGRESS' && (
+                            <Button 
+                                size='sm' 
+                                variant='primary'
+                                className='h-8 px-3 text-xs font-bold bg-amber-500 hover:bg-amber-600 border-amber-500'
+                                onClick={() => onCreateInvoice(appointment)}
+                            >
+                                Invoice
+                            </Button>
+                        )}
+                        <Badge size='sm' color={badgeColor}>
+                            {displayStatus}
+                        </Badge>
+                    </div>
 
                     <div className='relative'>
                         <button
@@ -67,14 +98,25 @@ const AppointmentTableRow = ({ appointment, user, openDropdown, onToggleDropdown
                         <Dropdown
                             isOpen={openDropdown === appointment.id}
                             onClose={() => onToggleDropdown(null)}
-                            className='w-40 p-2 right-0 top-full mt-1 z-10'
+                            className='w-48 p-2 right-0 top-full mt-1 z-10'
                         >
                             <DropdownItem onClick={() => onViewDetails(appointment.id)}>
                                 View Details
                             </DropdownItem>
+                            {appointment.status === 'CONFIRMED' && (
+                                <DropdownItem onClick={() => onStartAppointment(appointment.id)}>
+                                    Start Appointment
+                                </DropdownItem>
+                            )}
+                            {appointment.status === 'IN_PROGRESS' && (
+                                <DropdownItem onClick={() => onCreateInvoice(appointment)}>
+                                    Create Invoice
+                                </DropdownItem>
+                            )}
                         </Dropdown>
                     </div>
                 </div>
+
             </div>
 
             {/* Mobile View (xs only) */}

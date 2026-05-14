@@ -16,6 +16,7 @@ import {
     bookAppointmentAdmin,
     rescheduleAppointmentAdmin,
 } from '../services/appointment.service.js';
+import * as ApprovalService from '../services/appointment-admin.service.js';
 import { APPOINTMENT_STATUS } from '../utils/constants.js';
 import { 
     sendBookingSuccessEmail, 
@@ -137,7 +138,7 @@ const formatDoctorResponse = (d) => {
  */
 export const getAllAppointments = async (req, res, next) => {
     try {
-        const { date, date_from, date_to, status, dentist_id, patient_id, tier, search, created_at, page = 1, limit = 50 } = req.query;
+        const { date, date_from, date_to, status, dentist_id, patient_id, tier, search, created_at, sort = 'asc', page = 1, limit = 50 } = req.query;
  
         const filters = {
             date: date || null,
@@ -149,6 +150,7 @@ export const getAllAppointments = async (req, res, next) => {
             tier: tier || null,
             search: search || null,
             created_at: created_at || null,
+            sort: sort || 'asc',
         };
 
         const result = await getAllAppointmentsFiltered(filters, parseInt(page), parseInt(limit));
@@ -250,11 +252,12 @@ export const adminCancel = async (req, res, next) => {
         // 1. In-app notification for the patient
         if (result.appointment.patient_id) {
             try {
+                const isRequest = result.oldStatus === APPOINTMENT_STATUS.PENDING;
                 await sendCancellationNotice(result.appointment.patient_id, {
                     date: result.appointment.appointment_date,
                     start_time: result.appointment.start_time,
                     service: result.appointment.service?.name || 'Dental appointment',
-                });
+                }, isRequest);
             } catch (err) {
                 console.warn('[Realtime] Failed to notify patient of admin cancellation:', err.message);
             }
@@ -360,45 +363,19 @@ export const getPending = async (req, res, next) => {
 export const approve = async (req, res, next) => {
     try {
         const { dentist_id, note } = req.body;
-        const appointment = await approveRequest(req.params.id, req.user.id, dentist_id || null, note);
-
-        // 1. Email Notification
-        let emailResult = null;
-        try {
-            emailResult = await sendBookingSuccessEmail(appointment.patient?.email || appointment.guest_email, appointment.patient?.full_name || appointment.guest_name, {
-                date: appointment.appointment_date,
-                start_time: appointment.start_time,
-                end_time: appointment.end_time,
-                service: appointment.service?.name,
-                dentist: appointment.dentist?.profile?.full_name || 'Assigned',
-                note: note || ''
-            });
-        } catch (e) {
-            console.error('Failed to send approval email:', e);
-            emailResult = { success: false, error: e.message };
-        }
-
-        // 2. In-app & SMS notification
-        let inAppSmsResult = null;
-        const recipientPhone = appointment.patient?.phone || appointment.guest_phone;
         
-        // Always try to send approval notice — the service will handle the patient vs guest distinction
-        // (Skipping in-app for guests, but sending SMS if phone is available)
-        inAppSmsResult = await sendApprovalNotice(appointment.patient_id, {
-            date: appointment.appointment_date,
-            start_time: appointment.start_time,
-            end_time: appointment.end_time,
-            service: appointment.service?.name,
-        }, recipientPhone);
+        // 1. Use the specialized approval service (handles metrics, conflicts, and notifications)
+        const appointment = await ApprovalService.approveAppointment(
+            req.params.id, 
+            req.user.id, 
+            dentist_id || null, 
+            note
+        );
 
         res.json({ 
             message: 'Appointment approved.', 
             appointment,
-            notifications: {
-                email: emailResult,
-                inApp: inAppSmsResult?.inAppResult,
-                sms: inAppSmsResult?.smsResult
-            }
+            notifications: appointment.notification_log
         });
 
     } catch (err) {
@@ -426,40 +403,18 @@ export const reject = async (req, res, next) => {
             return res.status(400).json({ error: 'Rejection reason is required.' });
         }
 
-        const result = await rejectRequest(req.params.id, req.user.id, reason, suggested_date);
-
-        // Notify patient/guest
-        try {
-            await sendBookingRejectedEmail(result.appointment.patient?.email || result.appointment.guest_email, result.appointment.patient?.full_name || result.appointment.guest_name, {
-                service: result.appointment.service?.name,
-                reason,
-                suggestedDate
-            });
-        } catch (e) {
-            console.error('Failed to send rejection email:', e);
-        }
-
-        // In-app notification
-        if (result.appointment.patient_id) {
-            await sendRejectionNotice(result.appointment.patient_id, {
-                date: result.appointment.appointment_date,
-                start_time: result.appointment.start_time,
-                end_time: result.appointment.end_time,
-                service: result.appointment.service?.name,
-            }, reason);
-        }
+        // Use the specialized rejection service (handles notifications)
+        const appointment = await ApprovalService.rejectAppointment(
+            req.params.id, 
+            req.user.id, 
+            reason,
+            suggested_date
+        );
 
         res.json({
             message: 'Appointment request rejected.',
-            appointment: {
-                id: result.appointment.id,
-                status: result.appointment.status,
-                approval_status: result.appointment.approval_status,
-                rejection_reason: result.appointment.rejection_reason,
-                patient: result.appointment.patient?.full_name,
-                service: result.appointment.service?.name,
-            },
-            suggested_date: result.suggested_date,
+            appointment,
+            notifications: appointment.notification_log
         });
     } catch (err) {
         next(err);

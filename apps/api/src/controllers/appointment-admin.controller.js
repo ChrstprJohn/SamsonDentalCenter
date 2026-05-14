@@ -26,7 +26,8 @@ export const approveRequest = async (req, res, next) => {
         );
         res.json({
             message: 'Appointment request approved successfully.',
-            appointment
+            appointment: appointment,
+            notifications: appointment.notification_log
         });
     } catch (err) {
         next(err);
@@ -46,9 +47,29 @@ export const rejectRequest = async (req, res, next) => {
         );
         res.json({
             message: 'Appointment request rejected.',
+            appointment: appointment,
+            notifications: appointment.notification_log
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * PATCH /api/v1/admin/appointments-approval/:id/start
+ */
+export const startAppointment = async (req, res, next) => {
+    try {
+        const appointment = await ApprovalService.startAppointment(
+            req.params.id,
+            req.user.id
+        );
+        res.json({
+            message: 'Appointment started successfully.',
             appointment
         });
     } catch (err) {
         next(err);
     }
 };
+

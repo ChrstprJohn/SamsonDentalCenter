@@ -12,6 +12,7 @@ export const APPOINTMENT_STATUS = {
     COMPLETED: 'COMPLETED', // Treatment done (dentist marks this) [Patient, Secretary and Admin]
     NO_SHOW: 'NO_SHOW', // Patient didn't show up, automatically triggers once the time has passed [Patient, Secretary and Admin]
     DISPLACED: 'DISPLACED', // Displaced appointment (e.g., due to doctor unavailability)
+    RESCHEDULED: 'RESCHEDULED', // Replaced by a new appointment
 };
 
 // Waitlist status values
@@ -78,5 +79,9 @@ export const CLINIC_CONFIG = {
     OVERBOOK_LOW_RISK_PERCENT: 10, // Allow 10% overbooking on low no-show risk hours
     GUEST_CONFIRM_EXPIRY_MINUTES: 15, // Guest must confirm via email within 15 minutes
     MAX_ADVANCE_BOOKING_MONTHS: 3, // Online booking up to 3 months ahead
-    NO_SAME_DAY_ONLINE: true, // ❌ No same-day booking for online
+    NO_SAME_DAY_ONLINE: true,
+    MAX_OTP_FAILED_ATTEMPTS: 5,
+    MAX_DEPENDENTS_PER_USER: 10,
+    MAX_ACTIVE_APPOINTMENTS_PER_ACCOUNT: 3,
+    MAX_ACTIVE_APPOINTMENTS_PER_INDIVIDUAL: 3,
 };

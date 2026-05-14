@@ -1,11 +1,30 @@
 import { Link } from 'react-router-dom';
+import { Phone, Mail, Facebook } from 'lucide-react';
+
+const SOCIAL_LINKS = [
+    {
+        icon: Phone,
+        href: 'tel:+639123456789',
+        label: 'Phone',
+    },
+    {
+        icon: Mail,
+        href: 'mailto:info@samsondental.com',
+        label: 'Email',
+    },
+    {
+        icon: Facebook,
+        href: 'https://facebook.com/SamsonDentalCenter',
+        label: 'Facebook',
+    },
+];
 
 const Footer = () => {
     return (
         <footer className='bg-stone-950 text-stone-50 py-16 sm:py-24 lg:py-32 relative overflow-hidden'>
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20 md:mb-24'>
-                    <div className='col-span-1 md:col-span-2 lg:col-span-1'>
+                <div className='grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20 md:mb-24'>
+                    <div className='col-span-2 lg:col-span-1'>
                         <div className='flex items-center gap-4 mb-8 group cursor-pointer'>
                             <div className='relative flex items-center justify-center w-12 h-12 z-10'>
                                 <img
@@ -14,12 +33,12 @@ const Footer = () => {
                                     className='w-12 h-12 object-contain group-hover:scale-110 transition-transform duration-300 ease-out drop-shadow-md'
                                 />
                             </div>
-                            <div className='flex flex-col items-start justify-center flex-shrink-0'>
-                                <span className='font-black text-[20px] tracking-[-0.04em] leading-none text-white whitespace-nowrap'>
+                            <div className='flex flex-col items-start justify-center flex-shrink-0 ml-1'>
+                                <span className='font-black text-[24px] tracking-[-0.01em] leading-[0.8] text-white whitespace-nowrap font-serif'>
                                     SAMSON
                                 </span>
-                                <span className='text-[9px] uppercase tracking-[0.28em] font-bold mt-[2px] text-red-500 whitespace-nowrap drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]'>
-                                    Dental Center
+                                <span className='text-[10px] uppercase tracking-[0.16em] font-black mt-0 text-gray-400 whitespace-nowrap font-serif block w-full text-center'>
+                                    DENTAL CENTER
                                 </span>
                             </div>
                         </div>
@@ -29,13 +48,14 @@ const Footer = () => {
                             here.
                         </p>
                         <div className='flex gap-4'>
-                            {[1, 2, 3].map((i) => (
+                            {SOCIAL_LINKS.map((link) => (
                                 <a
-                                    key={i}
-                                    href='#'
+                                    key={link.label}
+                                    href={link.href}
+                                    aria-label={link.label}
                                     className='w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all duration-200 ease-in-out shadow-sm active:translate-y-0 hover:-translate-y-0.5'
                                 >
-                                    <div className='w-4 h-4 border-2 border-current rounded-xs'></div>
+                                    <link.icon className='w-4 h-4' />
                                 </a>
                             ))}
                         </div>
@@ -101,7 +121,7 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    <div>
+                    <div className='col-span-2 lg:col-span-1'>
                         <h4 className='font-bold text-white text-sm mb-8 tracking-wide uppercase opacity-90'>
                             Newsletter
                         </h4>

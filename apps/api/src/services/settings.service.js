@@ -100,7 +100,7 @@ export const updateSchedule = async (schedules, force = false, actorId, actorRol
         .from('appointments')
         .select(`
             id, appointment_date, start_time, end_time, status, dentist_id,
-            patient:profiles!appointments_patient_id_fkey(first_name, last_name, full_name, phone),
+            patient:profiles!patient_id(first_name, last_name, full_name, phone),
             guest_name, guest_first_name, guest_last_name, guest_phone,
             service:services(name),
             dentist:dentists(id, profile:profiles(first_name, last_name, full_name))

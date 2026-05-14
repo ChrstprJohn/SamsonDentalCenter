@@ -19,6 +19,7 @@ const DateTimeStep = ({
     excludeAppointmentId,
     serviceTier,
     error,
+    nextLabel = 'Continue to Details',
 }) => {
     const lastErrorRef = useRef(null);
     const toast = useToast();
@@ -369,9 +370,12 @@ const DateTimeStep = ({
 
                 {isDoctorDropdownOpen && (
                     <>
-                        <div className='fixed inset-0 z-40' onClick={() => setIsDoctorDropdownOpen(false)} />
-                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200'>
-                            <div className='max-h-[320px] overflow-y-auto p-2 scrollbar-hide'>
+                        <div className='fixed inset-0 z-20' onClick={() => setIsDoctorDropdownOpen(false)} />
+                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-30 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200'>
+                            <div 
+                                className='max-h-[320px] overflow-y-auto p-2 overscroll-contain scroll-smooth'
+                                onWheel={(e) => e.stopPropagation()}
+                            >
                                 <button
                                     onClick={() => { handleSpecialistChange(''); setIsDoctorDropdownOpen(false); }}
                                     className={`w-full flex items-center gap-3.5 p-3 rounded-xl transition-all text-left mb-1 group ${
@@ -778,7 +782,7 @@ const DateTimeStep = ({
                                         disabled={!selectedDate || !selectedTime || isProcessing}
                                         className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2.5 text-[11px] sm:text-base'
                                     >
-                                        Continue to Details
+                                        <span>{nextLabel}</span>
                                         <ArrowRight size={16} className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                                     </button>
                                 </div>

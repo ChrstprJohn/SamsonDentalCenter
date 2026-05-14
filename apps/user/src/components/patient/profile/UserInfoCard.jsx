@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useModal } from '../../../hooks/useModal';
-import { Modal } from '../../ui/Modal';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from '../../ui/Modal';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';
 import Label from '../../ui/Label';
@@ -12,22 +12,85 @@ export default function UserInfoCard() {
     const { showToast } = useToast();
     const { isOpen, openModal, closeModal } = useModal();
     const [isSaving, setIsSaving] = useState(false);
+    const [errors, setErrors] = useState({});
+
+    const validateNames = (name, allowDots = false) => {
+        return allowDots ? /^[a-zA-Z\s.-]*$/.test(name) : /^[a-zA-Z\s-]*$/.test(name);
+    };
+
+    const validate = (formData) => {
+        const newErrors = {};
+        const firstName = formData.get('first_name')?.trim();
+        const lastName = formData.get('last_name')?.trim();
+        const middleName = formData.get('middle_name')?.trim();
+        const dob = formData.get('date_of_birth');
+        const sex = formData.get('sex');
+
+        if (!firstName) {
+            newErrors.first_name = 'First name is required.';
+        } else if (!validateNames(firstName)) {
+            newErrors.first_name = 'Numbers and special characters are not allowed.';
+        }
+
+        if (!lastName) {
+            newErrors.last_name = 'Last name is required.';
+        } else if (!validateNames(lastName)) {
+            newErrors.last_name = 'Numbers and special characters are not allowed.';
+        }
+
+        if (middleName && !validateNames(middleName)) {
+            newErrors.middle_name = 'Invalid characters in middle name.';
+        }
+
+        if (!dob) {
+            newErrors.date_of_birth = 'Date of birth is required.';
+        }
+
+        if (!sex) {
+            newErrors.sex = 'Biological sex is required.';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        
+        // Prevent invalid characters in name fields
+        if (['first_name', 'last_name', 'middle_name', 'suffix'].includes(name)) {
+            if (!validateNames(value, name === 'suffix')) {
+                return;
+            }
+        }
+
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: undefined }));
+        }
+    };
 
     const handleSave = async (e) => {
         e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        if (!validate(formData)) return;
+
         setIsSaving(true);
         try {
-            const formData = new FormData(e.target);
             const first_name = formData.get('first_name').trim();
             const last_name = formData.get('last_name').trim();
             const middle_name = formData.get('middle_name').trim();
             const suffix = formData.get('suffix').trim();
+            const date_of_birth = formData.get('date_of_birth');
+            const sex = formData.get('sex');
             
             await updateProfile({ 
                 first_name, 
                 last_name, 
                 middle_name, 
-                suffix
+                suffix,
+                date_of_birth,
+                sex
             });
             showToast('Personal information updated!');
             closeModal();
@@ -37,6 +100,11 @@ export default function UserInfoCard() {
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleOpenModal = () => {
+        setErrors({});
+        openModal();
     };
 
     return (
@@ -49,27 +117,35 @@ export default function UserInfoCard() {
 
                     <div className='grid grid-cols-1 gap-y-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-8'>
                         <div>
-                            <p className='mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400'>Last Name</p>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Last Name</p>
                             <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.last_name || '—'}</p>
                         </div>
                         <div>
-                            <p className='mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400'>First Name</p>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>First Name</p>
                             <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.first_name || '—'}</p>
                         </div>
                         <div>
-                            <p className='mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400'>Middle Name</p>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Middle Name</p>
                             <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.middle_name || '—'}</p>
                         </div>
                         <div>
-                            <p className='mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400'>Suffix</p>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Suffix</p>
                             <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.suffix || '—'}</p>
+                        </div>
+                        <div>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Date of Birth</p>
+                            <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.date_of_birth || '—'}</p>
+                        </div>
+                        <div>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Sex</p>
+                            <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.sex || '—'}</p>
                         </div>
                     </div>
                 </div>
 
                 <Button
                     variant='outline'
-                    onClick={openModal}
+                    onClick={handleOpenModal}
                     className='flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3.5 text-sm font-bold lg:inline-flex lg:w-auto hover:border-brand-500 hover:text-brand-500'
                 >
                     <svg
@@ -91,70 +167,109 @@ export default function UserInfoCard() {
                 </Button>
             </div>
 
-            <Modal isOpen={isOpen} onClose={closeModal} className='max-w-[480px] w-[95%] sm:w-full m-auto'>
-                <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-6 dark:bg-gray-900 sm:p-8'>
-                    <div className='pr-8 sm:pr-12'>
-                        <h4 className='mb-1 text-xl font-bold text-gray-900 dark:text-white'>
-                            Edit Information
-                        </h4>
-                        <p className='mb-6 text-sm text-gray-500 dark:text-gray-400'>
-                            Update your personal and contact details.
-                        </p>
-                    </div>
-                    <form className='flex flex-col gap-6' onSubmit={handleSave}>
-                        <div className='space-y-6'>
-                            <div className='grid grid-cols-2 gap-4'>
-                                <div className="col-span-1">
-                                    <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2 block">First Name</Label>
-                                    <Input 
-                                        name="first_name"
-                                        className="text-sm font-medium h-12 rounded-lg" 
-                                        defaultValue={user?.first_name}
+            <Modal isOpen={isOpen} onClose={closeModal} isBottomSheet={true} className='sm:max-w-[500px] w-full' showCloseButton={false}>
+                <ModalHeader 
+                    title="Edit Information" 
+                    description="Update your personal details below." 
+                    onClose={closeModal} 
+                />
+                <form onSubmit={handleSave} className="flex flex-col flex-1 min-h-0">
+                    <ModalBody>
+                        <div className='space-y-5'>
+                            <div>
+                                <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">First Name</Label>
+                                <Input 
+                                    name="first_name"
+                                    className={`text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm transition-all ${errors.first_name ? 'border-rose-500 ring-rose-500/10 focus:ring-rose-500/10 focus:border-rose-500' : ''}`} 
+                                    defaultValue={user?.first_name}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="First Name"
+                                />
+                                {errors.first_name && <p className='text-rose-500 text-[10px] font-bold mt-1.5 ml-1 animate-in fade-in slide-in-from-top-1'>{errors.first_name}</p>}
+                            </div>
+                            <div>
+                                <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Last Name</Label>
+                                <Input 
+                                    name="last_name"
+                                    className={`text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm transition-all ${errors.last_name ? 'border-rose-500 ring-rose-500/10 focus:ring-rose-500/10 focus:border-rose-500' : ''}`} 
+                                    defaultValue={user?.last_name}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Last Name"
+                                />
+                                {errors.last_name && <p className='text-rose-500 text-[10px] font-bold mt-1.5 ml-1 animate-in fade-in slide-in-from-top-1'>{errors.last_name}</p>}
+                            </div>
+                            <div>
+                                <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Middle Name</Label>
+                                <Input 
+                                    name="middle_name"
+                                    className={`text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm transition-all ${errors.middle_name ? 'border-rose-500 ring-rose-500/10 focus:ring-rose-500/10 focus:border-rose-500' : ''}`} 
+                                    defaultValue={user?.middle_name}
+                                    onChange={handleInputChange}
+                                    placeholder="Middle Name"
+                                />
+                                {errors.middle_name && <p className='text-rose-500 text-[10px] font-bold mt-1.5 ml-1 animate-in fade-in slide-in-from-top-1'>{errors.middle_name}</p>}
+                            </div>
+                            <div>
+                                <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Suffix</Label>
+                                <Input 
+                                    name="suffix"
+                                    className="text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm" 
+                                    defaultValue={user?.suffix}
+                                    onChange={handleInputChange}
+                                    placeholder="Suffix (Jr, Sr, etc.)"
+                                />
+                            </div>
+                            <div>
+                                <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Date of Birth</Label>
+                                <Input 
+                                    name="date_of_birth"
+                                    type="date"
+                                    className={`text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm transition-all ${errors.date_of_birth ? 'border-rose-500 ring-rose-500/10 focus:ring-rose-500/10 focus:border-rose-500' : ''}`} 
+                                    defaultValue={user?.date_of_birth}
+                                    onChange={handleInputChange}
+                                    onClick={(e) => {
+                                        try { e.target.showPicker(); } catch (err) {}
+                                    }}
+                                    required
+                                />
+                                {errors.date_of_birth && <p className='text-rose-500 text-[10px] font-bold mt-1.5 ml-1 animate-in fade-in slide-in-from-top-1'>{errors.date_of_birth}</p>}
+                            </div>
+                            <div>
+                                <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Sex</Label>
+                                <div className="relative">
+                                    <select 
+                                        name="sex"
+                                        className={`w-full text-[13px] sm:text-sm font-medium h-11 px-4 pr-10 rounded-xl border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 outline-none focus:border-brand-500 transition-colors appearance-none shadow-theme-sm ${errors.sex ? 'border-rose-500 ring-rose-500/10 focus:ring-rose-500/10 focus:border-rose-500' : ''}`}
+                                        defaultValue={user?.sex || ''}
+                                        onChange={handleInputChange}
                                         required
-                                        placeholder="First"
-                                    />
+                                    >
+                                        <option value="" disabled>Select Sex</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </div>
                                 </div>
-                                <div className="col-span-1">
-                                    <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2 block">Last Name</Label>
-                                    <Input 
-                                        name="last_name"
-                                        className="text-sm font-medium h-12 rounded-lg" 
-                                        defaultValue={user?.last_name}
-                                        required
-                                        placeholder="Last"
-                                    />
-                                </div>
-                                <div className="col-span-1">
-                                    <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2 block">Middle Name</Label>
-                                    <Input 
-                                        name="middle_name"
-                                        className="text-sm font-medium h-12 rounded-lg" 
-                                        defaultValue={user?.middle_name}
-                                        placeholder="Middle"
-                                    />
-                                </div>
-                                <div className="col-span-1">
-                                    <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2 block">Suffix</Label>
-                                    <Input 
-                                        name="suffix"
-                                        className="text-sm font-medium h-12 rounded-lg" 
-                                        defaultValue={user?.suffix}
-                                        placeholder="Jr/Sr/etc"
-                                    />
-                                </div>
+                                {errors.sex && <p className='text-rose-500 text-[10px] font-bold mt-1.5 ml-1 animate-in fade-in slide-in-from-top-1'>{errors.sex}</p>}
                             </div>
                         </div>
+                    </ModalBody>
 
-                        <div className='flex items-center gap-3 mt-2 sm:justify-end'>
-                            <Button variant='outline' type="button" onClick={closeModal} className="flex-1 sm:flex-none h-11 px-6 rounded-lg font-bold" disabled={isSaving}>
-                                Cancel
-                            </Button>
-                            <Button type='submit' className="flex-1 sm:flex-none h-11 px-6 rounded-lg font-bold" disabled={isSaving}>
-                                {isSaving ? 'Saving...' : 'Save'}
-                            </Button>
-                        </div>
-                    </form>
-                </div>
+                    <ModalFooter>
+                        <Button variant='outline' type="button" onClick={closeModal} className="flex-1 sm:flex-none h-11 px-6 rounded-xl font-black text-[11px] sm:text-sm" disabled={isSaving}>
+                            Cancel
+                        </Button>
+                        <Button type='submit' className="flex-1 sm:flex-none h-11 px-6 rounded-xl font-black text-[11px] sm:text-sm" disabled={isSaving}>
+                            {isSaving ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                    </ModalFooter>
+                </form>
             </Modal>
         </div>
     );

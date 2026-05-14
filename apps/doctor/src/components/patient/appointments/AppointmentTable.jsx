@@ -2,7 +2,17 @@ import AppointmentTableRow from './AppointmentTableRow';
 import AppointmentSkeleton from './AppointmentSkeleton';
 import { Calendar } from 'lucide-react';
 
-const AppointmentTable = ({ appointments, loading, error, user, openDropdown, onToggleDropdown, onViewDetails }) => {
+const AppointmentTable = ({ 
+    appointments, 
+    loading, 
+    error, 
+    user, 
+    openDropdown, 
+    onToggleDropdown, 
+    onViewDetails,
+    onStartAppointment,
+    onCreateInvoice 
+}) => {
     return (
         <div className='flex flex-col grow min-h-[400px] md:min-h-[285px]'>
             {/* Loading skeleton */}
@@ -36,11 +46,14 @@ const AppointmentTable = ({ appointments, loading, error, user, openDropdown, on
                         openDropdown={openDropdown}
                         onToggleDropdown={onToggleDropdown}
                         onViewDetails={onViewDetails}
+                        onStartAppointment={onStartAppointment}
+                        onCreateInvoice={onCreateInvoice}
                     />
                 ))}
             </div>
         </div>
     );
 };
+
 
 export default AppointmentTable;

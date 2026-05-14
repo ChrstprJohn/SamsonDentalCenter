@@ -1,4 +1,4 @@
-import { Search, Mail, Star, Clock, Calendar, Bell } from 'lucide-react';
+import { Search, Mail, Star, Calendar, Bell } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import NotificationRow from './NotificationRow';
 import NotificationSkeleton from './NotificationSkeleton';
@@ -9,7 +9,6 @@ const CATEGORIES = [
     { id: 'unread', label: 'Unread', icon: Bell, key: 'unread' },
     { id: 'starred', label: 'Starred', icon: Star, key: 'starred' },
     { id: 'appointments', label: 'Appointments', icon: Calendar, key: 'appointments' },
-    { id: 'waitlist', label: 'Waitlist', icon: Clock, key: 'waitlist' },
 ];
 
 const NotificationInbox = ({
@@ -45,7 +44,6 @@ const NotificationInbox = ({
         if (key === 'all') return totalCount || 0;
         if (key === 'unread') return stats.unread || 0;
         if (key === 'starred') return stats.starred || 0;
-        if (key === 'waitlist') return stats.waitlist || 0;
         if (key === 'appointments') {
             // Sum all appointment-related types
             return (
@@ -153,18 +151,20 @@ const NotificationInbox = ({
                 </div>
 
                 {/* Footer / Pagination Area */}
-                <div className='fixed bottom-0 left-0 right-0 sm:relative z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md px-4 sm:px-6 py-2 sm:py-5 border-t border-gray-100 dark:border-gray-800 sm:shadow-none'>
-                    <div className='flex flex-col items-center justify-center w-full max-w-md mx-auto'>
-                        {/* Pagination Component - Main Focus */}
-                        <div className='flex justify-center'>
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={onPageChange}
-                            />
+                {totalPages > 1 && (
+                    <div className='fixed bottom-0 left-0 right-0 sm:relative z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md px-4 sm:px-6 py-2 sm:py-5 border-t border-gray-100 dark:border-gray-800 sm:shadow-none'>
+                        <div className='flex flex-col items-center justify-center w-full max-w-md mx-auto'>
+                            {/* Pagination Component - Main Focus */}
+                            <div className='flex justify-center'>
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={onPageChange}
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

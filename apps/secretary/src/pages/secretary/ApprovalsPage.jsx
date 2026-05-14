@@ -3,12 +3,14 @@ import { useSearchParams } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import ApprovalHeader from '../../components/secretary/approvals/ApprovalHeader';
 import ApprovalInbox from '../../components/secretary/approvals/ApprovalInbox';
-import ApprovalDetailView from '../../components/secretary/approval_details';
+import ApprovalDetailView from '../../components/secretary/approval_details/index.jsx';
 import useApprovals from '../../hooks/useApprovals';
+import { useToast } from '../../context/ToastContext';
 import { formatTime } from '../../hooks/useAppointments';
 
 const ApprovalsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const selectedId = searchParams.get('id') || null;
     const { 
         requests: rawRequests, 
         loading, 
@@ -18,31 +20,19 @@ const ApprovalsPage = () => {
         fetchDentistSchedule,
         fetchPatientStats,
         fetchPatientHistory,
-        refresh 
+        refresh,
+        actionLoading
     } = useApprovals();
-
-    const [busySlots, setBusySlots] = useState([]);
-    const [completedCount, setCompletedCount] = useState(0);
-    const [patientHistory, setPatientHistory] = useState([]);
+    const toast = useToast();
 
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedService, setSelectedService] = useState('All Services');
     const [selectedDoctor, setSelectedDoctor] = useState('All Doctors');
-    const [selectedDate, setSelectedDate] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedId, setSelectedId] = useState(null);
-
-    function calculatePosition(timeStr) {
-        if (!timeStr) return -1;
-        const [h, m] = timeStr.split(':').map(Number);
-        const totalMinutes = h * 60 + m;
-        const startMinutes = 8 * 60;
-        const endMinutes = 17 * 60;
-        return Math.max(0, Math.min(100, ((totalMinutes - startMinutes) / (endMinutes - startMinutes)) * 100));
-    }
 
     const requests = useMemo(() => {
+        if (!rawRequests) return [];
         return rawRequests.map(req => ({
             id: req.id,
             patient: { 
@@ -57,61 +47,46 @@ const ApprovalsPage = () => {
                 noShowCount: req.patient?.no_show_count || 0, 
                 cancellationCount: req.patient?.cancellation_count || 0,
                 isBookingRestricted: req.patient?.is_booking_restricted || false,
-                source: req.source
+                source: req.source,
+                patientNote: req.patient?.notes || null
             },
             service: req.service?.name || "Unknown Service",
             serviceTier: req.service_tier,
             requestedDate: req.appointment_date,
             requestedTime: formatTime(req.start_time),
+            requestedEndTime: formatTime(req.end_time),
             dentist: req.dentist?.profile?.first_name 
                 ? `${req.dentist.profile.last_name}, ${req.dentist.profile.first_name} ${req.dentist.profile.middle_name || ''} ${req.dentist.profile.suffix || ''}`.replace(/\s+/g, ' ').trim() 
                 : 'Unassigned',
             dentistId: req.dentist?.id || req.dentist_id,
-            dentistPhone: req.dentist?.profile?.phone || req.dentist?.phone || "N/A",
-            dentistEmail: req.dentist?.profile?.email || req.dentist?.email || "N/A",
+            dentistSpecialization: req.dentist?.specialization || 'General Dentist',
             createdAt: req.created_at,
+            updatedAt: req.updated_at,
             source: req.source,
-            slotPosition: calculatePosition(req.start_time)
+            notes: req.notes,
+            status: req.status,
+            approvalStatus: req.approval_status
         }));
     }, [rawRequests]);
 
-    useEffect(() => {
-        const id = searchParams.get('id');
-        if (id) {
-            setSelectedId(id);
-        } else {
-            setSelectedId(null);
-        }
-    }, [searchParams]);
+    // Dynamically calculate unique services and doctors from ALL requests
+    const availableServices = React.useMemo(() => {
+        const unique = new Set(requests.map(r => r.service).filter(Boolean));
+        return ['All Services', ...Array.from(unique)].sort();
+    }, [requests]);
 
-    const handleApprove = async (id) => {
-        const res = await approveRequest(id);
-        if (res.success) {
-            if (selectedId === id) setSearchParams({});
-        } else {
-            alert(`Approval failed: ${res.error}`);
-        }
-    };
-
-    const handleReject = async (id, reason = 'No reason provided') => {
-        const res = await rejectRequest(id, reason);
-        if (res.success) {
-            if (selectedId === id) setSearchParams({});
-        } else {
-            alert(`Rejection failed: ${res.error}`);
-        }
-    };
-
-    const handleRowClick = (id) => setSearchParams({ id: id.toString() });
-    const handleBack = () => setSearchParams({});
+    const availableDoctors = React.useMemo(() => {
+        const unique = new Set(requests.map(r => r.dentist).filter(d => d && d !== 'Unassigned'));
+        const sorted = Array.from(unique).sort();
+        return ['All Doctors', ...sorted];
+    }, [requests]);
 
     const filteredRequests = requests.filter(r => {
         const matchesSearch = r.patient.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesService = selectedService === 'All Services' || r.service === selectedService;
         const matchesDoctor = selectedDoctor === 'All Doctors' || r.dentist === selectedDoctor;
-        const matchesDate = !selectedDate || r.requestedDate === selectedDate;
         
-        if (!matchesSearch || !matchesService || !matchesDoctor || !matchesDate) return false;
+        if (!matchesSearch || !matchesService || !matchesDoctor) return false;
         if (activeFilter === 'all') return true;
         
         const hours = (new Date() - new Date(r.createdAt)) / (1000 * 60 * 60);
@@ -121,11 +96,11 @@ const ApprovalsPage = () => {
         const tomorrowStr = tomorrow.toISOString().split('T')[0];
         
         const isUrgent = r.requestedDate === tomorrowStr || r.requestedDate === todayStr;
-        const isNeedsAttention = hours > 5 && !isUrgent;
-        const isRecent = hours <= 5 && !isUrgent;
+        const isRecent = hours <= 5;
+        const isStale = hours > 5 && !isUrgent;
 
         if (activeFilter === 'urgent') return isUrgent;
-        if (activeFilter === 'stale') return isNeedsAttention;
+        if (activeFilter === 'stale') return isStale;
         if (activeFilter === 'recent') return isRecent;
         return true;
     });
@@ -147,39 +122,36 @@ const ApprovalsPage = () => {
         }, { urgent: 0, stale: 0, new: 0 });
     }, [requests]);
 
-    const selectedRequest = requests.find(r => r.id === selectedId);
-
-    useEffect(() => {
-        if (selectedRequest) {
-            const loadData = async () => {
-                if (selectedRequest.dentistId && selectedRequest.requestedDate) {
-                    const appointments = await fetchDentistSchedule(selectedRequest.dentistId, selectedRequest.requestedDate);
-                    const positions = appointments
-                        .filter(a => a.id !== selectedRequest.id && !['CANCELLED', 'LATE_CANCEL', 'RESCHEDULED', 'NOSHOW'].includes(a.status))
-                        .map(a => calculatePosition(a.start_time));
-                    setBusySlots(positions);
-                }
-                if (selectedRequest.patient.id) {
-                    const stats = await fetchPatientStats(selectedRequest.patient.id);
-                    setCompletedCount(stats.completed);
-                    const history = await fetchPatientHistory(selectedRequest.patient.id);
-                    setPatientHistory(history);
-                } else {
-                    setCompletedCount(0);
-                    setPatientHistory([]);
-                }
-            };
-            loadData();
+    const handleApprove = async (id, note) => {
+        const res = await approveRequest(id, note);
+        if (res.success) {
+            toast.success("The appointment has been successfully approved and the patient has been notified.", "Request Approved");
+            setSearchParams({});
         } else {
-            setBusySlots([]);
-            setCompletedCount(0);
-            setPatientHistory([]);
+            toast.error(res.error || "Failed to approve the request. Please try again.", "Approval Error");
         }
-    }, [selectedRequest, fetchDentistSchedule, fetchPatientStats, fetchPatientHistory]);
+    };
 
-    const breadcrumbTitle = selectedId ? 'Request Details' : 'Approvals';
-    const parentName = selectedId ? 'Approvals' : null;
-    const parentPath = selectedId ? '/approvals' : null;
+    const handleReject = async (id, reason = 'No reason provided') => {
+        const res = await rejectRequest(id, reason);
+        if (res.success) {
+            toast.success("The request has been declined and the patient has been notified of the reason.", "Request Rejected");
+            setSearchParams({});
+        } else {
+            toast.error(res.error || "Failed to reject the request. Please try again.", "Rejection Error");
+        }
+    };
+
+    const handleRowClick = (id) => setSearchParams({ id: id.toString() });
+    const handleBack = () => setSearchParams({});
+
+    const selectedRequest = useMemo(() => {
+        const idFromUrl = searchParams.get('id');
+        if (!idFromUrl) return null;
+        
+        // Simple string comparison for UUIDs
+        return requests.find(r => r.id?.toString() === idFromUrl);
+    }, [requests, searchParams]);
 
     if (loading && requests.length === 0) {
         return (
@@ -189,21 +161,14 @@ const ApprovalsPage = () => {
         );
     }
 
-    if (error) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-                <div className="text-error-500 font-bold mb-4">Error loading approvals</div>
-                <div className="text-gray-500 mb-6">{error}</div>
-                <button onClick={refresh} className="px-6 py-2 bg-brand-500 text-white rounded-xl font-bold">Try Again</button>
-            </div>
-        );
-    }
+    const breadcrumbTitle = selectedId ? 'Request Details' : 'Appointment Requests';
+    const parentName = selectedId ? 'Appointment Requests' : null;
+    const parentPath = selectedId ? '/approvals' : null;
 
     return (
-        <div className="flex flex-col h-full w-full max-w-full overflow-x-hidden pb-8">
+        <div className="flex flex-col min-h-[calc(100vh-140px)] w-full overflow-x-hidden pb-8">
             <PageBreadcrumb 
                 pageTitle={breadcrumbTitle} 
-                subtitle={selectedId ? 'Review detailed request information and history.' : 'Review and manage appointment booking requests.'}
                 parentName={parentName} 
                 parentPath={parentPath} 
             />
@@ -217,19 +182,24 @@ const ApprovalsPage = () => {
                 />
             )}
 
-            <div className="flex-1 min-h-0 flex flex-col sm:mb-6">
+            <div className="flex-1 min-h-[600px] flex flex-col sm:mb-6">
                 {selectedId ? (
-                    <ApprovalDetailView 
-                        request={selectedRequest}
-                        onApprove={() => handleApprove(selectedId)}
-                        onReject={(reason) => handleReject(selectedId, reason)}
-                        onBack={handleBack}
-                        busySlots={busySlots}
-                        slotPosition={selectedRequest?.slotPosition}
-                        timeStr={selectedRequest?.requestedTime}
-                        completedCount={completedCount}
-                        history={patientHistory}
-                    />
+                    selectedRequest ? (
+                        <ApprovalDetailView 
+                            request={selectedRequest}
+                            onApprove={(note) => handleApprove(selectedId, note)}
+                            onReject={(reason) => handleReject(selectedId, reason)}
+                            isProcessing={actionLoading}
+                            onBack={handleBack}
+                            fetchDentistSchedule={fetchDentistSchedule}
+                            fetchPatientStats={fetchPatientStats}
+                        />
+                    ) : (
+                        <div className="flex flex-col items-center justify-center p-20 text-center">
+                            <p className="text-gray-500">Request not found.</p>
+                            <button onClick={handleBack} className="mt-4 px-6 py-2 bg-brand-500 text-white rounded-lg">Go Back</button>
+                        </div>
+                    )
                 ) : (
                     <ApprovalInbox 
                         requests={filteredRequests}
@@ -240,12 +210,10 @@ const ApprovalsPage = () => {
                         onSearchChange={setSearchQuery}
                         selectedService={selectedService}
                         onServiceChange={setSelectedService}
+                        availableServices={availableServices}
                         selectedDoctor={selectedDoctor}
                         onDoctorChange={setSelectedDoctor}
-                        selectedDate={selectedDate}
-                        onDateChange={setSelectedDate}
-                        onApprove={handleApprove}
-                        onReject={handleReject}
+                        availableDoctors={availableDoctors}
                         onRowClick={handleRowClick}
                         currentPage={currentPage}
                         onPageChange={setCurrentPage}

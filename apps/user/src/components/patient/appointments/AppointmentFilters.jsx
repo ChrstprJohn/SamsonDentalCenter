@@ -5,16 +5,10 @@ import { useState, useEffect } from 'react';
 
 const MAIN_TABS = [
     { id: 'upcoming', label: 'Upcoming', key: 'upcoming' },
-    { id: 'requests', label: 'Requests', key: 'requests' },
     { id: 'history', label: 'History', key: 'history' },
 ];
 
 const SUB_FILTERS = {
-    requests: [
-        { id: 'approved', label: 'Approved', key: 'approved', icon: CheckCircle2 },
-        { id: 'pending', label: 'Pending', key: 'pending', icon: Clock },
-        { id: 'decline', label: 'Rejected', key: 'decline', icon: XCircle },
-    ],
     history: [
         { id: 'cancel', label: 'Cancelled', key: 'cancel', icon: XCircle },
         { id: 'completed', label: 'Completed', key: 'completed', icon: CheckCircle2 },
@@ -35,7 +29,6 @@ const AppointmentFilters = ({ search, onSearchChange, statusFilter, onStatusChan
 
     // Derive active main tab from statusFilter
     const getActiveMainTab = () => {
-        if (statusFilter === 'requests' || ['approved', 'pending', 'decline'].includes(statusFilter)) return 'requests';
         if (statusFilter === 'history' || ['completed', 'cancel', 'rescheduled'].includes(statusFilter)) return 'history';
         return 'upcoming'; // default
     };
