@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Calendar, ChevronRight, Mars, Venus, UserCircle, ChevronDown, Contact, LogIn, AlertCircle } from 'lucide-react';
+import { User, Calendar, ChevronRight, Mars, Venus, UserCircle, ChevronDown, Contact, LogIn, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui';
 
@@ -8,13 +8,6 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
     const navigate = useNavigate();
     const bannerRef = useRef(null);
     const labelClasses = "mb-2 block text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 leading-none";
-
-    // Scroll to top/banner if errors occur
-    useEffect(() => {
-        if (Object.keys(errors).length > 0) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }, [errors]);
 
     const getInputClasses = (fieldError) => {
         const base = "h-11 w-full rounded-xl border appearance-none px-4 py-2.5 text-[13px] sm:text-sm shadow-theme-sm placeholder:text-gray-400 focus:outline-hidden focus:ring-4 transition-all bg-white dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 font-medium";
@@ -67,9 +60,9 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
     };
 
     return (
-        <div className='space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700'>
+        <div className='animate-in fade-in slide-in-from-bottom-4 duration-700 pb-8 sm:pb-0'>
             {/* Page Title Section */}
-            <div className='text-left'>
+            <div className='text-left mb-6 sm:mb-10'>
                 <h2 className='text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
                     Identity & Contact
                 </h2>
@@ -78,32 +71,44 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                 </p>
             </div>
 
-            {/* Error Banner (Parity with Guest Booking) */}
+            {/* Error Banner (Matches Guest Booking ConfirmStep Style) */}
             {Object.keys(errors).length > 0 && (
                 <div 
                     ref={bannerRef}
-                    className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 shadow-theme-xs"
+                    className='bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30 rounded-2xl sm:rounded-3xl mb-8 animate-in shake duration-500 shadow-theme-md overflow-hidden'
                 >
-                    <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/20 flex items-center justify-center shrink-0">
-                        <AlertCircle className="text-red-600 dark:text-red-400" size={22} />
+                    <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-red-200/50 dark:border-red-900/30 gap-3">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 shadow-sm">
+                                <AlertCircle size={20} />
+                            </div>
+                            <h3 className="text-[15px] sm:text-lg font-bold text-red-600 dark:text-red-400">
+                                Incomplete Information
+                            </h3>
+                        </div>
                     </div>
-                    <div className="text-left">
-                        <p className="text-sm font-black text-red-900 dark:text-red-400 leading-none mb-1">Incomplete Information</p>
-                        <p className="text-[11px] sm:text-xs font-bold text-red-600/70 dark:text-red-400/60">Please review the fields marked in red before continuing.</p>
+                    
+                    <div className="px-5 py-6 sm:px-10 sm:py-8">
+                        <div className="flex items-start gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-600 mt-2 shrink-0 shadow-sm" />
+                            <p className="text-[13px] sm:text-[15px] text-gray-900 dark:text-white font-bold leading-snug">
+                                Please review the fields marked in red before continuing.
+                            </p>
+                        </div>
                     </div>
                 </div>
             )}
 
             {/* Section 1: Personal Details */}
-            <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md overflow-hidden'>
+            <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md mb-6 sm:mb-8 overflow-hidden'>
                 <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
                     <UserCircle size={20} className="text-brand-500" />
                     <h3 className="text-[15px] sm:text-lg font-bold text-gray-900 dark:text-white">Personal Details</h3>
                 </div>
 
-                <div className="px-5 py-6 sm:px-10 sm:py-10 space-y-6 sm:space-y-8">
+                <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
                     {/* Row 1: Last Name & First Name */}
-                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6'>
                         <div>
                             <label className={labelClasses}>Last Name <span className='text-brand-500'>*</span></label>
                             <input
@@ -129,7 +134,7 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                     </div>
 
                     {/* Row 2: Middle Name & Suffix */}
-                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6'>
                         <div>
                             <label className={labelClasses}>Middle Name <span className="opacity-40 font-normal italic">(optional)</span></label>
                             <input
@@ -165,7 +170,7 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                     </div>
 
                     {/* Row 3: Birthday & Sex */}
-                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 pt-4 border-t border-gray-50 dark:border-gray-800/50'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6 pt-4 border-t border-gray-50 dark:border-gray-800/50'>
                         <div>
                             <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
                             <input
@@ -206,14 +211,14 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
             </div>
 
             {/* Section 2: Contact Details */}
-            <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md overflow-hidden'>
+            <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md mb-6 sm:mb-8 overflow-hidden'>
                 <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
                     <Contact size={20} className="text-brand-500" />
                     <h3 className="text-[15px] sm:text-lg font-bold text-gray-900 dark:text-white">Contact Details</h3>
                 </div>
 
-                <div className="px-5 py-6 sm:px-10 sm:py-10 space-y-6 sm:space-y-8">
-                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6'>
+                <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6'>
                         <div>
                             <label className={labelClasses}>Email Address <span className='text-brand-500'>*</span></label>
                             <input
@@ -243,30 +248,40 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                             {errors.phone && <p className='text-red-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.phone}</p>}
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    {/* Section 3: Terms & Policy (Matches Guest Booking) */}
-                    <div className="pt-6 border-t border-gray-100 dark:border-gray-800/50">
-                        <div className={cn(
-                            "flex items-start gap-3 p-4 rounded-2xl border transition-all hover:border-brand-200 dark:hover:border-brand-500/20 group",
-                            errors.terms 
-                                ? "bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30" 
-                                : "bg-gray-50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800"
-                        )}>
-                            <div className="relative flex items-center h-5">
-                                <input
-                                    id="terms"
-                                    type="checkbox"
-                                    checked={data.agreed_to_terms || false}
-                                    onChange={(e) => updateField('agreed_to_terms', e.target.checked)}
-                                    className="w-5 h-5 rounded-lg border-2 border-gray-300 text-brand-600 focus:ring-brand-500 transition-all cursor-pointer accent-brand-500"
-                                />
-                            </div>
-                            <label htmlFor="terms" className="text-[12px] sm:text-[14px] text-gray-700 dark:text-gray-300 font-medium leading-relaxed cursor-pointer select-none">
-                                I agree to the <a href="/terms-of-service" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Terms of Service</a> and <a href="/privacy-policy" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Privacy Policy</a>.
-                            </label>
+            {/* Section 3: Agreement & Privacy (Matches Guest Booking) */}
+            <div className={cn(
+                'w-full bg-white dark:bg-white/[0.03] border rounded-2xl sm:rounded-3xl shadow-theme-md mb-6 sm:mb-10 overflow-hidden transition-all',
+                errors.terms 
+                    ? 'border-red-200 dark:border-red-900/40 bg-red-50/30 dark:bg-red-900/5' 
+                    : 'border-gray-200 dark:border-gray-800'
+            )}>
+                <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
+                    <CheckCircle2 size={18} className="text-brand-500" />
+                    <h3 className="text-[15px] sm:text-lg font-bold text-gray-900 dark:text-white">Agreement & Privacy</h3>
+                </div>
+
+                <div className="px-5 py-6 sm:px-10 sm:py-8">
+                    <div className='flex items-start gap-4'>
+                        <div className="pt-0.5">
+                            <input
+                                type="checkbox"
+                                id="terms"
+                                checked={data.agreed_to_terms || false}
+                                onChange={(e) => updateField('agreed_to_terms', e.target.checked)}
+                                className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-2 border-gray-300 text-brand-500 focus:ring-brand-500/20 cursor-pointer transition-all accent-brand-500"
+                            />
                         </div>
-                        {errors.terms && <p className='text-red-500 text-[10px] font-bold mt-2 ml-1'>{errors.terms}</p>}
+                        <label htmlFor="terms" className="text-[12px] sm:text-[14px] text-gray-700 dark:text-gray-300 font-medium leading-relaxed cursor-pointer select-none">
+                            I agree to the <a href="/terms-of-service" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Terms of Service</a> and <a href="/privacy-policy" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Privacy Policy</a>.
+                            <span className="block mt-1.5 text-[10px] sm:text-[12px] text-gray-500 dark:text-gray-500 font-normal italic leading-snug">
+                                I understand my data will be handled securely per clinic policy.
+                            </span>
+                        </label>
                     </div>
+                    {errors.terms && <p className='text-red-500 text-[10px] font-bold mt-4 ml-10'>{errors.terms}</p>}
                 </div>
             </div>
 

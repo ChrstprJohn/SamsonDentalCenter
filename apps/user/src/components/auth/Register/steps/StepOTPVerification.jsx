@@ -1,94 +1,188 @@
-import React from 'react';
-import { Mail, ChevronRight, ChevronLeft, KeyRound } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Mail, ShieldCheck, AlertCircle, RotateCw, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '../../../../context/ToastContext';
 
 const StepOTPVerification = ({ email, otp, updateOTP, onVerify, onBack, onResend, loading, error }) => {
+    const [otpArray, setOtpArray] = useState(
+        (otp || '').padEnd(6, ' ').split('').slice(0, 6).map(c => c === ' ' ? '' : c)
+    );
+    
+    const [timer, setTimer] = useState(60);
+    const [canResend, setCanResend] = useState(false);
+    const inputRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
+    const toast = useToast();
+
+    useEffect(() => {
+        let interval;
+        if (timer > 0) {
+            interval = setInterval(() => setTimer((t) => t - 1), 1000);
+        } else {
+            setCanResend(true);
+        }
+        return () => clearInterval(interval);
+    }, [timer]);
+
+    useEffect(() => {
+        if (inputRefs[0].current) {
+            inputRefs[0].current.focus();
+        }
+    }, []);
+
+    useEffect(() => {
+        updateOTP(otpArray.join(''));
+    }, [otpArray, updateOTP]);
+
+    useEffect(() => {
+        if (error) {
+            setOtpArray(['', '', '', '', '', '']);
+            if (inputRefs[0].current) {
+                inputRefs[0].current.focus();
+            }
+        }
+    }, [error]);
+
+    const handleChange = (index, value) => {
+        if (!/^\d*$/.test(value)) return;
+
+        const newOtp = [...otpArray];
+        newOtp[index] = value.slice(-1);
+        setOtpArray(newOtp);
+
+        if (value && index < 5) {
+            inputRefs[index + 1].current.focus();
+        }
+    };
+
+    const handleKeyDown = (index, e) => {
+        if (e.key === 'Backspace' && !otpArray[index] && index > 0) {
+            inputRefs[index - 1].current.focus();
+        }
+    };
+
+    const handlePaste = (e) => {
+        e.preventDefault();
+        const pasteData = e.clipboardData.getData('text').slice(0, 6).split('');
+        if (pasteData.every(char => /^\d$/.test(char))) {
+            const newOtp = [...otpArray];
+            pasteData.forEach((char, i) => {
+                newOtp[i] = char;
+            });
+            setOtpArray(newOtp);
+            if (pasteData.length === 6) {
+                // Optional auto verify can be triggered here
+            } else {
+                inputRefs[pasteData.length].current.focus();
+            }
+        }
+    };
+
+    const handleResendClick = () => {
+        if (canResend) {
+            setOtpArray(['', '', '', '', '', '']);
+            onResend();
+            setTimer(60);
+            setCanResend(false);
+            if (inputRefs[0].current) inputRefs[0].current.focus();
+        }
+    };
+
     return (
-        <div className='space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700'>
-            {/* Page Title Section */}
-            <div className='text-left'>
-                <h2 className='text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
-                    Verify Email
-                </h2>
-                <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium'>
-                    We've sent a 6-digit verification code to <span className='text-brand-600 dark:text-brand-400 font-bold'>{email}</span>.
-                </p>
-            </div>
-
-            {/* Card Wrapper */}
-            <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md overflow-hidden'>
-                <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
-                    <KeyRound size={20} className="text-brand-500" />
-                    <h3 className="text-[15px] sm:text-lg font-bold text-gray-900 dark:text-white">Final Verification</h3>
+        <div className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500 pb-8 sm:pb-0">
+            <div className="max-w-md mx-auto">
+                <div className="text-center mb-6 sm:mb-8">
+                    <div className="w-16 h-16 bg-brand-50 dark:bg-brand-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-theme-sm border border-brand-100 dark:border-brand-500/20">
+                        <Mail size={24} className="text-brand-600 dark:text-brand-400" />
+                    </div>
+                    <h2 className="text-lg sm:text-[22px] font-bold text-gray-900 dark:text-white mb-2 tracking-tight">Verify Your Email</h2>
+                    <p className="text-[14px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed max-w-[320px] mx-auto">
+                        We sent a 6-digit code to <span className="bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 px-1.5 py-0.5 rounded-md font-bold break-all">{email}</span>. Please enter it below to finalize your registration.
+                    </p>
                 </div>
 
-                <div className="px-5 py-8 sm:px-10 sm:py-12 flex flex-col items-center">
-                    <div className='w-20 h-20 bg-brand-50 dark:bg-brand-500/10 rounded-3xl flex items-center justify-center mb-8'>
-                        <Mail className='text-brand-600 dark:text-brand-400' size={40} strokeWidth={2.5} />
-                    </div>
-                    
-                    <div className='w-full max-w-[320px] space-y-6'>
-                        <div className="relative">
-                            <input
-                                type='text'
-                                maxLength={6}
-                                value={otp}
-                                onChange={(e) => updateOTP(e.target.value.replace(/[^0-9]/g, ''))}
-                                className={cn(
-                                    'w-full text-center text-4xl font-black tracking-[0.3em] py-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border-2 outline-none transition-all',
-                                    error 
-                                        ? 'border-red-500 ring-4 ring-red-500/10' 
-                                        : 'border-gray-100 dark:border-gray-800 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10'
-                                )}
-                                placeholder='000000'
-                            />
+                {error && (
+                    <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 text-red-700 dark:text-red-400 px-4 py-3 rounded-2xl text-[12px] font-bold mb-6 flex gap-3 items-center animate-in shake duration-500">
+                        <AlertCircle size={16} className="shrink-0" />
+                        <div>
+                            <p>{error}</p>
                         </div>
-                        
-                        {error && (
-                            <p className='text-red-500 text-[11px] font-bold text-center animate-shake'>
-                                {error}
-                            </p>
-                        )}
-
-                        <p className='text-gray-400 text-[12px] font-bold text-center'>
-                            Didn't receive the code?{' '}
-                            <button 
-                                onClick={onResend}
-                                className='text-brand-600 hover:underline ml-1 disabled:opacity-50'
-                                disabled={loading}
-                            >
-                                Resend Code
-                            </button>
-                        </p>
                     </div>
-                </div>
-            </div>
+                )}
 
-            {/* Footer Navigation */}
-            <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-8 sm:pt-4 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
-                <div className='flex items-center justify-between gap-4'>
+                <div className="flex justify-between gap-1.5 sm:gap-3 mb-6">
+                    {otpArray.map((digit, index) => (
+                        <input
+                            key={index}
+                            ref={inputRefs[index]}
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={1}
+                            value={digit}
+                            onChange={(e) => handleChange(index, e.target.value)}
+                            onKeyDown={(e) => handleKeyDown(index, e)}
+                            onPaste={handlePaste}
+                            disabled={loading}
+                            className={`w-10 h-12 sm:w-14 sm:h-16 text-center text-xl sm:text-2xl font-black rounded-xl sm:rounded-2xl border-2 transition-all outline-none 
+                                ${digit 
+                                    ? 'border-brand-500 bg-brand-50/30 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400' 
+                                    : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 text-gray-900 dark:text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10'
+                                }`}
+                        />
+                    ))}
+                </div>
+
+                <div className="text-center mb-6">
                     <button
-                        type="button"
-                        onClick={onBack}
-                        className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-2 py-3.5 sm:px-8 transition-colors bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl flex items-center justify-center gap-1.5'
+                        onClick={handleResendClick}
+                        disabled={!canResend || loading}
+                        className={`text-[12px] font-bold flex items-center justify-center gap-2 mx-auto px-4 py-2 rounded-xl border transition-all
+                            ${canResend 
+                                ? 'text-brand-600 border-brand-200 bg-brand-50/50 hover:bg-brand-100 dark:text-brand-400 dark:border-brand-500/30 dark:bg-brand-500/10 dark:hover:bg-brand-500/20' 
+                                : 'text-gray-400 border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-800/50 cursor-not-allowed'
+                            }`}
                     >
-                        <ChevronLeft size={16} className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={3} />
+                        <RotateCw size={14} className={!canResend ? '' : 'animate-hover'} />
+                        {canResend ? 'Resend verification code' : `Resend available in ${timer}s`}
+                    </button>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                    <button
+                        onClick={onVerify}
+                        disabled={loading || otpArray.some(d => d === '')}
+                        className="w-full bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black py-4 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-[11px] sm:text-sm"
+                    >
+                        {loading ? (
+                            <>
+                                <div className="w-4 h-4 border-[2.5px] border-white border-t-transparent rounded-full animate-spin" />
+                                Verifying...
+                            </>
+                        ) : (
+                            <>
+                                Complete Registration
+                                <ShieldCheck size={18} />
+                            </>
+                        )}
+                    </button>
+
+                    <button 
+                        onClick={onBack}
+                        disabled={loading}
+                        className="w-full bg-gray-50 hover:bg-gray-100 text-gray-600 dark:bg-gray-800/30 dark:hover:bg-gray-800/50 dark:text-gray-400 font-black text-[11px] py-3 rounded-2xl border border-gray-200 dark:border-gray-700 transition-colors disabled:opacity-30 flex items-center justify-center gap-1.5"
+                    >
+                        <ChevronLeft size={16} />
                         Back to Security
                     </button>
-                    <button
-                        type="button"
-                        onClick={onVerify}
-                        disabled={loading || otp.length < 6}
-                        className={cn(
-                            'flex-1 sm:flex-none sm:min-w-[240px] font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-1 sm:gap-2.5 text-[11px] sm:text-base',
-                            loading || otp.length < 6
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                                : 'bg-brand-500 hover:bg-brand-600 active:scale-95 text-white'
-                        )}
-                    >
-                        {loading ? 'Verifying...' : 'Complete Registration'}
-                        {!loading && <ChevronRight size={16} className="w-3.5 h-3.5 sm:w-5 sm:h-5" strokeWidth={3} />}
-                    </button>
+                </div>
+
+                <div className="mt-12 p-6 bg-gray-100/50 dark:bg-gray-800/30 rounded-3xl border border-gray-200 dark:border-gray-700">
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                        <ShieldCheck size={16} className="text-green-500" />
+                        Security Verification
+                    </h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                        To protect your account and personal health information, we require you to verify your email address before finalizing registration. Thank you for your understanding.
+                    </p>
                 </div>
             </div>
         </div>

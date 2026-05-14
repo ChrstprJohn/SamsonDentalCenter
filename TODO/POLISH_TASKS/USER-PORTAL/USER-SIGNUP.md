@@ -1,4 +1,4 @@
-# User Sign-In & Registration Polish
+# User Sign-UP & Registration Polish
 
 We are refactoring the registration flow into a 3-step process with custom OTP verification and enhanced personal details (Sex, Date of Birth).
 

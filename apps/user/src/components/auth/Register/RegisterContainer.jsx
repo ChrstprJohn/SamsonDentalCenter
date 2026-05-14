@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, LogOut, AlertCircle, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '../../../context/ToastContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { api } from '../../../utils/api';
 import { Modal } from '../../ui/Modal';
@@ -14,12 +15,15 @@ import StepOTPVerification from './steps/StepOTPVerification';
 const RegisterContainer = () => {
     const navigate = useNavigate();
     const { setIsDarkModeAllowed } = useTheme();
+    const toast = useToast();
 
     // Force light mode
     useEffect(() => {
         setIsDarkModeAllowed(false);
         return () => setIsDarkModeAllowed(true);
     }, [setIsDarkModeAllowed]);
+
+
 
     // Multi-step State
     const [step, setStep] = useState(1);
@@ -42,6 +46,13 @@ const RegisterContainer = () => {
     const [signupErrors, setSignupErrors] = useState({});
     const [otp, setOtp] = useState('');
 
+    // Scroll to top and clear errors on step change
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        setError(null);
+        setSignupErrors({});
+    }, [step]);
+
     const updateField = (field, value) => {
         setSignupData(prev => ({ ...prev, [field]: value }));
         if (signupErrors[field]) {
@@ -55,7 +66,7 @@ const RegisterContainer = () => {
 
     const validateStep = (currentStep) => {
         const errors = {};
-        
+
         const validateNames = (name) => /^[a-zA-Z\s-]*$/.test(name);
 
         if (currentStep === 1) {
@@ -86,7 +97,7 @@ const RegisterContainer = () => {
                     errors.dob = 'Date of birth cannot be in the future';
                 }
             }
-            
+
             // Email Validation
             if (!signupData.email.trim()) {
                 errors.email = 'Email address is required';
@@ -120,6 +131,12 @@ const RegisterContainer = () => {
             }
         }
         setSignupErrors(errors);
+
+        if (Object.keys(errors).length > 0) {
+            toast.error('Please fix the errors in the form before continuing.');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         return Object.keys(errors).length === 0;
     };
 
@@ -142,7 +159,10 @@ const RegisterContainer = () => {
             });
             setStep(3);
         } catch (err) {
-            setError(err.message || 'Failed to send verification code');
+            const msg = err.message || 'Failed to send verification code';
+            setError(msg);
+            toast.error(msg);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } finally {
             setLoading(false);
         }
@@ -156,13 +176,15 @@ const RegisterContainer = () => {
                 email: signupData.email,
                 otp_code: otp
             });
-            navigate('/login', { 
-                state: { 
-                    message: 'Account created! Please sign in with your new credentials.' 
-                } 
+            navigate('/login', {
+                state: {
+                    message: 'Account created! Please sign in with your new credentials.'
+                }
             });
         } catch (err) {
-            setError(err.message || 'Verification failed');
+            const msg = err.message || 'Verification failed';
+            setError(msg);
+            toast.error(msg);
         } finally {
             setLoading(false);
         }
@@ -221,6 +243,7 @@ const RegisterContainer = () => {
                             onNext={handleInitiateRegistration}
                             onBack={() => setStep(1)}
                             loading={loading}
+                            serverError={error}
                         />
                     )}
 
@@ -237,14 +260,7 @@ const RegisterContainer = () => {
                         />
                     )}
 
-                    {error && step !== 3 && (
-                        <div className="mt-4 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-bold text-center animate-in fade-in zoom-in shadow-theme-xs">
-                            <div className="flex items-center justify-center gap-2">
-                                <AlertCircle size={16} />
-                                {error}
-                            </div>
-                        </div>
-                    )}
+
 
                 </div>
             </main>
@@ -274,9 +290,9 @@ const RegisterContainer = () => {
                     </div>
 
                     <div className="px-5 py-5 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-row gap-3">
-                        <Button 
-                            variant="ghost" 
-                            fullWidth 
+                        <Button
+                            variant="ghost"
+                            fullWidth
                             onClick={() => {
                                 setShowExitModal(false);
                                 navigate('/');
@@ -285,9 +301,9 @@ const RegisterContainer = () => {
                         >
                             Discard & Exit
                         </Button>
-                        <Button 
-                            variant="primary" 
-                            fullWidth 
+                        <Button
+                            variant="primary"
+                            fullWidth
                             onClick={() => setShowExitModal(false)}
                             className="flex-[1.5] h-11 text-[11px] sm:text-sm font-black shadow-lg shadow-primary-500/20"
                         >
