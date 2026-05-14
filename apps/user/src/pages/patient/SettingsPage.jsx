@@ -136,7 +136,7 @@ const SettingsPage = () => {
                     <p className="text-[9px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-medium">{description}</p>
                 </div>
             </div>
-            <ChevronRight className="text-gray-300 dark:text-gray-700 group-hover:text-gray-400 transition-colors" size={14} className="sm:size-[18px]" />
+            <ChevronRight className="text-gray-300 dark:text-gray-700 group-hover:text-gray-400 transition-colors sm:size-[18px]" size={14} />
         </button>
     );
 
