@@ -5,7 +5,7 @@ import Badge from '../../ui/Badge';
 const getInitial = (name = '') => name.charAt(0).toUpperCase();
 
 const ApprovalRow = ({ request, onClick }) => {
-    const { id, patient, service, requestedDate, requestedTime, createdAt } = request;
+    const { id, patient, service, requestedDate, requestedTime, requestedEndTime, createdAt } = request;
 
     // Calculate status (Secretary logic preserved)
     const createdDate = new Date(createdAt);
@@ -56,8 +56,8 @@ const ApprovalRow = ({ request, onClick }) => {
                 <div className='h-px w-full bg-gray-200 dark:bg-white/5' />
                 <div className='px-6 py-3 flex-1 flex flex-col justify-center'>
                     <p className='text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-0.5 tracking-wide'>Time</p>
-                    <p className='text-[15px] font-medium text-brand-500 leading-tight'>
-                        {requestedTime.split('-')[0].trim()}
+                    <p className='text-[14px] font-medium text-brand-500 leading-tight'>
+                        {requestedTime} – {requestedEndTime}
                     </p>
                 </div>
             </div>

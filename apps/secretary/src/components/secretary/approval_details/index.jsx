@@ -6,6 +6,7 @@ import PatientOverview from './PatientOverview';
 import DoctorOverview from './DoctorOverview';
 import AppointmentLogistics from './AppointmentLogistics';
 import AppointmentDetailFooter from './AppointmentDetailFooter';
+import RequestDecisionModal from './RequestDecisionModal';
 import { formatDate } from '../../../hooks/useAppointments';
 
 // ---------------------------------------------------------------------------
@@ -44,9 +45,24 @@ const timeToSlot = (timeStr) => {
 
 const getDuration = (start, end) => {
     if (!start || !end) return null;
-    const toMinutes = (t) => {
-        const parts = t.split(':').map(Number);
-        return parts[0] * 60 + parts[1];
+    const toMinutes = (timeStr) => {
+        if (!timeStr) return 0;
+        let hours = 0;
+        let minutes = 0;
+
+        if (timeStr.includes(' ')) {
+            const [time, period] = timeStr.split(' ');
+            const [h, m] = time.split(':').map(Number);
+            hours = h;
+            minutes = m;
+            if (period?.toUpperCase() === 'PM' && hours < 12) hours += 12;
+            if (period?.toUpperCase() === 'AM' && hours === 12) hours = 0;
+        } else {
+            const parts = timeStr.split(':').map(Number);
+            hours = parts[0];
+            minutes = parts[1] || 0;
+        }
+        return hours * 60 + minutes;
     };
     const diff = toMinutes(end) - toMinutes(start);
     if (diff <= 0) return null;
@@ -61,11 +77,12 @@ const ApprovalDetailView = ({
     request, 
     onApprove, 
     onReject, 
+    isProcessing = false,
     onBack, 
     fetchDentistSchedule, 
     fetchPatientStats 
 }) => {
-    const [isRejecting, setIsRejecting] = useState(false);
+    const [decisionModal, setDecisionModal] = useState({ isOpen: false, mode: 'approve' });
     const [rejectionReason, setRejectionReason] = useState('');
     const [busySlots, setBusySlots] = useState([]);
     const [patientStats, setPatientStats] = useState({ completed: 0 });
@@ -178,45 +195,29 @@ const ApprovalDetailView = ({
 
                 {/* Footer Actions */}
                 <AppointmentDetailFooter 
-                    onApprove={onApprove}
-                    onRejectClick={() => setIsRejecting(true)}
+                    onApprove={() => setDecisionModal({ isOpen: true, mode: 'approve' })}
+                    onRejectClick={() => setDecisionModal({ isOpen: true, mode: 'reject' })}
                 />
 
-                {/* Rejection Modal Overlay */}
-                {isRejecting && (
-                    <div className="absolute inset-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6 animate-[fadeIn_0.2s_ease-out]">
-                        <div className="w-full max-w-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-3xl p-6 sm:p-8">
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Reject Request</h3>
-                                <button 
-                                    onClick={() => setIsRejecting(false)} 
-                                    className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
-                                >
-                                    <X className="size-5" />
-                                </button>
-                            </div>
-                            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-4 font-bold uppercase tracking-widest leading-relaxed">
-                                Please provide a reason for declining this appointment request. This will be sent to the patient.
-                            </p>
-                            <textarea 
-                                value={rejectionReason} 
-                                onChange={(e) => setRejectionReason(e.target.value)} 
-                                placeholder="e.g., Dentist is unavailable, slot already booked..." 
-                                className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 text-sm h-32 resize-none shadow-sm mb-6 focus:ring-2 focus:ring-error-500/20 focus:border-error-500 transition-all outline-none" 
-                            />
-                            <button 
-                                onClick={() => {
-                                    onReject(rejectionReason);
-                                    setIsRejecting(false);
-                                }} 
-                                disabled={!rejectionReason.trim()} 
-                                className="w-full bg-error-500 text-white font-bold py-4 text-sm rounded-2xl shadow-theme-md disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
-                            >
-                                Confirm Rejection
-                            </button>
-                        </div>
-                    </div>
-                )}
+                {/* Unified Decision Modal (Matches User Portal Style) */}
+                <RequestDecisionModal 
+                    isOpen={decisionModal.isOpen}
+                    mode={decisionModal.mode}
+                    onClose={() => setDecisionModal({ ...decisionModal, isOpen: false })}
+                    onConfirm={(reason) => {
+                        if (decisionModal.mode === 'approve') {
+                            onApprove(reason);
+                        } else {
+                            onReject(reason);
+                        }
+                        // Modal closure is handled by parent state change (refresh) or 
+                        // manually if needed, but for now we let the spinner show.
+                        // Actually, if it succeeds, the parent will refresh/navigate.
+                        // If it fails, we want it to stay open but the parent will handle the toast.
+                    }}
+                    isProcessing={isProcessing}
+                    serviceName={request.service}
+                />
             </div>
         </div>
     );

@@ -574,7 +574,7 @@ export const bookAppointment = async (
         }
 
         // ═══════════════════════════════════════════════
-        // 🟢 GENERAL BRANCH — Auto-accept (existing flow)
+        // 🟢 GENERAL BRANCH — Requires Approval (Deprecated: Auto-accept)
         // ═══════════════════════════════════════════════
 
         // ── 2. Check if the requested slot is available ──

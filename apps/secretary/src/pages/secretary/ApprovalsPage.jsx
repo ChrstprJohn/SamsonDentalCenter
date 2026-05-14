@@ -5,12 +5,12 @@ import ApprovalHeader from '../../components/secretary/approvals/ApprovalHeader'
 import ApprovalInbox from '../../components/secretary/approvals/ApprovalInbox';
 import ApprovalDetailView from '../../components/secretary/approval_details/index.jsx';
 import useApprovals from '../../hooks/useApprovals';
+import { useToast } from '../../context/ToastContext';
 import { formatTime } from '../../hooks/useAppointments';
 
 const ApprovalsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const selectedId = searchParams.get('id') ? parseInt(searchParams.get('id')) : null;
-
+    const selectedId = searchParams.get('id') || null;
     const { 
         requests: rawRequests, 
         loading, 
@@ -20,8 +20,10 @@ const ApprovalsPage = () => {
         fetchDentistSchedule,
         fetchPatientStats,
         fetchPatientHistory,
-        refresh 
+        refresh,
+        actionLoading
     } = useApprovals();
+    const toast = useToast();
 
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
@@ -94,11 +96,11 @@ const ApprovalsPage = () => {
         const tomorrowStr = tomorrow.toISOString().split('T')[0];
         
         const isUrgent = r.requestedDate === tomorrowStr || r.requestedDate === todayStr;
-        const isNeedsAttention = hours > 5 && !isUrgent;
-        const isRecent = hours <= 5 && !isUrgent;
+        const isRecent = hours <= 5;
+        const isStale = hours > 5 && !isUrgent;
 
         if (activeFilter === 'urgent') return isUrgent;
-        if (activeFilter === 'stale') return isNeedsAttention;
+        if (activeFilter === 'stale') return isStale;
         if (activeFilter === 'recent') return isRecent;
         return true;
     });
@@ -120,21 +122,23 @@ const ApprovalsPage = () => {
         }, { urgent: 0, stale: 0, new: 0 });
     }, [requests]);
 
-    const handleApprove = async (id) => {
-        const res = await approveRequest(id);
+    const handleApprove = async (id, note) => {
+        const res = await approveRequest(id, note);
         if (res.success) {
+            toast.success("The appointment has been successfully approved and the patient has been notified.", "Request Approved");
             setSearchParams({});
         } else {
-            alert(`Approval failed: ${res.error}`);
+            toast.error(res.error || "Failed to approve the request. Please try again.", "Approval Error");
         }
     };
 
     const handleReject = async (id, reason = 'No reason provided') => {
         const res = await rejectRequest(id, reason);
         if (res.success) {
+            toast.success("The request has been declined and the patient has been notified of the reason.", "Request Rejected");
             setSearchParams({});
         } else {
-            alert(`Rejection failed: ${res.error}`);
+            toast.error(res.error || "Failed to reject the request. Please try again.", "Rejection Error");
         }
     };
 
@@ -145,11 +149,8 @@ const ApprovalsPage = () => {
         const idFromUrl = searchParams.get('id');
         if (!idFromUrl) return null;
         
-        // Try finding by numeric comparison first, then string
-        return requests.find(r => 
-            r.id?.toString() === idFromUrl || 
-            Number(r.id) === Number(idFromUrl)
-        );
+        // Simple string comparison for UUIDs
+        return requests.find(r => r.id?.toString() === idFromUrl);
     }, [requests, searchParams]);
 
     if (loading && requests.length === 0) {
@@ -186,8 +187,9 @@ const ApprovalsPage = () => {
                     selectedRequest ? (
                         <ApprovalDetailView 
                             request={selectedRequest}
-                            onApprove={() => handleApprove(selectedId)}
+                            onApprove={(note) => handleApprove(selectedId, note)}
                             onReject={(reason) => handleReject(selectedId, reason)}
+                            isProcessing={actionLoading}
                             onBack={handleBack}
                             fetchDentistSchedule={fetchDentistSchedule}
                             fetchPatientStats={fetchPatientStats}

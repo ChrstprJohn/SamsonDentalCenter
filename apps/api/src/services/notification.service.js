@@ -128,6 +128,9 @@ export const sendApprovalNotice = async (userId, appointmentDetails, phone = nul
         { service, date, start_time, end_time, action: 'approved', patient_name: pName },
     );
 
+    // ── 2. SMS Disabled ──
+    // SMS is currently disabled for approvals per business requirements.
+    // Email is handled separately via sendBookingSuccessEmail in the service layer.
     return { inAppResult, smsResult: null };
 };
 

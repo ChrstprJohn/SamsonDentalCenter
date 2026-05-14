@@ -122,7 +122,7 @@ const AppointmentsPage = () => {
     const [specificDate, setSpecificDate] = useState('2026-05-14');
     const [currentPage, setCurrentPage] = useState(1);
     const [searchParams, setSearchParams] = useSearchParams();
-    const selectedId = searchParams.get('id') ? parseInt(searchParams.get('id')) : null;
+    const selectedId = searchParams.get('id') || null;
 
     const handleRowClick = (id) => setSearchParams({ id: id.toString() });
     const handleBack = () => setSearchParams({});
@@ -165,7 +165,7 @@ const AppointmentsPage = () => {
 
     const selectedAppointment = useMemo(() => {
         if (!selectedId) return null;
-        return APPOINTMENTS_DATA.find(a => Number(a.id) === Number(selectedId));
+        return APPOINTMENTS_DATA.find(a => a.id?.toString() === selectedId.toString());
     }, [selectedId]);
 
     const breadcrumbTitle = selectedAppointment ? "Appointment Details" : "Appointments";

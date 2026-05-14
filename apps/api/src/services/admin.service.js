@@ -28,11 +28,10 @@ export const getPendingRequests = async () => {
       dentist:dentists(id, profile:profiles(full_name, first_name, last_name, middle_name, suffix))
     `,
         )
-        // Show everything that is PENDING approval and has been confirmed by the patient (either logged in or via email)
+        // Show everything that is PENDING approval
         .eq('approval_status', APPROVAL_STATUS.PENDING)
-        .eq('patient_confirmed', true)
         .eq('status', APPOINTMENT_STATUS.PENDING)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
     if (error) throw new AppError(error.message, 500);
     return data;
