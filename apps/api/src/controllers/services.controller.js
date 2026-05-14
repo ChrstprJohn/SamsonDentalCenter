@@ -44,18 +44,39 @@ export const getAllServices = async (req, res, next) => {
 export const getServiceById = async (req, res, next) => {
     try {
         const { id } = req.params;
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
-        const { data, error } = await supabaseAdmin
-            .from('services')
-            .select('*')
-            .eq('id', id)
-            .single();
+        let query = supabaseAdmin.from('services').select('*');
+
+        if (isUuid) {
+            query = query.eq('id', id);
+        } else {
+            // Try matching by name (slug logic: periodontal-care -> Periodontal Care)
+            const slugToName = id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            query = query.ilike('name', slugToName);
+        }
+
+        const { data, error } = await query.single();
 
         if (error || !data) {
+            // If direct name match failed, try a more flexible search
+            if (!isUuid) {
+                const flexibleName = id.replace(/-/g, ' ');
+                const { data: flexData, error: flexError } = await supabaseAdmin
+                    .from('services')
+                    .select('*')
+                    .ilike('name', `%${flexibleName}%`)
+                    .single();
+                
+                if (!flexError && flexData) {
+                    return res.json({ service: flexData });
+                }
+            }
             return res.status(404).json({ error: 'Service not found.' });
         }
 
         res.json({ service: data });
+
     } catch (err) {
         next(err);
     }
