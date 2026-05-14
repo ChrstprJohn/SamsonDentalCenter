@@ -32,11 +32,13 @@ export const sendNotification = async (
     // ── 1. Save to Database (if userId exists) ──
     let data = null;
     if (userId) {
+        console.log(`[Notification:DEBUG] userId: ${userId}, type: ${type}, channel: ${channel}, title: ${title}`);
+        
         const messageContent = metadata
             ? JSON.stringify({ ...metadata, _isJSON: true, _title: title, _fallback: message })
             : message;
 
-        console.log(`[Notification:Insert] Attempting insert for User: ${userId}, Type: ${type}, Channel: ${channel}`);
+        console.log(`[Notification:Insert] Attempting insert into 'notifications' table...`);
         const { data: insertData, error } = await supabaseAdmin
             .from('notifications')
             .insert({
@@ -52,11 +54,12 @@ export const sendNotification = async (
 
         if (error) {
             console.error('[Notification:Insert] FAILED:', error.message, error.details, error.hint);
-            // We continue so SMS can still be attempted if applicable
         } else {
             console.log('[Notification:Insert] SUCCESS:', insertData.id);
             data = insertData;
         }
+    } else {
+        console.log(`[Notification:SKIP] No userId for type: ${type}, channel: ${channel}`);
     }
 
     // ── 2. External Channels (SMS/Email) ──

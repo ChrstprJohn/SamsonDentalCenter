@@ -109,7 +109,7 @@ const navItems = [
     },
     {
         icon: <AppointmentsIcon />,
-        name: 'Appointments',
+        name: 'Upcoming Appointments',
         path: '/appointments',
     },
     {

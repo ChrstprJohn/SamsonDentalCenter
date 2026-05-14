@@ -39,7 +39,7 @@ import GuestBookingPage from '../pages/guest/GuestBookingPage';
 
 // Patient pages
 import PatientDashboard from '../pages/patient/PatientDashboard';
-import MyAppointments from '../pages/patient/MyAppointments';
+import UpcomingAppointments from '../pages/patient/UpcomingAppointments';
 import MyRequests from '../pages/patient/MyRequests';
 import AppointmentHistory from '../pages/patient/AppointmentHistory';
 import AppointmentDetails from '../pages/patient/AppointmentDetails';
@@ -178,7 +178,7 @@ const AppRoutes = () => {
                     }
                 >
                     <Route index element={<PatientDashboard />} />
-                    <Route path='appointments' element={<MyAppointments />} />
+                    <Route path='appointments' element={<UpcomingAppointments />} />
                     <Route path='history' element={<AppointmentHistory />} />
                     <Route path='requests' element={<MyRequests />} />
                     <Route path='appointments/:id' element={<AppointmentDetails />} />

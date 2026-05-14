@@ -303,7 +303,8 @@ export const approveAppointment = async (appointmentId, adminId, dentistId = nul
 /**
  * Reject a specialized request with a reason.
  */
-export const rejectAppointment = async (appointmentId, adminId, reason) => {
+export const rejectAppointment = async (appointmentId, adminId, reason, suggestedDate = null) => {
+    const finalReason = suggestedDate ? `${reason} (Suggested: ${suggestedDate})` : reason;
     // 1. Validate
     const { data: appointment } = await supabaseAdmin
         .from('appointments')
@@ -321,7 +322,7 @@ export const rejectAppointment = async (appointmentId, adminId, reason) => {
         .update({
             status: 'CANCELLED',
             approval_status: 'rejected',
-            rejection_reason: reason,
+            rejection_reason: finalReason,
             approved_by: adminId,
             approved_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -372,7 +373,7 @@ export const rejectAppointment = async (appointmentId, adminId, reason) => {
                 updated.patient?.full_name || updated.guest_name, 
                 {
                     service: updated.service?.name,
-                    reason: reason,
+                    reason: finalReason,
                     date: updated.appointment_date,
                     start_time: updated.start_time
                 }
@@ -397,7 +398,7 @@ export const rejectAppointment = async (appointmentId, adminId, reason) => {
                 end_time: updated.end_time,
                 service: updated.service?.name,
                 patient_name: updated.patient?.full_name || updated.guest_name
-            }, reason);
+            }, finalReason);
             notificationLog.inApp = !!notifyResult ? 'SUCCESS' : 'FAILED';
             console.log(`[RejectionService] In-App result: ${notificationLog.inApp}`);
         } else {

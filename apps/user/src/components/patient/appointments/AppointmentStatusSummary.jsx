@@ -46,7 +46,7 @@ const AppointmentStatusSummary = ({ stats }) => {
     return (
         <div className="w-full px-4 sm:px-0 mt-2 mb-2 sm:mt-0 sm:mb-6">
             <h3 className="text-sm font-black text-gray-700 dark:text-white uppercase tracking-tight mb-4 sm:hidden">
-                My Appointments
+                Upcoming Appointments
             </h3>
             <div className="flex overflow-x-auto no-scrollbar gap-4 pb-2 sm:pb-0 sm:grid sm:grid-cols-4 snap-x snap-mandatory">
                 {items.map((item, idx) => (

@@ -16,6 +16,7 @@ import {
     bookAppointmentAdmin,
     rescheduleAppointmentAdmin,
 } from '../services/appointment.service.js';
+import * as ApprovalService from '../services/appointment-admin.service.js';
 import { APPOINTMENT_STATUS } from '../utils/constants.js';
 import { 
     sendBookingSuccessEmail, 
@@ -361,82 +362,19 @@ export const getPending = async (req, res, next) => {
 export const approve = async (req, res, next) => {
     try {
         const { dentist_id, note } = req.body;
-        const appointment = await approveRequest(req.params.id, req.user.id, dentist_id || null, note);
-
-        // 1. Email Notification
-        let emailResult = null;
-        try {
-            // Resolve recipient email (Primary for dependents)
-            const isDependent = appointment.patient?.primary_profile_id && !appointment.patient?.is_registered;
-            let recipientEmail = appointment.patient?.email || appointment.guest_email;
-            
-            if (!recipientEmail && isDependent) {
-                console.log(`[AdminController] Fetching primary email for dependent ${appointment.patient_id}`);
-                const { data: primary } = await supabaseAdmin
-                    .from('profiles')
-                    .select('email')
-                    .eq('id', appointment.patient.primary_profile_id)
-                    .single();
-                recipientEmail = primary?.email;
-            }
-
-            emailResult = await sendBookingSuccessEmail(recipientEmail, appointment.patient?.full_name || appointment.guest_name, {
-                date: appointment.appointment_date,
-                start_time: appointment.start_time,
-                end_time: appointment.end_time,
-                service: appointment.service?.name,
-                dentist: appointment.dentist?.profile?.full_name || 'Assigned',
-                note: note || ''
-            });
-        } catch (e) {
-            console.error('Failed to send approval email:', e);
-            emailResult = { success: false, error: e.message };
-        }
-
-        // 2. In-app & SMS notification
-        let inAppSmsResult = null;
-        const recipientPhone = appointment.patient?.phone || appointment.guest_phone;
         
-        // Resolve notify user (Primary for dependents)
-        // ── Resolve notify user (Primary for dependents) ──
-        let notifyUserId = appointment.patient_id;
-        
-        // Ensure we have the latest profile data for routing
-        let targetPatient = appointment.patient;
-        if (!targetPatient?.primary_profile_id && appointment.patient_id) {
-            const { data: latestProfile } = await supabaseAdmin
-                .from('profiles')
-                .select('id, primary_profile_id, is_registered')
-                .eq('id', appointment.patient_id)
-                .single();
-            if (latestProfile) targetPatient = latestProfile;
-        }
-
-        const isDep = !!(targetPatient?.primary_profile_id && !targetPatient?.is_registered);
-        if (isDep) {
-            notifyUserId = targetPatient.primary_profile_id;
-        }
-        
-        console.log(`[AdminController:Approve] Notification Routing -> User: ${notifyUserId} (isDep: ${isDep})`);
-
-        // Always try to send approval notice — the service will handle the patient vs guest distinction
-        // (Skipping in-app for guests, but sending SMS if phone is available)
-        inAppSmsResult = await sendApprovalNotice(notifyUserId, {
-            date: appointment.appointment_date,
-            start_time: appointment.start_time,
-            end_time: appointment.end_time,
-            service: appointment.service?.name,
-            patient_name: appointment.patient?.full_name || appointment.guest_name
-        }, recipientPhone);
+        // 1. Use the specialized approval service (handles metrics, conflicts, and notifications)
+        const appointment = await ApprovalService.approveAppointment(
+            req.params.id, 
+            req.user.id, 
+            dentist_id || null, 
+            note
+        );
 
         res.json({ 
             message: 'Appointment approved.', 
             appointment,
-            notifications: {
-                email: emailResult,
-                inApp: inAppSmsResult?.inAppResult,
-                sms: inAppSmsResult?.smsResult
-            }
+            notifications: appointment.notification_log
         });
 
     } catch (err) {
@@ -464,73 +402,18 @@ export const reject = async (req, res, next) => {
             return res.status(400).json({ error: 'Rejection reason is required.' });
         }
 
-        const result = await rejectRequest(req.params.id, req.user.id, reason, suggested_date);
-
-        // Notify patient/guest
-        try {
-            // Resolve recipient email (Primary for dependents)
-            const isDependent = result.appointment.patient?.primary_profile_id && !result.appointment.patient?.is_registered;
-            let recipientEmail = result.appointment.patient?.email || result.appointment.guest_email;
-
-            if (!recipientEmail && isDependent) {
-                console.log(`[AdminController:Reject] Fetching primary email for dependent ${result.appointment.patient_id}`);
-                const { data: primary } = await supabaseAdmin
-                    .from('profiles')
-                    .select('email')
-                    .eq('id', result.appointment.patient.primary_profile_id)
-                    .single();
-                recipientEmail = primary?.email;
-            }
-
-            await sendBookingRejectedEmail(recipientEmail, result.appointment.patient?.full_name || result.appointment.guest_name, {
-                service: result.appointment.service?.name,
-                reason,
-                suggestedDate: suggested_date
-            });
-        } catch (e) {
-            console.error('Failed to send rejection email:', e);
-        }
-
-        // In-app notification
-        let inAppResult = null;
-        if (result.appointment.patient_id) {
-            let targetPatient = result.appointment.patient;
-            if (!targetPatient?.primary_profile_id) {
-                const { data: latestProfile } = await supabaseAdmin
-                    .from('profiles')
-                    .select('id, primary_profile_id, is_registered')
-                    .eq('id', result.appointment.patient_id)
-                    .single();
-                if (latestProfile) targetPatient = latestProfile;
-            }
-
-            const isDep = !!(targetPatient?.primary_profile_id && !targetPatient?.is_registered);
-            const notifyUserId = isDep ? targetPatient.primary_profile_id : result.appointment.patient_id;
-            console.log(`[AdminController:Reject] Notification Routing -> User: ${notifyUserId} (isDep: ${isDep})`);
-
-            inAppResult = await sendRejectionNotice(notifyUserId, {
-                date: result.appointment.appointment_date,
-                start_time: result.appointment.start_time,
-                end_time: result.appointment.end_time,
-                service: result.appointment.service?.name,
-                patient_name: result.appointment.patient?.full_name || result.appointment.guest_name
-            }, reason);
-        }
+        // Use the specialized rejection service (handles notifications)
+        const appointment = await ApprovalService.rejectAppointment(
+            req.params.id, 
+            req.user.id, 
+            reason,
+            suggested_date
+        );
 
         res.json({
             message: 'Appointment request rejected.',
-            appointment: {
-                id: result.appointment.id,
-                status: result.appointment.status,
-                approval_status: result.appointment.approval_status,
-                rejection_reason: result.appointment.rejection_reason,
-                patient: result.appointment.patient?.full_name,
-                service: result.appointment.service?.name,
-            },
-            suggested_date: result.suggested_date,
-            notifications: {
-                inApp: inAppResult
-            }
+            appointment,
+            notifications: appointment.notification_log
         });
     } catch (err) {
         next(err);

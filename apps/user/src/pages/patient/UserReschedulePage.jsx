@@ -48,7 +48,7 @@ const UserReschedulePage = () => {
                         onClick={() => navigate('/patient/appointments')}
                         className='text-brand-500 hover:text-brand-600 font-medium'
                     >
-                        Return to My Appointments
+                        Return to Upcoming Appointments
                     </button>
                 </div>
             </div>
