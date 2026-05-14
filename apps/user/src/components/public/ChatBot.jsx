@@ -1,46 +1,37 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { MessageCircle, Send, X } from 'lucide-react';
+import { MessageCircle, Send, X, Loader2 } from 'lucide-react';
+import { api } from '../../utils/api';
 
 const DEFAULT_MESSAGES = [
     {
         id: 'm1',
         role: 'assistant',
         content: 'Welcome to Samson Dental. How can I assist with your clinical inquiry today?',
-    },
-    { id: 'm2', role: 'user', content: 'Tell me about your 3D scanning.' },
-    {
-        id: 'm3',
-        role: 'assistant',
-        content:
-            'Our iTero Element 5D scanner provides precise diagnostics and zero radiation exposure.',
+        suggestedActions: ['Check Availability', 'Our Services', 'Clinic Hours'],
     },
 ];
 
-const FAQ_ITEMS = [
-    {
-        q: 'How do I book an appointment?',
-        a: 'You can book online in the booking section, or message me with your preferred date/time and I’ll guide you.',
-    },
-    {
-        q: 'What are your hours?',
-        a: 'Hours vary by day. If you tell me the day you want, I can confirm availability and next open slots.',
-    },
-    {
-        q: 'Do you accept insurance?',
-        a: 'We work with many plans. Share your provider name and I’ll help you confirm coverage options.',
-    },
-    {
-        q: 'Is 3D scanning safe?',
-        a: 'Yes. The iTero scanner uses optical scanning (no radiation) and is used for accurate digital impressions.',
-    },
-];
+const DotTyping = () => (
+    <div className='flex gap-1 items-center px-1 py-1'>
+        <div className='w-1.5 h-1.5 bg-stone-400 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+        <div className='w-1.5 h-1.5 bg-stone-400 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+        <div className='w-1.5 h-1.5 bg-stone-400 rounded-full animate-bounce'></div>
+    </div>
+);
 
 const ChatBot = () => {
     const [open, setOpen] = useState(false);
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState(DEFAULT_MESSAGES);
+    const [isTyping, setIsTyping] = useState(false);
     const scrollRef = useRef(null);
     const inputId = useMemo(() => 'samson-ai-chat-input', []);
+
+    // Get suggestions from the last assistant message
+    const currentSuggestions = useMemo(() => {
+        const assistantMsgs = messages.filter((m) => m.role === 'assistant');
+        return assistantMsgs[assistantMsgs.length - 1]?.suggestedActions || [];
+    }, [messages]);
 
     useEffect(() => {
         if (!open) return;
@@ -49,35 +40,53 @@ const ChatBot = () => {
                 top: scrollRef.current.scrollHeight,
                 behavior: 'smooth',
             });
-        }, 0);
+        }, 100);
         return () => clearTimeout(t);
-    }, [open, messages.length]);
+    }, [open, messages.length, isTyping]);
 
-    const sendMessage = () => {
-        const text = input.trim();
-        if (!text) return;
-        setInput('');
-        setMessages((prev) => [...prev, { id: `u-${Date.now()}`, role: 'user', content: text }]);
+    const sendMessage = async (overrideText = null) => {
+        const text = (overrideText || input).trim();
+        if (!text || isTyping) return;
 
-        // Lightweight placeholder response so UI feels alive.
-        window.setTimeout(() => {
+        if (!overrideText) setInput('');
+        
+        const userMsgId = `u-${Date.now()}`;
+        setMessages((prev) => [...prev, { id: userMsgId, role: 'user', content: text }]);
+        setIsTyping(true);
+
+        try {
+            const { response, suggestedActions } = await api.post('/chatbot/query', { message: text });
+            
             setMessages((prev) => [
                 ...prev,
                 {
                     id: `a-${Date.now()}`,
                     role: 'assistant',
-                    content:
-                        "I'm here to help. Ask about services, booking, hours, insurance, or symptoms. (AI wiring coming next.)",
+                    content: response,
+                    suggestedActions: suggestedActions || [],
                 },
             ]);
-        }, 450);
+        } catch (err) {
+            console.error('Chatbot error:', err);
+            setMessages((prev) => [
+                ...prev,
+                {
+                    id: `a-err-${Date.now()}`,
+                    role: 'assistant',
+                    content: "I'm having a bit of trouble connecting to my neural core. Please try again or check our services manually.",
+                    suggestedActions: ['Try Again', 'Clinic Hours'],
+                },
+            ]);
+        } finally {
+            setIsTyping(false);
+        }
     };
 
     return (
         <div className='fixed bottom-6 right-6 z-50'>
             {open && (
                 <div className='mb-4 w-90 max-w-[calc(100vw-3rem)]'>
-                    {/* Phone-style Container (matches AIChatbotPromo mockup) */}
+                    {/* Phone-style Container */}
                     <div className='rounded-[2.5rem] border border-stone-100 bg-white shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden'>
                         {/* Header */}
                         <div className='p-6 border-b border-stone-100 bg-stone-50/80 flex items-center justify-between'>
@@ -118,8 +127,10 @@ const ChatBot = () => {
                         {/* Messages */}
                         <div
                             ref={scrollRef}
-                            className='p-6 space-y-4 h-80 overflow-y-auto overscroll-contain'
+                            className='p-6 space-y-4 h-[320px] overflow-y-auto overscroll-contain flex flex-col'
                         >
+
+
                             {messages.map((m) => {
                                 const isUser = m.role === 'user';
                                 return (
@@ -131,7 +142,7 @@ const ChatBot = () => {
                                             className={
                                                 isUser
                                                     ? 'bg-red-600 text-white rounded-2xl rounded-tr-none px-4 py-3.5 max-w-[85%] text-sm font-semibold leading-relaxed shadow-lg shadow-red-500/10'
-                                                    : 'rounded-2xl rounded-tl-none px-4 py-3.5 max-w-[85%] text-sm font-medium leading-relaxed bg-stone-50 text-stone-700 border border-stone-100'
+                                                    : 'rounded-2xl rounded-tl-none px-4 py-3.5 max-w-[85%] text-sm font-medium leading-relaxed bg-stone-50 text-stone-700 border border-stone-100 whitespace-pre-wrap'
                                             }
                                         >
                                             {m.content}
@@ -139,34 +150,29 @@ const ChatBot = () => {
                                     </div>
                                 );
                             })}
+                            {isTyping && (
+                                <div className='flex justify-start text-left'>
+                                    <div className='rounded-2xl rounded-tl-none px-4 py-3.5 bg-stone-50 border border-stone-100 flex items-center gap-3'>
+                                        <DotTyping />
+                                        <span className='text-[10px] font-bold text-stone-400 uppercase tracking-widest'>Samson AI is typing</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Footer */}
                         <div className='p-5 border-t border-stone-100 bg-white'>
-                            {/* Horizontal FAQ quick actions (ecommerce-style) */}
+                            {/* Dynamic suggested actions pills */}
                             <div className='mb-3 flex items-center gap-2 overflow-x-auto no-scrollbar'>
-                                {FAQ_ITEMS.map((item) => (
+                                {currentSuggestions.map((action) => (
                                     <button
-                                        key={item.q}
+                                        key={action}
                                         type='button'
-                                        onClick={() => {
-                                            setMessages((prev) => [
-                                                ...prev,
-                                                {
-                                                    id: `faq-q-${Date.now()}`,
-                                                    role: 'user',
-                                                    content: item.q,
-                                                },
-                                                {
-                                                    id: `faq-a-${Date.now() + 1}`,
-                                                    role: 'assistant',
-                                                    content: item.a,
-                                                },
-                                            ]);
-                                        }}
-                                        className='shrink-0 px-3 py-2 rounded-xl bg-stone-50 hover:bg-stone-100 border border-stone-100 text-xs font-bold text-stone-800 transition'
+                                        onClick={() => sendMessage(action)}
+                                        disabled={isTyping}
+                                        className='shrink-0 px-3 py-2 rounded-xl bg-stone-50 hover:bg-stone-100 border border-stone-100 text-xs font-bold text-stone-800 transition disabled:opacity-50'
                                     >
-                                        {item.q}
+                                        {action}
                                     </button>
                                 ))}
                             </div>
@@ -185,15 +191,17 @@ const ChatBot = () => {
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') sendMessage();
                                         }}
+                                        disabled={isTyping}
                                         placeholder='Ask a question...'
-                                        className='w-full bg-transparent outline-none text-sm text-stone-800 placeholder:text-stone-500'
+                                        className='w-full bg-transparent outline-none text-sm text-stone-800 placeholder:text-stone-500 disabled:cursor-not-allowed'
                                     />
                                 </div>
 
                                 <button
                                     type='button'
-                                    onClick={sendMessage}
-                                    className='h-11 w-11 rounded-xl bg-stone-900 hover:bg-red-600 text-white flex items-center justify-center transition shadow-lg shadow-stone-900/10'
+                                    onClick={() => sendMessage()}
+                                    disabled={isTyping || !input.trim()}
+                                    className='h-11 w-11 rounded-xl bg-stone-900 hover:bg-red-600 text-white flex items-center justify-center transition shadow-lg shadow-stone-900/10 disabled:bg-stone-200 disabled:shadow-none'
                                     aria-label='Send'
                                 >
                                     <Send size={18} />
@@ -220,3 +228,5 @@ const ChatBot = () => {
 };
 
 export default ChatBot;
+
+
