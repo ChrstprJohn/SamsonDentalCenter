@@ -82,19 +82,19 @@ const LoginForm = ({ onSubmit, loading = false, error = null, showSignUpLink = t
             <div className='mb-8 text-center flex-shrink-0'>
                 {/* Mobile Logo - Only visible when Carousel is hidden */}
                 <div className='flex items-center justify-center gap-3 mb-6 md:hidden'>
-                    <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500'>
+                    <div className='w-[24px] flex-shrink-0 flex items-center justify-center transition-all duration-500'>
                         <img
                             src='/images/logo/samson-logo.png'
                             alt='Samson Dental Logo'
-                            className='w-full h-auto'
+                            className='w-10 h-auto min-w-[40px]'
                         />
                     </div>
-                    <div className='flex flex-col items-start justify-center'>
-                        <span className='font-black text-[20px] tracking-[-0.04em] leading-none text-slate-900 whitespace-nowrap uppercase'>
+                    <div className='flex flex-col items-start justify-center ml-1'>
+                        <span className='font-black text-[24px] tracking-[-0.01em] leading-[0.8] text-slate-900 whitespace-nowrap font-serif uppercase'>
                             SAMSON
                         </span>
-                        <span className='text-[9px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-600 whitespace-nowrap'>
-                            Dental Center
+                        <span className='text-[10px] uppercase tracking-[0.16em] font-black mt-0 text-slate-400 whitespace-nowrap font-serif block w-full text-center'>
+                            DENTAL CENTER
                         </span>
                     </div>
                 </div>
