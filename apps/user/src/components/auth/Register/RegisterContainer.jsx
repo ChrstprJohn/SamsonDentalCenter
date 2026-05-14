@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Carousel from '../common/Carousel';
-import { X } from 'lucide-react';
+import { X, LogOut, AlertCircle, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '../../../context/ThemeContext';
 import { api } from '../../../utils/api';
+import { Modal } from '../../ui/Modal';
+import Button from '../../ui/Button';
+import RegisterStepIndicator from './steps/RegisterStepIndicator';
 import StepPersonalDetails from './steps/StepPersonalDetails';
 import StepContactAuth from './steps/StepContactAuth';
 import StepOTPVerification from './steps/StepOTPVerification';
@@ -23,6 +25,7 @@ const RegisterContainer = () => {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [showExitModal, setShowExitModal] = useState(false);
     const [signupData, setSignupData] = useState({
         firstName: '',
         middleName: '',
@@ -109,7 +112,6 @@ const RegisterContainer = () => {
                 email: signupData.email,
                 otp_code: otp
             });
-            // Success! 
             navigate('/login', { 
                 state: { 
                     message: 'Account created! Please sign in with your new credentials.' 
@@ -122,90 +124,134 @@ const RegisterContainer = () => {
         }
     };
 
+    const handleExit = () => {
+        // If data is empty, just navigate
+        const hasData = signupData.firstName || signupData.email;
+        if (hasData && step < 3) {
+            setShowExitModal(true);
+        } else {
+            navigate('/');
+        }
+    };
+
+    const breadcrumbLabels = ['Identity', 'Security', 'Verify'];
+
     return (
-        <div className='w-full min-h-screen md:h-screen flex flex-col md:flex-row bg-slate-50'>
-            {/* Left — Carousel (60%) */}
-            <Carousel className='md:w-[60%] lg:w-[60%]' />
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 selection:bg-brand-100 selection:text-brand-900">
+            {/* Sticky Navigation Header */}
+            <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-theme-xs">
+                <div className="max-w-6xl mx-auto px-4 sm:px-8 h-20 flex items-center justify-center relative">
+                    {/* Exit Button */}
+                    <div className='absolute left-3 sm:left-4 top-1/2 -translate-y-1/2'>
+                        <button
+                            onClick={() => setShowExitModal(true)}
+                            className='flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-base transition-colors p-2 sm:px-4 sm:py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700'
+                        >
+                            <X size={18} />
+                            <span className='hidden sm:inline'>Exit</span>
+                        </button>
+                    </div>
 
-            {/* Right — Form (40%) */}
-            <div className='flex-grow md:w-[40%] lg:w-[40%] flex flex-col relative bg-white shadow-2xl z-10'>
-                {/* Close Button */}
-                <button
-                    onClick={() => navigate('/')}
-                    className='absolute top-4 right-4 md:top-6 md:right-6 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors duration-200 z-50'
-                    aria-label='Close'
-                >
-                    <X size={24} />
-                </button>
+                    {/* Step Indicator */}
+                    <RegisterStepIndicator currentStep={step} labels={breadcrumbLabels} />
+                </div>
+            </header>
 
-                <div className='flex-grow overflow-y-auto w-full h-full custom-scrollbar'>
-                    <div className='min-h-full flex flex-col justify-center w-full px-6 sm:px-8 py-6 md:py-8 pb-12'>
-                        <div className='w-full max-w-lg mx-auto'>
-                            {/* Step Indicator */}
-                            <div className='flex items-center justify-center gap-2 mb-8'>
-                                {[1, 2, 3].map((s) => (
-                                    <div
-                                        key={s}
-                                        className={cn(
-                                            'h-1.5 rounded-full transition-all duration-500',
-                                            s === step ? 'w-8 bg-red-600' : (s < step ? 'w-4 bg-red-200' : 'w-4 bg-slate-100')
-                                        )}
-                                    />
-                                ))}
+            {/* Main Content Area */}
+            <main className="max-w-6xl mx-auto px-6 sm:px-8 py-10 md:py-16">
+                <div className="w-full">
+                    {step === 1 && (
+                        <StepPersonalDetails
+                            data={signupData}
+                            errors={signupErrors}
+                            updateField={updateField}
+                            onNext={() => validateStep(1) && setStep(2)}
+                        />
+                    )}
+
+                    {step === 2 && (
+                        <StepContactAuth
+                            data={signupData}
+                            errors={signupErrors}
+                            updateField={updateField}
+                            onNext={handleInitiateRegistration}
+                            onBack={() => setStep(1)}
+                            loading={loading}
+                        />
+                    )}
+
+                    {step === 3 && (
+                        <StepOTPVerification
+                            email={signupData.email}
+                            otp={otp}
+                            updateOTP={setOtp}
+                            onVerify={handleVerifyOTP}
+                            onBack={() => setStep(2)}
+                            onResend={handleInitiateRegistration}
+                            loading={loading}
+                            error={error}
+                        />
+                    )}
+
+                    {error && step !== 3 && (
+                        <div className="mt-4 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-bold text-center animate-in fade-in zoom-in shadow-theme-xs">
+                            <div className="flex items-center justify-center gap-2">
+                                <AlertCircle size={16} />
+                                {error}
                             </div>
+                        </div>
+                    )}
 
-                            {step === 1 && (
-                                <StepPersonalDetails
-                                    data={signupData}
-                                    errors={signupErrors}
-                                    updateField={updateField}
-                                    onNext={() => validateStep(1) && setStep(2)}
-                                />
-                            )}
+                </div>
+            </main>
 
-                            {step === 2 && (
-                                <StepContactAuth
-                                    data={signupData}
-                                    errors={signupErrors}
-                                    updateField={updateField}
-                                    onNext={handleInitiateRegistration}
-                                    onBack={() => setStep(1)}
-                                    loading={loading}
-                                />
-                            )}
-
-                            {step === 3 && (
-                                <StepOTPVerification
-                                    email={signupData.email}
-                                    otp={otp}
-                                    updateOTP={setOtp}
-                                    onVerify={handleVerifyOTP}
-                                    onBack={() => setStep(2)}
-                                    onResend={handleInitiateRegistration}
-                                    loading={loading}
-                                    error={error}
-                                />
-                            )}
-
-                            {error && step !== 3 && (
-                                <div className='mt-4 p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-xs font-medium text-center animate-in fade-in zoom-in'>
-                                    {error}
-                                </div>
-                            )}
-
-                            <p className='text-slate-500 text-xs mt-8 text-center font-medium'>
-                                Already have an account?{' '}
-                                <button
-                                    onClick={() => navigate('/login')}
-                                    className='text-red-600 font-bold hover:underline transition-colors'
-                                >
-                                    Sign In
-                                </button>
-                            </p>
+            {/* Exit Confirmation Modal */}
+            <Modal
+                isOpen={showExitModal}
+                onClose={() => setShowExitModal(false)}
+                className="max-w-md"
+                isBottomSheet={true}
+            >
+                <div className="flex flex-col h-full">
+                    <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                            <LogOut className="text-amber-600 dark:text-amber-400 rotate-180" size={22} />
+                        </div>
+                        <div>
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white">Discard Registration?</h3>
+                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold">Your progress will be lost</p>
                         </div>
                     </div>
+
+                    <div className="px-6 py-8 flex-1 text-center">
+                        <p className="text-[14px] sm:text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed font-bold italic">
+                            Are you sure you want to leave? All entered information will be cleared.
+                        </p>
+                    </div>
+
+                    <div className="px-5 py-5 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-row gap-3">
+                        <Button 
+                            variant="ghost" 
+                            fullWidth 
+                            onClick={() => {
+                                setShowExitModal(false);
+                                navigate('/');
+                            }}
+                            className="flex-1 h-11 text-[11px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                        >
+                            Discard & Exit
+                        </Button>
+                        <Button 
+                            variant="primary" 
+                            fullWidth 
+                            onClick={() => setShowExitModal(false)}
+                            className="flex-[1.5] h-11 text-[11px] sm:text-sm font-black shadow-lg shadow-primary-500/20"
+                        >
+                            Continue Sign-up
+                        </Button>
+                    </div>
                 </div>
-            </div>
+            </Modal>
         </div>
     );
 };
