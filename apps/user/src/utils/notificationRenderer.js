@@ -70,7 +70,8 @@ export const renderNotification = (notification, options = {}) => {
 
     switch (type) {
         case 'CONFIRMATION':
-            if (action === 'approved') {
+        case 'APPROVAL':
+            if (action === 'approved' || type === 'APPROVAL') {
                 title = 'Appointment Approved!';
                 message = `Good news! Your ${richService} appointment on ${richRange} has been approved. See you at the clinic!`;
             } else {
@@ -80,7 +81,8 @@ export const renderNotification = (notification, options = {}) => {
             break;
             
         case 'CANCELLATION':
-            if (action === 'rejected') {
+        case 'REJECTION':
+            if (action === 'rejected' || type === 'REJECTION') {
                 title = 'Appointment Request Declined';
                 message = `Your request for ${richService} on ${richRange} was declined. ${reason ? 'Reason: ' + highlight(reason) : 'Please contact the clinic for more details.'}`;
             } else {

@@ -234,6 +234,7 @@ export const bookAppointment = async (
     patientSex = null, // ✅ NEW: Snapshot patient sex
     acceptedTerms = false, // ✅ NEW: Compliance tracking
     termsAcceptedAt = null, // ✅ NEW: Compliance tracking
+    appointmentIdToIgnore = null // ✅ FIX: Ignore this record during abuse checks (Reschedule flow)
 ) => {
     console.log('📦 [SERVICE-DUMP] Arguments received:', {
         patientId, serviceId, date, time, sendEmail,
@@ -433,23 +434,11 @@ export const bookAppointment = async (
 
         const endTime = addMinutesToTime(time, service.duration_minutes);
 
-        // ── 1.5. Check for Patient's Own Schedule Conflicts (LATER: Currently disabled for dev testing) ──
-        // Prevent the same patient from booking overlapping slots with different doctors.
-        /*
-        const { data: conflicts } = await supabaseAdmin
-            .from('appointments')
-            .select('id, start_time, end_time, service:services(name)')
-            .eq('patient_id', patientId)
-            .eq('appointment_date', date)
-            .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED")')
-            .lt('start_time', endTime)
-            .gt('end_time', time)
-            .limit(1);
-    
-        if (conflicts && conflicts.length > 0) {
-            throw new AppError(`You already have a "${conflicts[0].service?.name}" appointment during this time range (${conflicts[0].start_time.slice(0,5)} - ${conflicts[0].end_time.slice(0,5)}). Please choose a different time.`, 409);
-        }
-        */
+        // ── 1.5. Run Anti-Abuse and Overlap Guards ──
+        // This checks for: dependent limits, active appointment quotas, overlapping slots, and same-day/same-service abuse.
+        const isNewDependent = !patientProfileId && !!firstName && !!lastName;
+        const isReschedule = (rescheduleCount || 0) > 0;
+        await checkUserBookingAbuse(patientId, serviceId, date, time, patientProfileId, isReschedule, isNewDependent, appointmentIdToIgnore);
 
         const isSpecialized = service.tier === SERVICE_TIER.SPECIALIZED;
 
@@ -585,7 +574,7 @@ export const bookAppointment = async (
         }
 
         // ═══════════════════════════════════════════════
-        // 🟢 GENERAL BRANCH — Auto-accept (existing flow)
+        // 🟢 GENERAL BRANCH — Requires Approval (Deprecated: Auto-accept)
         // ═══════════════════════════════════════════════
 
         // ── 2. Check if the requested slot is available ──
@@ -716,6 +705,7 @@ export const bookAppointment = async (
             start_time: appointment.start_time,
             end_time: appointment.end_time,
             service: appointment.service?.name,
+            patient_name: bookedForName
         }).catch(err => console.error('[Notification] Failed to send request receipt:', err.message));
 
         return {
@@ -775,10 +765,10 @@ export const bookAppointment = async (
         const { data: familyProfiles } = await supabaseAdmin
             .from('profiles')
             .select('id')
-            .or(`id.eq.${patientId},primary_profile_id.eq.${patientId}`);
+            .eq('primary_profile_id', patientId);
 
         const familyIds = (familyProfiles || []).map(p => p.id);
-        if (familyIds.length === 0) familyIds.push(patientId); // Fallback
+        familyIds.push(patientId); // Always include self
 
         let query = supabaseAdmin
             .from('appointments')
@@ -844,6 +834,7 @@ export const bookAppointment = async (
 
         const appointments = data.map((appt) => ({
             id: appt.id,
+            patient_id: appt.patient_id, // ✅ Essential for frontend filtering
             date: appt.appointment_date,
             start_time: appt.start_time,
             end_time: appt.end_time,
@@ -872,14 +863,14 @@ export const bookAppointment = async (
     export const getPatientAppointmentStats = async (patientId) => {
         const today = getTodayPH();
 
-        // 1. Get all profile IDs in this family
+        // 1. Get all profile IDs in this family (Self + Dependents)
         const { data: familyProfiles } = await supabaseAdmin
             .from('profiles')
             .select('id')
-            .or(`id.eq.${patientId},primary_profile_id.eq.${patientId}`);
+            .eq('primary_profile_id', patientId);
 
         const familyIds = (familyProfiles || []).map(p => p.id);
-        if (familyIds.length === 0) familyIds.push(patientId);
+        familyIds.push(patientId); // Always include self
 
         // Run summary counts in parallel for performance
         const [upcoming, pending, rejected, completed] = await Promise.all([
@@ -927,6 +918,15 @@ export const bookAppointment = async (
      * Get a single appointment by ID (with ownership check).
      */
     export const getAppointmentById = async (appointmentId, patientId) => {
+        // 1. Get all family IDs to verify ownership
+        const { data: familyProfiles } = await supabaseAdmin
+            .from('profiles')
+            .select('id')
+            .eq('primary_profile_id', patientId);
+
+        const familyIds = (familyProfiles || []).map(p => p.id);
+        familyIds.push(patientId);
+
         const { data, error } = await supabaseAdmin
             .from('appointments')
             .select(
@@ -939,7 +939,7 @@ export const bookAppointment = async (
     `,
             )
             .eq('id', appointmentId)
-            .eq('patient_id', patientId)
+            .in('patient_id', familyIds)
             .single();
 
         if (error || !data) {
@@ -964,16 +964,25 @@ export const bookAppointment = async (
         sendEmail = true,
         removeWaitlist = false,
     ) => {
-        // ── 1. Get the appointment ──
+        // 1. Get all family IDs to verify ownership
+        const { data: familyProfiles } = await supabaseAdmin
+            .from('profiles')
+            .select('id')
+            .eq('primary_profile_id', patientId);
+
+        const familyIds = (familyProfiles || []).map(p => p.id);
+        familyIds.push(patientId);
+
+        // 2. Get the appointment
         const { data: appointment, error: fetchError } = await supabaseAdmin
             .from('appointments')
             .select('*')
             .eq('id', appointmentId)
-            .eq('patient_id', patientId)
+            .in('patient_id', familyIds)
             .single();
 
         if (fetchError || !appointment) {
-            throw new AppError('Appointment not found or you do not own it.', 404);
+            throw new AppError('Appointment not found or you do not have permission to manage it.', 404);
         }
 
         // ── 2. Check if it can be cancelled ──
@@ -994,7 +1003,8 @@ export const bookAppointment = async (
         const isLastMinute = hoursUntil < 24; // Less than 24 hours notice
 
         // ── 4. Determine status: LATE_CANCEL (<24h) vs CANCELLED (≥24h) ──
-        const cancelStatus = isLastMinute
+        const isRequest = appointment.status === APPOINTMENT_STATUS.PENDING;
+        const cancelStatus = isLastMinute && !isRequest
             ? APPOINTMENT_STATUS.LATE_CANCEL
             : APPOINTMENT_STATUS.CANCELLED;
 
@@ -1037,7 +1047,7 @@ export const bookAppointment = async (
                 start_time: appointment.start_time,
                 service: service?.name || 'Dental appointment',
                 isLastMinute,
-            });
+            }, isRequest);
         }
 
         // ── 5c. In-app notification ──
@@ -1046,7 +1056,7 @@ export const bookAppointment = async (
             start_time: appointment.start_time,
             end_time: appointment.end_time,
             service: service?.name || 'Dental appointment',
-        });
+        }, isRequest);
 
         // ── 6. If late cancel, increment patient's late cancel tracking ──
         if (isLastMinute) {
@@ -1113,20 +1123,29 @@ export const bookAppointment = async (
      * @param {string} newTime - New time 'HH:MM'
      */
     export const rescheduleAppointment = async (appointmentId, patientId, newDate, newTime, userSessionId = null, preferredDentistId = null) => {
-        // ── 1. Get the original appointment ──
+        // 1. Get all family IDs to verify ownership
+        const { data: familyProfiles } = await supabaseAdmin
+            .from('profiles')
+            .select('id')
+            .eq('primary_profile_id', patientId);
+
+        const familyIds = (familyProfiles || []).map(p => p.id);
+        familyIds.push(patientId);
+
+        // 2. Get the original appointment
         const { data: original, error } = await supabaseAdmin
             .from('appointments')
             .select('*, service:services(name)')
             .eq('id', appointmentId)
-            .eq('patient_id', patientId)
+            .in('patient_id', familyIds)
             .single();
 
         if (error || !original) {
             throw new AppError('Appointment not found.', 404);
         }
 
-        if (original.status !== APPOINTMENT_STATUS.CONFIRMED) {
-            throw new AppError(`Cannot reschedule appointment with status: ${original.status}`, 400);
+        if (original.status !== APPOINTMENT_STATUS.CONFIRMED && original.status !== APPOINTMENT_STATUS.PENDING) {
+            throw new AppError('Only active or pending appointments can be rescheduled.', 400);
         }
 
         // ── 1b. Prevent "Zombie" Reschedule (Past appointments) ──
@@ -1146,13 +1165,21 @@ export const bookAppointment = async (
             original.service_id,
             newDate,
             newTime,
-            false,
-            null,
-            undefined,
+            false, // sendEmail
+            null,  // bookedForNameParts
+            undefined, // source
             userSessionId,
             preferredDentistId,
             original.reschedule_count + 1,
-            !!preferredDentistId // ✅ If they chose a doctor during reschedule, it's preferred
+            !!preferredDentistId,
+            original.patient_id, // ✅ FIX: Maintain the actual patient profile identity
+            original.patient_birthday,
+            original.patient_relationship,
+            original.notes,
+            original.patient_sex,
+            original.accepted_terms,
+            original.terms_accepted_at,
+            appointmentId // ✅ FIX: Exclude original from duplicate/overlap checks
         );
 
         if (!newBooking.booked) {
@@ -1175,6 +1202,7 @@ export const bookAppointment = async (
                 .from('appointments')
                 .update({
                     status: APPOINTMENT_STATUS.RESCHEDULED,
+                    approval_status: APPOINTMENT_STATUS.RESCHEDULED, // Definitively free the slot
                     cancellation_reason: 'Rescheduled to new time',
                     cancelled_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
@@ -1191,12 +1219,14 @@ export const bookAppointment = async (
                     date: original.appointment_date,
                     start_time: original.start_time,
                     end_time: original.end_time,
-                    service: original.service?.name || 'Dental'
+                    service: original.service?.name || 'Dental',
+                    patient_name: original.booked_for_name
                 };
                 const newDetails = {
                     date: newBooking.appointment.appointment_date,
                     start_time: newBooking.appointment.start_time,
-                    end_time: newBooking.appointment.end_time
+                    end_time: newBooking.appointment.end_time,
+                    patient_name: original.booked_for_name
                 };
                 await sendRescheduleNotice(patientId, oldDetails, newDetails);
             } catch (notifError) {
@@ -1682,7 +1712,7 @@ export const bookAppointment = async (
             .select(`
             *,
             service:services(id, name, duration_minutes),
-            patient:profiles!appointments_patient_id_fkey(id, full_name, first_name, last_name, email)
+            patient:profiles!patient_id(id, full_name, first_name, last_name, email)
         `)
             .eq('id', appointmentId)
             .single();
@@ -1776,6 +1806,7 @@ export const bookAppointment = async (
             .from('appointments')
             .update({
                 status: APPOINTMENT_STATUS.RESCHEDULED,
+                approval_status: APPOINTMENT_STATUS.RESCHEDULED,
                 cancellation_reason: `Admin rescheduled to ${newDate} ${newTime}`,
                 cancelled_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
@@ -1825,5 +1856,107 @@ export const bookAppointment = async (
             },
         };
     };
+
+// ── Anti-Abuse Guards ──
+
+/**
+ * Validate booking rules to prevent abuse (User Flow).
+ * Checks: Dependent limits, Overlapping slots, Same-day/service guard, and Account/Individual quotas.
+ */
+export const checkUserBookingAbuse = async (
+    patientId, 
+    serviceId, 
+    date, 
+    time, 
+    patientProfileId = null, 
+    isReschedule = false,
+    isNewDependent = false,
+    appointmentIdToIgnore = null // ✅ FIX: Skip checks for this specific ID (Reschedule Flow)
+) => {
+    // 1. Dependent Count Check
+    // ONLY check if we are actually trying to create a new dependent profile
+    if (isNewDependent && !isReschedule) {
+        const { count: dependentCount } = await supabaseAdmin
+            .from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('primary_profile_id', patientId);
+
+        if (dependentCount >= CLINIC_CONFIG.MAX_DEPENDENTS_PER_USER) {
+            throw new AppError(`You have reached the limit of ${CLINIC_CONFIG.MAX_DEPENDENTS_PER_USER} family members.`, 403);
+        }
+    }
+
+    // Target individual ID (either the existing dependent or the primary user themselves)
+    const targetIndividualId = patientProfileId || patientId;
+
+    // 2. Active Appointment Limits (Per Individual)
+    // Each individual (primary or dependent) is limited to 3 active appointments.
+    let quotaQuery = supabaseAdmin
+        .from('appointments')
+        .select('*', { count: 'exact', head: true })
+        .eq('patient_id', targetIndividualId)
+        .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
+
+    if (appointmentIdToIgnore) {
+        quotaQuery = quotaQuery.neq('id', appointmentIdToIgnore);
+    }
+
+    const { count: individualTotal } = await quotaQuery;
+    
+    // ✅ RELAXED: During reschedule, we don't count against the quota since we are replacing an existing booking.
+    if (!isReschedule && individualTotal >= CLINIC_CONFIG.MAX_ACTIVE_APPOINTMENTS_PER_INDIVIDUAL) {
+        throw new AppError(`This individual already has ${CLINIC_CONFIG.MAX_ACTIVE_APPOINTMENTS_PER_INDIVIDUAL} active appointments.`, 403);
+    }
+
+    // 3. Overlap Check
+    const { data: service } = await supabaseAdmin.from('services').select('duration_minutes').eq('id', serviceId).single();
+    if (!service) throw new AppError('Service not found.', 404);
+    
+    const endTime = addMinutesToTime(time, service.duration_minutes);
+
+    let overlapQuery = supabaseAdmin
+        .from('appointments')
+        .select('id, start_time, end_time, service:services(name)')
+        .eq('patient_id', targetIndividualId)
+        .eq('appointment_date', date)
+        .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED, APPOINTMENT_STATUS.IN_PROGRESS])
+        .lt('start_time', endTime)
+        .gt('end_time', time);
+
+    if (appointmentIdToIgnore) {
+        overlapQuery = overlapQuery.neq('id', appointmentIdToIgnore);
+    }
+
+    const { data: overlaps } = await overlapQuery.limit(1);
+
+    if (overlaps && overlaps.length > 0) {
+        throw new AppError(`Conflict: This individual already has a "${overlaps[0].service?.name || 'appointment'}" during this time range (${overlaps[0].start_time.slice(0,5)} - ${overlaps[0].end_time.slice(0,5)}).`, 409);
+    }
+
+    // 4. Same Service Same Day Check
+    // ✅ RELAXED: Skip this check during rescheduling to allow users to move their appointment to a 
+    // different time on the same day without being flagged as a duplicate of themselves.
+    if (!isReschedule) {
+        let dupQuery = supabaseAdmin
+            .from('appointments')
+            .select('id')
+            .eq('patient_id', targetIndividualId)
+            .eq('appointment_date', date)
+            .eq('service_id', serviceId)
+            .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
+
+        if (appointmentIdToIgnore) {
+            dupQuery = dupQuery.neq('id', appointmentIdToIgnore);
+        }
+
+        const { data: sameService } = await dupQuery.limit(1);
+
+        if (sameService && sameService.length > 0) {
+            throw new AppError(`You already have this service scheduled for the selected date. Patients are limited to one instance of this treatment per day. Please choose a different date.`, 409);
+        }
+    }
+
+    return { success: true };
+};
 
 // ── End of Service ──

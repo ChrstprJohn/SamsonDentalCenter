@@ -28,4 +28,11 @@ router.patch('/:id/approve', validate(approveAppointmentSchema), ApprovalControl
  */
 router.patch('/:id/reject', validate(rejectAppointmentSchema), ApprovalController.rejectRequest);
 
+/**
+ * @route   PATCH /api/v1/admin/appointments-approval/:id/start
+ * @desc    Mark an appointment as IN_PROGRESS
+ */
+router.patch('/:id/start', ApprovalController.startAppointment);
+
 export default router;
+

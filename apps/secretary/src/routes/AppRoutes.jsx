@@ -18,8 +18,9 @@ import ApprovalsPage from "../pages/secretary/ApprovalsPage";
 import BookingPage from "../pages/secretary/BookingPage";
 import PatientsPage from "../pages/secretary/PatientsPage";
 import DisplacedQueuePage from "../pages/secretary/DisplacedQueuePage";
-import AppointmentsPage from "../pages/secretary/AppointmentsPage";
-import AuditLogs from "../pages/secretary/AuditLogs";
+import UpcomingAppointmentsPage from "../pages/secretary/UpcomingAppointmentsPage";
+import AppointmentHistoryPage from "../pages/secretary/AppointmentHistoryPage";
+// import AuditLogs from "../pages/secretary/AuditLogs";
 
 
 const AppRoutes = () => {
@@ -45,14 +46,14 @@ const AppRoutes = () => {
           <Route path="calendar/:tab" element={<CalendarPage />} />
           <Route path="calendar/:tab/:id" element={<CalendarPage />} />
           <Route path="approvals" element={<ApprovalsPage />} />
-          <Route path="booking" element={<BookingPage />} />
+          <Route path="history" element={<AppointmentHistoryPage />} />
           <Route path="patients">
             <Route index element={<Navigate to="profile" replace />} />
             <Route path=":tab/:id?" element={<PatientsPage />} />
           </Route>
           <Route path="displaced" element={<DisplacedQueuePage />} />
-          <Route path="appointments" element={<AppointmentsPage />} />
-          <Route path="audit-logs" element={<AuditLogs />} />
+          <Route path="appointments" element={<UpcomingAppointmentsPage />} />
+{/* <Route path="audit-logs" element={<AuditLogs />} /> */}
 
         </Route>
 
