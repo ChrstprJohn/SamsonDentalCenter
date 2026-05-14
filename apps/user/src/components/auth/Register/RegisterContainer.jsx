@@ -37,6 +37,7 @@ const RegisterContainer = () => {
         phone: '',
         password: '',
         confirmPassword: '',
+        agreed_to_terms: false,
     });
     const [signupErrors, setSignupErrors] = useState({});
     const [otp, setOtp] = useState('');
@@ -54,18 +55,61 @@ const RegisterContainer = () => {
 
     const validateStep = (currentStep) => {
         const errors = {};
+        
+        const validateNames = (name) => /^[a-zA-Z\s-]*$/.test(name);
+
         if (currentStep === 1) {
-            if (!signupData.firstName.trim()) errors.firstName = 'First name is required';
-            if (!signupData.lastName.trim()) errors.lastName = 'Last name is required';
-            if (!signupData.sex) errors.sex = 'Sex is required';
-            if (!signupData.dob) errors.dob = 'Birthday is required';
-        } else if (currentStep === 2) {
-            if (!signupData.email.trim()) {
-                errors.email = 'Email is required';
-            } else if (!/\S+@\S+\.\S+/.test(signupData.email)) {
-                errors.email = 'Email is invalid';
+            if (!signupData.firstName.trim()) {
+                errors.firstName = 'First name is required';
+            } else if (!validateNames(signupData.firstName)) {
+                errors.firstName = 'Numbers and special characters are not allowed';
             }
-            if (!signupData.phone.trim()) errors.phone = 'Phone is required';
+
+            if (!signupData.lastName.trim()) {
+                errors.lastName = 'Last name is required';
+            } else if (!validateNames(signupData.lastName)) {
+                errors.lastName = 'Numbers and special characters are not allowed';
+            }
+
+            if (signupData.middleName && !validateNames(signupData.middleName)) {
+                errors.middleName = 'Invalid characters in middle name';
+            }
+
+            if (!signupData.sex) errors.sex = 'Sex is required';
+            if (!signupData.dob) {
+                errors.dob = 'Date of birth is required';
+            } else {
+                const selectedDate = new Date(signupData.dob);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (selectedDate > today) {
+                    errors.dob = 'Date of birth cannot be in the future';
+                }
+            }
+            
+            // Email Validation
+            if (!signupData.email.trim()) {
+                errors.email = 'Email address is required';
+            } else if (!/\S+@\S+\.\S+/.test(signupData.email)) {
+                errors.email = 'Please enter a valid email address';
+            }
+
+            // Phone Validation (Philippine Mobile)
+            if (!signupData.phone.trim()) {
+                errors.phone = 'Phone number is required';
+            } else {
+                const sanitizedPhone = signupData.phone.replace(/\D/g, '');
+                if (sanitizedPhone.length !== 11) {
+                    errors.phone = 'Philippine mobile numbers must be exactly 11 digits';
+                } else if (!sanitizedPhone.startsWith('09')) {
+                    errors.phone = 'Philippine mobile numbers must start with 09';
+                }
+            }
+
+            if (!signupData.agreed_to_terms) {
+                errors.terms = 'You must agree to the terms and privacy policy';
+            }
+        } else if (currentStep === 2) {
             if (!signupData.password) {
                 errors.password = 'Password is required';
             } else if (signupData.password.length < 8) {

@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Calendar, ChevronRight, Mars, Venus, UserCircle, ChevronDown, Contact, LogIn } from 'lucide-react';
+import { User, Calendar, ChevronRight, Mars, Venus, UserCircle, ChevronDown, Contact, LogIn, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui';
 
 const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
     const navigate = useNavigate();
+    const bannerRef = useRef(null);
     const labelClasses = "mb-2 block text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 leading-none";
+
+    // Scroll to top/banner if errors occur
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [errors]);
 
     const getInputClasses = (fieldError) => {
         const base = "h-11 w-full rounded-xl border appearance-none px-4 py-2.5 text-[13px] sm:text-sm shadow-theme-sm placeholder:text-gray-400 focus:outline-hidden focus:ring-4 transition-all bg-white dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 font-medium";
@@ -14,6 +22,48 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
             return `${base} border-red-500 focus:border-red-300 focus:ring-red-500/20 dark:text-red-400 dark:border-red-500 dark:focus:border-red-800`;
         }
         return `${base} text-gray-800 border-gray-300 dark:border-gray-700 focus:border-brand-500/50 focus:ring-brand-500/15 hover:border-gray-400 dark:hover:border-gray-600 shadow-theme-xs hover:shadow-theme-sm`;
+    };
+
+    const handleFieldChange = (field, value) => {
+        // Sanitize name fields: letters and spaces only
+        if (['firstName', 'lastName', 'middleName'].includes(field)) {
+            if (value !== '' && !/^[a-zA-Z\s-]*$/.test(value)) return;
+            updateField(field, value);
+            return;
+        }
+
+        // Phone specific logic: Strictly enforce 09XX XXXX XXXX format
+        if (field === 'phone') {
+            let digits = value.replace(/\D/g, '');
+            
+            if (digits.length === 0) {
+                updateField('phone', '');
+                return;
+            }
+
+            // Auto-prefix 09
+            if (digits.length === 1) {
+                digits = (digits === '0' || digits === '9') ? '09' : '09' + digits;
+            } else if (digits.length >= 2 && !digits.startsWith('09')) {
+                digits = digits.startsWith('9') ? '0' + digits : '09' + digits;
+            }
+
+            // Limit to 11 digits
+            digits = digits.substring(0, 11);
+
+            // Apply formatting: 09X XXXX XXXX (Matching Guest Booking)
+            let formatted = digits;
+            if (digits.length > 7) {
+                formatted = `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7)}`;
+            } else if (digits.length > 3) {
+                formatted = `${digits.slice(0, 3)} ${digits.slice(3)}`;
+            }
+
+            updateField('phone', formatted);
+            return;
+        }
+
+        updateField(field, value);
     };
 
     return (
@@ -28,6 +78,22 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                 </p>
             </div>
 
+            {/* Error Banner (Parity with Guest Booking) */}
+            {Object.keys(errors).length > 0 && (
+                <div 
+                    ref={bannerRef}
+                    className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 shadow-theme-xs"
+                >
+                    <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/20 flex items-center justify-center shrink-0">
+                        <AlertCircle className="text-red-600 dark:text-red-400" size={22} />
+                    </div>
+                    <div className="text-left">
+                        <p className="text-sm font-black text-red-900 dark:text-red-400 leading-none mb-1">Incomplete Information</p>
+                        <p className="text-[11px] sm:text-xs font-bold text-red-600/70 dark:text-red-400/60">Please review the fields marked in red before continuing.</p>
+                    </div>
+                </div>
+            )}
+
             {/* Section 1: Personal Details */}
             <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md overflow-hidden'>
                 <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
@@ -36,14 +102,14 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                 </div>
 
                 <div className="px-5 py-6 sm:px-10 sm:py-10 space-y-6 sm:space-y-8">
-                    {/* Row 1: Last Name & First Name (Matches Guest Booking) */}
+                    {/* Row 1: Last Name & First Name */}
                     <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6'>
                         <div>
                             <label className={labelClasses}>Last Name <span className='text-brand-500'>*</span></label>
                             <input
                                 type='text'
                                 value={data.lastName}
-                                onChange={(e) => updateField('lastName', e.target.value)}
+                                onChange={(e) => handleFieldChange('lastName', e.target.value)}
                                 className={getInputClasses(errors.lastName)}
                                 placeholder='e.g. Dela Cruz'
                             />
@@ -54,7 +120,7 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                             <input
                                 type='text'
                                 value={data.firstName}
-                                onChange={(e) => updateField('firstName', e.target.value)}
+                                onChange={(e) => handleFieldChange('firstName', e.target.value)}
                                 className={getInputClasses(errors.firstName)}
                                 placeholder='e.g. Juan'
                             />
@@ -69,7 +135,7 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                             <input
                                 type='text'
                                 value={data.middleName}
-                                onChange={(e) => updateField('middleName', e.target.value)}
+                                onChange={(e) => handleFieldChange('middleName', e.target.value)}
                                 className={getInputClasses(errors.middleName)}
                                 placeholder='e.g. Santos'
                             />
@@ -106,7 +172,9 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                                 type='date'
                                 value={data.dob}
                                 onChange={(e) => updateField('dob', e.target.value)}
-                                className={getInputClasses(errors.dob)}
+                                onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                                max={new Date().toISOString().split('T')[0]}
+                                className={cn(getInputClasses(errors.dob), "cursor-pointer")}
                             />
                             {errors.dob && <p className='text-red-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.dob}</p>}
                         </div>
@@ -163,9 +231,10 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                                 <input
                                     type='tel'
                                     value={data.phone}
-                                    onChange={(e) => updateField('phone', e.target.value)}
+                                    onChange={(e) => handleFieldChange('phone', e.target.value)}
                                     className={cn(getInputClasses(errors.phone), 'pr-20')}
-                                    placeholder='0912 345 6789'
+                                    placeholder='09XX XXXX XXXX'
+                                    maxLength={13}
                                 />
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                     <span className="text-[10px] font-black text-gray-400">PH (+63)</span>
@@ -173,6 +242,30 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                             </div>
                             {errors.phone && <p className='text-red-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.phone}</p>}
                         </div>
+                    </div>
+
+                    {/* Section 3: Terms & Policy (Matches Guest Booking) */}
+                    <div className="pt-6 border-t border-gray-100 dark:border-gray-800/50">
+                        <div className={cn(
+                            "flex items-start gap-3 p-4 rounded-2xl border transition-all hover:border-brand-200 dark:hover:border-brand-500/20 group",
+                            errors.terms 
+                                ? "bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30" 
+                                : "bg-gray-50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800"
+                        )}>
+                            <div className="relative flex items-center h-5">
+                                <input
+                                    id="terms"
+                                    type="checkbox"
+                                    checked={data.agreed_to_terms || false}
+                                    onChange={(e) => updateField('agreed_to_terms', e.target.checked)}
+                                    className="w-5 h-5 rounded-lg border-2 border-gray-300 text-brand-600 focus:ring-brand-500 transition-all cursor-pointer accent-brand-500"
+                                />
+                            </div>
+                            <label htmlFor="terms" className="text-[12px] sm:text-[14px] text-gray-700 dark:text-gray-300 font-medium leading-relaxed cursor-pointer select-none">
+                                I agree to the <a href="/terms-of-service" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Terms of Service</a> and <a href="/privacy-policy" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Privacy Policy</a>.
+                            </label>
+                        </div>
+                        {errors.terms && <p className='text-red-500 text-[10px] font-bold mt-2 ml-1'>{errors.terms}</p>}
                     </div>
                 </div>
             </div>
@@ -195,7 +288,13 @@ const StepPersonalDetails = ({ data, errors, updateField, onNext }) => {
                     <button
                         type="button"
                         onClick={onNext}
-                        className='flex-1 sm:flex-none sm:min-w-[240px] font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-1 sm:gap-2.5 text-[11px] sm:text-base bg-brand-500 hover:bg-brand-600 active:scale-95 text-white'
+                        disabled={!data.agreed_to_terms}
+                        className={cn(
+                            'flex-1 sm:flex-none sm:min-w-[240px] font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-1 sm:gap-2.5 text-[11px] sm:text-base',
+                            data.agreed_to_terms 
+                                ? 'bg-brand-500 hover:bg-brand-600 active:scale-95 text-white' 
+                                : 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
+                        )}
                     >
                         Continue to Security
                         <ChevronRight size={16} className="w-3.5 h-3.5 sm:w-5 sm:h-5" strokeWidth={3} />
