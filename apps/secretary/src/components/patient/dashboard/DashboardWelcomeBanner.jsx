@@ -18,17 +18,17 @@ const DashboardWelcomeBanner = ({ firstName = "Lisa" }) => {
       </div>
 
       <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
-        <button className="group flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl bg-white dark:bg-white/[0.03] px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-[15px] font-semibold text-[#008f70] transition-all hover:bg-gray-50 active:scale-[0.98] shadow-sm hover:shadow">
+        <button className="group flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl bg-white px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-[15px] font-semibold text-[#008f70] transition-all hover:bg-gray-50 active:scale-[0.98] shadow-sm hover:shadow">
           <UserPlus size={18} className="shrink-0 transition-transform group-hover:scale-110" />
           <span>Register Patient</span>
         </button>
 
-        <button className="group flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl bg-white dark:bg-white/[0.03]/10 backdrop-blur-md px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-[15px] font-semibold text-white transition-all hover:bg-white dark:bg-white/[0.03]/20 active:scale-[0.98] border border-white/20 shadow-sm">
+        <button className="group flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl bg-white/10 backdrop-blur-md px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-[15px] font-semibold text-white transition-all hover:bg-white/20 active:scale-[0.98] border border-white/20 shadow-sm">
           <CalendarPlus size={18} className="shrink-0 transition-transform group-hover:scale-110" />
           <span>Book Appointment</span>
         </button>
 
-        <button className="group flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl bg-white dark:bg-white/[0.03]/10 backdrop-blur-md px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-[15px] font-semibold text-white transition-all hover:bg-white dark:bg-white/[0.03]/20 active:scale-[0.98] border border-white/20 shadow-sm">
+        <button className="group flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl bg-white/10 backdrop-blur-md px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-[15px] font-semibold text-white transition-all hover:bg-white/20 active:scale-[0.98] border border-white/20 shadow-sm">
           <Printer size={18} className="shrink-0 transition-transform group-hover:scale-110" />
           <span>Print Schedule</span>
         </button>

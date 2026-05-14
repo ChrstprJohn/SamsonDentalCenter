@@ -118,12 +118,6 @@ const navItems = [
         path: '/approvals',
     },
     {
-        icon: <BookingIcon />,
-        name: 'Booking Desk',
-        path: '/booking',
-    },
-
-    {
         icon: <PatientsIcon />,
         name: 'Patients',
         path: '/patients',
