@@ -98,7 +98,7 @@ const navItems = [
     },
     {
         icon: <DeskIcon />,
-        name: 'Check-in',
+        name: 'Front Desk',
         path: '/front-desk',
     },
     {
