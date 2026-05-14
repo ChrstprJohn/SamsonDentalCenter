@@ -54,3 +54,22 @@ export const rejectRequest = async (req, res, next) => {
         next(err);
     }
 };
+
+/**
+ * PATCH /api/v1/admin/appointments-approval/:id/start
+ */
+export const startAppointment = async (req, res, next) => {
+    try {
+        const appointment = await ApprovalService.startAppointment(
+            req.params.id,
+            req.user.id
+        );
+        res.json({
+            message: 'Appointment started successfully.',
+            appointment
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
