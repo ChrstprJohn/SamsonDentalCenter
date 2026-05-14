@@ -13,7 +13,9 @@ import SetPasswordPage from '../pages/auth/SetPasswordPage';
 
 // Doctor pages
 import DoctorDashboard from '../pages/doctor/DoctorDashboard';
+import AppointmentsPage from '../pages/doctor/AppointmentsPage';
 import PlaceholderPage from '../pages/doctor/PlaceholderPage';
+
 
 const AppRoutes = () => {
     return (
@@ -34,8 +36,9 @@ const AppRoutes = () => {
                     }
                 >
                     <Route index element={<DoctorDashboard />} />
-                    <Route path='appointments' element={<PlaceholderPage title="Appointments" />} />
+                    <Route path='appointments' element={<AppointmentsPage />} />
                     <Route path='patients' element={<PlaceholderPage title="My Patients" />} />
+
                     <Route path='schedule' element={<PlaceholderPage title="Schedule" />} />
                     <Route path='notifications' element={<PlaceholderPage title="Notifications" />} />
                     <Route path='profile' element={<PlaceholderPage title="Profile" />} />

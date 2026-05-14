@@ -19,13 +19,12 @@ import {
 } from 'date-fns';
 
 // Extracted Components
-import { PlusIcon } from '../../components/patient/appointments/AppointmentIcons';
 import AppointmentTable from '../../components/patient/appointments/AppointmentTable';
 import AppointmentPagination from '../../components/patient/appointments/AppointmentPagination';
 import ErrorState from '../../components/common/ErrorState';
-import { Search, Calendar, Users, Filter, Clock, ArrowUpDown } from 'lucide-react';
+import { Search, Calendar, Users, Clock, ArrowUpDown, Plus } from 'lucide-react';
 
-const MyAppointments = () => {
+const UpcomingAppointments = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { isMobileOpen } = useSidebar();
@@ -49,7 +48,7 @@ const MyAppointments = () => {
 
     const { sortBy, sort } = getSortParams(sortOrder);
 
-    // Strictly fetch upcoming appointments
+    // Strictly fetch upcoming appointments (Approved & Future)
     const { appointments, total, counts, page, totalPages, loading, error, goToPage } =
         useAppointments({
             status: 'upcoming',
@@ -116,7 +115,7 @@ const MyAppointments = () => {
 
     return (
         <>
-            <PageBreadcrumb pageTitle='My Appointments' className='mb-4' />
+            <PageBreadcrumb pageTitle='Upcoming Appointments' className='mb-4' />
 
             <div className='flex-grow flex flex-col h-full bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-200 dark:border-gray-700/60 overflow-hidden'>
                 {error ? (
@@ -138,7 +137,7 @@ const MyAppointments = () => {
                                     </span>
                                     <input
                                         type='text'
-                                        placeholder='Search by service or dentist...'
+                                        placeholder='Search upcoming appointments...'
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                         className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium dark:text-white'
@@ -149,7 +148,7 @@ const MyAppointments = () => {
                                     to='/patient/book?returnTo=/patient/appointments'
                                     className='hidden sm:flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-sm font-bold transition-all shadow-md shadow-brand-500/20 shrink-0 whitespace-nowrap'
                                 >
-                                    <PlusIcon className="w-4 h-4" />
+                                    <Plus size={18} />
                                     <span>New Appointment</span>
                                 </Link>
                             </div>
@@ -213,7 +212,7 @@ const MyAppointments = () => {
                                         <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                                     </div>
 
-                                    {/* 3. Date Picker Filter */}
+                                    {/* 4. Date Picker Filter */}
                                     <div className='relative w-[150px] sm:w-[190px] shrink-0'>
                                         <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
                                             <Calendar size={16} />
@@ -237,7 +236,7 @@ const MyAppointments = () => {
                                     </div>
 
                                     <div className='hidden sm:block ml-auto text-[10px] font-bold text-gray-400 uppercase tracking-wider'>
-                                        Upcoming: {filtered.length}
+                                        Total Approved: {filtered.length}
                                     </div>
                                 </div>
                             </div>
@@ -268,7 +267,7 @@ const MyAppointments = () => {
                     to='/patient/book?returnTo=/patient/appointments'
                     className={`fixed ${totalPages > 1 ? 'bottom-20' : 'bottom-8'} right-5 sm:hidden z-50 flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg shadow-2xl shadow-brand-500/40 active:scale-95 transition-all outline-none`}
                 >
-                    <PlusIcon className="w-4 h-4" />
+                    <Plus size={18} />
                     <span className='text-xs font-bold'>New Appointment</span>
                 </Link>
             )}
@@ -276,4 +275,4 @@ const MyAppointments = () => {
     );
 };
 
-export default MyAppointments;
+export default UpcomingAppointments;

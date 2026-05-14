@@ -97,7 +97,7 @@ const ApprovalContextView = ({ request, onApprove, onReject, onClose }) => {
                             {/* Requested Ghost Block */}
                             {slotPosition >= 0 && slotPosition <= 90 && (
                                 <div 
-                                    className="absolute h-[120%] top-[-10%] w-[12.5%] bg-brand-50 border-2 border-brand-500 rounded-lg flex flex-col items-center justify-center shadow-sm-md z-10 transition-all duration-500 ease-out"
+                                    className="absolute h-[120%] top-[-10%] w-[12.5%] bg-brand-50 border-2 border-brand-500 rounded-xl flex flex-col items-center justify-center shadow-sm-md z-10 transition-all duration-500 ease-out"
                                     style={{ left: `${slotPosition}%` }}
                                 >
                                     <span className="text-[11px] text-brand-600 font-bold capitalize tracking-tighter">Req</span>

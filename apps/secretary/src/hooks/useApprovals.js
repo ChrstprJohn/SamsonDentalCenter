@@ -37,10 +37,13 @@ const useApprovals = () => {
         fetchApprovals();
     }, [fetchApprovals]);
 
-    const approveRequest = async (id, dentistId = null) => {
+    const approveRequest = async (id, note = null, dentistId = null) => {
         setActionLoading(true);
         try {
-            const response = await api.patch(`/admin/appointments/${id}/approve`, { dentist_id: dentistId }, token);
+            const response = await api.patch(`/admin/appointments/${id}/approve`, { 
+                dentist_id: dentistId,
+                note: note
+            }, token);
             await fetchApprovals(); // Refresh list
             return { success: true, ...response };
         } catch (err) {

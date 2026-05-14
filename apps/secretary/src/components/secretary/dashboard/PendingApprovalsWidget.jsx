@@ -54,7 +54,7 @@ const PendingApprovalsWidget = () => {
                 {req.patientName}
               </p>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs font-medium px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
                   {req.type}
                 </span>
                 <span className="text-xs font-medium text-gray-400 dark:text-gray-500">

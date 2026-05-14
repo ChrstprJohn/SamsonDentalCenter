@@ -1,67 +1,83 @@
 import React from 'react';
 import PenaltyBadges from '../approvals/PenaltyBadges';
-import { Phone, Mail } from 'lucide-react';
+import { Phone, Mail, User as UserIcon, StickyNote, MessageSquare } from 'lucide-react';
 
-const PatientOverview = ({ patient, completedCount = 0 }) => {
+const PatientOverview = ({ patient, appointmentNote, completedCount = 0 }) => {
     const isGuest = patient.source === 'GUEST_BOOKING';
+    
     return (
-        <div className='mb-10 sm:mb-14'>
-            <div className='flex items-center gap-4 mb-6 sm:mb-8'>
-                <h2 className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-bold capitalize'>
-                    Patient Overview
-                </h2>
-                <div className='h-px grow bg-gray-200 dark:bg-gray-800'></div>
-            </div>
-
-            <div className='bg-gray-50/50 dark:bg-gray-900/30 border border-gray-100 dark:border-gray-800 rounded-3xl p-5 sm:p-7 flex flex-col md:flex-row gap-6 sm:gap-8 relative overflow-hidden'>
-                <div className='absolute left-0 top-0 bottom-0 w-1.5 bg-brand-500 rounded-l-3xl opacity-80'></div>
-
-                <div className='md:w-[40%] shrink-0 flex flex-col items-start'>
-                    <div className='flex items-center gap-4 mb-4'>
-                        <div className='w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-lg shadow-sm-md'>
-                            {patient.name.charAt(0)}
+        <div className='bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl mx-4 sm:mx-0 p-4 sm:p-8 shadow-theme-xs'>
+            <div className='w-full space-y-5 sm:space-y-6'>
+                <div>
+                    <h3 className='text-[11px] font-medium text-gray-400 dark:text-gray-500 capitalize mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-100 dark:border-white/5'>
+                        Patient Profile
+                    </h3>
+                    <div className='flex items-center gap-4 sm:gap-6'>
+                        <div className='w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-[14px] sm:text-lg shadow-sm shrink-0 capitalize'>
+                            {patient.name?.charAt(0) || <UserIcon size={18} />}
                         </div>
-                        <div>
-                            <p className={`text-[11px] font-bold px-2 py-0.5 rounded-md inline-block capitalize  mb-2 ${
-                                isGuest ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-brand-50 text-brand-600 border border-brand-100'
-                            }`}>
-                                {isGuest ? 'Guest Booking' : 'Registered Patient'}
-                            </p>
-                            <h3 className='text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight mb-1'>
-                                {patient.name}
-                            </h3>
+                        <div className='space-y-0.5 sm:space-y-1 overflow-hidden'>
+                            <div className='flex items-center gap-2'>
+                                <h4 className='text-[14px] sm:text-base font-bold text-gray-900 dark:text-white truncate leading-tight'>
+                                    {patient.name}
+                                </h4>
+                                <span className={`text-[11px] sm:text-[11px] font-medium px-1.5 py-0.5 rounded-md capitalize  shrink-0 ${
+                                    isGuest ? 'bg-amber-100 text-amber-700 border border-amber-200/50' : 'bg-brand-50 text-brand-700 border border-brand-100'
+                                }`}>
+                                    {isGuest ? 'Guest' : 'Member'}
+                                </span>
+                            </div>
+                            <div className='flex items-center gap-3 text-[12px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-medium'>
+                                <div className='flex items-center gap-1'>
+                                    <Phone size={10} className='text-emerald-500' />
+                                    {patient.phone}
+                                </div>
+                                <div className='hidden sm:flex items-center gap-1'>
+                                    <Mail size={10} className='text-blue-500' />
+                                    {patient.email}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div className='hidden md:block w-px bg-gray-200/80 dark:bg-gray-800/80'></div>
-                <div className='block md:hidden h-px bg-gray-200/80 dark:bg-gray-800/80 w-full my-1'></div>
+                <div className='pt-2 space-y-5'>
+                    <PenaltyBadges 
+                        noShowCount={patient.noShowCount}
+                        cancellationCount={patient.cancellationCount}
+                        completedCount={completedCount}
+                        isBookingRestricted={patient.isBookingRestricted}
+                    />
 
-                <div className='flex-1 flex flex-col space-y-4 sm:space-y-5'>
-                    <span className='text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 capitalize font-bold'>
-                        Contact & History
-                    </span>
+                    {/* Appointment Note (Note from patient during booking) */}
+                    {appointmentNote && (
+                        <div className="bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5 flex gap-3 sm:gap-4 items-start animate-[fadeIn_0.3s_ease-out]">
+                            <div className="p-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700/50 shrink-0">
+                                <MessageSquare size={16} className="text-brand-500" />
+                            </div>
+                            <div className="space-y-1.5">
+                                <span className="block text-[12px] font-medium capitalize text-gray-400 dark:text-gray-500">Patient's Appointment Note</span>
+                                <p className="text-[13px] sm:text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
+                                    {appointmentNote}
+                                </p>
+                            </div>
+                        </div>
+                    )}
 
-                    <div className="flex flex-col gap-2.5">
-                        <span className="flex items-center gap-3 text-[14px]">
-                            <Phone className="size-4 text-gray-400" />
-                            <span className="text-gray-900 dark:text-white font-medium">{patient.phone}</span>
-                        </span>
-                        <span className="flex items-center gap-3 text-[14px]">
-                            <Mail className="size-4 text-gray-400" />
-                            <span className="text-gray-900 dark:text-white font-medium">{patient.email}</span>
-                        </span>
-                    </div>
-
-                    <div className='pt-2'>
-                        <h3 className="text-[12px] font-bold capitalize text-gray-400 mb-3 px-1">Penalty Status</h3>
-                        <PenaltyBadges 
-                            noShowCount={patient.noShowCount}
-                            cancellationCount={patient.cancellationCount}
-                            completedCount={completedCount}
-                            isBookingRestricted={patient.isBookingRestricted}
-                        />
-                    </div>
+                    {/* Permanent Patient Note (Warnings/Allergies) */}
+                    {patient.patientNote && (
+                        <div className="bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/20 rounded-xl p-4 sm:p-5 flex gap-3 sm:gap-4 items-start animate-[fadeIn_0.3s_ease-out]">
+                            <div className="p-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-amber-100 dark:border-amber-500/10 shrink-0">
+                                <StickyNote size={16} className="text-amber-500" />
+                            </div>
+                            <div className="space-y-1.5">
+                                <span className="block text-[12px] font-medium capitalize text-amber-700/60 dark:text-amber-500/60">Permanent Record Note</span>
+                                <p className="text-[13px] sm:text-sm font-medium text-amber-900/80 dark:text-amber-200/70 leading-relaxed italic">
+                                    "{patient.patientNote}"
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

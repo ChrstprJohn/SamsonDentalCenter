@@ -15,8 +15,8 @@ export const getAggregatedApprovalDetails = async (appointmentId) => {
         .from('appointments')
         .select(`
             *,
-            patient:profiles!appointments_patient_id_fkey(*),
-            service:services(*),
+            patient:profiles!patient_id(*),
+            service:services(name, tier),
             dentist:dentists(id, profile:profiles(id, full_name, first_name, last_name, middle_name, suffix))
         `)
         .eq('id', appointmentId)
@@ -24,6 +24,16 @@ export const getAggregatedApprovalDetails = async (appointmentId) => {
 
     if (fetchErr || !appointment) {
         throw new AppError('Appointment request not found.', 404);
+    }
+
+    // ── FALLBACK: Ensure patient profile is resolved even if join failed ──
+    if (!appointment.patient && appointment.patient_id) {
+        const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('id, full_name, email, phone, primary_profile_id, is_registered')
+            .eq('id', appointment.patient_id)
+            .single();
+        appointment.patient = profile;
     }
 
     // 2. Calculate Patient Reliability Metrics
@@ -88,7 +98,7 @@ export const getAggregatedApprovalDetails = async (appointmentId) => {
                     .select('*')
                     .eq('day_of_week', dayOfWeek)
                     .single();
-                
+
                 if (clinicSched) {
                     doctorSchedule = {
                         start_time: clinicSched.open_time,
@@ -114,7 +124,7 @@ export const getAggregatedApprovalDetails = async (appointmentId) => {
             .from('appointments')
             .select(`
                 id, start_time, end_time, status,
-                patient:profiles!appointments_patient_id_fkey(full_name),
+                patient:profiles!patient_id(full_name),
                 service:services(name)
             `)
             .eq('dentist_id', appointment.dentist_id)
@@ -138,7 +148,7 @@ export const getAggregatedApprovalDetails = async (appointmentId) => {
         patientDailyAppointments = patientDayAppts || [];
 
         // D. Identify specific conflicts
-        conflicts = dailyAppointments.filter(a => 
+        conflicts = dailyAppointments.filter(a =>
             a.status === 'CONFIRMED' &&
             a.id !== appointmentId &&
             a.start_time < appointment.end_time &&
@@ -165,7 +175,7 @@ export const approveAppointment = async (appointmentId, adminId, dentistId = nul
     // 1. Validate current state
     const { data: appointment } = await supabaseAdmin
         .from('appointments')
-        .select('*, patient:profiles!appointments_patient_id_fkey(full_name, email, phone)')
+        .select('*, patient:profiles!patient_id(full_name, email, phone)')
         .eq('id', appointmentId)
         .single();
 
@@ -192,7 +202,7 @@ export const approveAppointment = async (appointmentId, adminId, dentistId = nul
         .eq('id', appointmentId)
         .select(`
             *,
-            patient:profiles!appointments_patient_id_fkey(full_name, email, phone),
+            patient:profiles!patient_id(id, full_name, email, phone, primary_profile_id, is_registered),
             service:services(name, price),
             dentist:dentists(id, profile:profiles(full_name))
         `)
@@ -200,49 +210,105 @@ export const approveAppointment = async (appointmentId, adminId, dentistId = nul
 
     if (updateErr) throw new AppError(updateErr.message, 500);
 
-    // 3. Notifications & Cleanup
+    // ── 4. Notify Primary for Dependents ──
+    let targetPatient = updated.patient;
+    if (!targetPatient?.primary_profile_id && updated.patient_id) {
+        const { data: latestProfile } = await supabaseAdmin
+            .from('profiles')
+            .select('id, primary_profile_id, is_registered')
+            .eq('id', updated.patient_id)
+            .single();
+        if (latestProfile) targetPatient = latestProfile;
+    }
+
+    const isDependent = !!(targetPatient?.primary_profile_id && !targetPatient?.is_registered);
+    const notifyUserId = isDependent ? targetPatient.primary_profile_id : updated.patient_id;
+    
+    // Fetch Primary Email if needed
+    let recipientEmail = updated.patient?.email || updated.guest_email;
+    if (!recipientEmail && isDependent) {
+        const { data: primary } = await supabaseAdmin
+            .from('profiles')
+            .select('email')
+            .eq('id', targetPatient.primary_profile_id)
+            .single();
+        recipientEmail = primary?.email;
+    }
+
+    const notificationLog = { email: 'SKIPPED', inApp: 'SKIPPED' };
+    console.log(`[ApprovalService] Routing: User ${notifyUserId} (isDep: ${isDependent}), Email: ${recipientEmail}`);
+
+    // Channel 1: Email
     try {
-        await sendBookingSuccessEmail(
-            updated.patient?.email || updated.guest_email,
-            updated.patient?.full_name || updated.guest_name,
-            {
+        if (recipientEmail) {
+            const emailResult = await sendBookingSuccessEmail(
+                recipientEmail,
+                updated.patient?.full_name || updated.guest_name,
+                {
+                    appointmentId: updated.id,
+                    date: updated.appointment_date,
+                    start_time: updated.start_time,
+                    end_time: updated.end_time,
+                    service: updated.service?.name,
+                    dentist: updated.dentist?.profile?.full_name,
+                    note: note
+                }
+            );
+            notificationLog.email = emailResult.success ? 'SUCCESS' : `FAILED: ${emailResult.error}`;
+            console.log(`[ApprovalService] Email result: ${notificationLog.email}`);
+        } else {
+            notificationLog.email = 'MISSING_RECIPIENT';
+            console.warn(`[ApprovalService] No email found for appointment ${updated.id}`);
+        }
+    } catch (err) {
+        notificationLog.email = `CRASH: ${err.message}`;
+        console.error('[ApprovalService] Email Block Crash:', err);
+    }
+
+    // Channel 2: In-App
+    try {
+        if (notifyUserId) {
+            const notifyResult = await sendApprovalNotice(notifyUserId, {
                 date: updated.appointment_date,
                 start_time: updated.start_time,
                 end_time: updated.end_time,
                 service: updated.service?.name,
-                dentist: updated.dentist?.profile?.full_name,
-                note: note
-            }
-        );
+                patient_name: updated.patient?.full_name || updated.guest_name
+            }, updated.patient?.phone || updated.guest_phone);
+            notificationLog.inApp = !!notifyResult.inAppResult ? 'SUCCESS' : 'FAILED';
+            console.log(`[ApprovalService] In-App result: ${notificationLog.inApp}`);
+        } else {
+            notificationLog.inApp = 'SKIPPED_GUEST_OR_WALKIN';
+            console.log('[ApprovalService] Skipping In-App: No notifyUserId (Guest or Walk-in)');
+        }
+    } catch (err) {
+        notificationLog.inApp = `CRASH: ${err.message}`;
+        console.error('[ApprovalService] In-App Block Crash:', err);
+    }
 
-        await sendApprovalNotice(updated.patient_id, {
-            date: updated.appointment_date,
-            start_time: updated.start_time,
-            end_time: updated.end_time,
-            service: updated.service?.name,
-            patient_name: updated.patient?.full_name || updated.guest_name
-        }, updated.patient?.phone || updated.guest_phone);
-
+    // Cleanup: Waitlist
+    try {
         await voidWaitlistForApprovedAppointment(appointmentId, {
             date: updated.appointment_date,
             start_time: updated.start_time,
             service: updated.service?.name
         });
     } catch (err) {
-        console.warn('[ApprovalService] Post-processing notification failed:', err.message);
+        console.warn('[ApprovalService] Waitlist cleanup failed:', err.message);
     }
 
-    return updated;
+    return { ...updated, notification_log: notificationLog };
 };
 
 /**
  * Reject a specialized request with a reason.
  */
-export const rejectAppointment = async (appointmentId, adminId, reason) => {
+export const rejectAppointment = async (appointmentId, adminId, reason, suggestedDate = null) => {
+    const finalReason = suggestedDate ? `${reason} (Suggested: ${suggestedDate})` : reason;
     // 1. Validate
     const { data: appointment } = await supabaseAdmin
         .from('appointments')
-        .select('*, patient:profiles!appointments_patient_id_fkey(full_name, email)')
+        .select('*, patient:profiles!patient_id(full_name, email)')
         .eq('id', appointmentId)
         .single();
 
@@ -256,7 +322,7 @@ export const rejectAppointment = async (appointmentId, adminId, reason) => {
         .update({
             status: 'CANCELLED',
             approval_status: 'rejected',
-            rejection_reason: reason,
+            rejection_reason: finalReason,
             approved_by: adminId,
             approved_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -264,43 +330,131 @@ export const rejectAppointment = async (appointmentId, adminId, reason) => {
         .eq('id', appointmentId)
         .select(`
             *,
-            patient:profiles!appointments_patient_id_fkey(full_name, email),
+            patient:profiles!patient_id(id, full_name, email, phone, primary_profile_id, is_registered),
             service:services(name)
         `)
         .single();
 
     if (error) throw new AppError(error.message, 500);
 
-    // 3. Notify & Trigger Waitlist
-    try {
-        await sendBookingRejectedEmail(
-            updated.patient?.email || updated.guest_email,
-            updated.patient?.full_name || updated.guest_name,
-            {
-                service: updated.service?.name,
-                reason
-            }
-        );
+    // 3. Notify Primary for Dependents
+    let targetPatient = updated.patient;
+    if (!targetPatient?.primary_profile_id && updated.patient_id) {
+        const { data: latestProfile } = await supabaseAdmin
+            .from('profiles')
+            .select('id, primary_profile_id, is_registered')
+            .eq('id', updated.patient_id)
+            .single();
+        if (latestProfile) targetPatient = latestProfile;
+    }
 
-        if (updated.patient_id) {
-            await sendRejectionNotice(updated.patient_id, {
+    const isDependent = !!(targetPatient?.primary_profile_id && !targetPatient?.is_registered);
+    const notifyUserId = isDependent ? targetPatient.primary_profile_id : updated.patient_id;
+    
+    // Fetch Primary Email if needed
+    let recipientEmail = updated.patient?.email || updated.guest_email;
+    if (!recipientEmail && isDependent) {
+        const { data: primary } = await supabaseAdmin
+            .from('profiles')
+            .select('email')
+            .eq('id', targetPatient.primary_profile_id)
+            .single();
+        recipientEmail = primary?.email;
+    }
+
+    const notificationLog = { email: 'SKIPPED', inApp: 'SKIPPED' };
+    console.log(`[RejectionService] Routing: User ${notifyUserId} (isDep: ${isDependent}), Email: ${recipientEmail}`);
+
+    // Channel 1: Email
+    try {
+        if (recipientEmail) {
+            const emailResult = await sendBookingRejectedEmail(
+                recipientEmail, 
+                updated.patient?.full_name || updated.guest_name, 
+                {
+                    service: updated.service?.name,
+                    reason: finalReason,
+                    date: updated.appointment_date,
+                    start_time: updated.start_time
+                }
+            );
+            notificationLog.email = emailResult.success ? 'SUCCESS' : `FAILED: ${emailResult.error}`;
+            console.log(`[RejectionService] Email result: ${notificationLog.email}`);
+        } else {
+            notificationLog.email = 'MISSING_RECIPIENT';
+            console.warn(`[RejectionService] No email found for rejection notice ${updated.id}`);
+        }
+    } catch (err) {
+        notificationLog.email = `CRASH: ${err.message}`;
+        console.error('[RejectionService] Email Block Crash:', err);
+    }
+
+    // Channel 2: In-App
+    try {
+        if (notifyUserId) {
+            const notifyResult = await sendRejectionNotice(notifyUserId, {
                 date: updated.appointment_date,
                 start_time: updated.start_time,
                 end_time: updated.end_time,
                 service: updated.service?.name,
                 patient_name: updated.patient?.full_name || updated.guest_name
-            }, reason);
+            }, finalReason);
+            notificationLog.inApp = !!notifyResult ? 'SUCCESS' : 'FAILED';
+            console.log(`[RejectionService] In-App result: ${notificationLog.inApp}`);
+        } else {
+            notificationLog.inApp = 'SKIPPED_GUEST_OR_WALKIN';
+            console.log('[RejectionService] Skipping In-App: No notifyUserId (Guest or Walk-in)');
         }
+    } catch (err) {
+        notificationLog.inApp = `CRASH: ${err.message}`;
+        console.error('[RejectionService] In-App Block Crash:', err);
+    }
 
+    // Trigger waitlist notification
+    try {
         await notifyWaitlist({
             date: updated.appointment_date,
             start_time: updated.start_time,
             end_time: updated.end_time,
-            service_id: updated.service_id
+            service_id: updated.service_id,
         });
-    } catch (err) {
-        console.warn('[ApprovalService] Rejection notification failed:', err.message);
+    } catch (e) {
+        console.warn('[RejectionService] Waitlist notification failed:', e.message);
     }
+
+    return { ...updated, notification_log: notificationLog };
+};
+
+/**
+ * Marks an appointment as IN_PROGRESS.
+ * Used when the patient arrives and the treatment begins.
+ */
+export const startAppointment = async (appointmentId, adminId) => {
+    // 1. Validate
+    const { data: appointment } = await supabaseAdmin
+        .from('appointments')
+        .select('status')
+        .eq('id', appointmentId)
+        .single();
+
+    if (!appointment) throw new AppError('Appointment not found', 404);
+    if (appointment.status !== 'CONFIRMED') {
+        throw new AppError(`Only CONFIRMED appointments can be started. Current status: ${appointment.status}`, 400);
+    }
+
+    // 2. Update status
+    const { data: updated, error } = await supabaseAdmin
+        .from('appointments')
+        .update({
+            status: 'IN_PROGRESS',
+            updated_at: new Date().toISOString()
+        })
+        .eq('id', appointmentId)
+        .select()
+        .single();
+
+    if (error) throw new AppError(error.message, 500);
 
     return updated;
 };
+

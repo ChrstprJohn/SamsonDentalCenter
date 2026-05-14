@@ -58,7 +58,7 @@ const ClinicianAvailabilityWidget = () => {
               </div>
             </div>
             
-            <span className="text-xs font-semibold px-2 py-1 rounded-lg bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+            <span className="text-xs font-semibold px-2 py-1 rounded-xl bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
               {doc.status === "available" ? "Available" : doc.status === "in-procedure" ? "Busy" : "Off"}
             </span>
           </div>
