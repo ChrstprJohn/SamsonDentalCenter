@@ -192,7 +192,7 @@ export const approveAppointment = async (appointmentId, adminId, dentistId = nul
         .eq('id', appointmentId)
         .select(`
             *,
-            patient:profiles!appointments_patient_id_fkey(full_name, email, phone),
+            patient:profiles!appointments_patient_id_fkey(id, full_name, email, phone, primary_profile_id, is_registered),
             service:services(name, price),
             dentist:dentists(id, profile:profiles(full_name))
         `)
@@ -201,35 +201,73 @@ export const approveAppointment = async (appointmentId, adminId, dentistId = nul
     if (updateErr) throw new AppError(updateErr.message, 500);
 
     // 3. Notifications & Cleanup
+    const isDependent = updated.patient?.primary_profile_id && !updated.patient?.is_registered;
+    const notifyUserId = isDependent ? updated.patient.primary_profile_id : updated.patient_id;
+    
+    // Fetch Primary Email if needed
+    let recipientEmail = updated.patient?.email || updated.guest_email;
+    if (!recipientEmail && isDependent) {
+        const { data: primary } = await supabaseAdmin
+            .from('profiles')
+            .select('email')
+            .eq('id', updated.patient.primary_profile_id)
+            .single();
+        recipientEmail = primary?.email;
+    }
+
+    console.log(`[ApprovalService] START Notifications for ${appointmentId}. Target User: ${notifyUserId}, Email: ${recipientEmail}`);
+
+    // Channel 1: Email
     try {
-        await sendBookingSuccessEmail(
-            updated.patient?.email || updated.guest_email,
-            updated.patient?.full_name || updated.guest_name,
-            {
+        if (recipientEmail) {
+            const emailResult = await sendBookingSuccessEmail(
+                recipientEmail,
+                updated.patient?.full_name || updated.guest_name,
+                {
+                    appointmentId: updated.id,
+                    date: updated.appointment_date,
+                    start_time: updated.start_time,
+                    end_time: updated.end_time,
+                    service: updated.service?.name,
+                    dentist: updated.dentist?.profile?.full_name,
+                    note: note
+                }
+            );
+            console.log(`[ApprovalService] Email result for ${updated.id}:`, emailResult.success ? 'SUCCESS' : `FAILED - ${emailResult.error}`);
+        } else {
+            console.warn(`[ApprovalService] No email found for appointment ${updated.id}`);
+        }
+    } catch (err) {
+        console.error('[ApprovalService] Email Block Crash:', err.message);
+    }
+
+    // Channel 2: In-App
+    try {
+        if (notifyUserId) {
+            const notifyResult = await sendApprovalNotice(notifyUserId, {
                 date: updated.appointment_date,
                 start_time: updated.start_time,
                 end_time: updated.end_time,
                 service: updated.service?.name,
-                dentist: updated.dentist?.profile?.full_name,
-                note: note
-            }
-        );
+                patient_name: updated.patient?.full_name || updated.guest_name
+            }, updated.patient?.phone || updated.guest_phone);
+            console.log(`[ApprovalService] In-App result for ${updated.id}:`, !!notifyResult.inAppResult ? 'CREATED' : 'FAILED');
+        } else {
+            console.log('[ApprovalService] Skipping In-App: No notifyUserId');
+        }
+    } catch (err) {
+        console.error('[ApprovalService] In-App Block Crash:', err.message);
+    }
 
-        await sendApprovalNotice(updated.patient_id, {
-            date: updated.appointment_date,
-            start_time: updated.start_time,
-            end_time: updated.end_time,
-            service: updated.service?.name,
-            patient_name: updated.patient?.full_name || updated.guest_name
-        }, updated.patient?.phone || updated.guest_phone);
-
+    // Cleanup: Waitlist
+    try {
         await voidWaitlistForApprovedAppointment(appointmentId, {
             date: updated.appointment_date,
             start_time: updated.start_time,
             service: updated.service?.name
         });
     } catch (err) {
-        console.warn('[ApprovalService] Post-processing notification failed:', err.message);
+        console.warn('[ApprovalService] Waitlist cleanup failed:', err.message);
     }
 
     return updated;
@@ -264,7 +302,7 @@ export const rejectAppointment = async (appointmentId, adminId, reason) => {
         .eq('id', appointmentId)
         .select(`
             *,
-            patient:profiles!appointments_patient_id_fkey(full_name, email),
+            patient:profiles!appointments_patient_id_fkey(id, full_name, email, phone, primary_profile_id, is_registered),
             service:services(name)
         `)
         .single();
@@ -272,26 +310,57 @@ export const rejectAppointment = async (appointmentId, adminId, reason) => {
     if (error) throw new AppError(error.message, 500);
 
     // 3. Notify & Trigger Waitlist
-    try {
-        await sendBookingRejectedEmail(
-            updated.patient?.email || updated.guest_email,
-            updated.patient?.full_name || updated.guest_name,
-            {
-                service: updated.service?.name,
-                reason
-            }
-        );
+    const isDependent = updated.patient?.primary_profile_id && !updated.patient?.is_registered;
+    const notifyUserId = isDependent ? updated.patient.primary_profile_id : updated.patient_id;
 
-        if (updated.patient_id) {
-            await sendRejectionNotice(updated.patient_id, {
+    // Fetch Primary Email if needed
+    let recipientEmail = updated.patient?.email || updated.guest_email;
+    if (!recipientEmail && isDependent) {
+        const { data: primary } = await supabaseAdmin
+            .from('profiles')
+            .select('email')
+            .eq('id', updated.patient.primary_profile_id)
+            .single();
+        recipientEmail = primary?.email;
+    }
+
+    console.log(`[ApprovalService] START Rejection Notifications for ${appointmentId}. Target User: ${notifyUserId}, Email: ${recipientEmail}`);
+
+    // Channel 1: Email
+    try {
+        if (recipientEmail) {
+            await sendBookingRejectedEmail(
+                recipientEmail,
+                updated.patient?.full_name || updated.guest_name,
+                {
+                    service: updated.service?.name,
+                    reason
+                }
+            );
+            console.log(`[ApprovalService] Rejection Email sent for ${updated.id}`);
+        }
+    } catch (err) {
+        console.error('[ApprovalService] Rejection Email Crash:', err.message);
+    }
+
+    // Channel 2: In-App
+    try {
+        if (notifyUserId) {
+            const notifyResult = await sendRejectionNotice(notifyUserId, {
                 date: updated.appointment_date,
                 start_time: updated.start_time,
                 end_time: updated.end_time,
                 service: updated.service?.name,
                 patient_name: updated.patient?.full_name || updated.guest_name
             }, reason);
+            console.log(`[ApprovalService] Rejection In-App result for ${updated.id}:`, !!notifyResult ? 'CREATED' : 'FAILED');
         }
+    } catch (err) {
+        console.error('[ApprovalService] Rejection In-App Crash:', err.message);
+    }
 
+    // Channel 3: Waitlist
+    try {
         await notifyWaitlist({
             date: updated.appointment_date,
             start_time: updated.start_time,
@@ -299,7 +368,7 @@ export const rejectAppointment = async (appointmentId, adminId, reason) => {
             service_id: updated.service_id
         });
     } catch (err) {
-        console.warn('[ApprovalService] Rejection notification failed:', err.message);
+        console.warn('[ApprovalService] Rejection waitlist notify failed:', err.message);
     }
 
     return updated;
