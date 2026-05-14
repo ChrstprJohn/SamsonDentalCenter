@@ -424,3 +424,37 @@ export const rejectAppointment = async (appointmentId, adminId, reason, suggeste
 
     return { ...updated, notification_log: notificationLog };
 };
+
+/**
+ * Marks an appointment as IN_PROGRESS.
+ * Used when the patient arrives and the treatment begins.
+ */
+export const startAppointment = async (appointmentId, adminId) => {
+    // 1. Validate
+    const { data: appointment } = await supabaseAdmin
+        .from('appointments')
+        .select('status')
+        .eq('id', appointmentId)
+        .single();
+
+    if (!appointment) throw new AppError('Appointment not found', 404);
+    if (appointment.status !== 'CONFIRMED') {
+        throw new AppError(`Only CONFIRMED appointments can be started. Current status: ${appointment.status}`, 400);
+    }
+
+    // 2. Update status
+    const { data: updated, error } = await supabaseAdmin
+        .from('appointments')
+        .update({
+            status: 'IN_PROGRESS',
+            updated_at: new Date().toISOString()
+        })
+        .eq('id', appointmentId)
+        .select()
+        .single();
+
+    if (error) throw new AppError(error.message, 500);
+
+    return updated;
+};
+
