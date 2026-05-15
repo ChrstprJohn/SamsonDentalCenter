@@ -47,14 +47,14 @@ const PendingApprovalsWidget = () => {
         {pendingRequests.map((req) => (
           <div
             key={req.id}
-            className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 hover:bg-gray-50 dark:hover:bg-white/[0.02] rounded-xl transition-colors cursor-pointer"
+            className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 hover:bg-gray-50 dark:hover:bg-white dark:bg-white/[0.03]/[0.02] rounded-xl transition-colors cursor-pointer"
           >
             <div>
               <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-[#00a884] transition-colors">
                 {req.patientName}
               </p>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
                   {req.type}
                 </span>
                 <span className="text-xs font-medium text-gray-400 dark:text-gray-500">
@@ -63,10 +63,10 @@ const PendingApprovalsWidget = () => {
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors" title="Decline">
+              <button className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors" title="Decline">
                 <XCircle size={20} />
               </button>
-              <button className="p-2 text-gray-400 hover:text-[#00a884] hover:bg-[#00a884]/10 rounded-lg transition-colors" title="Approve">
+              <button className="p-2 text-gray-400 hover:text-[#00a884] hover:bg-[#00a884]/10 rounded-xl transition-colors" title="Approve">
                 <CheckCircle2 size={20} />
               </button>
             </div>

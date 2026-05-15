@@ -54,7 +54,7 @@ const AuditLogs = () => {
                     {/* Error State */}
                     {error && (
                         <div className='mb-6 p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl'>
-                            <p className='text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-widest'>Access Issue</p>
+                            <p className='text-xs font-bold text-red-600 dark:text-red-400 capitalize'>Access Issue</p>
                             <p className='text-sm text-red-500 mt-1'>{error}</p>
                         </div>
                     )}

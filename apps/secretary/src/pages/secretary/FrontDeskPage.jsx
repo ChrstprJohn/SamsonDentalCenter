@@ -295,8 +295,8 @@ const FrontDeskPage = () => {
                                         {tab === 'In Progress' && <div className="hidden sm:block"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 ${activeTab === tab ? 'text-amber-500' : 'text-gray-400'}`}><path d="M12 3a9 9 0 0 1 0 18"/><path d="M12 21a9 9 0 0 1-9-9 9 9 0 0 1 9-9" strokeDasharray="4 5"/><path d="M8 12l3 3 5-5"/></svg></div>}
                                         {tab === 'Completed' && <CheckCircle2 size={16} className={`shrink-0 hidden sm:block ${activeTab === tab ? 'text-emerald-500' : 'text-gray-400'}`} />}
                                         {tab === 'No Show' && <UserX size={16} className={`shrink-0 hidden sm:block ${activeTab === tab ? 'text-red-500' : 'text-gray-400'}`} />}
-                                        <span className={`font-semibold text-[10px] xs:text-xs sm:text-base ${activeTab === tab ? '' : 'font-medium'}`}>{tab}</span>
-                                        <span className={`sm:ml-1 px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-semibold ${activeTab === tab ? 'bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
+                                        <span className={`font-semibold text-[12px] xs:text-xs sm:text-base ${activeTab === tab ? '' : 'font-medium'}`}>{tab}</span>
+                                        <span className={`sm:ml-1 px-1.5 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold ${activeTab === tab ? 'bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
                                             {counts[tab]}
                                         </span>
                                     </button>
@@ -305,7 +305,7 @@ const FrontDeskPage = () => {
 
                             <div className="flex items-center gap-2">
                                 <RealTimeClock />
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800/80 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium text-xs sm:text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mb-3 sm:mb-2 shadow-sm w-fit">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800/80 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium text-xs sm:text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mb-3 sm:mb-2 shadow-sm w-fit">
                                     <CalendarDays size={14} className="text-gray-400 shrink-0" />
                                     <span>Today, 25 Apr 2026</span>
                                 </div>
@@ -333,11 +333,11 @@ const FrontDeskPage = () => {
                                             {/* Time Column */}
                                             <div className="flex flex-row sm:flex-col w-full sm:w-[120px] bg-gray-50/50 dark:bg-gray-800/20 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0">
                                                 <div className="flex-1 flex flex-col justify-center px-5 py-4 sm:py-5 border-r sm:border-r-0 sm:border-b border-gray-200 dark:border-gray-800">
-                                                    <span className="text-[9px] font-black uppercase tracking-[0.1em] text-gray-400 dark:text-gray-500 mb-1 flex items-center gap-1.5"><Clock size={10} /> Start</span>
-                                                    <span className="text-sm sm:text-base font-black text-[#0B1120] dark:text-white font-outfit">{apt.startTime}</span>
+                                                    <span className="text-[11px] font-medium capitalize text-gray-400 dark:text-gray-500 mb-1 flex items-center gap-1.5"><Clock size={10} /> Start</span>
+                                                    <span className="text-sm sm:text-base font-medium text-[#0B1120] dark:text-white font-outfit">{apt.startTime}</span>
                                                 </div>
                                                 <div className="flex-1 flex flex-col justify-center px-5 py-4 sm:py-5">
-                                                    <span className="text-[9px] font-black uppercase tracking-[0.1em] text-gray-400 dark:text-gray-500 mb-1 flex items-center gap-1.5"><Clock size={10} /> End</span>
+                                                    <span className="text-[11px] font-medium capitalize text-gray-400 dark:text-gray-500 mb-1 flex items-center gap-1.5"><Clock size={10} /> End</span>
                                                     <span className="text-sm font-bold text-gray-400 dark:text-gray-500 font-outfit">{apt.endTime}</span>
                                                 </div>
                                             </div>
@@ -348,14 +348,14 @@ const FrontDeskPage = () => {
                                                     {/* Patient */}
                                                     <div className="flex items-center gap-4 lg:w-[280px] shrink-0">
                                                         <div className="relative shrink-0">
-                                                            <img src={apt.patientAvatar} alt={apt.patient} className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border-2 border-white dark:border-gray-800 shadow-md object-cover" />
+                                                            <img src={apt.patientAvatar} alt={apt.patient} className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border-2 border-white dark:border-gray-800 shadow-sm-md object-cover" />
                                                             <div className={`absolute -bottom-1 -right-1 w-4 h-4 border-2 border-white dark:border-[#111827] rounded-full ${apt.status === 'In Progress' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></div>
                                                         </div>
                                                         <div className="flex flex-col min-w-0">
-                                                            <h3 className="font-black text-[#0B1120] dark:text-white text-lg sm:text-xl font-outfit truncate leading-tight group-hover:text-brand-500 transition-colors">
+                                                            <h3 className="font-medium text-[#0B1120] dark:text-white text-lg sm:text-xl font-outfit truncate leading-tight group-hover:text-brand-500 transition-colors">
                                                                 {apt.patient}
                                                             </h3>
-                                                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1.5">
+                                                            <span className="text-[12px] font-medium capitalize text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1.5">
                                                                 <ShieldCheck size={12} className="text-brand-500" /> Regular Patient
                                                             </span>
                                                         </div>
@@ -364,17 +364,17 @@ const FrontDeskPage = () => {
                                                     {/* Details Grid */}
                                                     <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                                                         <div className="flex flex-col gap-1">
-                                                            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500">Service</span>
+                                                            <span className="text-[11px] font-medium capitalize text-gray-400 dark:text-gray-500">Service</span>
                                                             <span className="text-xs sm:text-[13px] font-bold text-[#0B1120] dark:text-white truncate">{apt.service}</span>
-                                                            <span className="text-[10px] text-gray-400 font-medium">{apt.specialty}</span>
+                                                            <span className="text-[12px] text-gray-400 font-medium">{apt.specialty}</span>
                                                         </div>
                                                         <div className="flex flex-col gap-1">
-                                                            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500">Attending Doctor</span>
+                                                            <span className="text-[11px] font-medium capitalize text-gray-400 dark:text-gray-500">Attending Doctor</span>
                                                             <span className="text-xs sm:text-[13px] font-bold text-gray-700 dark:text-gray-300 truncate">{apt.doctor}</span>
-                                                            <span className="text-[10px] text-brand-500 font-bold uppercase tracking-widest">In Clinic</span>
+                                                            <span className="text-[12px] text-brand-500 font-bold capitalize">In Clinic</span>
                                                         </div>
                                                         <div className="hidden xl:flex flex-col gap-1">
-                                                            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500">Location</span>
+                                                            <span className="text-[11px] font-medium capitalize text-gray-400 dark:text-gray-500">Location</span>
                                                             <div className="flex items-center gap-2">
                                                                 <MapPin size={12} className="text-emerald-500" />
                                                                 <span className="text-xs sm:text-[13px] font-bold text-gray-700 dark:text-gray-300">{apt.location || 'N/A'}</span>
@@ -407,7 +407,7 @@ const FrontDeskPage = () => {
                                                         {apt.status !== 'Completed' && apt.status !== 'No Show' && (
                                                             <button 
                                                                 onClick={(e) => handleActionClick(e, apt.id, apt.status === 'Upcoming' ? 'In Progress' : 'Completed', apt.status === 'Upcoming' ? 'CHECK_IN' : 'CHECK_OUT')}
-                                                                className={`px-6 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl shadow-lg transition-all active:scale-95 text-white ${
+                                                                className={`px-6 py-3 text-[11px] font-medium capitalize  rounded-xl shadow-lg transition-all active:scale-95 text-white ${
                                                                     apt.status === 'Upcoming' ? 'bg-brand-600 hover:bg-brand-700 shadow-brand-500/20' : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20'
                                                                 }`}
                                                             >
@@ -425,7 +425,7 @@ const FrontDeskPage = () => {
                                                 <div className="flex-1 flex flex-col gap-3">
                                                     <div className="flex items-center gap-2">
                                                         <MessageCircle size={14} className="text-brand-500" />
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Administrative Notes</span>
+                                                        <span className="text-[12px] font-medium capitalize text-gray-400 dark:text-gray-500">Administrative Notes</span>
                                                     </div>
                                                     <p className="text-xs text-gray-600 dark:text-gray-400 font-medium italic leading-relaxed">
                                                         "{apt.notes || "No special instructions for this visit."}"
@@ -434,7 +434,7 @@ const FrontDeskPage = () => {
                                                 <div className="flex-1 flex flex-col gap-3">
                                                     <div className="flex items-center gap-2">
                                                         <Clock size={14} className="text-amber-500" />
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Patient History</span>
+                                                        <span className="text-[12px] font-medium capitalize text-gray-400 dark:text-gray-500">Patient History</span>
                                                     </div>
                                                     <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
                                                         {apt.history || "No previous records found for this patient."}
@@ -443,11 +443,11 @@ const FrontDeskPage = () => {
                                                 <div className="shrink-0 flex flex-col gap-3">
                                                     <div className="flex items-center gap-2">
                                                         <Phone size={14} className="text-emerald-500" />
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Contact</span>
+                                                        <span className="text-[12px] font-medium capitalize text-gray-400 dark:text-gray-500">Contact</span>
                                                     </div>
                                                     <div className="flex flex-col gap-1">
                                                         <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{apt.phone}</span>
-                                                        <span className="text-[10px] text-gray-400 lowercase">{apt.email}</span>
+                                                        <span className="text-[12px] text-gray-400 lowercase">{apt.email}</span>
                                                     </div>
                                                 </div>
                                             </div>

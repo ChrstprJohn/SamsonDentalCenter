@@ -42,12 +42,12 @@ const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, on
                         <div className='bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl mx-4 sm:mx-0 px-4 py-5 sm:p-8 shadow-theme-xs'>
                             <div className='flex flex-row items-center justify-between gap-4'>
                                 <div className='space-y-2'>
-                                    <h2 className='text-xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white font-outfit leading-tight tracking-tight'>
+                                    <h2 className='text-xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white font-outfit leading-tight'>
                                         {appointment.service.name}
                                     </h2>
-                                    <div className='flex items-center gap-2 text-[10px] sm:text-[12px] font-bold'>
-                                        <span className='uppercase tracking-[0.1em] text-gray-400 dark:text-gray-500'>Appointment ID:</span>
-                                        <span className='font-mono text-brand-600 dark:text-brand-400 px-2 py-0.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'>
+                                    <div className='flex items-center gap-2 text-[12px] sm:text-[12px] font-bold'>
+                                        <span className='capitalize text-gray-400 dark:text-gray-500'>Appointment ID:</span>
+                                        <span className='font-mono text-brand-600 dark:text-brand-400 px-2 py-0.5 bg-brand-50 dark:bg-brand-500/10 rounded-xl'>
                                             {appointment.id?.toString().substring(0, 8).toUpperCase()}
                                         </span>
                                     </div>
@@ -55,7 +55,7 @@ const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, on
 
                                 <div className='shrink-0'>
                                     <span
-                                        className={`px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs font-bold rounded-lg sm:rounded-xl uppercase tracking-wider shadow-sm ${
+                                        className={`px-3 py-1.5 sm:px-4 sm:py-2 text-[12px] sm:text-xs font-bold rounded-lg sm:rounded-xl capitalize  shadow-sm ${
                                             badgeColor === 'success'
                                                 ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-400 shadow-success-500/5'
                                                 : badgeColor === 'warning'
@@ -119,7 +119,7 @@ const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, on
                             <button 
                                 onClick={onCancel}
                                 disabled={isProcessing}
-                                className={`flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-white dark:bg-gray-800 text-error-600 font-bold text-[10px] sm:text-[14px] rounded-xl border border-error-100 dark:border-error-500/20 transition-all hover:bg-error-50 active:scale-95 ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-white dark:bg-gray-800 text-error-600 font-bold text-[12px] sm:text-[14px] rounded-xl border border-error-100 dark:border-error-500/20 transition-all hover:bg-error-50 active:scale-95 ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 <X size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
                                 {isProcessing ? 'Processing...' : 'Cancel Appointment'}
@@ -127,7 +127,7 @@ const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, on
                             <button 
                                 onClick={onReschedule}
                                 disabled={isProcessing}
-                                className={`flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-brand-500 text-white font-bold text-[10px] sm:text-[14px] rounded-xl shadow-theme-lg active:scale-95 hover:bg-brand-600 transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-brand-500 text-white font-bold text-[12px] sm:text-[14px] rounded-xl shadow-theme-lg active:scale-95 hover:bg-brand-600 transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 <RotateCcw size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
                                 Reschedule Appointment

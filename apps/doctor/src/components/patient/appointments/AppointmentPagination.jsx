@@ -40,7 +40,7 @@ const AppointmentPagination = ({ page, totalPages, prevPage, nextPage, goToPage,
             <div className='flex flex-row items-center justify-between w-full gap-2 sm:gap-0'>
                 {/* Left: Results Text */}
                 <div className='w-auto sm:w-1/3 text-left'>
-                    <span className='text-[10px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap'>
+                    <span className='text-[12px] sm:text-[12px] text-gray-400 font-bold capitalize whitespace-nowrap'>
                         Showing {totalItems ?? 0} results
                     </span>
                 </div>

@@ -98,10 +98,10 @@ const UpcomingAppointmentView = ({ appointment, token, filterMode, onActionSucce
             <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 sm:mb-10'>
                     <div>
-                        <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        <h4 className='text-lg sm:text-2xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                             Attendance Management
                         </h4>
-                        <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
+                        <p className='text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 capitalize mt-0.5 font-bold'>
                             Manage check-ins and patient arrival status
                         </p>
                     </div>
@@ -130,7 +130,7 @@ const UpcomingAppointmentView = ({ appointment, token, filterMode, onActionSucce
 
                             {/* Patient Notes */}
                             <div className='p-6 rounded-2xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01] space-y-3'>
-                                <h4 className='text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2'>
+                                <h4 className='text-[12px] font-medium text-gray-400 capitalize flex items-center gap-2'>
                                     <MessageSquare size={14} /> Appointment Notes
                                 </h4>
                                 <p className='text-xs text-gray-600 dark:text-gray-400 italic font-medium leading-relaxed'>

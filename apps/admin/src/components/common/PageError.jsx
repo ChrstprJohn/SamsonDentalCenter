@@ -32,7 +32,7 @@ const PageError = ({ type = '500', message, onRetry, fullPage = false }) => {
                 {config.icon}
             </div>
             
-            <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
+            <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-4">
                 {config.title}
             </h2>
             
@@ -44,7 +44,7 @@ const PageError = ({ type = '500', message, onRetry, fullPage = false }) => {
                 {onRetry && (
                     <Button 
                         onClick={onRetry}
-                        className="flex-1 h-12 bg-brand-500 text-white rounded-xl font-black shadow-lg shadow-brand-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                        className="flex-1 h-12 bg-brand-500 text-white rounded-xl font-medium shadow-lg shadow-brand-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
                         Try Again
                     </Button>
@@ -52,7 +52,7 @@ const PageError = ({ type = '500', message, onRetry, fullPage = false }) => {
                 <Button 
                     onClick={() => window.location.href = '/'}
                     variant="outline"
-                    className="flex-1 h-12 rounded-xl font-black shadow-sm"
+                    className="flex-1 h-12 rounded-xl font-medium shadow-sm"
                 >
                     Go Home
                 </Button>

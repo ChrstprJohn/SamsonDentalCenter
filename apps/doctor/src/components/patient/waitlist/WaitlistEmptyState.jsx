@@ -21,7 +21,7 @@ const WaitlistEmptyState = () => {
                             <h3 className='text-lg font-bold text-gray-800 dark:text-white font-outfit'>
                                 You're on the list!
                             </h3>
-                            <div className='inline-flex items-center gap-1.5 px-2 py-0.5 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 rounded-lg text-[9px] font-bold uppercase tracking-wider animate-pulse'>
+                            <div className='inline-flex items-center gap-1.5 px-2 py-0.5 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 rounded-xl text-[11px] font-bold capitalize animate-pulse'>
                                 <BellRing size={10} />
                                 Active Monitoring
                             </div>

@@ -25,7 +25,7 @@ const RejectModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => {
             <div className="bg-white dark:bg-gray-900 w-full max-w-md rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden transform animate-in zoom-in-95 duration-200">
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/30">
-                    <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">Reject Appointment</h3>
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white capitalize">Reject Appointment</h3>
                     <button 
                         onClick={onClose}
                         className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-500"
@@ -39,7 +39,7 @@ const RejectModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => {
                     <div className="flex items-start gap-4 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-xl">
                         <AlertTriangle className="text-amber-500 shrink-0" size={20} />
                         <div>
-                            <p className="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-tight mb-1">Important Action</p>
+                            <p className="text-xs font-bold text-amber-800 dark:text-amber-400 capitalize mb-1">Important Action</p>
                             <p className="text-[11px] text-amber-700 dark:text-amber-500/80 leading-relaxed font-medium">
                                 Rejecting this request will cancel the appointment and notify the patient. This action cannot be undone.
                             </p>
@@ -47,7 +47,7 @@ const RejectModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => {
                     </div>
 
                     <div className="space-y-4">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Reason for Rejection</label>
+                        <label className="text-[12px] font-medium text-gray-400 capitalize block">Reason for Rejection</label>
                         <div className="grid gap-2">
                             {REJECTION_REASONS.map((reason) => (
                                 <button
@@ -84,14 +84,14 @@ const RejectModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => {
                     <button
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="flex-1 py-3 text-xs font-black text-gray-500 uppercase tracking-widest hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
+                        className="flex-1 py-3 text-xs font-medium text-gray-500 capitalize hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
                     >
                         Keep Pending
                     </button>
                     <button
                         onClick={handleConfirm}
                         disabled={isSubmitting || (selectedReason === 'OTHER' && !customReason.trim())}
-                        className="flex-1 py-3 text-xs font-black text-white bg-red-500 hover:bg-red-600 rounded-xl shadow-lg shadow-red-500/20 uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="flex-1 py-3 text-xs font-medium text-white bg-red-500 hover:bg-red-600 rounded-xl shadow-lg shadow-red-500/20 capitalize transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {isSubmitting ? (
                             <>

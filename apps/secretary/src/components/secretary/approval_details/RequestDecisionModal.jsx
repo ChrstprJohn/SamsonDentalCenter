@@ -104,7 +104,7 @@ const RequestDecisionModal = ({
 
                     {/* Reason Selection */}
                     <div className='space-y-3'>
-                        <label className='text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 block px-1'>
+                        <label className='text-[11px] font-medium capitalize text-gray-400 dark:text-gray-500 block px-1'>
                             {isApprove ? "Approval Reason" : "Rejection Reason"}
                         </label>
                         
@@ -130,11 +130,11 @@ const RequestDecisionModal = ({
                         {(showOthers || (reasonType && !reasons.includes(reasonType))) && (
                             <div className='space-y-2 animate-[fadeIn_0.2s_ease-out] mt-4'>
                                 <div className='flex items-center justify-between px-1'>
-                                    <label className='flex items-center gap-2 text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest'>
+                                    <label className='flex items-center gap-2 text-[11px] font-medium text-gray-400 dark:text-gray-500 capitalize'>
                                         <MessageSquare size={14} />
                                         Administrative Note
                                     </label>
-                                    <span className='text-[10px] text-gray-400 font-bold'>{customReason.length}/300</span>
+                                    <span className='text-[12px] text-gray-400 font-bold'>{customReason.length}/300</span>
                                 </div>
                                 <textarea
                                     value={customReason}
@@ -156,14 +156,14 @@ const RequestDecisionModal = ({
                     variant='outline' 
                     onClick={onClose} 
                     disabled={isProcessing}
-                    className="flex-1 h-11 px-6 rounded-xl font-black text-[11px] sm:text-sm"
+                    className="flex-1 h-11 px-6 rounded-xl font-medium text-[11px] sm:text-sm"
                 >
                     Cancel
                 </Button>
                 <Button 
                     onClick={() => onConfirm(customReason)}
                     disabled={isProcessing || !isReady}
-                    className={`flex-1 h-11 text-white rounded-xl font-black text-[11px] sm:text-sm shadow-lg transition-all ${
+                    className={`flex-1 h-11 text-white rounded-xl font-medium text-[11px] sm:text-sm shadow-lg transition-all ${
                         isApprove 
                             ? 'bg-success-500 hover:bg-success-600 shadow-success-500/20' 
                             : 'bg-error-500 hover:bg-error-600 shadow-error-500/20'

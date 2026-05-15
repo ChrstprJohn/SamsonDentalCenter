@@ -3,7 +3,7 @@ import React from 'react';
 const AppointmentDetailHeader = ({ dentistName, specialization }) => {
     return (
         <div className='mb-12 sm:mb-16'>
-            <h2 className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest mb-6 sm:mb-8'>
+            <h2 className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-bold capitalize mb-6 sm:mb-8'>
                 Assigned Provider
             </h2>
 
@@ -17,7 +17,7 @@ const AppointmentDetailHeader = ({ dentistName, specialization }) => {
                             .toUpperCase()}
                     </div>
                     <div>
-                        <h3 className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight mb-1'>
+                        <h3 className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1'>
                             {dentistName}
                         </h3>
                         <p className='text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium'>

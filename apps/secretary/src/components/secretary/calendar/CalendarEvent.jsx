@@ -56,10 +56,10 @@ const CalendarEvent = ({ event, color, width, left }) => {
         >
             <div className="flex flex-col h-full gap-0.5">
                 <div className="flex items-center justify-between">
-                    <span className={`text-[9px] font-extrabold uppercase tracking-widest truncate ${event.type === 'confirmed' ? 'text-white/70' : 'text-gray-400'}`}>
+                    <span className={`text-[11px] font-extrabold capitalize  truncate ${event.type === 'confirmed' ? 'text-white/70' : 'text-gray-400'}`}>
                         {event.service}
                     </span>
-                    <span className={`text-[10px] font-bold ${event.type === 'confirmed' ? 'text-white/60' : 'text-gray-400'}`}>
+                    <span className={`text-[12px] font-bold ${event.type === 'confirmed' ? 'text-white/60' : 'text-gray-400'}`}>
                         {format(event.start, 'h:mm')} - {format(new Date(event.start.getTime() + event.duration * 60000), 'h:mm a')}
                     </span>
                 </div>

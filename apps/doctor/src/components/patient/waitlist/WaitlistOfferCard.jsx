@@ -11,7 +11,7 @@ const WaitlistOfferCard = ({ onClaim }) => {
 
             <div className='relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6'>
                 <div className='space-y-3'>
-                    <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500 text-white text-[10px] font-bold uppercase tracking-wider'>
+                    <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500 text-white text-[12px] font-bold capitalize'>
                         <Sparkles size={12} />
                         New Slot Available!
                     </div>
@@ -30,7 +30,7 @@ const WaitlistOfferCard = ({ onClaim }) => {
                     <div className='flex items-center gap-3 px-4 py-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm'>
                         <Timer size={18} className='text-brand-500 animate-pulse' />
                         <div className='flex flex-col'>
-                            <span className='text-[10px] text-gray-400 uppercase font-bold leading-tight'>Expires in</span>
+                            <span className='text-[12px] text-gray-400 capitalize font-bold leading-tight'>Expires in</span>
                             <span className='text-sm font-mono font-bold text-gray-800 dark:text-white'>04:59</span>
                         </div>
                     </div>

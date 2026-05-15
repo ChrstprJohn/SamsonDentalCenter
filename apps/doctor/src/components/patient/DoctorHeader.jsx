@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSidebar } from '../../context/SidebarContext';
 import { useAuth } from '../../context/AuthContext';
 import PatientNotification from './PatientNotification';
+import ThemeToggle from './ThemeToggle';
 
 const DoctorHeader = () => {
     const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
@@ -24,12 +25,12 @@ const DoctorHeader = () => {
     };
 
     return (
-        <header className='sticky top-0 flex w-full bg-white border-gray-200 z-99999 lg:border-b'>
+        <header className='sticky top-0 flex w-full bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 z-50 lg:border-b transition-colors'>
             <div className='flex items-center justify-between w-full px-3 py-3 lg:px-6 lg:py-4'>
                 {/* Left: Toggle + Mobile Logo */}
                 <div className='flex items-center gap-3'>
                     <button
-                        className='flex items-center justify-center w-10 h-10 text-gray-500 rounded-lg lg:h-11 lg:w-11 lg:border border-gray-200'
+                        className='flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 rounded-xl lg:h-11 lg:w-11 lg:border border-gray-200 dark:border-gray-800 transition-colors'
                         onClick={handleToggle}
                         aria-label='Toggle Sidebar'
                     >
@@ -48,19 +49,20 @@ const DoctorHeader = () => {
 
                 {/* Right: User Info & Notifications */}
                 <div className='flex items-center gap-2 lg:gap-4'>
+                    <ThemeToggle />
                     <PatientNotification />
 
                     <div className='relative'>
                         <button
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className='flex items-center text-gray-700 dropdown-toggle'
+                            className='flex items-center text-gray-700 dark:text-gray-200 dropdown-toggle transition-colors'
                         >
-                            <span className='mr-3 overflow-hidden rounded-full h-11 w-11 bg-brand-100 flex items-center justify-center text-brand-600 font-bold text-sm'>
+                            <span className='mr-3 overflow-hidden rounded-full h-11 w-11 bg-brand-100 flex items-center justify-center text-brand-600 font-bold text-sm shrink-0'>
                                 {user?.first_name ? `${user.first_name[0]}${user.last_name?.[0] || ''}`.toUpperCase() : (user?.email?.[0]?.toUpperCase() || 'D')}
                             </span>
                             <div className='hidden sm:block mr-1 text-left'>
-                                <p className='text-xs text-gray-500'>Hello,</p>
-                                <p className='font-medium truncate max-w-[120px] text-theme-sm'>
+                                <p className='text-xs text-gray-500 dark:text-gray-400'>Hello,</p>
+                                <p className='font-medium truncate max-w-[120px] text-theme-sm text-gray-900 dark:text-white capitalize font-outfit'>
                                     {user?.first_name || 'Doctor'}
                                 </p>
                             </div>
@@ -72,21 +74,21 @@ const DoctorHeader = () => {
                         {isDropdownOpen && (
                             <>
                                 <div className='fixed inset-0 z-40' onClick={() => setIsDropdownOpen(false)} />
-                                <div className='absolute right-0 mt-2 w-[260px] bg-white rounded-2xl border border-gray-200 shadow-theme-lg z-50 p-3'>
+                                <div className='absolute right-0 mt-2 w-[260px] bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-theme-lg z-50 p-3'>
                                     <div>
-                                        <span className='block font-medium text-gray-700 text-sm truncate'>
+                                        <span className='block font-medium text-gray-700 dark:text-white text-sm truncate capitalize font-outfit'>
                                             {user?.first_name ? `${user.first_name} ${user.last_name}` : 'Doctor'}
                                         </span>
-                                        <span className='mt-0.5 block text-xs text-gray-500 truncate'>
+                                        <span className='mt-0.5 block text-xs text-gray-500 dark:text-gray-400 truncate'>
                                             {user?.email}
                                         </span>
                                     </div>
 
-                                    <ul className='flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200'>
+                                    <ul className='flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800'>
                                         <li>
                                             <Link
                                                 to='/profile'
-                                                className='flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-sm hover:bg-gray-100'
+                                                className='flex items-center gap-3 px-3 py-2 font-medium text-gray-700 dark:text-gray-300 rounded-xl group text-sm hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/5 transition-colors'
                                                 onClick={() => setIsDropdownOpen(false)}
                                             >
                                                 Edit profile
@@ -95,7 +97,7 @@ const DoctorHeader = () => {
                                     </ul>
                                     <button
                                         onClick={handleLogout}
-                                        className='flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-sm hover:bg-gray-100 w-full text-left'
+                                        className='flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 dark:text-gray-300 rounded-xl group text-sm hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/5 w-full text-left transition-colors'
                                     >
                                         Sign out
                                     </button>

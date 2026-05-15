@@ -31,13 +31,13 @@ const CalendarToolbar = ({
                     <div className="flex items-center bg-gray-50 dark:bg-white/5 rounded-xl p-1 border border-gray-100 dark:border-gray-800 shadow-theme-sm">
                         <button 
                             onClick={handlePrev}
-                            className="p-2 hover:bg-white dark:hover:bg-white/10 hover:shadow-theme-xs rounded-xl transition-all text-gray-500 hover:text-brand-500"
+                            className="p-2 hover:bg-white dark:bg-white/[0.03] dark:hover:bg-white dark:bg-white/[0.03]/10 hover:shadow-theme-xs rounded-xl transition-all text-gray-500 dark:text-gray-400 hover:text-brand-500"
                         >
                             <ChevronLeft size={20} />
                         </button>
                         
                         <div className="px-6 py-2 flex flex-col items-center min-w-[160px]">
-                            <span className="text-[10px] uppercase font-bold text-brand-500 tracking-[0.2em] leading-tight">
+                            <span className="text-[12px] capitalize font-bold text-brand-500 leading-tight">
                                 {format(selectedDate, 'yyyy')}
                             </span>
                             <span className="text-sm font-extrabold text-gray-800 dark:text-white/90 font-outfit leading-tight mt-0.5">
@@ -49,7 +49,7 @@ const CalendarToolbar = ({
 
                         <button 
                             onClick={handleNext}
-                            className="p-2 hover:bg-white dark:hover:bg-white/10 hover:shadow-theme-xs rounded-xl transition-all text-gray-500 hover:text-brand-500"
+                            className="p-2 hover:bg-white dark:bg-white/[0.03] dark:hover:bg-white dark:bg-white/[0.03]/10 hover:shadow-theme-xs rounded-xl transition-all text-gray-500 dark:text-gray-400 hover:text-brand-500"
                         >
                             <ChevronRight size={20} />
                         </button>
@@ -60,7 +60,7 @@ const CalendarToolbar = ({
                         <span className="text-xl font-bold text-gray-800 dark:text-white/90 font-outfit">
                             {format(selectedDate, 'MMMM')}
                         </span>
-                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mt-0.5">
+                        <span className="text-[12px] capitalize font-bold text-gray-400 mt-0.5">
                             Master View
                         </span>
                     </div>
@@ -71,7 +71,7 @@ const CalendarToolbar = ({
                     <div className="flex bg-gray-50 dark:bg-white/5 rounded-xl p-1 border border-gray-100 dark:border-gray-800">
                         <button 
                             onClick={() => setViewMode('day')}
-                            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all uppercase tracking-wider ${
+                            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all capitalize  ${
                                 viewMode === 'day' 
                                 ? 'bg-white dark:bg-white/10 text-brand-500 shadow-theme-sm' 
                                 : 'text-gray-400 hover:text-gray-600'
@@ -81,7 +81,7 @@ const CalendarToolbar = ({
                         </button>
                         <button 
                             onClick={() => setViewMode('week')}
-                            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all uppercase tracking-wider ${
+                            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all capitalize  ${
                                 viewMode === 'week' 
                                 ? 'bg-white dark:bg-white/10 text-brand-500 shadow-theme-sm' 
                                 : 'text-gray-400 hover:text-gray-600'
@@ -93,7 +93,7 @@ const CalendarToolbar = ({
 
                     <button className="flex items-center justify-center w-10 h-10 sm:w-auto sm:px-4 sm:py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-xl transition-all shadow-theme-md group">
                         <Plus size={18} className="sm:mr-2" />
-                        <span className="hidden sm:inline uppercase tracking-widest text-[10px]">Block Time</span>
+                        <span className="hidden sm:inline capitalize text-[12px]">Block Time</span>
                     </button>
                 </div>
             </div>
@@ -102,7 +102,7 @@ const CalendarToolbar = ({
             <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-2 -my-2">
                 <div className="flex items-center gap-2 text-gray-400 mr-2 flex-shrink-0">
                     <Filter size={14} className="text-brand-400" />
-                    <span className="text-[10px] uppercase font-bold tracking-[0.2em]">Schedules:</span>
+                    <span className="text-[12px] capitalize font-bold">Schedules:</span>
                 </div>
                 <div className="flex items-center gap-2">
                     {dentists.map((dentist) => (
@@ -122,7 +122,7 @@ const CalendarToolbar = ({
                                     boxShadow: visibleDentists.has(dentist.id) ? `0 0 0 4px ${dentist.color}20` : 'none' 
                                 }}
                             />
-                            <span className={`text-xs font-bold uppercase tracking-wider ${
+                            <span className={`text-xs font-bold capitalize  ${
                                 visibleDentists.has(dentist.id) ? 'text-gray-700 dark:text-gray-200' : 'text-gray-400'
                             }`}>
                                 {dentist.name.replace('Dr. ', '')}

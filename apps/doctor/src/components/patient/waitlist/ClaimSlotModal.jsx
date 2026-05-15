@@ -21,12 +21,12 @@ const ClaimSlotModal = ({ isOpen, onClose, slot }) => {
                 <div className='grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4 sm:gap-6'>
                     {/* Current Slot */}
                     <div className='p-5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20 text-center opacity-70'>
-                        <span className='inline-block px-2 py-0.5 rounded-lg bg-gray-200 dark:bg-gray-700 text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase mb-3'>
+                        <span className='inline-block px-2 py-0.5 rounded-xl bg-gray-200 dark:bg-gray-700 text-[11px] font-bold text-gray-500 dark:text-gray-400 capitalize mb-3'>
                             Current Slot
                         </span>
                         <div className='space-y-1.5'>
                             <p className='text-sm font-bold text-gray-800 dark:text-white'>Nov 12, 2024</p>
-                            <p className='text-xs text-gray-500'>09:00 AM</p>
+                            <p className='text-xs text-gray-500 dark:text-gray-400'>09:00 AM</p>
                         </div>
                     </div>
 
@@ -39,12 +39,12 @@ const ClaimSlotModal = ({ isOpen, onClose, slot }) => {
 
                     {/* New Slot */}
                     <div className='p-5 rounded-2xl border-2 border-brand-500 bg-brand-50/10 dark:bg-brand-500/5 text-center shadow-lg shadow-brand-500/10'>
-                        <span className='inline-block px-2 py-0.5 rounded-lg bg-brand-500 text-[9px] font-bold text-white uppercase mb-3'>
+                        <span className='inline-block px-2 py-0.5 rounded-xl bg-brand-500 text-[11px] font-bold text-white capitalize mb-3'>
                             New Slot
                         </span>
                         <div className='space-y-1.5'>
                             <p className='text-sm font-bold text-gray-800 dark:text-white'>Oct 15, 2024</p>
-                            <p className='text-xs text-gray-500'>10:00 AM</p>
+                            <p className='text-xs text-gray-500 dark:text-gray-400'>10:00 AM</p>
                         </div>
                     </div>
                 </div>
@@ -59,7 +59,7 @@ const ClaimSlotModal = ({ isOpen, onClose, slot }) => {
                 <div className='grid grid-cols-2 gap-4'>
                     <button 
                         onClick={onClose}
-                        className='px-6 py-3.5 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors rounded-2xl'
+                        className='px-6 py-3.5 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-gray-800 transition-colors rounded-2xl'
                     >
                         Cancel
                     </button>

@@ -73,11 +73,11 @@ const ApprovalRow = ({ request, onClick }) => {
                     </div>
                     <div className='flex-grow min-w-0 flex flex-col gap-0.5'>
                         <div className='flex justify-between items-center min-w-0'>
-                            <span className='text-[17px] font-medium text-gray-900 dark:text-white tracking-tight truncate flex-grow min-w-0'>
+                            <span className='text-[17px] font-medium text-gray-900 dark:text-white truncate flex-grow min-w-0'>
                                 {patient.name}
                             </span>
                             <div className='shrink-0 ml-2'>
-                                <span className={`px-2 py-0.5 rounded-md text-[10px] font-medium ${
+                                <span className={`px-2 py-0.5 rounded-md text-[12px] font-medium ${
                                     badgeColor === 'error' ? 'bg-error-50 text-error-600' : 
                                     badgeColor === 'warning' ? 'bg-warning-50 text-warning-600' : 
                                     'bg-brand-50 text-brand-600'
@@ -93,7 +93,7 @@ const ApprovalRow = ({ request, onClick }) => {
                             <div className='text-[11px] text-gray-700 dark:text-gray-400 font-medium truncate pr-4 flex items-center gap-1.5'>
                                 <span>{formatMobileDate(requestedDate)}</span>
                                 <span className='text-gray-400'>•</span>
-                                <span className='text-gray-500/80'>{requestedTime}</span>
+                                <span className='text-gray-500 dark:text-gray-400/80'>{requestedTime}</span>
                             </div>
                         </div>
                     </div>
@@ -116,7 +116,7 @@ const ApprovalRow = ({ request, onClick }) => {
                                 {patient.name}
                             </h3>
                             <div className='flex items-center gap-2 mt-0.5'>
-                                <span className='text-[10px] font-bold text-gray-400 uppercase tracking-widest'>ID:</span>
+                                <span className='text-[12px] font-bold text-gray-400 capitalize'>ID:</span>
                                 <span className='text-[11px] font-mono font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 px-1.5 py-0.5 rounded'>
                                     {id.toString().substring(0, 8).toUpperCase()}
                                 </span>

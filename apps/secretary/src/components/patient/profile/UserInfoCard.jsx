@@ -73,7 +73,7 @@ export default function UserInfoCard() {
                                 Role
                             </p>
                             <p className='text-sm font-medium text-gray-800 dark:text-white/90 font-bold text-brand-600'>
-                                PATIENT
+                                Patient
                             </p>
                         </div>
                     </div>
@@ -117,29 +117,29 @@ export default function UserInfoCard() {
                         <div className='custom-scrollbar max-h-[400px] overflow-y-auto px-2 pb-3'>
                             <div className='grid grid-cols-2 gap-4 mb-5'>
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">First Name</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">First Name</Label>
                                     <Input name="first_name" className="text-[clamp(14px,1vw,15px)]" defaultValue={user?.first_name || ''} required />
                                 </div>
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Last Name</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">Last Name</Label>
                                     <Input name="last_name" className="text-[clamp(14px,1vw,15px)]" defaultValue={user?.last_name || ''} required />
                                 </div>
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Middle</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">Middle</Label>
                                     <Input name="middle_name" className="text-[clamp(14px,1vw,15px)]" defaultValue={user?.middle_name || ''} />
                                 </div>
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Suffix</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">Suffix</Label>
                                     <Input name="suffix" className="text-[clamp(14px,1vw,15px)]" defaultValue={user?.suffix || ''} />
                                 </div>
                             </div>
                             <div className='grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2'>
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Email</Label>
-                                    <Input className="text-[clamp(14px,1vw,15px)] bg-gray-50 opacity-60" type='email' defaultValue={user?.email || ''} readOnly />
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">Email</Label>
+                                    <Input className="text-[clamp(14px,1vw,15px)] bg-gray-50 dark:bg-white/[0.01] opacity-60" type='email' defaultValue={user?.email || ''} readOnly />
                                 </div>
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Phone</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">Phone</Label>
                                     <Input name="phone" className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue={user?.phone || ''} />
                                 </div>
                             </div>

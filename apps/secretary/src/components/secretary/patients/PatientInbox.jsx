@@ -103,7 +103,7 @@ const PatientInbox = ({
                 {loading ? (
                     <div className='flex flex-col items-center justify-center py-20 text-center px-4'>
                         <div className='w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4'></div>
-                        <p className='text-sm text-gray-500'>Loading patient directory...</p>
+                        <p className='text-sm text-gray-500 dark:text-gray-400'>Loading patient directory...</p>
                     </div>
                 ) : error ? (
                     <div className='flex flex-col items-center justify-center py-20 text-center px-4 text-red-500'>
@@ -127,7 +127,7 @@ const PatientInbox = ({
                         <h4 className='text-lg font-bold text-gray-800 dark:text-white mb-1'>
                             No patients found
                         </h4>
-                        <p className='text-sm text-gray-500 max-w-[280px]'>
+                        <p className='text-sm text-gray-500 dark:text-gray-400 max-w-[280px]'>
                             Try adjusting your search or filters to find the patient record.
                         </p>
                     </div>
@@ -140,7 +140,7 @@ const PatientInbox = ({
                     <div className='flex items-center justify-center w-full'>
                         <div className='flex gap-1'>
                             {[1].map(n => (
-                                <button key={n} className='w-8 h-8 rounded-lg bg-brand-500 text-white text-xs font-bold leading-none flex items-center justify-center'>{n}</button>
+                                <button key={n} className='w-8 h-8 rounded-xl bg-brand-500 text-white text-xs font-bold leading-none flex items-center justify-center'>{n}</button>
                             ))}
                         </div>
                     </div>

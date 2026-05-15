@@ -35,7 +35,7 @@ const CalendarGrid = ({ viewMode, dates, dentists, appointments }) => {
                 {viewMode === 'week' ? (
                     dates.map((date, i) => (
                         <div key={`header-${i}`} className="flex flex-col items-center justify-center p-3 border-r border-gray-100 dark:border-gray-800 last:border-r-0">
-                            <span className={`text-[11px] font-bold uppercase tracking-widest ${isSameDay(date, new Date()) ? 'text-brand-500' : 'text-gray-400'}`}>
+                            <span className={`text-[11px] font-bold capitalize  ${isSameDay(date, new Date()) ? 'text-brand-500' : 'text-gray-400'}`}>
                                 {format(date, 'EEE')}
                             </span>
                             <span className={`mt-1 flex items-center justify-center w-9 h-9 rounded-full text-lg font-bold transition-all ${isSameDay(date, new Date())
@@ -50,7 +50,7 @@ const CalendarGrid = ({ viewMode, dates, dentists, appointments }) => {
                     dentists.map((dentist, i) => (
                         <div key={`header-dentist-${i}`} className="flex flex-col items-center justify-center p-3 border-r border-gray-100 dark:border-gray-800 last:border-r-0">
                             <div className="w-2.5 h-2.5 rounded-full mb-1.5 shadow-sm" style={{ backgroundColor: dentist.color }} />
-                            <span className="text-[12px] font-bold tracking-tight text-gray-700 dark:text-gray-200">
+                            <span className="text-[12px] font-bold text-gray-700 dark:text-gray-200">
                                 {dentist.name}
                             </span>
                         </div>

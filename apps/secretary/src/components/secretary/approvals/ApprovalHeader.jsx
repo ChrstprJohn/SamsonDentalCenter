@@ -11,7 +11,7 @@ const StatCard = ({ label, value, color, icon: Icon }) => {
     };
 
     return (
-        <div className='relative rounded-2xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-white/[0.03] flex items-center gap-3 sm:gap-4 px-4 py-3.5 min-h-[70px] sm:min-h-[90px] h-full transition-all hover:shadow-md flex-shrink-0 w-[240px] sm:flex-1'>
+        <div className='relative rounded-2xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-white/[0.03] flex items-center gap-3 sm:gap-4 px-4 py-3.5 min-h-[70px] sm:min-h-[90px] h-full transition-all hover:shadow-sm-md flex-shrink-0 w-[240px] sm:flex-1'>
             {/* Icon */}
             <div className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full shrink-0 ${colorClasses[color] || colorClasses.brand}`}>
                 {Icon && <Icon size={18} className="sm:w-[22px] sm:h-[22px]" />}
@@ -23,7 +23,7 @@ const StatCard = ({ label, value, color, icon: Icon }) => {
                     {label}
                 </span>
                 <div className='flex items-center justify-between gap-1'>
-                    <h4 className='text-xl sm:text-2xl lg:text-[26px] font-medium text-gray-900 dark:text-white truncate leading-tight tabular-nums tracking-tight'>
+                    <h4 className='text-xl sm:text-2xl lg:text-[26px] font-medium text-gray-900 dark:text-white truncate leading-tight tabular-nums'>
                         {value}
                     </h4>
                 </div>

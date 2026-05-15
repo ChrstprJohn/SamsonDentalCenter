@@ -205,81 +205,80 @@ const DoctorSidebar = () => {
                 }
                 ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
                 lg:translate-x-0`}
-      onMouseEnter={() => !isExpanded && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Logo */}
-      <div
-        className={`py-8 flex ${
-          !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-        }`}
-      >
-        <Link to="/">
-          {isExpanded || isHovered || isMobileOpen ? (
-            <>
-              <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white uppercase font-outfit">
-                Samson <span className="text-brand-500">Dental</span>
-              </span>
-            </>
-          ) : (
-            <>
-              <span className="text-2xl font-black text-brand-500 font-outfit">
-                S
-              </span>
-            </>
-          )}
-        </Link>
-      </div>
+            onMouseEnter={() => !isExpanded && setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            {/* Logo */}
+            <div className={`pt-5 pb-6 flex w-full transition-all duration-300 pl-[13px]`}>
+                <Link to='/' className="flex items-center min-h-[40px]">
+                    <div className="flex items-center gap-3 transition-all duration-300 group flex-shrink-0">
+                        <div className="w-[24px] flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110">
+                            <img alt="Samson Dental Logo" className="w-10 h-auto min-w-[40px]" src="/images/logo/samson-logo.png" />
+                        </div>
+                        <div className={`flex flex-col items-start justify-center flex-shrink-0 transition-all duration-300 ${isExpanded || isHovered || isMobileOpen ? 'opacity-100 max-w-[200px] visible ml-1' : 'opacity-0 max-w-0 invisible ml-0'}`}>
+                            <span className="font-black text-[24px] tracking-[-0.01em] leading-[0.8] text-black dark:text-white uppercase whitespace-nowrap font-serif">SAMSON</span>
+                            <span className="text-[10px] uppercase tracking-[0.16em] font-black mt-0 text-gray-400 dark:text-gray-500 whitespace-nowrap font-serif block w-full text-center">DENTAL CENTER</span>
+                        </div>
+                    </div>
+                </Link>
+            </div>
 
-      {/* Nav */}
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
-        <nav className="mb-6">
-          <div className="flex flex-col">
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
-                ) : (
-                  <HorizontalDots className="size-6" />
-                )}
-              </h2>
-              <ul className="flex flex-col gap-1">
-                {navItems.map((nav) => (
-                  <li key={nav.name}>
-                    <Link
-                      to={nav.path}
-                      className={`menu-item group ${
-                        isActive(nav.path)
-                          ? "menu-item-active"
-                          : "menu-item-inactive"
-                      } ${
-                        !isExpanded && !isHovered
-                          ? "lg:justify-center"
-                          : "lg:justify-start"
-                      }`}
-                    >
-                      <span
-                        className={`menu-item-icon-size ${
-                          isActive(nav.path)
-                            ? "menu-item-icon-active"
-                            : "menu-item-icon-inactive"
-                        }`}
-                      >
-                        {nav.icon}
-                      </span>
-                      {(isExpanded || isHovered || isMobileOpen) && (
-                        <span className="menu-item-text">{nav.name}</span>
-                      )}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+            {/* Nav */}
+            <div className='flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar'>
+                <nav className='mb-6'>
+                    <div className='flex flex-col'>
+                        <div>
+                            <h2
+                                className={`mb-4 text-xs capitalize flex leading-[20px] text-gray-400 ${
+                                    !isExpanded && !isHovered
+                                        ? 'lg:justify-center'
+                                        : 'justify-start'
+                                }`}
+                            >
+                                {isExpanded || isHovered || isMobileOpen ? (
+                                    'Menu'
+                                ) : (
+                                    <HorizontalDots className='size-6' />
+                                )}
+                            </h2>
+                            <ul className='flex flex-col gap-1'>
+                                {navItems.map((nav) => (
+                                    <li key={nav.name}>
+                                        <Link
+                                            to={nav.path}
+                                            className={`menu-item group ${
+                                                isActive(nav.path)
+                                                    ? 'menu-item-active'
+                                                    : 'menu-item-inactive'
+                                            } ${
+                                                !isExpanded && !isHovered
+                                                    ? 'lg:justify-center'
+                                                    : 'lg:justify-start'
+                                            }`}
+                                        >
+                                            <span
+                                                className={`menu-item-icon-size ${
+                                                    isActive(nav.path)
+                                                        ? 'menu-item-icon-active'
+                                                        : 'menu-item-icon-inactive'
+                                                }`}
+                                            >
+                                                {nav.icon}
+                                            </span>
+                                            {(isExpanded ||
+                                                isHovered ||
+                                                isMobileOpen) && (
+                                                <span className='menu-item-text'>
+                                                    {nav.name}
+                                                </span>
+                                            )}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
             </div>
           </div>
         </nav>

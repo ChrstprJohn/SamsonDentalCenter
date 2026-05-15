@@ -67,7 +67,7 @@ const AdminNotification = () => {
                                         <span className='font-bold block'>Appointment Approved</span>
                                         Dr. Smith approved your cleaning...
                                     </p>
-                                    <span className='text-[10px] text-gray-400 dark:text-gray-500 font-medium'>10:00 AM</span>
+                                    <span className='text-[12px] text-gray-400 dark:text-gray-500 font-medium'>10:00 AM</span>
                                 </div>
                             </div>
                         </li>
@@ -86,7 +86,7 @@ const AdminNotification = () => {
                                         <span className='font-bold block'>Profile Security Alert</span>
                                         Your password was updated recently...
                                     </p>
-                                    <span className='text-[10px] text-gray-400 dark:text-gray-500 font-medium'>9:12 AM</span>
+                                    <span className='text-[12px] text-gray-400 dark:text-gray-500 font-medium'>9:12 AM</span>
                                 </div>
                             </div>
                         </li>

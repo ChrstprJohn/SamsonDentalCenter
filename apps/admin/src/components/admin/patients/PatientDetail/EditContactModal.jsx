@@ -11,10 +11,10 @@ const EditContactModal = ({ isOpen, onClose, formData, setFormData, onSave }) =>
 
     const footer = (
         <>
-            <Button variant='outline' onClick={onClose} className="h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl">
+            <Button variant='outline' onClick={onClose} className="h-9 sm:h-10 px-6 text-[12px] sm:text-xs font-medium capitalize rounded-xl">
                 Cancel
             </Button>
-            <Button onClick={onSave} className="h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl shadow-lg shadow-brand-500/20">
+            <Button onClick={onSave} className="h-9 sm:h-10 px-6 text-[12px] sm:text-xs font-medium capitalize rounded-xl shadow-lg shadow-brand-500/20">
                 <Save size={14} className="mr-2" />
                 Save Changes
             </Button>
@@ -33,7 +33,7 @@ const EditContactModal = ({ isOpen, onClose, formData, setFormData, onSave }) =>
             <div className='space-y-4'>
                 <div className='space-y-3'>
                     <div>
-                        <label className='text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-1 block'>Email Address</label>
+                        <label className='text-[11px] font-medium capitalize text-gray-400 ml-1 mb-1 block'>Email Address</label>
                         <div className='relative'>
                             <Mail size={14} className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400' />
                             <input
@@ -48,7 +48,7 @@ const EditContactModal = ({ isOpen, onClose, formData, setFormData, onSave }) =>
                     </div>
 
                     <div>
-                        <label className='text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-1 block'>Phone Number</label>
+                        <label className='text-[11px] font-medium capitalize text-gray-400 ml-1 mb-1 block'>Phone Number</label>
                         <div className='relative'>
                             <Phone size={14} className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400' />
                             <input
@@ -64,7 +64,7 @@ const EditContactModal = ({ isOpen, onClose, formData, setFormData, onSave }) =>
                 </div>
 
                 <div className='p-3 rounded-xl bg-brand-50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10'>
-                    <p className='text-[9px] text-brand-700 dark:text-brand-400 font-bold uppercase tracking-widest leading-relaxed'>
+                    <p className='text-[11px] text-brand-700 dark:text-brand-400 font-bold capitalize leading-relaxed'>
                         Updating the email affects remiders and portal access.
                     </p>
                 </div>

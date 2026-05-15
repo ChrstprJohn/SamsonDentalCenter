@@ -17,7 +17,7 @@ const SessionExpiredModal = ({ isOpen, onClose }) => {
                     </div>
                 </div>
 
-                <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">
+                <h2 className="text-2xl font-medium text-gray-900 dark:text-white mb-2 capitalize">
                     Session Expired
                 </h2>
                 
@@ -28,7 +28,7 @@ const SessionExpiredModal = ({ isOpen, onClose }) => {
                 <div className="w-full">
                     <Button 
                         onClick={onClose}
-                        className="w-full h-14 rounded-2xl bg-brand-500 text-white font-black hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2"
+                        className="w-full h-14 rounded-2xl bg-brand-500 text-white font-medium hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2"
                     >
                         <LogIn size={18} />
                         Go to Login

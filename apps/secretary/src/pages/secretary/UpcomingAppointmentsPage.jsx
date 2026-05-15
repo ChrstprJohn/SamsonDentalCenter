@@ -130,7 +130,7 @@ const UpcomingAppointmentsPage = () => {
         // Normalize for sub-components which expect the legacy/mock structure
         return {
             ...apt,
-            service: { name: apt.service || 'General Service' },
+            service: { name: apt.service?.name || apt.service || 'General Service' },
             doctor: { name: apt.dentist?.profile?.full_name || apt.dentist?.full_name || 'Unassigned' },
             patient: {
                 name: apt.patient?.full_name || apt.patient?.name || 'Unknown Patient',
@@ -182,13 +182,13 @@ const UpcomingAppointmentsPage = () => {
                                         placeholder='Search upcoming appointments...'
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium dark:text-white'
+                                        className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium dark:text-white'
                                     />
                                 </div>
 
                                 <button
                                     onClick={() => navigate('/booking')}
-                                    className='hidden sm:flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-sm font-bold transition-all shadow-md shadow-brand-500/20 shrink-0 whitespace-nowrap active:scale-95'
+                                    className='hidden sm:flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-sm font-bold transition-all shadow-sm-md shadow-sm-brand-500/20 shrink-0 whitespace-nowrap active:scale-95'
                                 >
                                     <Plus size={18} />
                                     <span>New Appointment</span>
@@ -207,7 +207,7 @@ const UpcomingAppointmentsPage = () => {
                                         <select
                                             value={selectedDoctorId}
                                             onChange={(e) => setSelectedDoctorId(e.target.value)}
-                                            className='w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                                         >
                                             <option value="All Doctors">All Doctors</option>
                                             {doctors.map(doc => (
@@ -228,7 +228,7 @@ const UpcomingAppointmentsPage = () => {
                                             type='date'
                                             value={specificDate}
                                             onChange={(e) => setSpecificDate(e.target.value)}
-                                            className='w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer'
+                                            className='w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-400 outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer'
                                         />
                                     </div>
 
@@ -240,7 +240,7 @@ const UpcomingAppointmentsPage = () => {
                                         <select
                                             value={sortOrder}
                                             onChange={(e) => setSortOrder(e.target.value)}
-                                            className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                                         >
                                             <option value="desc">Newest First</option>
                                             <option value="asc">Oldest First</option>
@@ -248,7 +248,7 @@ const UpcomingAppointmentsPage = () => {
                                         <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                                     </div>
 
-                                    <div className='hidden lg:block ml-auto text-[10px] font-black text-gray-400 uppercase tracking-widest opacity-60'>
+                                    <div className='hidden lg:block ml-auto text-[12px] font-medium text-gray-400 capitalize opacity-60'>
                                         Total Found: {total}
                                     </div>
                                 </div>
@@ -260,14 +260,14 @@ const UpcomingAppointmentsPage = () => {
                             {loading ? (
                                 <div className='flex flex-col items-center justify-center py-20 gap-4'>
                                     <div className='w-12 h-12 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin' />
-                                    <p className='text-sm font-bold text-gray-500 animate-pulse'>Loading appointments...</p>
+                                    <p className='text-sm font-bold text-gray-500 dark:text-gray-400 animate-pulse'>Loading appointments...</p>
                                 </div>
                             ) : appointments.length > 0 ? (
                                 appointments.map((apt) => {
                                     const { color: badgeColor, label: displayStatus } = getStatusStyle(apt.status);
                                     const patientName = apt.patient?.full_name || apt.patient?.name || 'Unknown Patient';
                                     const doctorName = apt.dentist?.profile?.full_name || apt.dentist?.full_name || 'Unassigned';
-                                    const serviceName = apt.service || 'General Service';
+                                    const serviceName = apt.service?.name || apt.service || 'General Service';
                                     
                                     return (
                                         <div 
@@ -303,11 +303,11 @@ const UpcomingAppointmentsPage = () => {
                                                     </div>
                                                     <div className='flex-grow min-w-0 flex flex-col gap-0.5'>
                                                         <div className='flex justify-between items-center min-w-0'>
-                                                            <span className='text-[17px] font-medium text-gray-900 dark:text-white tracking-tight truncate flex-grow min-w-0'>
+                                                            <span className='text-[17px] font-medium text-gray-900 dark:text-white truncate flex-grow min-w-0'>
                                                                 {patientName}
                                                             </span>
                                                             <div className='shrink-0 ml-2'>
-                                                                <Badge size='sm' color={badgeColor} className='font-medium text-[10px] px-2.5 py-0.5 rounded-md'>
+                                                                <Badge size='sm' color={badgeColor} className='font-medium text-[12px] px-2.5 py-0.5 rounded-lg'>
                                                                     {displayStatus}
                                                                 </Badge>
                                                             </div>
@@ -319,7 +319,7 @@ const UpcomingAppointmentsPage = () => {
                                                             <div className='text-[11px] text-gray-700 dark:text-gray-400 font-medium truncate pr-4 flex items-center gap-1.5'>
                                                                 <span>{apt.date}</span>
                                                                 <span className='text-gray-400'>•</span>
-                                                                <span className='text-gray-500/80'>
+                                                                <span className='text-gray-500 dark:text-gray-400/80'>
                                                                     {formatTime(apt.start_time)} - {formatTime(apt.end_time)}
                                                                 </span>
                                                             </div>
@@ -344,9 +344,9 @@ const UpcomingAppointmentsPage = () => {
                                                                 {patientName}
                                                             </h3>
                                                             <div className='flex items-center gap-2 mt-0.5'>
-                                                                <span className='text-[10px] font-bold text-gray-400 uppercase tracking-widest'>ID:</span>
+                                                                <span className='text-[12px] font-bold text-gray-400 capitalize'>ID:</span>
                                                                 <span className='text-[11px] font-mono font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 px-1.5 py-0.5 rounded'>
-                                                                    {apt.id.substring(0, 8).toUpperCase()}
+                                                                    {apt.id?.toString().substring(0, 8).toUpperCase()}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -357,7 +357,7 @@ const UpcomingAppointmentsPage = () => {
                                                                 <span className='text-[17px] font-medium truncate text-gray-900 dark:text-white'>
                                                                     {serviceName}
                                                                 </span>
-                                                                <span className='text-[13px] font-medium text-gray-500 truncate italic'>
+                                                                <span className='text-[13px] font-medium text-gray-500 dark:text-gray-400 truncate italic'>
                                                                     with {doctorName}
                                                                 </span>
                                                             </div>
@@ -366,7 +366,7 @@ const UpcomingAppointmentsPage = () => {
                                                         <div className='flex flex-col min-w-0 w-[140px] shrink-0 px-8 border-l border-gray-100 dark:border-white/5'>
                                                             <p className='text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-1'>Status</p>
                                                             <div>
-                                                                <Badge size='sm' color={badgeColor} className='font-medium text-[11px] px-3.5 py-1 rounded-md'>
+                                                                <Badge size='sm' color={badgeColor} className='font-medium text-[11px] px-3.5 py-1 rounded-lg'>
                                                                     {displayStatus}
                                                                 </Badge>
                                                             </div>
@@ -388,7 +388,7 @@ const UpcomingAppointmentsPage = () => {
                                     <div className='w-20 h-20 bg-gray-50 dark:bg-white/[0.03] rounded-[32px] flex items-center justify-center mb-6'>
                                         <SearchX className='text-gray-300 dark:text-gray-700' size={32} />
                                     </div>
-                                    <h3 className='text-lg font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight'>No matching appointments</h3>
+                                    <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-2 capitalize'>No matching appointments</h3>
                                     <p className='text-sm text-gray-400 max-w-[280px] font-medium leading-relaxed'>
                                         Refine your search or filters to locate specific entries.
                                     </p>
@@ -400,14 +400,14 @@ const UpcomingAppointmentsPage = () => {
                         {totalPages > 1 && (
                             <div className='relative z-30 bg-white dark:bg-gray-900 px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between shrink-0'>
                                 <div className='flex flex-row items-center justify-between w-full'>
-                                    <div className='hidden sm:block text-[10px] font-black text-gray-400 uppercase tracking-widest'>
+                                    <div className='hidden sm:block text-[12px] font-medium text-gray-400 capitalize'>
                                         Page {page} of {totalPages}
                                     </div>
 
                                     <div className='flex items-center gap-2 mx-auto sm:mx-0'>
                                         <button 
                                             onClick={() => goToPage(Math.max(1, page - 1))}
-                                            className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
+                                            className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
                                             disabled={page === 1}
                                         >
                                             <ChevronLeft size={20} />
@@ -429,7 +429,7 @@ const UpcomingAppointmentsPage = () => {
 
                                         <button 
                                             onClick={() => goToPage(Math.min(totalPages, page + 1))}
-                                            className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
+                                            className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
                                             disabled={page === totalPages}
                                         >
                                             <ChevronRight size={20} />

@@ -76,7 +76,7 @@ const BlockDateModal = ({ isOpen, onClose, doctor, blocks = [], onSave }) => {
             <div className="no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white dark:bg-gray-900 p-6 sm:p-8 max-h-[90vh] flex flex-col min-h-[540px] shadow-2xl">
                 
                 <div className="mb-6 shrink-0">
-                    <h4 className="text-[clamp(18px,2.5vw,22px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight">
+                    <h4 className="text-[clamp(18px,2.5vw,22px)] font-medium text-gray-900 dark:text-white font-outfit capitalize">
                         Manage Blocked Dates
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -94,10 +94,10 @@ const BlockDateModal = ({ isOpen, onClose, doctor, blocks = [], onSave }) => {
                                     {format(currentMonth, 'MMMM yyyy')}
                                 </h3>
                                 <div className="flex items-center gap-1">
-                                    <button onClick={handlePrevMonth} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500">
+                                    <button onClick={handlePrevMonth} className="p-1.5 rounded-xl hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-400">
                                         <ChevronLeft size={16} />
                                     </button>
-                                    <button onClick={handleNextMonth} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500">
+                                    <button onClick={handleNextMonth} className="p-1.5 rounded-xl hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-400">
                                         <ChevronRight size={16} />
                                     </button>
                                 </div>
@@ -105,7 +105,7 @@ const BlockDateModal = ({ isOpen, onClose, doctor, blocks = [], onSave }) => {
 
                             <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                                 {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(day => (
-                                    <div key={day} className="py-2 text-center text-[10px] font-bold uppercase text-gray-400">{day}</div>
+                                    <div key={day} className="py-2 text-center text-[12px] font-bold capitalize text-gray-400">{day}</div>
                                 ))}
                             </div>
 
@@ -152,7 +152,7 @@ const BlockDateModal = ({ isOpen, onClose, doctor, blocks = [], onSave }) => {
                     {/* RIGHT COLUMN: Controls */}
                     <div className="md:w-[40%] flex flex-col gap-6 md:pl-2 bg-white dark:bg-gray-900">
                         <div className="shrink-0">
-                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest">Action Mode</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block capitalize">Action Mode</label>
                             <div className="flex flex-col gap-2">
                                 <Button 
                                     variant={actionMode === 'add' ? 'primary' : 'outline'} 
@@ -174,11 +174,11 @@ const BlockDateModal = ({ isOpen, onClose, doctor, blocks = [], onSave }) => {
                         </div>
 
                         <div className={`transition-all duration-300 flex-grow flex flex-col ${actionMode === 'add' ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
-                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest shrink-0">Block Reason</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block capitalize shrink-0">Block Reason</label>
                             <select 
                                 value={reason}
                                 onChange={(e) => setReason(e.target.value)}
-                                className="w-full h-11 shrink-0 px-3 rounded-lg border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
+                                className="w-full h-11 shrink-0 px-3 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white"
                             >
                                 <option value="leave">Vacation / Leave</option>
                                 <option value="emergency">Emergency Closure</option>
@@ -191,14 +191,14 @@ const BlockDateModal = ({ isOpen, onClose, doctor, blocks = [], onSave }) => {
                                         placeholder="Type custom reason..."
                                         value={otherReason}
                                         onChange={(e) => setOtherReason(e.target.value)}
-                                        className="w-full h-full flex-grow text-sm font-bold bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 rounded-lg px-3 py-2 text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all resize-none"
+                                        className="w-full h-full flex-grow text-sm font-bold bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all resize-none"
                                     />
                                 </div>
                             )}
                         </div>
 
                         <div className="mt-auto shrink-0">
-                            <span className="text-[11px] uppercase tracking-widest font-black text-gray-400 mb-3 block text-right">
+                            <span className="text-[11px] capitalize font-medium text-gray-400 mb-3 block text-right">
                                 {selectedDates.size > 0 ? `${selectedDates.size} dates selected` : 'No Pending Changes'}
                             </span>
                             <div className="flex items-center gap-3 w-full">
@@ -217,7 +217,7 @@ const BlockDateModal = ({ isOpen, onClose, doctor, blocks = [], onSave }) => {
                 </div>
 
                 <button onClick={onClose} className="absolute top-4 right-4 md:hidden p-2 bg-gray-100 dark:bg-gray-800 rounded-full transition-colors hover:bg-gray-200 dark:hover:bg-white/10">
-                    <X size={16} className="text-gray-500" />
+                    <X size={16} className="text-gray-500 dark:text-gray-400" />
                 </button>
             </div>
         </Modal>

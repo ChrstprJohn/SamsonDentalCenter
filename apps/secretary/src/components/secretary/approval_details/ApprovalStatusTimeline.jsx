@@ -195,7 +195,7 @@ const ApprovalStatusTimeline = ({
                                         {step.desc}
                                     </p>
                                     {step.time && (
-                                        <div className='mt-2 text-[10px] sm:text-[11px] text-brand-600/70 dark:text-brand-400/70 font-mono font-bold uppercase tracking-wider'>
+                                        <div className='mt-2 text-[12px] sm:text-[11px] text-brand-600/70 dark:text-brand-400/70 font-mono font-bold capitalize'>
                                             {step.time}
                                         </div>
                                     )}

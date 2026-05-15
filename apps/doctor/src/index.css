@@ -2,6 +2,8 @@
 
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* 
   ─── GLOBAL THEME CONFIGURATION ───
   Edit the variables below to change the look and feel of the entire website.

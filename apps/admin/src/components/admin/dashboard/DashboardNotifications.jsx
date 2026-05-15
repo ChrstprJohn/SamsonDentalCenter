@@ -41,7 +41,7 @@ const DashboardNotifications = () => {
                 <h3 className='text-lg font-semibold text-gray-800 dark:text-white/90 font-outfit'>
                     Notifications
                 </h3>
-                <span className='px-2 py-1 text-[10px] font-bold bg-gray-100 text-gray-600 dark:bg-white/[0.05] dark:text-gray-400 rounded-lg uppercase tracking-wider'>
+                <span className='px-2 py-1 text-[12px] font-bold bg-gray-100 text-gray-600 dark:bg-white/[0.05] dark:text-gray-400 rounded-lg capitalize'>
                     Latest
                 </span>
             </div>
@@ -59,7 +59,7 @@ const DashboardNotifications = () => {
                             <p className='text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-1.5'>
                                 {n.message}
                             </p>
-                            <span className='text-[10px] text-gray-400 dark:text-gray-500'>
+                            <span className='text-[12px] text-gray-400 dark:text-gray-500'>
                                 {n.time}
                             </span>
                         </div>

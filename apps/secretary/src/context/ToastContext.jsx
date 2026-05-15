@@ -57,7 +57,7 @@ export const ToastProvider = ({ children }) => {
                              <Info size={20} className="sm:size-6" />}
                         </div>
                         <div className="flex-grow min-w-0">
-                            <h4 className="text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
+                            <h4 className="text-[12px] sm:text-[11px] font-medium text-gray-400 dark:text-gray-500 capitalize mb-1">
                                 {toast.title}
                             </h4>
                             <p className="text-[12px] sm:text-[14px] font-bold text-gray-900 dark:text-white leading-tight break-words">

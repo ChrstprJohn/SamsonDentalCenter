@@ -162,12 +162,12 @@ const AppointmentRequestDetailView = ({
                                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Reject Request</h3>
                                 <button 
                                     onClick={() => setIsRejecting(false)} 
-                                    className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                    className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 hover:text-gray-900 dark:text-white dark:hover:text-white transition-colors"
                                 >
                                     <X className="size-5" />
                                 </button>
                             </div>
-                            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-4 font-bold uppercase tracking-widest leading-relaxed">
+                            <p className="text-[12px] sm:text-xs text-gray-500 dark:text-gray-400 mb-4 font-bold capitalize leading-relaxed">
                                 Please provide a reason for declining this appointment request. This will be sent to the patient.
                             </p>
                             <textarea 

@@ -38,10 +38,10 @@ const AuditLogs = () => {
             <div className='flex flex-col grow min-h-0 bg-white dark:bg-white/[0.03] sm:rounded-2xl border-t sm:border border-gray-300 dark:border-gray-800 transition-all duration-300 overflow-hidden no-scrollbar shadow-sm'>
                 {/* Identity Header */}
                 <div className='bg-white dark:bg-transparent border-b border-gray-200 dark:border-gray-800 px-6 sm:px-8 py-6 sm:py-8'>
-                    <h3 className='text-[clamp(18px,2.2vw,22px)] font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                    <h3 className='text-[clamp(18px,2.2vw,22px)] font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                         Security & Audit Trail
                     </h3>
-                    <p className='text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1'>
+                    <p className='text-[12px] font-medium text-gray-400 capitalize mt-1'>
                         Comprehensive system-wide logging for compliance and integrity.
                     </p>
                 </div>
@@ -63,7 +63,7 @@ const AuditLogs = () => {
                     {/* Error State */}
                     {error && (
                         <div className='mt-8 p-6 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl'>
-                            <p className='text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-widest'>Critical Exception</p>
+                            <p className='text-[12px] font-medium text-red-600 dark:text-red-400 capitalize'>Critical Exception</p>
                             <p className='text-sm font-bold text-red-500 mt-2'>{error}</p>
                         </div>
                     )}

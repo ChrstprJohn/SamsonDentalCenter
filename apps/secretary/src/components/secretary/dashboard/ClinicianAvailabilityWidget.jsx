@@ -31,7 +31,7 @@ const ClinicianAvailabilityWidget = () => {
         {clinicians.map((doc, idx) => (
           <div
             key={idx}
-            className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
+            className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white dark:bg-white/[0.03]/[0.02] transition-colors"
           >
             <div className="flex items-center gap-3">
               <span className="relative flex h-3 w-3 shrink-0">
@@ -58,7 +58,7 @@ const ClinicianAvailabilityWidget = () => {
               </div>
             </div>
             
-            <span className="text-xs font-semibold px-2 py-1 rounded-md bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+            <span className="text-xs font-semibold px-2 py-1 rounded-xl bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
               {doc.status === "available" ? "Available" : doc.status === "in-procedure" ? "Busy" : "Off"}
             </span>
           </div>

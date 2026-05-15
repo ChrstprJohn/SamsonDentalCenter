@@ -97,7 +97,7 @@ const AuditLogTable = ({ onViewDetails, loading }) => {
             <div className='grow flex items-center justify-center py-20'>
                 <div className='flex flex-col items-center gap-4'>
                     <div className='w-8 h-8 border-[3px] border-slate-200 border-t-brand-500 rounded-full animate-spin' />
-                    <p className='text-[11px] text-slate-400 font-bold uppercase tracking-widest'>Syncing Logs</p>
+                    <p className='text-[11px] text-slate-400 font-bold capitalize'>Syncing Logs</p>
                 </div>
             </div>
         );
@@ -137,11 +137,11 @@ const AuditLogTable = ({ onViewDetails, loading }) => {
                                             {log.actor_name || 'System'}
                                         </span>
                                         <div className='flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1.5 sm:mt-2'>
-                                            <span className='text-[9px] font-black text-slate-400 uppercase tracking-wider shrink-0'>
+                                            <span className='text-[11px] font-medium text-slate-400 capitalize shrink-0'>
                                                 {log.actor_role || 'Auto'}
                                             </span>
                                             <div className='w-0.5 h-0.5 sm:w-1 sm:h-1 rounded-full bg-slate-200 dark:bg-slate-700' />
-                                            <span className='text-[10px] font-medium text-slate-400 truncate'>
+                                            <span className='text-[12px] font-medium text-slate-400 truncate'>
                                                 {formatTimestamp(log.created_at)}
                                             </span>
                                         </div>
@@ -151,7 +151,7 @@ const AuditLogTable = ({ onViewDetails, loading }) => {
                                 {/* Section 2: Action Details - Improved flow */}
                                 <div className='grow flex flex-col gap-1.5 px-0 md:px-4'>
                                     <div className='flex items-center gap-2'>
-                                        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${theme.bg} ${theme.color} ${theme.border}`}>
+                                        <span className={`text-[11px] font-medium capitalize  px-2 py-0.5 rounded border ${theme.bg} ${theme.color} ${theme.border}`}>
                                             {log.action.replace(/_/g, ' ')}
                                         </span>
                                     </div>
@@ -159,7 +159,7 @@ const AuditLogTable = ({ onViewDetails, loading }) => {
                                         <span className='text-slate-600 dark:text-slate-400 font-medium'>
                                             {getFriendlyAction(log.action)}
                                         </span>
-                                        <span className='text-slate-300 dark:text-slate-600 font-black uppercase text-[9px]'>for</span>
+                                        <span className='text-slate-300 dark:text-slate-600 font-medium capitalize text-[11px]'>for</span>
                                         <span className='text-[11px] font-mono text-brand-600 dark:text-brand-400 bg-brand-500/5 px-2 py-0.5 rounded border border-brand-500/10 break-all w-full mt-1 sm:w-auto sm:mt-0' title={log.resource_name}>
                                             {log.resource_name}
                                         </span>
@@ -172,7 +172,7 @@ const AuditLogTable = ({ onViewDetails, loading }) => {
                                         variant='outline'
                                         size='sm'
                                         onClick={() => onViewDetails(log)}
-                                        className='h-10 sm:h-9 w-full md:w-auto px-6 rounded-xl sm:rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-600 dark:hover:text-brand-400 text-slate-600 dark:text-slate-400 font-bold text-[11px] uppercase tracking-wider transition-colors flex items-center justify-center gap-2'
+                                        className='h-10 sm:h-9 w-full md:w-auto px-6 rounded-xl sm:rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-600 dark:hover:text-brand-400 text-slate-600 dark:text-slate-400 font-bold text-[11px] capitalize transition-colors flex items-center justify-center gap-2'
                                     >
                                         Details
                                         <ChevronRight size={14} className='opacity-40' />

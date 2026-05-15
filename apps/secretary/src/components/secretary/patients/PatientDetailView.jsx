@@ -122,15 +122,15 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                     <div className='flex items-center gap-3'>
                         <button
                             onClick={onBack}
-                            className='p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 transition-colors'
+                            className='p-2 -ml-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/5 text-gray-500 dark:text-gray-400 transition-colors'
                         >
                             <ArrowLeft size={20} />
                         </button>
                         <div>
-                            <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                            <h3 className='text-sm font-bold text-gray-900 dark:text-white capitalize font-outfit'>
                                 {patient.full_name}
                             </h3>
-                            <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1'>
+                            <p className='text-[12px] font-bold text-gray-400 capitalize leading-none mt-1'>
                                 Patient Registry
                             </p>
                         </div>
@@ -143,7 +143,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                         <button
                             key={t.id}
                             onClick={() => navigate(`/patients/${t.id}/${patient.id}`)}
-                            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+                            className={`pb-3 text-xs font-bold capitalize  transition-all relative ${
                                 activeTab === t.id 
                                     ? 'text-brand-500' 
                                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
@@ -178,15 +178,15 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                         {patient.full_name}
                                     </h4>
                                     <div className='flex flex-col items-center gap-2 text-center xl:flex-row xl:gap-3 xl:text-left'>
-                                        <p className='text-[clamp(13px,1.2vw,14px)] text-brand-600 dark:text-brand-400 font-bold uppercase tracking-widest'>
+                                        <p className='text-[clamp(13px,1.2vw,14px)] text-brand-600 dark:text-brand-400 font-bold capitalize'>
                                             {patient.status || (patient.is_registered ? 'Registered' : 'Walk-in')} Patient
                                         </p>
                                         <div className='hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block'></div>
-                                        <span className={`px-2 py-0.5 rounded-lg text-[clamp(11px,1vw,12px)] font-bold uppercase tracking-wider ${patient.is_registered ? 'bg-success-100 text-success-600 dark:bg-success-500/10 dark:text-success-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'}`}>
+                                        <span className={`px-2 py-0.5 rounded-lg text-[clamp(11px,1vw,12px)] font-bold capitalize  ${patient.is_registered ? 'bg-success-100 text-success-600 dark:bg-success-500/10 dark:text-success-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'}`}>
                                             {patient.is_registered ? 'Verified Account' : 'Stub Profile'}
                                         </span>
                                         {patient.is_booking_restricted && (
-                                            <span className="px-2 py-0.5 rounded-lg text-[clamp(11px,1vw,12px)] font-bold uppercase tracking-wider bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                                            <span className="px-2 py-0.5 rounded-xl text-[clamp(11px,1vw,12px)] font-bold capitalize bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400">
                                                 Restricted
                                             </span>
                                         )}
@@ -230,16 +230,16 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                             <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
                                 <div className='lg:col-span-2 space-y-6'>
                                     <div className='p-6 rounded-2xl border border-gray-100 dark:border-gray-800 bg-brand-50/30 dark:bg-brand-500/5'>
-                                        <h4 className='text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2'>
+                                        <h4 className='text-[12px] font-medium text-brand-600 dark:text-brand-400 capitalize mb-4 flex items-center gap-2'>
                                             <Calendar size={14} /> Upcoming Appointment
                                         </h4>
                                         <div className='flex items-center justify-between'>
                                             <p className='text-sm font-bold text-gray-900 dark:text-white'>{patient.next_appointment || 'No upcoming appointments'}</p>
-                                            <Button variant='ghost' className='text-[10px] font-black uppercase text-brand-600'>View Details</Button>
+                                            <Button variant='ghost' className='text-[12px] font-medium capitalize text-brand-600'>View Details</Button>
                                         </div>
                                     </div>
                                     <div className='p-6 rounded-2xl border border-gray-100 dark:border-gray-800'>
-                                        <h4 className='text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4'>Patient Summary</h4>
+                                        <h4 className='text-[12px] font-medium text-gray-400 capitalize mb-4'>Patient Summary</h4>
                                         <p className='text-sm text-gray-500 dark:text-gray-400 leading-relaxed'>
                                             Patient has been active since {new Date(patient.created_at).toLocaleDateString()}. Total of {patient.total_visits || 0} visits recorded across all services.
                                         </p>
@@ -248,12 +248,12 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                 <div className='space-y-6'>
                                     <div className='p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-4'>
                                         <div className='flex justify-between items-center'>
-                                            <span className='text-[10px] font-bold text-gray-400 uppercase'>Outstanding</span>
-                                            <span className='text-sm font-black text-gray-900 dark:text-white'>{patient.balance || '₱ 0.00'}</span>
+                                            <span className='text-[12px] font-bold text-gray-400 capitalize'>Outstanding</span>
+                                            <span className='text-sm font-medium text-gray-900 dark:text-white'>{patient.balance || '₱ 0.00'}</span>
                                         </div>
                                         <div className='flex justify-between items-center'>
-                                            <span className='text-[10px] font-bold text-gray-400 uppercase'>Attendence</span>
-                                            <span className='text-sm font-black text-success-600'>100%</span>
+                                            <span className='text-[12px] font-bold text-gray-400 capitalize'>Attendence</span>
+                                            <span className='text-sm font-medium text-success-600'>100%</span>
                                         </div>
                                     </div>
                                 </div>
@@ -262,13 +262,13 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                         
                         {activeTab === 'records' && (
                             <div className='space-y-4'>
-                                <h4 className='text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2'>
+                                <h4 className='text-xs font-medium text-gray-400 capitalize mb-4 flex items-center gap-2'>
                                     <HistoryIcon size={14} /> Medical & Treatment History
                                 </h4>
                                 <div className='p-6 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-center py-20'>
                                     <History size={40} className='mx-auto text-gray-300 dark:text-gray-700 mb-4' />
-                                    <h4 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight'>No History Found</h4>
-                                    <p className='text-xs text-gray-500 mt-2'>Treatment history will appear here once the patient completes their first visit.</p>
+                                    <h4 className='text-sm font-bold text-gray-900 dark:text-white capitalize'>No History Found</h4>
+                                    <p className='text-xs text-gray-500 dark:text-gray-400 mt-2'>Treatment history will appear here once the patient completes their first visit.</p>
                                 </div>
                             </div>
                         )}
@@ -276,8 +276,8 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                         {activeTab === 'financial' && (
                             <div className='p-6 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-center py-20'>
                                 <CreditCard size={40} className='mx-auto text-gray-300 dark:text-gray-700 mb-4' />
-                                <h4 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight'>Billing History</h4>
-                                <p className='text-xs text-gray-500 mt-2'>No outstanding invoices for this patient.</p>
+                                <h4 className='text-sm font-bold text-gray-900 dark:text-white capitalize'>Billing History</h4>
+                                <p className='text-xs text-gray-500 dark:text-gray-400 mt-2'>No outstanding invoices for this patient.</p>
                             </div>
                         )}
 
@@ -285,7 +285,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                              <div className='space-y-6'>
                                  {/* Account Portal Status */}
                                  <div className='p-6 rounded-2xl bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10'>
-                                     <h4 className='text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2'>
+                                     <h4 className='text-[12px] font-medium text-brand-600 dark:text-brand-400 capitalize mb-4 flex items-center gap-2'>
                                          <User size={14} /> Portal Access
                                      </h4>
                                      <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
@@ -303,7 +303,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                              <Button 
                                                  onClick={handleSendSetupLink}
                                                  disabled={loadingLink || !patient.email}
-                                                 className='bg-brand-500 text-white font-bold h-11 px-6 text-xs uppercase shadow-theme-md'
+                                                 className='bg-brand-500 text-white font-bold h-11 px-6 text-xs capitalize shadow-theme-md'
                                              >
                                                  {loadingLink ? <Loader2 className="animate-spin" size={16} /> : <Mail size={16} className='mr-2' />}
                                                  Send Setup Link
@@ -311,19 +311,19 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                          )}
                                      </div>
                                      {linkStatus && (
-                                         <p className={`text-[10px] font-bold mt-3 uppercase tracking-wider ${linkStatus.type === 'success' ? 'text-success-600' : 'text-red-500'}`}>
+                                         <p className={`text-[12px] font-bold mt-3 capitalize  ${linkStatus.type === 'success' ? 'text-success-600' : 'text-red-500'}`}>
                                              {linkStatus.message}
                                          </p>
                                      )}
                                      {!patient.email && !patient.is_registered && (
-                                         <p className='text-[10px] text-red-500 font-bold mt-3 italic'>
+                                         <p className='text-[12px] text-red-500 font-bold mt-3 italic'>
                                              * Email address required to send setup link. Update contact info to proceed.
                                          </p>
                                      )}
                                  </div>
 
                                 <div className='p-6 rounded-2xl bg-red-50 dark:bg-red-500/5 border border-red-100 dark:border-red-500/10'>
-                                     <h4 className='text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2'>
+                                     <h4 className='text-[12px] font-medium text-red-600 dark:text-red-400 capitalize mb-4 flex items-center gap-2'>
                                          <ShieldAlert size={14} /> Account Restrictions
                                      </h4>
                                      <p className='text-[11px] text-red-700 dark:text-red-400 font-medium leading-relaxed mb-4'>
@@ -333,7 +333,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                         variant='outline' 
                                         onClick={handleToggleRestriction}
                                         disabled={isRestricting}
-                                        className={`h-11 border-red-200 text-red-600 text-xs font-black uppercase hover:bg-red-50 ${patient.is_booking_restricted ? 'bg-red-500 text-white hover:bg-red-600 border-none' : ''}`}
+                                        className={`h-11 border-red-200 text-red-600 text-xs font-medium capitalize hover:bg-red-50 ${patient.is_booking_restricted ? 'bg-red-500 text-white hover:bg-red-600 border-none' : ''}`}
                                     >
                                         {isRestricting ? <Loader2 size={16} className="animate-spin" /> : patient.is_booking_restricted ? 'Lift Booking Restriction' : 'Restrict Online Booking'}
                                     </Button>
@@ -347,10 +347,10 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
             {/* Modals */}
             <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} className='max-w-[450px] w-full m-auto'>
                 <div className='p-8 bg-white dark:bg-gray-900 rounded-xl'>
-                    <h4 className='text-lg font-black uppercase tracking-tight mb-6'>Edit Patient Data</h4>
+                    <h4 className='text-lg font-medium capitalize mb-6'>Edit Patient Data</h4>
                     <div className='space-y-4'>
                         <div className='space-y-2'>
-                            <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400'>Full Name</Label>
+                            <Label className='text-[12px] font-bold capitalize text-gray-400'>Full Name</Label>
                             <Input 
                                 value={editFormData.full_name} 
                                 onChange={(e) => setEditFormData(prev => ({ ...prev, full_name: e.target.value }))}
@@ -367,10 +367,10 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
 
             <Modal isOpen={isEditContactModalOpen} onClose={() => setIsEditContactModalOpen(false)} className='max-w-[450px] w-full m-auto'>
                 <div className='p-8 bg-white dark:bg-gray-900 rounded-xl'>
-                    <h4 className='text-lg font-black uppercase tracking-tight mb-6'>Contact Update</h4>
+                    <h4 className='text-lg font-medium capitalize mb-6'>Contact Update</h4>
                     <div className='space-y-4'>
                         <div className='space-y-2'>
-                            <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400'>Email Address</Label>
+                            <Label className='text-[12px] font-bold capitalize text-gray-400'>Email Address</Label>
                             <Input 
                                 value={editFormData.email} 
                                 onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
@@ -378,7 +378,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                             />
                         </div>
                         <div className='space-y-2'>
-                            <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400'>Phone Number</Label>
+                            <Label className='text-[12px] font-bold capitalize text-gray-400'>Phone Number</Label>
                             <Input 
                                 value={editFormData.phone} 
                                 onChange={(e) => setEditFormData(prev => ({ ...prev, phone: e.target.value }))}

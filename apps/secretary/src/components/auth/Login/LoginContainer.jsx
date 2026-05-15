@@ -13,7 +13,7 @@ const LoginContainer = ({ onSubmit, loading = false, error = null, showSignUpLin
             <Carousel className='md:w-[60%] lg:w-[60%]' />
 
             {/* Right — Form (40%) */}
-            <div className='flex-grow md:w-[40%] lg:w-[40%] flex flex-col relative bg-white shadow-2xl z-10'>
+            <div className='flex-grow md:w-[40%] lg:w-[40%] flex flex-col relative bg-white dark:bg-white/[0.03] shadow-2xl z-10'>
                 {/* Close Button - Floating on Parent */}
                 <button
                     onClick={() => navigate('/')}

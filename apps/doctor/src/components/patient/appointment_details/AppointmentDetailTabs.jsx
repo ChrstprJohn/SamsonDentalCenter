@@ -17,7 +17,7 @@ const AppointmentDetailTabs = ({ activeTab, setActiveTab, notes }) => {
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`text-[13px] sm:text-sm font-bold transition-all relative pb-3 uppercase tracking-wider ${
+                            className={`text-[13px] sm:text-sm font-bold transition-all relative pb-3 capitalize  ${
                                 isActive
                                     ? 'text-gray-900 dark:text-white'
                                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
@@ -52,14 +52,14 @@ const AppointmentDetailTabs = ({ activeTab, setActiveTab, notes }) => {
                             out:
                         </p>
                         <p className='mt-4'>
-                            <strong className='text-gray-900 dark:text-white tracking-widest text-[10px] sm:text-xs uppercase mr-3 opacity-60'>
+                            <strong className='text-gray-900 dark:text-white text-[12px] sm:text-xs capitalize mr-3 opacity-60'>
                                 Call Us
                             </strong>
                             <br className='sm:hidden' />
                             <span className='sm:inline-block sm:mt-0 mt-1'>(555) 123-4567</span>
                         </p>
                         <p className='mt-4'>
-                            <strong className='text-gray-900 dark:text-white tracking-widest text-[10px] sm:text-xs uppercase mr-3 opacity-60'>
+                            <strong className='text-gray-900 dark:text-white text-[12px] sm:text-xs capitalize mr-3 opacity-60'>
                                 Email
                             </strong>
                             <br className='sm:hidden' />

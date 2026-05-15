@@ -8,7 +8,7 @@ const DoctorProfileHeader = ({ doctor, onBack }) => {
             
             <button 
                 onClick={onBack}
-                className="absolute top-4 sm:top-6 right-4 sm:right-6 p-2 sm:px-4 sm:py-2.5 rounded-xl bg-gray-50/50 dark:bg-white/[0.02] hover:bg-white dark:hover:bg-gray-800 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all duration-300 flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 z-20 border border-gray-200/50 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-700"
+                className="absolute top-4 sm:top-6 right-4 sm:right-6 p-2 sm:px-4 sm:py-2.5 rounded-xl bg-gray-50/50 dark:bg-white/[0.02] hover:bg-white dark:hover:bg-gray-800 text-gray-500 hover:text-gray-900 dark:text-white dark:hover:text-white transition-all duration-300 flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-xs font-bold capitalize shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 z-20 border border-gray-200/50 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-700"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 <span className="hidden sm:block">Close</span>
@@ -27,16 +27,16 @@ const DoctorProfileHeader = ({ doctor, onBack }) => {
                         </div>
                     </div>
                     <div className="order-3 xl:order-2 text-center xl:text-left">
-                        <h4 className="mb-1 text-[clamp(24px,2.5vw,32px)] font-bold text-gray-900 dark:text-white font-outfit tracking-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors duration-500">{doctor.full_name}</h4>
+                        <h4 className="mb-1 text-[clamp(24px,2.5vw,32px)] font-bold text-gray-900 dark:text-white font-outfit group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors duration-500">{doctor.full_name}</h4>
                         <div className="flex flex-col items-center gap-2 sm:gap-3 text-center xl:flex-row xl:text-left mt-2">
-                            <span className="px-3 py-1 rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400 font-bold text-xs sm:text-sm shadow-sm border border-brand-100 dark:border-brand-500/20">
+                            <span className="px-3 py-1 rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400 font-bold text-xs sm:text-sm shadow-sm border border-brand-100 dark:border-brand-500/20">
                                 {doctor.title || (doctor.tier === 'specialized' ? 'Specialist' : 'General Dentist')}
                             </span>
                             <div className="hidden h-4 w-px bg-gray-200 dark:bg-gray-800 xl:block"></div>
-                            <div className="text-[clamp(12px,1.2vw,13px)] text-gray-500 dark:text-gray-400 font-medium flex items-center gap-3 bg-gray-50 dark:bg-gray-800/50 px-3 py-1.5 rounded-lg border border-gray-100 dark:border-gray-800">
-                                <span>License: <span className="text-gray-900 dark:text-white font-black">{doctor.license_number || 'N/A'}</span></span>
+                            <div className="text-[clamp(12px,1.2vw,13px)] text-gray-500 dark:text-gray-400 font-medium flex items-center gap-3 bg-gray-50 dark:bg-gray-800/50 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-gray-800">
+                                <span>License: <span className="text-gray-900 dark:text-white font-medium">{doctor.license_number || 'N/A'}</span></span>
                                 <div className="h-3 w-px bg-gray-300 dark:bg-gray-700"></div>
-                                <span className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${
+                                <span className={`flex items-center gap-1.5 text-[12px] font-bold capitalize  ${
                                     doctor.is_active 
                                         ? 'text-emerald-600 dark:text-emerald-400' 
                                         : 'text-gray-500 dark:text-gray-400'

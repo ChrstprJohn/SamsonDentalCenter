@@ -94,7 +94,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                     setTempImageUrl(service.image_url || '');
                                     setIsImageModalOpen(true);
                                 }}
-                                className='flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border border-gray-200 dark:border-gray-800 rounded-lg sm:rounded-xl text-gray-900 dark:text-white text-[10px] sm:text-[11px] font-black uppercase tracking-[0.1em] hover:bg-brand-500 hover:text-white transition-all active:scale-95 shadow-2xl shadow-black/10'
+                                className='flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border border-gray-200 dark:border-gray-800 rounded-lg sm:rounded-xl text-gray-900 dark:text-white text-[12px] sm:text-[11px] font-medium capitalize hover:bg-brand-500 hover:text-white transition-all active:scale-95 shadow-2xl shadow-black/10'
                             >
                                 <ImageIcon size={14} strokeWidth={2.5} />
                                 Update Photo
@@ -103,10 +103,10 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
 
                         <div className='absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 flex flex-col'>
                             <div className='flex flex-col'>
-                                <span className='text-[8px] sm:text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.2em] mb-1 sm:mb-2'>
+                                <span className='text-[11px] sm:text-[12px] font-medium text-brand-600 dark:text-brand-400 capitalize mb-1 sm:mb-2'>
                                     {service.tier} Service
                                 </span>
-                                <h1 className={`mb-1 text-[clamp(18px,2.5vw,24px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight leading-tight transition-all duration-300 ease-in-out`}>
+                                <h1 className={`mb-1 text-[clamp(18px,2.5vw,24px)] font-medium text-gray-900 dark:text-white font-outfit capitalize  leading-tight transition-all duration-300 ease-in-out`}>
                                     {service.name}
                                 </h1>
                             </div>
@@ -123,7 +123,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                     <div className='w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-500'>
                                         <Info size={16} sm={20} />
                                     </div>
-                                    <h3 className={`text-[clamp(14px,1.5vw,18px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out`}>
+                                    <h3 className={`text-[clamp(14px,1.5vw,18px)] font-medium text-gray-900 dark:text-white font-outfit capitalize  transition-all duration-300 ease-in-out`}>
                                         Service Detail
                                     </h3>
                                 </div>
@@ -131,7 +131,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                     <Button
                                         variant='outline'
                                         onClick={() => setIsContentModalOpen(true)}
-                                        className='flex items-center gap-2 rounded-lg sm:rounded-xl px-3 sm:px-4 h-8 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500'
+                                        className='flex items-center gap-2 rounded-lg sm:rounded-xl px-3 sm:px-4 h-8 sm:h-10 text-[12px] sm:text-xs font-medium capitalize hover:border-brand-500 hover:text-brand-500'
                                     >
                                         <Pencil size={14} strokeWidth={2.5} />
                                         <span>Edit</span>
@@ -141,11 +141,11 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
 
                             <div className='space-y-4 sm:space-y-6 flex-grow transition-all duration-300 ease-in-out'>
                                 <div className='transition-all duration-300 ease-in-out'>
-                                    <Label className={`text-[clamp(8px,1vw,11px)] font-bold uppercase tracking-[0.15em] text-gray-400 mb-1 sm:mb-2 block transition-all duration-300 ease-in-out`}>Display Name</Label>
-                                    <p className={`text-[clamp(12px,1.5vw,16px)] font-bold text-gray-900 dark:text-white uppercase tracking-tight transition-all duration-300 ease-in-out`}>{service.name}</p>
+                                    <Label className={`text-[clamp(8px,1vw,11px)] font-bold capitalize  text-gray-400 mb-1 sm:mb-2 block transition-all duration-300 ease-in-out`}>Display Name</Label>
+                                    <p className={`text-[clamp(12px,1.5vw,16px)] font-bold text-gray-900 dark:text-white capitalize  transition-all duration-300 ease-in-out`}>{service.name}</p>
                                 </div>
                                 <div className='transition-all duration-300 ease-in-out'>
-                                    <Label className={`text-[clamp(8px,1vw,11px)] font-bold uppercase tracking-[0.15em] text-gray-400 mb-1 sm:mb-2 block transition-all duration-300 ease-in-out`}>Description</Label>
+                                    <Label className={`text-[clamp(8px,1vw,11px)] font-bold capitalize  text-gray-400 mb-1 sm:mb-2 block transition-all duration-300 ease-in-out`}>Description</Label>
                                     <p className={`text-[clamp(11px,1.2vw,14px)] text-gray-500 dark:text-gray-400 leading-relaxed max-w-3xl font-medium transition-all duration-300 ease-in-out`}>
                                         {service.description || 'No description provided for this service.'}
                                     </p>
@@ -155,7 +155,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                             <Button
                                 variant='outline'
                                 onClick={() => setIsContentModalOpen(true)}
-                                className='flex sm:hidden items-center justify-center gap-2 w-full mt-6 rounded-lg h-9 text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-gray-800 text-gray-500 transition-all duration-300 ease-in-out'
+                                className='flex sm:hidden items-center justify-center gap-2 w-full mt-6 rounded-lg h-9 text-[12px] font-medium capitalize border-gray-200 dark:border-gray-800 text-gray-500 transition-all duration-300 ease-in-out'
                             >
                                 <Pencil size={14} strokeWidth={2.5} />
                                 <span>Edit Details</span>
@@ -171,7 +171,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                     <div className='w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-500'>
                                         <Settings size={16} sm={20} />
                                     </div>
-                                    <h3 className={`text-[clamp(14px,1.5vw,18px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out`}>
+                                    <h3 className={`text-[clamp(14px,1.5vw,18px)] font-medium text-gray-900 dark:text-white font-outfit capitalize  transition-all duration-300 ease-in-out`}>
                                         Operations
                                     </h3>
                                 </div>
@@ -179,7 +179,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                     <Button
                                         variant='outline'
                                         onClick={() => setIsOperationalModalOpen(true)}
-                                        className='flex items-center gap-2 rounded-lg sm:rounded-xl px-3 sm:px-4 h-8 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all duration-300 ease-in-out'
+                                        className='flex items-center gap-2 rounded-lg sm:rounded-xl px-3 sm:px-4 h-8 sm:h-10 text-[12px] sm:text-xs font-medium capitalize hover:border-brand-500 hover:text-brand-500 transition-all duration-300 ease-in-out'
                                     >
                                         <Sliders size={14} strokeWidth={2.5} />
                                         <span>Modify</span>
@@ -190,7 +190,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                             <div className='space-y-2 sm:space-y-4 flex-grow transition-all duration-300 ease-in-out'>
                                 <div className='flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out'>
                                     <div className='flex flex-col'>
-                                        <span className={`text-[clamp(8px,1vw,11px)] font-bold text-gray-400 uppercase tracking-widest transition-all duration-300 ease-in-out`}>Avg Duration</span>
+                                        <span className={`text-[clamp(8px,1vw,11px)] font-bold text-gray-400 capitalize  transition-all duration-300 ease-in-out`}>Avg Duration</span>
                                         <span className={`text-[clamp(14px,2vw,20px)] font-bold text-gray-900 dark:text-white transition-all duration-300 ease-in-out`}>{service.duration}</span>
                                     </div>
                                     <Clock size={14} sm={20} className='text-gray-300 dark:text-gray-700 transition-all duration-300 ease-in-out' />
@@ -198,8 +198,8 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
 
                                 <div className='flex items-center justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out'>
                                     <div className='flex flex-col'>
-                                        <span className={`text-[clamp(8px,1vw,11px)] font-bold text-gray-400 uppercase tracking-widest transition-all duration-300 ease-in-out`}>Tier</span>
-                                        <span className={`text-[clamp(9px,1vw,12px)] font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.1em] transition-all duration-300 ease-in-out`}>{service.tier}</span>
+                                        <span className={`text-[clamp(8px,1vw,11px)] font-bold text-gray-400 capitalize  transition-all duration-300 ease-in-out`}>Tier</span>
+                                        <span className={`text-[clamp(9px,1vw,12px)] font-medium text-brand-600 dark:text-brand-400 capitalize  transition-all duration-300 ease-in-out`}>{service.tier}</span>
                                     </div>
                                 </div>
                             </div>
@@ -207,7 +207,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                             <Button
                                 variant='outline'
                                 onClick={() => setIsOperationalModalOpen(true)}
-                                className='flex sm:hidden items-center justify-center gap-2 w-full mt-6 rounded-lg h-9 text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-gray-800 text-gray-500 transition-all duration-300 ease-in-out'
+                                className='flex sm:hidden items-center justify-center gap-2 w-full mt-6 rounded-lg h-9 text-[12px] font-medium capitalize border-gray-200 dark:border-gray-800 text-gray-500 transition-all duration-300 ease-in-out'
                             >
                                 <Sliders size={14} strokeWidth={2.5} />
                                 <span>Modify Settings</span>
@@ -224,8 +224,8 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                 className='max-w-[500px] w-full'
                 footer={
                     <div className='flex gap-3 p-6 sm:p-8'>
-                        <Button variant='outline' type='button' onClick={() => setIsContentModalOpen(false)} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs'>Cancel</Button>
-                        <Button form='service-content-form' type='submit' disabled={isSaving} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs bg-brand-500 text-white'>
+                        <Button variant='outline' type='button' onClick={() => setIsContentModalOpen(false)} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-medium capitalize text-[12px] sm:text-xs'>Cancel</Button>
+                        <Button form='service-content-form' type='submit' disabled={isSaving} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-medium capitalize text-[12px] sm:text-xs bg-brand-500 text-white'>
                             {isSaving ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </div>
@@ -233,17 +233,17 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
             >
                 <div className='p-6 sm:p-8 bg-white dark:bg-gray-900'>
                     <div className='mb-6 sm:mb-8'>
-                        <h4 className='text-lg sm:text-xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>Edit Service Detail</h4>
-                        <p className='text-[10px] sm:text-xs text-gray-400 mt-1 uppercase font-bold tracking-widest'>Modify name and description</p>
+                        <h4 className='text-lg sm:text-xl font-medium text-gray-900 dark:text-white font-outfit capitalize'>Edit Service Detail</h4>
+                        <p className='text-[12px] sm:text-xs text-gray-400 mt-1 capitalize font-bold'>Modify name and description</p>
                     </div>
                     <form id='service-content-form' onSubmit={handleSaveContent} className='space-y-6'>
                         <div className='space-y-4'>
                             <div>
-                                <Label className='text-[10px] font-black uppercase tracking-[0.1em] text-gray-400 mb-2 block'>Display Name</Label>
+                                <Label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block'>Display Name</Label>
                                 <Input name='name' defaultValue={service.name} required className='h-12 rounded-xl font-bold' />
                             </div>
                             <div>
-                                <Label className='text-[10px] font-black uppercase tracking-[0.1em] text-gray-400 mb-2 block'>Detailed Description</Label>
+                                <Label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block'>Detailed Description</Label>
                                 <textarea
                                     name='description'
                                     defaultValue={service.description}
@@ -262,8 +262,8 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                 className='max-w-[500px] w-full'
                 footer={
                     <div className='flex gap-3 p-6 sm:p-8'>
-                        <Button variant='outline' type='button' onClick={() => setIsOperationalModalOpen(false)} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs'>Cancel</Button>
-                        <Button form='service-operational-form' type='submit' disabled={isSaving} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs bg-brand-500 text-white'>
+                        <Button variant='outline' type='button' onClick={() => setIsOperationalModalOpen(false)} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-medium capitalize text-[12px] sm:text-xs'>Cancel</Button>
+                        <Button form='service-operational-form' type='submit' disabled={isSaving} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-medium capitalize text-[12px] sm:text-xs bg-brand-500 text-white'>
                             {isSaving ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </div>
@@ -271,21 +271,21 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
             >
                 <div className='p-6 sm:p-8 bg-white dark:bg-gray-900'>
                     <div className='mb-6 sm:mb-8'>
-                        <h4 className='text-lg sm:text-xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>Modify Settings</h4>
-                        <p className='text-[10px] sm:text-xs text-gray-400 mt-1 uppercase font-bold tracking-widest'>Update duration and tier</p>
+                        <h4 className='text-lg sm:text-xl font-medium text-gray-900 dark:text-white font-outfit capitalize'>Modify Settings</h4>
+                        <p className='text-[12px] sm:text-xs text-gray-400 mt-1 capitalize font-bold'>Update duration and tier</p>
                     </div>
                     <form id='service-operational-form' onSubmit={handleSaveOperational} className='space-y-6'>
                         <div className='space-y-4'>
                             <div>
-                                <Label className='text-[10px] font-black uppercase tracking-[0.1em] text-gray-400 mb-2 block'>Base Price (₱)</Label>
+                                <Label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block'>Base Price (₱)</Label>
                                 <Input name='cost' type='number' defaultValue={service.cost} required className='h-12 rounded-xl font-bold' />
                             </div>
                             <div>
-                                <Label className='text-[10px] font-black uppercase tracking-[0.1em] text-gray-400 mb-2 block'>Average Duration</Label>
+                                <Label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block'>Average Duration</Label>
                                 <Input name='duration' defaultValue={service.duration} required placeholder='e.g. 1h 30m' className='h-12 rounded-xl font-bold' />
                             </div>
                             <div>
-                                <Label className='text-[10px] font-black uppercase tracking-[0.1em] text-gray-400 mb-2 block'>Tier Classification</Label>
+                                <Label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block'>Tier Classification</Label>
                                 <select
                                     name='tier'
                                     defaultValue={service.tier}
@@ -307,8 +307,8 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                 className='max-w-[500px] w-full'
                 footer={
                     <div className='flex gap-3 p-6 sm:p-8'>
-                        <Button variant='outline' type='button' onClick={() => setIsImageModalOpen(false)} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs'>Cancel</Button>
-                        <Button form='service-image-form' type='submit' disabled={isSaving} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs bg-brand-500 text-white'>
+                        <Button variant='outline' type='button' onClick={() => setIsImageModalOpen(false)} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-medium capitalize text-[12px] sm:text-xs'>Cancel</Button>
+                        <Button form='service-image-form' type='submit' disabled={isSaving} className='flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl font-medium capitalize text-[12px] sm:text-xs bg-brand-500 text-white'>
                             {isSaving ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </div>
@@ -316,8 +316,8 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
             >
                 <div className='p-6 sm:p-8 bg-white dark:bg-gray-900'>
                     <div className='mb-6 sm:mb-8'>
-                        <h4 className='text-lg sm:text-xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>Update Service Image</h4>
-                        <p className='text-[10px] sm:text-xs text-gray-400 mt-1 uppercase font-bold tracking-widest'>Select a new photo to upload</p>
+                        <h4 className='text-lg sm:text-xl font-medium text-gray-900 dark:text-white font-outfit capitalize'>Update Service Image</h4>
+                        <p className='text-[12px] sm:text-xs text-gray-400 mt-1 capitalize font-bold'>Select a new photo to upload</p>
                     </div>
                     <form id='service-image-form' onSubmit={handleSaveImage} className='space-y-4'>
                         {/* Preview Area */}
@@ -327,7 +327,7 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                             ) : (
                                 <div className='flex flex-col items-center gap-2 text-gray-300'>
                                     <ImageIcon size={32} strokeWidth={1} />
-                                    <span className='text-[9px] font-black uppercase tracking-widest'>No Image Preview</span>
+                                    <span className='text-[11px] font-medium capitalize'>No Image Preview</span>
                                 </div>
                             )}
                         </div>
@@ -338,8 +338,8 @@ const ServiceDetailView = ({ service: initialService, onBack }) => {
                                         <svg className='w-8 h-8 mb-2 text-gray-300 group-hover:text-brand-500 transition-colors' aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 16'>
                                             <path stroke='currentColor' strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2' />
                                         </svg>
-                                        <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-brand-600 transition-colors'>Click to upload file</p>
-                                        <p className='text-[9px] text-gray-400 mt-1 uppercase'>Max. 5MB</p>
+                                        <p className='text-[12px] font-medium text-gray-400 capitalize group-hover:text-brand-600 transition-colors'>Click to upload file</p>
+                                        <p className='text-[11px] text-gray-400 mt-1 capitalize'>Max. 5MB</p>
                                     </div>
                                     <input type='file' className='hidden' accept='image/*' />
                                 </label>

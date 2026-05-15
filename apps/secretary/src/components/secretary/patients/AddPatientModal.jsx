@@ -120,7 +120,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                     <form id="add-patient-form" onSubmit={handleCheckDuplicates} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">First Name</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize ml-1">First Name</label>
                                 <input 
                                     required
                                     name="first_name"
@@ -131,7 +131,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">Last Name</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize ml-1">Last Name</label>
                                 <input 
                                     required
                                     name="last_name"
@@ -145,7 +145,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">Middle Name</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize ml-1">Middle Name</label>
                                 <input 
                                     name="middle_name"
                                     value={formData.middle_name}
@@ -155,7 +155,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">Suffix</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize ml-1">Suffix</label>
                                 <input 
                                     name="suffix"
                                     value={formData.suffix}
@@ -167,7 +167,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">Date of Birth</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize ml-1">Date of Birth</label>
                             <input 
                                 type="date"
                                 name="date_of_birth"
@@ -178,7 +178,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">Email Address</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize ml-1">Email Address</label>
                             <input 
                                 type="email"
                                 name="email"
@@ -187,11 +187,11 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                                 placeholder="patient@example.com"
                                 className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-white/5 border-none focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium transition-all"
                             />
-                            <p className="text-[10px] text-gray-400 ml-1 italic">Providing an email allows the patient to link their account later.</p>
+                            <p className="text-[12px] text-gray-400 ml-1 italic">Providing an email allows the patient to link their account later.</p>
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">Phone Number</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 capitalize ml-1">Phone Number</label>
                             <input 
                                 name="phone"
                                 value={formData.phone}
@@ -219,12 +219,12 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                             {duplicates.map((dup) => (
                                 <div key={dup.id} className="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.02] flex items-center justify-between group">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-800 flex items-center justify-center font-bold uppercase">
+                                        <div className="w-10 h-10 rounded-xl bg-gray-200 dark:bg-gray-800 flex items-center justify-center font-bold capitalize">
                                             {dup.full_name.charAt(0)}
                                         </div>
                                         <div>
                                             <p className="text-sm font-bold text-gray-900 dark:text-white leading-none mb-1">{dup.full_name}</p>
-                                            <p className="text-[10px] text-gray-500 font-medium uppercase tracking-tighter">
+                                            <p className="text-[12px] text-gray-500 dark:text-gray-400 font-medium capitalize tracking-tighter">
                                                 {dup.email || 'No email'} • {dup.phone || 'No phone'}
                                             </p>
                                         </div>
@@ -232,13 +232,13 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                                     <div className="flex items-center gap-2">
                                         <button 
                                             onClick={() => window.open(`/patients/profile/${dup.id}`, '_blank')}
-                                            className="p-2 text-gray-400 hover:text-brand-500 hover:bg-brand-500/10 rounded-lg transition-all"
+                                            className="p-2 text-gray-400 hover:text-brand-500 hover:bg-brand-500/10 rounded-xl transition-all"
                                             title="View Profile"
                                         >
                                             <ExternalLink size={18} />
                                         </button>
                                         {dup.role === 'patient' && (
-                                            <span className="text-[10px] px-2 py-1 bg-brand-500/10 text-brand-500 rounded font-bold">MATCH</span>
+                                            <span className="text-[12px] px-2 py-1 bg-brand-500/10 text-brand-500 rounded font-bold">Match</span>
                                         )}
                                     </div>
                                 </div>
@@ -295,7 +295,7 @@ const AddPatientModal = ({ isOpen, onClose, onPatientAdded, token }) => {
                             </Button>
                             <button 
                                 onClick={resetAndClose}
-                                className="w-full py-4 text-gray-500 font-bold hover:text-gray-700 dark:hover:text-gray-300 transition-all"
+                                className="w-full py-4 text-gray-500 font-bold hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-300 transition-all"
                             >
                                 Done
                             </button>

@@ -11,12 +11,12 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
             return (
                 <>
                     <div className='flex items-center gap-2 lg:gap-4 justify-end sm:justify-start flex-grow sm:flex-grow-0'>
-                        <div className={`flex items-center gap-1.5 ${isMobile ? 'text-[10px]' : 'text-xs'} font-bold ${is_active ? 'text-success-600 dark:text-success-400' : 'text-gray-500'}`}>
+                        <div className={`flex items-center gap-1.5 ${isMobile ? 'text-[12px]' : 'text-xs'} font-bold ${is_active ? 'text-success-600 dark:text-success-400' : 'text-gray-500'}`}>
                             <Clock size={isMobile ? 12 : 14} /> 
                             {is_active ? '08:00 AM - 05:00 PM' : 'Not Scheduled'}
                         </div>
                         {!isMobile && (
-                            <span className='px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-500/10 text-[10px] font-bold text-amber-600 uppercase tracking-widest hidden lg:block'>
+                            <span className='px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-500/10 text-[12px] font-bold text-amber-600 capitalize hidden lg:block'>
                                 Block: May 12
                             </span>
                         )}
@@ -28,7 +28,7 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
         if (activeTab === 'history') {
             return (
                 <>
-                    <div className={`flex items-center gap-4 xl:gap-8 justify-end sm:justify-start flex-grow sm:flex-grow-0 ${isMobile ? 'text-[10px]' : 'text-sm'}`}>
+                    <div className={`flex items-center gap-4 xl:gap-8 justify-end sm:justify-start flex-grow sm:flex-grow-0 ${isMobile ? 'text-[12px]' : 'text-sm'}`}>
                         <div className='flex items-center gap-1.5 font-bold text-gray-700 dark:text-gray-300'>
                             <CheckSquare size={isMobile ? 12 : 14} className="text-brand-500"/>
                             {stats?.total_appointments || 0} Total Appts
@@ -42,7 +42,7 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
         return (
             <>
                 <div className='flex items-center gap-6 shrink-0 min-w-[120px] justify-end sm:justify-start flex-grow sm:flex-grow-0'>
-                    <span className={`group-hover:hidden ${isMobile ? 'text-[10px]' : 'text-xs'} text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1`}>
+                    <span className={`group-hover:hidden ${isMobile ? 'text-[12px]' : 'text-xs'} text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1`}>
                         <Activity size={isMobile ? 12 : 14} /> {service_count} Services
                     </span>
                     {!isMobile && (
@@ -82,7 +82,7 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
                         )}
                     </div>
                     <span
-                        className={`text-sm sm:text-base uppercase tracking-tight truncate font-outfit ${!is_active ? 'text-gray-500 font-black' : 'text-gray-900 dark:text-white font-black'}`}
+                        className={`text-sm sm:text-base capitalize  truncate font-outfit ${!is_active ? 'text-gray-500 font-medium' : 'text-gray-900 dark:text-white font-medium'}`}
                     >
                         {full_name}
                     </span>
@@ -95,7 +95,7 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
                         >
                             {tier === 'both' ? 'General & Specialized Dentist' : tier === 'general' ? 'General Dentist' : 'Specialized Dentist'}
                         </span>
-                        <span className='text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-medium ml-2'>
+                        <span className='text-[12px] sm:text-xs text-gray-400 dark:text-gray-500 font-medium ml-2'>
                             - {displayCategory}
                         </span>
                     </p>
@@ -121,11 +121,11 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
                 <div className='flex-grow min-w-0 flex flex-col gap-0.5 justify-center'>
                     <div className='flex justify-between items-center'>
                         <span
-                            className={`text-sm tracking-tight truncate ${!is_active ? 'text-gray-500' : 'text-gray-900 dark:text-white font-bold'}`}
+                            className={`text-sm  truncate ${!is_active ? 'text-gray-500' : 'text-gray-900 dark:text-white font-bold'}`}
                         >
                             {full_name}
                         </span>
-                        <span className='text-[10px] text-gray-400 font-medium bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded'>{tier}</span>
+                        <span className='text-[12px] text-gray-400 font-medium bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded'>{tier}</span>
                     </div>
                     <div
                         className={`text-xs truncate ${!is_active ? 'text-gray-600' : 'text-gray-900 dark:text-white font-semibold'}`}
@@ -133,7 +133,7 @@ const DoctorRow = ({ doctor, onClick, activeTab }) => {
                         {tier === 'both' ? 'General & Specialized Dentist' : tier === 'general' ? 'General Dentist' : 'Specialized Dentist'}
                     </div>
                     <div className='flex justify-between items-end mt-1'>
-                        <div className='text-[10px] text-gray-400 truncate pr-4 flex items-center gap-1'><ShieldCheck size={10}/> {license_number}</div>
+                        <div className='text-[12px] text-gray-400 truncate pr-4 flex items-center gap-1'><ShieldCheck size={10}/> {license_number}</div>
                         {renderColumnContent(true)}
                     </div>
                 </div>

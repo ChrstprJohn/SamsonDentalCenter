@@ -12,7 +12,7 @@ const RegistrationForm = ({ formData, handleInputChange, fieldErrors }) => {
                     <div className="w-8 h-8 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center">
                         <User size={16} />
                     </div>
-                    <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Personal Details</h4>
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-white capitalize">Personal Details</h4>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -90,7 +90,7 @@ const RegistrationForm = ({ formData, handleInputChange, fieldErrors }) => {
                     <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center">
                         <Phone size={16} />
                     </div>
-                    <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Contact Details</h4>
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-white capitalize">Contact Details</h4>
                 </div>
 
                 <div className="space-y-1.5">

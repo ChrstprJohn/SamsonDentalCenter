@@ -327,7 +327,7 @@ const DateTimeStep = ({
 
         return (
             <div className='relative w-full mb-10'>
-                <h3 className='text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2'>
+                <h3 className='text-xs font-medium text-slate-400 capitalize mb-4 flex items-center gap-2'>
                     <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
                     Select Dentist
                 </h3>
@@ -349,7 +349,7 @@ const DateTimeStep = ({
                             ) : !formData?.dentist_id ? <Users size={24} /> : initials}
                         </div>
                         <div className="flex flex-col text-left">
-                            <span className="text-[15px] font-black text-slate-900 dark:text-white leading-tight">
+                            <span className="text-[15px] font-medium text-slate-900 dark:text-white leading-tight">
                                 {selectedDoctor ? getDoctorName(selectedDoctor) : 'Any available dentist'}
                             </span>
                             <span className="text-[11px] font-bold text-slate-400">
@@ -377,8 +377,8 @@ const DateTimeStep = ({
                                         <Users size={20} />
                                     </div>
                                     <div className='flex flex-col'>
-                                        <span className='text-sm font-black'>Any available dentist</span>
-                                        <span className='text-[10px] font-bold opacity-70'>We'll match you with available dentist</span>
+                                        <span className='text-sm font-medium'>Any available dentist</span>
+                                        <span className='text-[12px] font-bold opacity-70'>We'll match you with available dentist</span>
                                     </div>
                                     {!formData?.dentist_id && <Check size={18} className='ml-auto text-brand-500' />}
                                 </button>
@@ -395,11 +395,11 @@ const DateTimeStep = ({
                                             }`}
                                         >
                                             <div className='w-10 h-10 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center overflow-hidden'>
-                                                {s.photo_url ? <img src={s.photo_url} alt="" className="w-full h-full object-cover" /> : <span className='text-xs font-black text-slate-400'>{doctorInitials}</span>}
+                                                {s.photo_url ? <img src={s.photo_url} alt="" className="w-full h-full object-cover" /> : <span className='text-xs font-medium text-slate-400'>{doctorInitials}</span>}
                                             </div>
                                             <div className='flex flex-col'>
-                                                <span className='text-sm font-black'>{getDoctorName(s)}</span>
-                                                <span className='text-[10px] font-bold opacity-70'>
+                                                <span className='text-sm font-medium'>{getDoctorName(s)}</span>
+                                                <span className='text-[12px] font-bold opacity-70'>
                                                     {serviceTier === 'specialized' ? 'Specialist' : 'Dentist'}
                                                 </span>
                                             </div>
@@ -481,7 +481,7 @@ const DateTimeStep = ({
                             <AlertCircle size={18} className="sm:w-6 sm:h-6" />
                         </div>
                         <div className="flex-grow min-w-0">
-                            <h4 className="text-[9px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 sm:mb-1">Attention Required</h4>
+                            <h4 className="text-[11px] sm:text-[11px] font-medium text-gray-400 dark:text-gray-500 capitalize mb-0.5 sm:mb-1">Attention Required</h4>
                             <p className="text-[12px] sm:text-[14px] font-bold text-gray-900 dark:text-white leading-tight break-words">
                                 {holdError || validationError}
                             </p>
@@ -511,7 +511,7 @@ const DateTimeStep = ({
                 <>
                     {!showNoAppointments && (
                         <div className='mb-8 sm:mb-10'>
-                            <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3 font-display tracking-tight uppercase'>
+                            <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3 font-display capitalize'>
                                 Pick Date & Time
                             </h2>
                             <p className='text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-2xl leading-relaxed'>
@@ -526,7 +526,7 @@ const DateTimeStep = ({
                         <CalendarX size={44} className="text-brand-500" />
                     </div>
                     
-                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-tight font-display">
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 capitalize font-display">
                         No Available Appointments
                     </h3>
                     
@@ -540,13 +540,13 @@ const DateTimeStep = ({
 
             <div className='grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-x-8 gap-y-10 mb-10'>
                 <div className={`flex flex-col transition-all duration-300 ${isProcessing ? 'opacity-40 pointer-events-none cursor-wait' : ''}`}>
-                    <h3 className='text-xs font-black text-slate-400 uppercase tracking-widest mb-5 flex items-center gap-2'>
+                    <h3 className='text-xs font-medium text-slate-400 capitalize mb-5 flex items-center gap-2'>
                         <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
                         Select Date
                     </h3>
                     <div className='bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-theme-sm h-full'>
                     <div className='flex items-center justify-between mb-5'>
-                        <h3 className='text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'>
+                        <h3 className='text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 capitalize'>
                             <div className='p-1.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'><Calendar size={14} className='text-brand-500' /></div>
                             {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                         </h3>
@@ -556,7 +556,7 @@ const DateTimeStep = ({
                         </div>
                     </div>
                     <div className='grid grid-cols-7 gap-1 mb-2'>
-                        {dayNames.map(day => (<div key={day} className='text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-400 uppercase tracking-widest text-center py-2'>{day}</div>))}
+                        {dayNames.map(day => (<div key={day} className='text-[12px] sm:text-[11px] font-medium text-gray-400 dark:text-gray-400 capitalize text-center py-2'>{day}</div>))}
                     </div>
                     <div className='grid grid-cols-7 gap-1.5'>
                         {calendarDays.map((date, idx) => {
@@ -595,21 +595,21 @@ const DateTimeStep = ({
             </div>
 
             <div className='flex flex-col h-full'>
-                    <h3 className='text-xs font-black text-slate-400 uppercase tracking-widest mb-5 flex items-center gap-2'>
+                    <h3 className='text-xs font-medium text-slate-400 capitalize mb-5 flex items-center gap-2'>
                         <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
                         Select Time
                     </h3>
                     {!selectedDate ? (
                         <div className='flex-grow bg-gray-50 dark:bg-white/[0.02] border border-dashed border-gray-200 dark:border-gray-800 rounded-3xl flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-500'>
                             <div className='bg-white dark:bg-gray-800 w-14 h-14 rounded-2xl flex items-center justify-center shadow-theme-sm mb-5'><MousePointer2 size={28} className='text-brand-500' /></div>
-                            <h4 className='text-base font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight uppercase'>Pick a Date</h4>
+                            <h4 className='text-base font-bold text-gray-900 dark:text-white mb-1.5 capitalize'>Pick a Date</h4>
                             <p className='text-[12px] text-gray-500 dark:text-gray-400 max-w-[220px] leading-relaxed font-bold'>Select an available day from the calendar to see slots.</p>
                         </div>
                     ) : (
                         <div className='animate-in fade-in slide-in-from-right-4 duration-500 h-full flex flex-col bg-gray-50/30 dark:bg-white/[0.01] border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl p-6'>
                             <div className={`flex flex-col h-full ${isProcessing ? 'opacity-40 pointer-events-none cursor-wait' : ''}`}>
                                 <div className='flex items-center justify-between mb-5'>
-                                    <h3 className='text-[15px] font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'>
+                                    <h3 className='text-[15px] font-bold text-gray-900 dark:text-white flex items-center gap-2 capitalize'>
                                         <div className='p-1.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'><Clock size={16} className='text-brand-500' /></div>
                                         Available Times
                                     </h3>
@@ -664,7 +664,7 @@ const DateTimeStep = ({
                                         {hasMoreSlots && (
                                             <button 
                                                 onClick={() => setVisibleCount(prev => prev + 18)}
-                                                className='mb-8 w-full py-3 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl text-[11px] font-black text-gray-500 hover:text-brand-500 hover:border-brand-200 dark:hover:border-brand-500/50 transition-all flex items-center justify-center gap-2 uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/30'
+                                                className='mb-8 w-full py-3 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl text-[11px] font-medium text-gray-500 hover:text-brand-500 hover:border-brand-200 dark:hover:border-brand-500/50 transition-all flex items-center justify-center gap-2 capitalize bg-gray-50/50 dark:bg-gray-800/30'
                                             >
                                                 <Plus size={14} />
                                                 Show More Times
@@ -672,7 +672,7 @@ const DateTimeStep = ({
                                         )}
                                     </>
                                 ) : (
-                                    <div className='p-8 bg-gray-50 dark:bg-white/[0.02] rounded-2xl text-center border-2 border-dashed border-gray-200 dark:border-gray-800 flex-grow flex flex-col items-center justify-center leading-relaxed'><p className='text-gray-500 text-[14px] font-bold mb-2'>No available slots.</p>{nextAvailableDate && <button onClick={() => {const d = new Date(nextAvailableDate);setViewDate(new Date(d.getFullYear(), d.getMonth(), 1));handleDateClick(d);}} className='text-brand-500 text-[13px] font-black hover:underline underline-offset-4'>Try {new Date(nextAvailableDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</button>}</div>
+                                    <div className='p-8 bg-gray-50 dark:bg-white/[0.02] rounded-2xl text-center border-2 border-dashed border-gray-200 dark:border-gray-800 flex-grow flex flex-col items-center justify-center leading-relaxed'><p className='text-gray-500 text-[14px] font-bold mb-2'>No available slots.</p>{nextAvailableDate && <button onClick={() => {const d = new Date(nextAvailableDate);setViewDate(new Date(d.getFullYear(), d.getMonth(), 1));handleDateClick(d);}} className='text-brand-500 text-[13px] font-medium hover:underline underline-offset-4'>Try {new Date(nextAvailableDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</button>}</div>
                                 )}
                             </div>
                         </div>
@@ -685,17 +685,17 @@ const DateTimeStep = ({
                     <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6'>
                         <div className='flex items-center gap-2.5'>
                             <div className='w-1 h-5 bg-brand-500 rounded-full' />
-                            <h4 className='text-[11px] sm:text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest'>Your Selection Summary</h4>
+                            <h4 className='text-[11px] sm:text-xs font-medium text-slate-400 dark:text-slate-500 capitalize'>Your Selection Summary</h4>
                         </div>
                         
                         {activeHold && (
                             <div className='flex items-center gap-3 bg-slate-50/80 dark:bg-white/[0.02] border border-slate-200 dark:border-gray-800 px-4 py-2 rounded-xl animate-in fade-in zoom-in duration-500'>
                                 <div className='flex flex-col gap-0.5'>
-                                    <p className='text-[10px] sm:text-[11px] font-black text-slate-800 dark:text-white uppercase tracking-tight'>
+                                    <p className='text-[12px] sm:text-[11px] font-medium text-slate-800 dark:text-white capitalize'>
                                         We are holding this time for you.
                                     </p>
-                                    <p className='text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500'>
-                                        Please complete your request within: <span className="font-mono text-brand-500 font-black ml-1 text-sm sm:text-base tracking-tighter">{formattedTime}</span>
+                                    <p className='text-[12px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500'>
+                                        Please complete your request within: <span className="font-mono text-brand-500 font-medium ml-1 text-sm sm:text-base tracking-tighter">{formattedTime}</span>
                                     </p>
                                 </div>
                             </div>
@@ -710,11 +710,11 @@ const DateTimeStep = ({
                                         <CheckCircle2 size={20} />
                                     </div>
                                     <div>
-                                        <p className='text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 leading-none'>Primary Request</p>
+                                        <p className='text-[11px] font-medium text-slate-400 dark:text-slate-500 capitalize mb-0.5 leading-none'>Primary Request</p>
                                         <div className='flex items-center gap-1.5'>
-                                            <p className='text-[13px] sm:text-[14px] font-black text-slate-900 dark:text-white'>{formatDateDisplay(selectedDate)}</p>
+                                            <p className='text-[13px] sm:text-[14px] font-medium text-slate-900 dark:text-white'>{formatDateDisplay(selectedDate)}</p>
                                             <span className='w-1 h-1 rounded-full bg-slate-200 dark:bg-gray-700' />
-                                            <p className='text-[13px] sm:text-[14px] font-black text-brand-500'>{formatTimeDisplay(selectedTime)}</p>
+                                            <p className='text-[13px] sm:text-[14px] font-medium text-brand-500'>{formatTimeDisplay(selectedTime)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -735,11 +735,11 @@ const DateTimeStep = ({
                                         <Clock size={20} />
                                     </div>
                                     <div>
-                                        <p className='text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 leading-none'>Waitlist Choice</p>
+                                        <p className='text-[11px] font-medium text-slate-400 dark:text-slate-500 capitalize mb-0.5 leading-none'>Waitlist Choice</p>
                                         <div className='flex items-center gap-1.5'>
-                                            <p className='text-[13px] sm:text-[14px] font-black text-slate-900 dark:text-white'>{formatDateDisplay(formData.waitlist_date)}</p>
+                                            <p className='text-[13px] sm:text-[14px] font-medium text-slate-900 dark:text-white'>{formatDateDisplay(formData.waitlist_date)}</p>
                                             <span className='w-1 h-1 rounded-full bg-slate-200 dark:bg-gray-700' />
-                                            <p className='text-[13px] sm:text-[14px] font-black text-amber-500'>{formatTimeDisplay(formData.waitlist_time)}</p>
+                                            <p className='text-[13px] sm:text-[14px] font-medium text-amber-500'>{formatTimeDisplay(formData.waitlist_time)}</p>
                                         </div>
                                     </div>
                                 </div>

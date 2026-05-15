@@ -33,7 +33,7 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-[640px]">
             {/* Header */}
             <div className="px-6 py-5 border-b border-gray-100 dark:border-white/5 bg-white dark:bg-gray-900 rounded-t-3xl">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white font-outfit tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white font-outfit">
                     {isReadOnly ? 'Appointment Details' : 'Finalize Check Out'}
                 </h2>
                 {!isReadOnly && (
@@ -55,7 +55,7 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
                                 <img 
                                     src={appointment.patientAvatar} 
                                     alt={appointment.patient} 
-                                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white dark:border-gray-800 shadow-md object-cover"
+                                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white dark:border-gray-800 shadow-sm-md object-cover"
                                 />
                                 <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-900"></div>
                             </div>
@@ -70,8 +70,8 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
                             </div>
                         </div>
                         <div className="text-right shrink-0">
-                            <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest block mb-1">Attending Doctor</span>
-                            <p className="text-sm font-bold text-gray-900 dark:text-white font-outfit uppercase">
+                            <span className="text-[12px] font-medium text-gray-400 dark:text-gray-500 capitalize block mb-1">Attending Doctor</span>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white font-outfit capitalize">
                                 {appointment.doctor || "Dr. Emily Chen"}
                             </p>
                         </div>
@@ -80,7 +80,7 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
                     {/* Middle Section: Appointment Details Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-gray-50 dark:divide-white/5 bg-white dark:bg-gray-800/20">
                         <div className="p-4 flex flex-col gap-1">
-                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 capitalize flex items-center gap-1.5">
                                 <Clock size={10} />
                                 Start
                             </span>
@@ -89,7 +89,7 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
                             </span>
                         </div>
                         <div className="p-4 flex flex-col gap-1">
-                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 capitalize flex items-center gap-1.5">
                                 <Clock size={10} />
                                 End
                             </span>
@@ -98,7 +98,7 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
                             </span>
                         </div>
                         <div className="p-4 flex flex-col gap-1 col-span-2 sm:col-span-1 border-t sm:border-t-0 border-gray-50 dark:border-white/5">
-                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 capitalize flex items-center gap-1.5">
                                 <Phone size={10} />
                                 Contact
                             </span>
@@ -111,12 +111,12 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
                     {/* Bottom Section: Service Type */}
                     <div className="p-4 bg-brand-50/20 dark:bg-brand-500/[0.02] border-t border-gray-50 dark:border-white/5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Main Service:</span>
-                            <span className="text-xs font-black text-brand-600 dark:text-brand-400 uppercase tracking-widest">{appointment.service}</span>
+                            <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 capitalize">Main Service:</span>
+                            <span className="text-xs font-medium text-brand-600 dark:text-brand-400 capitalize">{appointment.service}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Status:</span>
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                            <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 capitalize">Status:</span>
+                            <span className={`text-[12px] font-medium capitalize px-2 py-0.5 rounded-full ${
                                 appointment.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30' :
                                 appointment.status === 'No Show' ? 'bg-red-100 text-red-700 dark:bg-red-900/30' :
                                 'bg-amber-100 text-amber-700 dark:bg-amber-900/30'
@@ -130,11 +130,11 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
                 {/* Treatment Summary - Side by Side Cards */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between border-b border-gray-50 dark:border-white/5 pb-2">
-                        <label className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
+                        <label className="flex items-center gap-2 text-[12px] sm:text-[11px] font-medium text-gray-400 dark:text-gray-500 capitalize">
                             <ClipboardList size={14} className="text-brand-500" />
                             Clinical Summary
                         </label>
-                        <span className="text-[10px] font-black text-brand-600 uppercase tracking-widest bg-brand-100/50 dark:bg-brand-500/10 px-2 py-0.5 rounded-full">
+                        <span className="text-[12px] font-medium text-brand-600 capitalize bg-brand-100/50 dark:bg-brand-500/10 px-2 py-0.5 rounded-full">
                             {servicesRendered.length} Procedures
                         </span>
                     </div>
@@ -150,7 +150,7 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
                                         <p className="text-[14px] sm:text-[15px] font-bold text-gray-800 dark:text-white/90 leading-tight mb-1">
                                             {service.name}
                                         </p>
-                                        <span className={`text-[9px] font-black uppercase tracking-widest ${service.category === 'Specialized' ? 'text-amber-500' : 'text-brand-500/70'}`}>
+                                        <span className={`text-[11px] font-medium capitalize  ${service.category === 'Specialized' ? 'text-amber-500' : 'text-brand-500/70'}`}>
                                             {service.category}
                                         </span>
                                     </div>
@@ -162,7 +162,7 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
 
                 {/* Notes */}
                 <div className="space-y-3 pb-2">
-                    <label className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
+                    <label className="flex items-center gap-2 text-[12px] sm:text-[11px] font-medium text-gray-400 dark:text-gray-500 capitalize">
                         <StickyNote size={14} className="text-amber-500" />
                         Clinician's Notes
                     </label>
@@ -179,7 +179,7 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
                 {isReadOnly ? (
                     <Button 
                         onClick={onClose}
-                        className="w-full h-11 font-black text-[11px] uppercase tracking-widest bg-gray-800 hover:bg-gray-900 text-white shadow-lg border-none transition-all active:scale-95"
+                        className="w-full h-11 font-medium text-[11px] capitalize bg-gray-800 hover:bg-gray-900 text-white shadow-lg border-none transition-all active:scale-95"
                     >
                         Close Details
                     </Button>
@@ -188,13 +188,13 @@ const CheckOutModal = ({ isOpen, onClose, appointment, onConfirm, isReadOnly = f
                         <Button 
                             variant="outline" 
                             onClick={onClose}
-                            className="flex-1 h-11 font-black text-[11px] uppercase tracking-widest border-gray-200 dark:border-gray-800"
+                            className="flex-1 h-11 font-medium text-[11px] capitalize border-gray-200 dark:border-gray-800"
                         >
                             Cancel
                         </Button>
                         <Button 
                             onClick={handleConfirm}
-                            className="flex-1 h-11 font-black text-[11px] uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-500/20 border-none"
+                            className="flex-1 h-11 font-medium text-[11px] capitalize bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-500/20 border-none"
                         >
                             <div className="flex items-center justify-center gap-2">
                                 <CheckCircle2 size={16} />

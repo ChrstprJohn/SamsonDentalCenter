@@ -46,9 +46,11 @@ export const STATUS_COLOR = {
  * Format a date string 'YYYY-MM-DD' → 'Oct 24, 2024'
  */
 export const formatDate = (dateStr) => {
-    if (!dateStr) return '';
+    if (!dateStr || typeof dateStr !== 'string') return dateStr || '';
     // Parse as local date to avoid UTC offset shifting the day
-    const [year, month, day] = dateStr.split('-').map(Number);
+    const parts = dateStr.split('-');
+    if (parts.length < 3) return dateStr;
+    const [year, month, day] = parts.map(Number);
     return new Date(year, month - 1, day).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -60,8 +62,10 @@ export const formatDate = (dateStr) => {
  * Format a time string 'HH:MM:SS' or 'HH:MM' → '10:00 AM'
  */
 export const formatTime = (timeStr) => {
-    if (!timeStr) return '';
-    const [hourStr, minuteStr] = timeStr.split(':');
+    if (!timeStr || typeof timeStr !== 'string') return timeStr || '';
+    const parts = timeStr.split(':');
+    if (parts.length < 2) return timeStr;
+    const [hourStr, minuteStr] = parts;
     const hour = parseInt(hourStr, 10);
     const minute = minuteStr;
     const period = hour >= 12 ? 'PM' : 'AM';

@@ -89,17 +89,17 @@ export default function UserAddressCard() {
                         <div className='px-2 overflow-y-auto custom-scrollbar max-h-[400px]'>
                             <div className='grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2'>
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Country</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">Country</Label>
                                     <Input className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue='Philippines' />
                                 </div>
 
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">City/State</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">City/State</Label>
                                     <Input className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue='Manila, Metro Manila' />
                                 </div>
 
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Postal Code</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">Postal Code</Label>
                                     <Input className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue='1000' />
                                 </div>
                             </div>

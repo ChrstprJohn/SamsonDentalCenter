@@ -84,14 +84,14 @@ const ConfirmationModal = ({
                     variant='outline' 
                     onClick={onClose} 
                     disabled={isLoading}
-                    className="flex-1 h-11 rounded-xl font-black text-[10px] uppercase tracking-widest border-gray-200 dark:border-gray-800"
+                    className="flex-1 h-11 rounded-xl font-medium text-[12px] capitalize border-gray-200 dark:border-gray-800"
                 >
                     {cancelText}
                 </Button>
                 <Button 
                     onClick={onConfirm}
                     disabled={isLoading}
-                    className={`flex-1 h-11 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg transition-all active:scale-95 ${getButtonClasses()}`}
+                    className={`flex-1 h-11 text-white rounded-xl font-medium text-[12px] capitalize  shadow-lg transition-all active:scale-95 ${getButtonClasses()}`}
                 >
                     {isLoading ? (
                         <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto' />

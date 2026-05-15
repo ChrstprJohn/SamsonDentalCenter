@@ -196,8 +196,8 @@ const ApprovalsPage = () => {
                         />
                     ) : (
                         <div className="flex flex-col items-center justify-center p-20 text-center">
-                            <p className="text-gray-500">Request not found.</p>
-                            <button onClick={handleBack} className="mt-4 px-6 py-2 bg-brand-500 text-white rounded-lg">Go Back</button>
+                            <p className="text-gray-500 dark:text-gray-400">Request not found.</p>
+                            <button onClick={handleBack} className="mt-4 px-6 py-2 bg-brand-500 text-white rounded-xl">Go Back</button>
                         </div>
                     )
                 ) : (

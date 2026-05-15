@@ -7,7 +7,7 @@ const AppointmentDetailActionBar = ({ onBack }) => {
             <div className='flex items-center gap-3'>
                 <button 
                     onClick={onBack}
-                    className='p-2 rounded-xl bg-gray-100 dark:bg-white/[0.05] text-gray-500 hover:bg-gray-200 dark:hover:bg-white/[0.1] transition-colors'
+                    className='p-2 rounded-xl bg-gray-100 dark:bg-white/[0.05] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.1] transition-colors'
                 >
                     <ChevronLeft size={20} />
                 </button>

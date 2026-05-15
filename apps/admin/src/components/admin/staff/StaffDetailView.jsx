@@ -41,11 +41,11 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
                             </button>
                         </div>
                         <div>
-                            <h3 className='text-base sm:text-lg font-bold text-[#0B1120] dark:text-white font-outfit truncate'>
+                            <h3 className='text-[clamp(14px,1.5vw,18px)] font-medium text-gray-900 dark:text-white capitalize font-outfit leading-tight'>
                                 {person.full_name}
                             </h3>
-                            <p className='text-[clamp(10px,1.1vw,12px)] text-gray-500 dark:text-gray-400 font-medium'>
-                                Staff Directory <span className='mx-1 text-gray-300 dark:text-gray-700'>/</span> {tabs.find(t => t.id === activeTab)?.label} Profile
+                            <p className='text-[clamp(9px,1vw,10px)] font-medium text-brand-500 dark:text-brand-400 capitalize mt-1'>
+                                Staff Directory <span className='mx-1 text-gray-300'>/</span> {tabs.find(t => t.id === activeTab)?.label} Profile
                             </p>
                         </div>
                     </div>
@@ -59,7 +59,7 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
                         <button
                             key={t.id}
                             onClick={() => navigate(`/staff/${t.id}/${person.id}`)}
-                            className={`pt-4 pb-3 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.1em] transition-all relative whitespace-nowrap ${
+                            className={`pt-4 pb-3 text-[14px] font-medium capitalize transition-all relative whitespace-nowrap ${
                                 activeTab === t.id
                                     ? 'text-brand-500'
                                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
@@ -92,20 +92,20 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
                                     </div>
                                 </div>
                                 <div className='text-center xl:text-left'>
-                                    <h4 className='text-base sm:text-lg font-bold text-[#0B1120] dark:text-white font-outfit'>
+                                    <h4 className='mb-1 text-[clamp(18px,2.2vw,26px)] font-medium text-gray-900 dark:text-white font-outfit capitalize'>
                                         {person.full_name}
                                     </h4>
-                                    <div className='flex flex-col items-center gap-2 text-center xl:flex-row xl:gap-4 xl:text-left mt-1'>
-                                        <p className='text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400'>
+                                    <div className='flex flex-col items-center gap-2 text-center xl:flex-row xl:gap-4 xl:text-left'>
+                                        <p className='text-[clamp(10px,1.1vw,12px)] text-brand-600 dark:text-brand-400 font-medium capitalize'>
                                             {person.role}
                                         </p>
                                         <div className='hidden h-3.5 w-px bg-gray-200 dark:bg-gray-700 xl:block'></div>
-                                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border shadow-sm ${
+                                        <span className={`px-3 py-1 rounded-lg text-[clamp(9px,1vw,10px)] font-medium capitalize  border ${
                                             person.is_active 
                                                 ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' 
-                                                : 'bg-gray-50 text-gray-500 border-gray-200 dark:bg-white/5 dark:text-gray-400 dark:border-white/10'
+                                                : 'bg-gray-50 text-gray-500 border-gray-200'
                                         }`}>
-                                            STATUS : {person.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                            Status : {person.is_active ? 'Active' : 'Inactive'}
                                         </span>
                                     </div>
                                 </div>
@@ -114,7 +114,7 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
                                 <Button
                                     variant='outline'
                                     onClick={() => setIsEditModalOpen(true)}
-                                    className='h-11 px-8 text-[10px] font-black uppercase tracking-widest shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
+                                    className='h-11 px-8 text-[12px] font-medium capitalize shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
                                 >
                                     Modify Identity
                                 </Button>
@@ -129,8 +129,8 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
                                         <Mail size={16} />
                                     </div>
                                     <div>
-                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>BUSINESS EMAIL</p>
-                                        <p className='text-[11px] sm:text-xs font-bold text-[#0B1120] dark:text-white'>{person.email}</p>
+                                        <p className='text-[11px] font-medium text-gray-400 capitalize leading-none mb-1'>Business Email</p>
+                                        <p className='text-xs font-medium text-gray-900 dark:text-white capitalize'>{person.email}</p>
                                     </div>
                                 </div>
                                 <div className='flex items-center gap-3'>
@@ -138,15 +138,15 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
                                         <Phone size={16} />
                                     </div>
                                     <div>
-                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5'>DIRECT LINE</p>
-                                        <p className='text-[11px] sm:text-xs font-bold text-[#0B1120] dark:text-white'>{person.phone}</p>
+                                        <p className='text-[11px] font-medium text-gray-400 capitalize leading-none mb-1'>Direct Line</p>
+                                        <p className='text-xs font-medium text-gray-900 dark:text-white capitalize'>{person.phone}</p>
                                     </div>
                                 </div>
                             </div>
                             <Button
                                 variant='outline'
                                 onClick={() => setIsEditContactModalOpen(true)}
-                                className='h-11 sm:h-12 px-6 text-[10px] font-black uppercase tracking-widest shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
+                                className='h-11 sm:h-12 px-6 text-[12px] font-medium capitalize shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
                             >
                                 <Mail size={16} className='mr-2' /> Update Channels
                             </Button>
@@ -158,15 +158,15 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
                         {(!activeTab || activeTab === 'profile') && (
                             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                                 <div className='p-8 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.01] shadow-sm'>
-                                    <h5 className='text-sm sm:text-base font-bold text-[#0B1120] dark:text-white uppercase tracking-wider font-outfit mb-6'>Employment Configuration</h5>
+                                    <h5 className='text-[12px] font-medium capitalize text-gray-400 mb-6'>Employment Configuration</h5>
                                     <div className='space-y-6'>
                                         <div className='flex justify-between items-center'>
-                                            <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest'>Join Date</span>
-                                            <span className='text-[10px] sm:text-xs font-bold text-[#0B1120] dark:text-white uppercase tracking-tight'>{person.join_date}</span>
+                                            <span className='text-[11px] font-medium text-gray-400 capitalize'>Join Date</span>
+                                            <span className='text-xs font-medium text-gray-900 dark:text-white capitalize'>{person.join_date}</span>
                                         </div>
                                         <div className='flex justify-between items-center'>
-                                            <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest'>Permissions</span>
-                                            <span className='text-[10px] font-bold text-brand-500 uppercase tracking-wider px-3 py-1 bg-brand-50 dark:bg-brand-500/10 rounded-lg border border-brand-100 dark:border-brand-500/20'>Standard {person.role}</span>
+                                            <span className='text-[11px] font-medium text-gray-400 capitalize'>Permissions</span>
+                                            <span className='text-[12px] font-medium text-brand-500 capitalize px-3 py-1 bg-brand-50 dark:bg-brand-500/10 rounded-lg border border-brand-100 dark:border-brand-500/20'>Standard {person.role}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -177,11 +177,11 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
                             <div className='max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500'>
                                 <div className='flex items-center justify-between mb-8'>
                                     <div>
-                                        <h4 className='text-sm sm:text-base font-bold text-[#0B1120] dark:text-white uppercase tracking-wider font-outfit'>
+                                        <h4 className='text-lg sm:text-2xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                                             Interaction Log
                                         </h4>
-                                        <p className='text-[clamp(10px,1.1vw,12px)] text-gray-500 dark:text-gray-400 font-medium mt-0.5'>
-                                            Audit trail for all system interactions and events
+                                        <p className='text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 capitalize mt-1 font-bold'>
+                                            Audit trail for all system interactions and events.
                                         </p>
                                     </div>
                                 </div>
@@ -193,13 +193,13 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
                                                     <Calendar size={20} />
                                                 </div>
                                                 <div>
-                                                    <p className='text-sm font-bold text-[#0B1120] dark:text-white'>System Login</p>
-                                                    <p className='text-[11px] font-medium text-gray-500 dark:text-gray-400 mt-1'>Successful authentication from Admin Portal</p>
+                                                    <p className='text-sm font-medium text-gray-900 dark:text-white capitalize'>System Login</p>
+                                                    <p className='text-[11px] font-bold text-gray-500 dark:text-gray-400 mt-1 capitalize'>Successful authentication from Admin Portal</p>
                                                 </div>
                                             </div>
                                             <div className='text-right'>
-                                                <p className='text-[11px] font-bold text-[#0B1120] dark:text-white uppercase tracking-wider'>2 hours ago</p>
-                                                <p className='text-[9px] font-black text-brand-500 uppercase tracking-widest mt-1'>Verified Session</p>
+                                                <p className='text-[12px] font-medium text-gray-900 dark:text-white capitalize'>2 hours ago</p>
+                                                <p className='text-[11px] font-medium text-brand-500 capitalize mt-1'>Verified Session</p>
                                             </div>
                                         </div>
                                     ))}
@@ -218,19 +218,19 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
                                             <div className='w-10 h-10 rounded-xl bg-white/10 dark:bg-gray-900/10 flex items-center justify-center text-white dark:text-gray-900'>
                                                 <ShieldCheck size={20} />
                                             </div>
-                                            <h4 className='text-sm font-bold text-white dark:text-gray-900 uppercase tracking-wider'>
-                                                SECURITY CENTER
+                                            <h4 className='text-sm font-medium text-white dark:text-gray-900 capitalize'>
+                                                Security Center
                                             </h4>
                                         </div>
                                         <div className='space-y-8'>
                                             <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white/5 dark:bg-gray-900/5 border border-white/10 dark:border-gray-900/10'>
                                                 <div>
-                                                    <span className='text-[9px] font-black text-white/50 dark:text-gray-900/50 uppercase tracking-[0.2em] mb-1 block'>Account Health</span>
-                                                    <span className='text-xs font-black text-white dark:text-gray-900 uppercase tracking-tight'>Fully Secured & Verified</span>
+                                                    <span className='text-[11px] font-medium text-white/50 dark:text-gray-900/50 capitalize mb-1 block'>Account Health</span>
+                                                    <span className='text-xs font-medium text-white dark:text-gray-900 capitalize'>Fully Secured & Verified</span>
                                                 </div>
-                                                <span className='text-[10px] font-black uppercase bg-brand-500 text-white px-4 py-1.5 rounded-full self-start sm:self-auto'>Verified</span>
+                                                <span className='text-[12px] font-medium capitalize bg-brand-500 text-white px-4 py-1.5 rounded-full self-start sm:self-auto'>Verified</span>
                                             </div>
-                                            <Button variant='secondary' className='w-full h-14 text-[11px] font-black uppercase tracking-[0.2em] bg-white dark:bg-gray-900 text-gray-900 dark:text-white hover:scale-[1.02] transition-all shadow-lg active:scale-95'>
+                                            <Button variant='secondary' className='w-full h-14 text-[11px] font-medium capitalize bg-white dark:bg-gray-900 text-gray-900 dark:text-white hover:scale-[1.02] transition-all shadow-lg active:scale-95'>
                                                 <Key size={16} className='mr-3' /> Force Credential Reset
                                             </Button>
                                         </div>
@@ -246,21 +246,21 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
             <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} className='max-w-[480px] w-[95%] sm:w-full m-auto'>
                 <div className='p-8 sm:p-10 bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl'>
                     <div className='mb-8'>
-                        <h4 className='text-xl sm:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>Staff Identity</h4>
-                        <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1'>Update professional details and role.</p>
+                        <h4 className='text-xl sm:text-2xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>Staff Identity</h4>
+                        <p className='text-[12px] font-medium text-gray-400 capitalize mt-1'>Update professional details and role.</p>
                     </div>
                     <div className='space-y-6'>
                         <div className='space-y-2'>
-                            <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>Full Legal Name</Label>
+                            <Label className='text-[12px] font-medium capitalize text-gray-400'>Full Legal Name</Label>
                             <Input defaultValue={person.full_name} className='h-12 border-gray-200 focus:border-brand-500 rounded-xl font-bold' />
                         </div>
                         <div className='space-y-2'>
-                            <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>Designated Role</Label>
-                            <Input defaultValue={person.role} className='h-12 border-gray-200 focus:border-brand-500 rounded-xl font-bold uppercase' />
+                            <Label className='text-[12px] font-medium capitalize text-gray-400'>Designated Role</Label>
+                            <Input defaultValue={person.role} className='h-12 border-gray-200 focus:border-brand-500 rounded-xl font-bold capitalize' />
                         </div>
                         <div className='flex items-center gap-3 pt-8'>
-                            <Button variant='outline' onClick={() => setIsEditModalOpen(false)} className='flex-1 h-12 text-[11px] font-black uppercase tracking-widest rounded-xl'>Cancel</Button>
-                            <Button className='flex-[1.5] h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-[11px] font-black uppercase tracking-widest rounded-xl shadow-lg'>Save Changes</Button>
+                            <Button variant='outline' onClick={() => setIsEditModalOpen(false)} className='flex-1 h-12 text-[11px] font-medium capitalize rounded-xl'>Cancel</Button>
+                            <Button className='flex-[1.5] h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-[11px] font-medium capitalize rounded-xl shadow-lg'>Save Changes</Button>
                         </div>
                     </div>
                 </div>
@@ -269,21 +269,21 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
             <Modal isOpen={isEditContactModalOpen} onClose={() => setIsEditContactModalOpen(false)} className='max-w-[480px] w-[95%] sm:w-full m-auto'>
                 <div className='p-8 sm:p-10 bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl'>
                     <div className='mb-8'>
-                        <h4 className='text-xl sm:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>Contact Channels</h4>
-                        <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1'>Update secure communication paths.</p>
+                        <h4 className='text-xl sm:text-2xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>Contact Channels</h4>
+                        <p className='text-[12px] font-medium text-gray-400 capitalize mt-1'>Update secure communication paths.</p>
                     </div>
                     <div className='space-y-6'>
                         <div className='space-y-2'>
-                            <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>Business Email</Label>
+                            <Label className='text-[12px] font-medium capitalize text-gray-400'>Business Email</Label>
                             <Input defaultValue={person.email} className='h-12 border-gray-200 focus:border-brand-500 rounded-xl font-bold' />
                         </div>
                         <div className='space-y-2'>
-                            <Label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>Direct Line</Label>
+                            <Label className='text-[12px] font-medium capitalize text-gray-400'>Direct Line</Label>
                             <Input defaultValue={person.phone} className='h-12 border-gray-200 focus:border-brand-500 rounded-xl font-bold' />
                         </div>
                         <div className='flex items-center gap-3 pt-8'>
-                            <Button variant='outline' onClick={() => setIsEditContactModalOpen(false)} className='flex-1 h-12 text-[11px] font-black uppercase tracking-widest rounded-xl'>Cancel</Button>
-                            <Button className='flex-[1.5] h-12 bg-brand-500 text-white text-[11px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-brand-500/20'>Update Channels</Button>
+                            <Button variant='outline' onClick={() => setIsEditContactModalOpen(false)} className='flex-1 h-12 text-[11px] font-medium capitalize rounded-xl'>Cancel</Button>
+                            <Button className='flex-[1.5] h-12 bg-brand-500 text-white text-[11px] font-medium capitalize rounded-xl shadow-lg shadow-brand-500/20'>Update Channels</Button>
                         </div>
                     </div>
                 </div>

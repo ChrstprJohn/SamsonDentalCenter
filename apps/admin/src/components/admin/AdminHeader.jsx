@@ -60,7 +60,7 @@ const AdminHeader = () => {
                                 {user?.first_name ? `${user.first_name[0]}${user.last_name?.[0] || ''}`.toUpperCase() : (user?.email?.[0]?.toUpperCase() || 'A')}
                             </span>
                             <div className='hidden sm:block mr-1 text-left'>
-                                <p className='font-bold truncate max-w-[120px] text-gray-900 dark:text-white uppercase font-outfit'>
+                                <p className='font-bold truncate max-w-[120px] text-gray-900 dark:text-white capitalize font-outfit'>
                                     {user?.first_name || 'Admin'}
                                 </p>
                             </div>
@@ -74,7 +74,7 @@ const AdminHeader = () => {
                                 <div className='fixed inset-0 z-40' onClick={() => setIsDropdownOpen(false)} />
                                 <div className='absolute right-0 mt-2 w-[260px] bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-theme-lg z-50 p-3'>
                                     <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-800">
-                                        <span className='block font-medium text-gray-700 dark:text-white text-sm truncate uppercase font-outfit'>
+                                        <span className='block font-medium text-gray-700 dark:text-white text-sm truncate capitalize font-outfit'>
                                             {user?.first_name ? `${user.first_name} ${user.last_name}` : 'Admin'}
                                         </span>
                                         <span className='mt-0.5 block text-xs text-gray-500 dark:text-gray-400 truncate'>

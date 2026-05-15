@@ -8,13 +8,13 @@ const ActionFooter = ({ onApprove, onReject, isSubmitting, isClear }) => {
                 {!isClear && (
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-lg">
                         <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                        <span className="text-[10px] font-black text-amber-700 dark:text-amber-500 uppercase tracking-tight">Conflicts Detected</span>
+                        <span className="text-[12px] font-medium text-amber-700 dark:text-amber-500 capitalize">Conflicts Detected</span>
                     </div>
                 )}
                 {isClear && (
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-lg">
                         <Check size={12} className="text-emerald-500" />
-                        <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-500 uppercase tracking-tight">Clear to Book</span>
+                        <span className="text-[12px] font-medium text-emerald-700 dark:text-emerald-500 capitalize">Clear to Book</span>
                     </div>
                 )}
             </div>
@@ -23,7 +23,7 @@ const ActionFooter = ({ onApprove, onReject, isSubmitting, isClear }) => {
                 <button
                     onClick={onReject}
                     disabled={isSubmitting}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all font-black text-xs uppercase tracking-widest disabled:opacity-50"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all font-medium text-xs capitalize disabled:opacity-50"
                 >
                     <X size={16} />
                     Reject
@@ -31,7 +31,7 @@ const ActionFooter = ({ onApprove, onReject, isSubmitting, isClear }) => {
                 <button
                     onClick={onApprove}
                     disabled={isSubmitting}
-                    className="flex-[2] sm:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-brand-500 text-white hover:bg-brand-600 shadow-lg shadow-brand-500/20 transition-all font-black text-xs uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed group"
+                    className="flex-[2] sm:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-brand-500 text-white hover:bg-brand-600 shadow-lg shadow-brand-500/20 transition-all font-medium text-xs capitalize disabled:opacity-50 disabled:cursor-not-allowed group"
                 >
                     {isSubmitting ? (
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

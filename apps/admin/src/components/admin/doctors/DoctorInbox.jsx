@@ -91,7 +91,7 @@ const DoctorInbox = ({
                             <div className='flex justify-center pt-4 sm:pt-8 pb-12 px-4 sm:px-0'>
                                 <button 
                                     onClick={handleShowMore}
-                                    className='w-full sm:w-auto px-8 py-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-white hover:border-brand-500 hover:text-brand-500 transition-all active:scale-95 shadow-sm'
+                                    className='w-full sm:w-auto px-8 py-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-[11px] font-medium capitalize text-gray-900 dark:text-white hover:border-brand-500 hover:text-brand-500 transition-all active:scale-95 shadow-sm'
                                 >
                                     Show More Doctors
                                 </button>
@@ -103,10 +103,10 @@ const DoctorInbox = ({
                         <div className='w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center text-gray-300 dark:text-gray-600 mb-6'>
                             <Users size={32} />
                         </div>
-                        <h4 className='text-lg font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight mb-2'>
+                        <h4 className='text-lg font-medium text-gray-900 dark:text-white font-outfit capitalize mb-2'>
                             No Doctors Found
                         </h4>
-                        <p className='text-xs text-gray-500 uppercase font-bold tracking-widest max-w-[280px]'>
+                        <p className='text-xs text-gray-500 capitalize font-bold max-w-[280px]'>
                             Adjust your filters or search query
                         </p>
                     </div>
@@ -119,7 +119,7 @@ const DoctorInbox = ({
                 onClick={onAddClick}
             >
                 <Plus size={18} strokeWidth={3} />
-                <span className='font-black uppercase tracking-widest text-[10px]'>Add Doctor</span>
+                <span className='font-medium capitalize text-[12px]'>Add Doctor</span>
             </button>
         </div>
     );

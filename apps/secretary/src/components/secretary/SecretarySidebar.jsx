@@ -51,10 +51,11 @@ const CheckIcon = () => (
         <path d="M7.75 12L10.58 14.83L16.25 9.17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
-const HistoryIcon = () => (
+const BookingIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 8V12L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 15C7.03 15 3 19.03 3 24H21C21 19.03 16.97 15 12 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M19 8V12M17 10H21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );
 
@@ -108,20 +109,14 @@ const navItems = [
     },
     {
         icon: <AppointmentsIcon />,
-        name: 'Upcoming Appointments',
+        name: 'Appointments',
         path: '/appointments',
     },
     {
         icon: <CheckIcon />,
-        name: 'Appointment Request',
+        name: 'Approvals',
         path: '/approvals',
     },
-    {
-        icon: <HistoryIcon />,
-        name: 'Appointment History',
-        path: '/history',
-    },
-
     {
         icon: <PatientsIcon />,
         name: 'Patients',
@@ -132,13 +127,11 @@ const navItems = [
         name: 'Displaced',
         path: '/displaced',
     },
-/*
     {
         icon: <ShieldIcon />,
         name: 'Audit Logs',
         path: '/audit-logs',
     },
-*/
 ];
 
 
@@ -176,24 +169,13 @@ const SecretarySidebar = () => {
             {/* Logo */}
             <div className={`pt-5 pb-6 flex w-full transition-all duration-300 pl-[13px]`}>
                 <Link to='/' className="flex items-center min-h-[40px]">
-                    <div className='flex items-center gap-3 transition-all duration-300 group flex-shrink-0'>
-                        <div className='w-[24px] flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
-                            <img
-                                src='/images/logo/samson-logo.png'
-                                alt='Samson Dental Logo'
-                                className='w-10 h-auto min-w-[40px]'
-                            />
+                    <div className="flex items-center gap-3 transition-all duration-300 group flex-shrink-0">
+                        <div className="w-[24px] flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110">
+                            <img alt="Samson Dental Logo" className="w-10 h-auto min-w-[40px]" src="/images/logo/samson-logo.png" />
                         </div>
-                        <div className={`flex flex-col items-start justify-center flex-shrink-0 transition-all duration-300 ${isExpanded || isHovered || isMobileOpen
-                            ? 'opacity-100 max-w-[200px] visible ml-1'
-                            : 'opacity-0 max-w-0 invisible ml-0'
-                            }`}>
-                            <span className='font-black text-[24px] tracking-[-0.01em] leading-[0.8] text-black dark:text-white whitespace-nowrap font-serif'>
-                                SAMSON
-                            </span>
-                            <span className='text-[10px] uppercase tracking-[0.16em] font-black mt-0 text-gray-400 dark:text-gray-500 whitespace-nowrap font-serif block w-full text-center'>
-                                DENTAL CENTER
-                            </span>
+                        <div className={`flex flex-col items-start justify-center flex-shrink-0 transition-all duration-300 ${isExpanded || isHovered || isMobileOpen ? 'opacity-100 max-w-[200px] visible ml-1' : 'opacity-0 max-w-0 invisible ml-0'}`}>
+                            <span className="font-black text-[24px] tracking-[-0.01em] leading-[0.8] text-black dark:text-white uppercase whitespace-nowrap font-serif">SAMSON</span>
+                            <span className="text-[10px] uppercase tracking-[0.16em] font-black mt-0 text-gray-400 dark:text-gray-500 whitespace-nowrap font-serif block w-full text-center">DENTAL CENTER</span>
                         </div>
                     </div>
                 </Link>
@@ -205,7 +187,7 @@ const SecretarySidebar = () => {
                     <div className='flex flex-col'>
                         <div>
                             <h2
-                                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                                className={`mb-4 text-xs capitalize flex leading-[20px] text-gray-400 ${
                                     !isExpanded && !isHovered
                                         ? 'lg:justify-center'
                                         : 'justify-start'
@@ -226,10 +208,14 @@ const SecretarySidebar = () => {
                                                 isActive(nav.path)
                                                     ? 'menu-item-active'
                                                     : 'menu-item-inactive'
+                                            } ${
+                                                !isExpanded && !isHovered
+                                                    ? 'lg:justify-center'
+                                                    : 'lg:justify-start'
                                             }`}
                                         >
                                             <span
-                                                className={`menu-item-icon-size shrink-0 ${
+                                                className={`menu-item-icon-size ${
                                                     isActive(nav.path)
                                                         ? 'menu-item-icon-active'
                                                         : 'menu-item-icon-inactive'
@@ -237,13 +223,13 @@ const SecretarySidebar = () => {
                                             >
                                                 {nav.icon}
                                             </span>
-                                            <span className={`sidebar-text-base menu-item-text ${
-                                                isExpanded || isHovered || isMobileOpen
-                                                    ? 'sidebar-text-expanded'
-                                                    : 'sidebar-text-collapsed'
-                                            }`}>
-                                                {nav.name}
-                                            </span>
+                                            {(isExpanded ||
+                                                isHovered ||
+                                                isMobileOpen) && (
+                                                <span className='menu-item-text'>
+                                                    {nav.name}
+                                                </span>
+                                            )}
                                         </Link>
                                     </li>
                                 ))}

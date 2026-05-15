@@ -4,7 +4,7 @@ const DoctorOverview = ({ dentistName, specialization }) => {
     return (
         <div className='w-full space-y-5 sm:space-y-6'>
             <div>
-                <h3 className='text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-100 dark:border-white/5'>
+                <h3 className='text-[11px] font-medium text-gray-400 dark:text-gray-500 capitalize mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-100 dark:border-white/5'>
                     Assigned Doctor
                 </h3>
                 <div className='flex items-center gap-4 sm:gap-6'>

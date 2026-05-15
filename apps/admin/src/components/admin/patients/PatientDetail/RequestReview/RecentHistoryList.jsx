@@ -8,10 +8,10 @@ const RecentHistoryList = ({ history, loading }) => {
     return (
         <div className='p-6 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-white/[0.02] shadow-sm h-full flex flex-col'>
             <div className='flex items-center justify-between mb-6'>
-                <h4 className='text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2'>
+                <h4 className='text-[12px] font-medium text-gray-400 capitalize flex items-center gap-2'>
                     <History size={14} /> Appointment History
                 </h4>
-                <button className='text-[10px] font-black text-brand-600 uppercase tracking-widest hover:text-brand-700 transition-colors'>
+                <button className='text-[12px] font-medium text-brand-600 capitalize hover:text-brand-700 transition-colors'>
                     View More
                 </button>
             </div>
@@ -24,13 +24,13 @@ const RecentHistoryList = ({ history, loading }) => {
                                 <Calendar size={14} />
                             </div>
                             <div>
-                                <span className='block text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>
+                                <span className='block text-[12px] font-medium text-gray-900 dark:text-white capitalize'>
                                     {new Date(h.appointment_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                 </span>
-                                <span className='text-[9px] font-bold text-gray-400 uppercase tracking-widest'>{h.service?.name}</span>
+                                <span className='text-[11px] font-bold text-gray-400 capitalize'>{h.service?.name}</span>
                             </div>
                         </div>
-                        <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md ${
+                        <span className={`text-[11px] font-medium capitalize  px-1.5 py-0.5 rounded-md ${
                             h.status === 'COMPLETED' ? 'bg-success-50 text-success-600' : 'bg-gray-100 text-gray-500'
                         }`}>
                             {h.status}
@@ -39,7 +39,7 @@ const RecentHistoryList = ({ history, loading }) => {
                 ))}
                 {filteredHistory.length === 0 && !loading && (
                     <div className='h-full flex flex-col items-center justify-center py-10 opacity-50'>
-                        <p className='text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]'>No past record</p>
+                        <p className='text-[12px] font-bold text-gray-400 capitalize'>No past record</p>
                     </div>
                 )}
             </div>

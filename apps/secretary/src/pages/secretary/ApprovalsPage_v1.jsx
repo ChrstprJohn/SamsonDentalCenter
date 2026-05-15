@@ -193,7 +193,7 @@ const ApprovalsPage = () => {
         return (
             <div className="flex flex-col items-center justify-center h-full p-6 text-center">
                 <div className="text-error-500 font-bold mb-4">Error loading approvals</div>
-                <div className="text-gray-500 mb-6">{error}</div>
+                <div className="text-gray-500 dark:text-gray-400 mb-6">{error}</div>
                 <button onClick={refresh} className="px-6 py-2 bg-brand-500 text-white rounded-xl font-bold">Try Again</button>
             </div>
         );

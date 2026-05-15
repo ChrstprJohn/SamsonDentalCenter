@@ -54,7 +54,7 @@ const ApprovalInbox = ({
                             placeholder='Search by patient name...'
                             value={searchQuery}
                             onChange={(e) => onSearchChange(e.target.value)}
-                            className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium dark:text-white'
+                            className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium dark:text-white'
                         />
                     </div>
                 </div>
@@ -71,7 +71,7 @@ const ApprovalInbox = ({
                             <select
                                 value={selectedService}
                                 onChange={(e) => onServiceChange(e.target.value)}
-                                className='w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
+                                className='w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                             >
                                 {availableServices.map(s => <option key={s} value={s} className='dark:bg-gray-900'>{s}</option>)}
                             </select>
@@ -86,7 +86,7 @@ const ApprovalInbox = ({
                             <select
                                 value={selectedDoctor}
                                 onChange={(e) => onDoctorChange(e.target.value)}
-                                className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
+                                className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                             >
                                 {availableDoctors.map(d => <option key={d} value={d} className='dark:bg-gray-900'>{d}</option>)}
                             </select>
@@ -101,14 +101,14 @@ const ApprovalInbox = ({
                             <select
                                 value={activeFilter}
                                 onChange={(e) => onFilterChange(e.target.value)}
-                                className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
+                                className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                             >
                                 {CATEGORIES.map(cat => <option key={cat.id} value={cat.id} className='dark:bg-gray-900'>{cat.label}</option>)}
                             </select>
                             <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                         </div>
                         
-                        <div className='hidden lg:block ml-auto text-[10px] font-black text-gray-400 uppercase tracking-widest opacity-60'>
+                        <div className='hidden lg:block ml-auto text-[12px] font-medium text-gray-400 capitalize opacity-60'>
                             Total Requests: {requests.length}
                         </div>
                     </div>
@@ -130,7 +130,7 @@ const ApprovalInbox = ({
                         <div className='w-20 h-20 bg-gray-50 dark:bg-white/[0.03] rounded-[32px] flex items-center justify-center mb-6'>
                             <SearchX className='text-gray-300 dark:text-gray-700' size={32} />
                         </div>
-                        <h3 className='text-lg font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight'>No matching requests</h3>
+                        <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-2 capitalize'>No matching requests</h3>
                         <p className='text-sm text-gray-400 max-w-[280px] font-medium leading-relaxed'>
                             Refine your search or filters to locate specific patient entries.
                         </p>
@@ -142,14 +142,14 @@ const ApprovalInbox = ({
             {totalPages > 1 && (
                 <div className='relative z-30 bg-white dark:bg-gray-900 px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between shrink-0'>
                     <div className='flex flex-row items-center justify-between w-full'>
-                        <div className='hidden sm:block text-[10px] font-black text-gray-400 uppercase tracking-widest'>
+                        <div className='hidden sm:block text-[12px] font-medium text-gray-400 capitalize'>
                             Page {currentPage} of {totalPages}
                         </div>
 
                         <div className='flex items-center gap-2 mx-auto sm:mx-0'>
                             <button 
                                 onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-                                className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
+                                className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
                                 disabled={currentPage === 1}
                             >
                                 <ChevronLeft size={20} />
@@ -176,7 +176,7 @@ const ApprovalInbox = ({
 
                             <button 
                                 onClick={() => onPageChange(currentPage + 1)}
-                                className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
+                                className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
                                 disabled={currentPage === totalPages}
                             >
                                 <ChevronRight size={20} />

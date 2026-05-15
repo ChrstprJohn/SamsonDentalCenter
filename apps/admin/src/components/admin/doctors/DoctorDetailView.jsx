@@ -166,10 +166,10 @@ const DoctorDetailView = ({
                             </button>
                         </div>
                         <div>
-                            <h3 className='text-sm sm:text-base font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit leading-tight'>
+                            <h3 className='text-sm sm:text-base font-medium text-gray-900 dark:text-white capitalize font-outfit leading-tight'>
                                 {doctor.full_name}
                             </h3>
-                            <p className='text-[8px] sm:text-[10px] font-black text-brand-500 dark:text-brand-400 uppercase tracking-[0.15em] mt-0.5'>
+                            <p className='text-[11px] sm:text-[12px] font-medium text-brand-500 dark:text-brand-400 capitalize mt-0.5'>
                                 {(activeTab || 'profile')} Profile Registry
                             </p>
                         </div>
@@ -184,7 +184,7 @@ const DoctorDetailView = ({
                         <button
                             key={t.id}
                             onClick={() => navigate(`/doctors/${t.id}/${doctor.id}`)}
-                            className={`pt-3.5 pb-2.5 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.12em] transition-all relative whitespace-nowrap ${activeTab === t.id
+                            className={`pt-3.5 pb-2.5 text-[14px] font-medium capitalize transition-all relative whitespace-nowrap ${activeTab === t.id
                                 ? 'text-brand-500'
                                 : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
                                 }`}
@@ -220,23 +220,23 @@ const DoctorDetailView = ({
                                     </div>
                                 </div>
                                 <div className='order-3 xl:order-2 text-center xl:text-left'>
-                                    <h4 className='mb-1 text-lg sm:text-2xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                                    <h4 className='mb-1 text-lg sm:text-2xl font-medium text-gray-900 dark:text-white font-outfit capitalize'>
                                         {doctor.full_name}
                                     </h4>
                                     <div className='flex flex-wrap items-center justify-center xl:justify-start gap-2.5'>
-                                        <p className='text-[9px] sm:text-[11px] text-brand-600 dark:text-brand-400 font-black uppercase tracking-widest'>
+                                        <p className='text-[11px] sm:text-[11px] text-brand-600 dark:text-brand-400 font-medium capitalize'>
                                             {doctor.tier === 'general' ? 'General Dentist' : 'Specialized Dentist'}
                                         </p>
                                         <div className='hidden h-3 w-px bg-gray-300 dark:bg-gray-700 sm:block'></div>
-                                        <div className='text-[9px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold flex items-center gap-2'>
+                                        <div className='text-[11px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold flex items-center gap-2'>
                                             <span>
                                                 License:{' '}
-                                                <span className='text-gray-900 dark:text-white font-black'>
+                                                <span className='text-gray-900 dark:text-white font-medium'>
                                                     {doctor.license_number}
                                                 </span>
                                             </span>
                                             <div className='h-3 w-px bg-gray-300 dark:bg-gray-700 mx-1'></div>
-                                            <span className={`px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-wider ${doctor.is_active ? 'bg-success-100 text-success-600 dark:bg-success-500/10 dark:text-success-400' : 'bg-gray-100 text-gray-500'}`}>
+                                            <span className={`px-2 py-0.5 rounded-lg text-[11px] font-bold capitalize  ${doctor.is_active ? 'bg-success-100 text-success-600 dark:bg-success-500/10 dark:text-success-400' : 'bg-gray-100 text-gray-500'}`}>
                                                 Status : {doctor.is_active ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
@@ -250,7 +250,7 @@ const DoctorDetailView = ({
                                 <Button
                                     variant='outline'
                                     onClick={() => { setSelectedAvatar(doctor.photo_url); setIsEditModalOpen(true); }}
-                                    className='flex items-center justify-center gap-2 rounded-lg px-4 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest w-full sm:w-[160px] hover:border-brand-500 hover:text-brand-500 transition-all font-outfit shadow-sm'
+                                    className='flex items-center justify-center gap-2 rounded-lg px-4 h-9 sm:h-10 text-[12px] sm:text-xs font-medium capitalize w-full sm:w-[160px] hover:border-brand-500 hover:text-brand-500 transition-all font-outfit shadow-sm'
                                 >
                                     Edit Registry
                                 </Button>
@@ -265,8 +265,8 @@ const DoctorDetailView = ({
                                         <Mail size={14} />
                                     </div>
                                     <div>
-                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Clinical Email</p>
-                                        <p className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>{doctor.email}</p>
+                                        <p className='text-[11px] font-medium text-gray-400 capitalize leading-none mb-1'>Clinical Email</p>
+                                        <p className='text-[11px] font-medium text-gray-900 dark:text-white capitalize'>{doctor.email}</p>
                                     </div>
                                 </div>
                                 <div className='flex items-center gap-3'>
@@ -274,15 +274,15 @@ const DoctorDetailView = ({
                                         <Phone size={14} />
                                     </div>
                                     <div>
-                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Emergency Line</p>
-                                        <p className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>{doctor.phone}</p>
+                                        <p className='text-[11px] font-medium text-gray-400 capitalize leading-none mb-1'>Emergency Line</p>
+                                        <p className='text-[11px] font-medium text-gray-900 dark:text-white capitalize'>{doctor.phone}</p>
                                     </div>
                                 </div>
                             </div>
                             <Button
                                 variant='outline'
                                 onClick={() => setIsEditContactModalOpen(true)}
-                                className='h-9 sm:h-10 px-5 text-[10px] font-black uppercase tracking-widest shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
+                                className='h-9 sm:h-10 px-5 text-[12px] font-medium capitalize shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
                             >
                                 Update Line
                             </Button>
@@ -317,10 +317,10 @@ const DoctorDetailView = ({
             >
                 <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-4 dark:bg-gray-900 sm:p-6 max-h-[90vh]'>
                     <div className='mb-6'>
-                        <h4 className='text-base sm:text-xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                        <h4 className='text-base sm:text-xl font-medium text-gray-900 dark:text-white font-outfit capitalize'>
                             Profile Registry
                         </h4>
-                        <p className='text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 uppercase tracking-wider font-bold'>
+                        <p className='text-[12px] text-gray-500 dark:text-gray-400 mt-0.5 capitalize font-bold'>
                             Authorized Credential Updates
                         </p>
                     </div>
@@ -348,7 +348,7 @@ const DoctorDetailView = ({
                                     </div>
                                 </div>
                                 <div className='w-full'>
-                                    <Label className='text-[10px] font-black uppercase tracking-[0.1em] text-gray-400 mb-3 block text-center'>
+                                    <Label className='text-[12px] font-medium capitalize text-gray-400 mb-3 block text-center'>
                                         Available Profiles
                                     </Label>
                                     <div className='grid grid-cols-3 gap-3 px-1'>
@@ -399,7 +399,7 @@ const DoctorDetailView = ({
                                             >
                                                 <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12' />
                                             </svg>
-                                            <span className='text-[7px] font-bold uppercase'>
+                                            <span className='text-[7px] font-bold capitalize'>
                                                 Custom
                                             </span>
                                         </button>
@@ -412,7 +412,7 @@ const DoctorDetailView = ({
                                 <div className='space-y-3.5 flex flex-col h-full'>
                                     <div className='grid grid-cols-2 gap-3'>
                                         <div className='col-span-1'>
-                                            <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
+                                            <Label className='text-[12px] font-bold capitalize text-gray-400 mb-1.5 block'>
                                                 Last Name
                                             </Label>
                                             <Input
@@ -424,7 +424,7 @@ const DoctorDetailView = ({
                                             />
                                         </div>
                                         <div className='col-span-1'>
-                                            <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
+                                            <Label className='text-[12px] font-bold capitalize text-gray-400 mb-1.5 block'>
                                                 First Name
                                             </Label>
                                             <Input
@@ -436,7 +436,7 @@ const DoctorDetailView = ({
                                             />
                                         </div>
                                         <div className='col-span-1'>
-                                            <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
+                                            <Label className='text-[12px] font-bold capitalize text-gray-400 mb-1.5 block'>
                                                 Middle Name
                                             </Label>
                                             <Input
@@ -447,7 +447,7 @@ const DoctorDetailView = ({
                                             />
                                         </div>
                                         <div className='col-span-1'>
-                                            <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
+                                            <Label className='text-[12px] font-bold capitalize text-gray-400 mb-1.5 block'>
                                                 Suffix
                                             </Label>
                                             <Input
@@ -461,7 +461,7 @@ const DoctorDetailView = ({
 
                                     <div className='grid grid-cols-2 gap-4 pb-0.5 items-end'>
                                         <div className='col-span-1'>
-                                            <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
+                                            <Label className='text-[12px] font-bold capitalize text-gray-400 mb-1.5 block'>
                                                 License Number
                                             </Label>
                                             <Input
@@ -473,12 +473,12 @@ const DoctorDetailView = ({
                                             />
                                         </div>
                                         <div className='col-span-1'>
-                                            <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
+                                            <Label className='text-[12px] font-bold capitalize text-gray-400 mb-1.5 block'>
                                                 Doctor Status
                                             </Label>
                                             <div className='h-10 px-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.02] flex items-center justify-between'>
                                                 <span
-                                                    className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? 'text-brand-500' : 'text-gray-400'}`}
+                                                    className={`text-[12px] font-bold capitalize  ${isActive ? 'text-brand-500' : 'text-gray-400'}`}
                                                 >
                                                     {isActive ? 'Active' : 'Inactive'}
                                                 </span>
@@ -491,7 +491,7 @@ const DoctorDetailView = ({
                                     </div>
 
                                     <div className='flex flex-col flex-grow'>
-                                        <Label className='text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
+                                        <Label className='text-[12px] font-bold capitalize text-gray-400 mb-1.5 block'>
                                             Professional Bio
                                         </Label>
                                         <textarea
@@ -514,14 +514,14 @@ const DoctorDetailView = ({
                                     setIsEditModalOpen(false);
                                 }}
                                 disabled={isSaving}
-                                className='flex-1 sm:flex-none px-6 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl'
+                                className='flex-1 sm:flex-none px-6 h-9 sm:h-10 text-[12px] sm:text-xs font-medium capitalize rounded-xl'
                             >
                                 Cancel
                             </Button>
                             <Button
                                 type='submit'
                                 disabled={isSaving}
-                                className='flex-1 sm:flex-none px-8 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
+                                className='flex-1 sm:flex-none px-8 h-9 sm:h-10 text-[12px] sm:text-xs font-medium capitalize bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
                             >
                                 {isSaving ? 'Saving...' : 'Save Registry'}
                             </Button>
@@ -537,10 +537,10 @@ const DoctorDetailView = ({
             >
                 <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-4 dark:bg-gray-900 sm:p-6'>
                     <div className='mb-6'>
-                        <h4 className='text-base sm:text-lg font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                        <h4 className='text-base sm:text-lg font-medium text-gray-900 dark:text-white font-outfit capitalize'>
                             Communication Registry
                         </h4>
-                        <p className='text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 uppercase tracking-wider font-bold'>
+                        <p className='text-[12px] text-gray-500 dark:text-gray-400 mt-0.5 capitalize font-bold'>
                             Authorized Channel Updates
                         </p>
                     </div>
@@ -551,7 +551,7 @@ const DoctorDetailView = ({
                     >
                         <div className='space-y-4'>
                             <div>
-                                <Label className='text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
+                                <Label className='text-[11px] font-bold capitalize text-gray-400 mb-1.5 block'>
                                     Work Email Address
                                 </Label>
                                 <Input
@@ -564,7 +564,7 @@ const DoctorDetailView = ({
                                 />
                             </div>
                             <div>
-                                <Label className='text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block'>
+                                <Label className='text-[11px] font-bold capitalize text-gray-400 mb-1.5 block'>
                                     Primary Contact Number
                                 </Label>
                                 <Input
@@ -586,14 +586,14 @@ const DoctorDetailView = ({
                                     setIsEditContactModalOpen(false);
                                 }}
                                 disabled={isSaving}
-                                className='flex-1 sm:flex-none px-6 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl'
+                                className='flex-1 sm:flex-none px-6 h-9 sm:h-10 text-[12px] sm:text-xs font-medium capitalize rounded-xl'
                             >
                                 Cancel
                             </Button>
                             <Button
                                 type='submit'
                                 disabled={isSaving}
-                                className='flex-1 sm:flex-none px-8 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
+                                className='flex-1 sm:flex-none px-8 h-9 sm:h-10 text-[12px] sm:text-xs font-medium capitalize bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
                             >
                                 {isSaving ? 'Saving...' : 'Save Registry'}
                             </Button>

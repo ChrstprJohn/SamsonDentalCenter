@@ -87,7 +87,7 @@ const WeeklyScheduleModal = ({ isOpen, onClose, doctor, schedule = [], onSave })
                 
                 <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
                     <div>
-                        <h4 className="text-[clamp(18px,2.5vw,22px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight">
+                        <h4 className="text-[clamp(18px,2.5vw,22px)] font-medium text-gray-900 dark:text-white font-outfit capitalize">
                             Edit Weekly Schedule
                         </h4>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -96,7 +96,7 @@ const WeeklyScheduleModal = ({ isOpen, onClose, doctor, schedule = [], onSave })
                     </div>
                     <button 
                         onClick={applyMondayToAll}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg transition text-xs font-bold h-9 px-5 py-3.5 bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300 whitespace-nowrap"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl transition text-xs font-bold h-9 px-5 py-3.5 bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300 whitespace-nowrap"
                     >
                         <Clock size={14} className="text-gray-400" />
                         Apply Monday's Hours to All
@@ -109,15 +109,15 @@ const WeeklyScheduleModal = ({ isOpen, onClose, doctor, schedule = [], onSave })
                         {/* Daily Break Card */}
                         <div className="p-2 sm:p-3 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/20 rounded-xl flex flex-col transition-all shadow-sm">
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-[10px] sm:text-[12px] font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                <span className="text-[12px] sm:text-[12px] font-medium capitalize text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
                                     <Clock size={12} className="text-gray-400" />
                                     Daily Break
                                 </span>
                                 <Switch checked={dailyBreak} onChange={setDailyBreak} />
                             </div>
-                            <div className="flex-grow flex flex-col items-center justify-center py-2 bg-white/40 dark:bg-gray-900/40 rounded-lg mt-auto border border-dashed border-gray-200 dark:border-gray-800">
+                            <div className="flex-grow flex flex-col items-center justify-center py-2 bg-white/40 dark:bg-gray-900/40 rounded-xl mt-auto border border-dashed border-gray-200 dark:border-gray-800">
                                 <CalendarIcon size={10} className="text-gray-300 mb-1" />
-                                <span className="text-[7.5px] font-bold text-gray-400 uppercase tracking-widest">
+                                <span className="text-[7.5px] font-bold text-gray-400 capitalize">
                                     {dailyBreak ? '12:00 - 13:00' : 'No Break'}
                                 </span>
                             </div>
@@ -130,7 +130,7 @@ const WeeklyScheduleModal = ({ isOpen, onClose, doctor, schedule = [], onSave })
                                 className={`p-2 sm:p-3 border rounded-xl flex flex-col transition-all duration-200 shadow-sm ${day.is_working ? 'border-brand-200 dark:border-brand-500/30 bg-brand-50/20 dark:bg-brand-500/5 opacity-100' : 'border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 opacity-80 hover:opacity-100'}`}
                             >
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className={`text-[10px] sm:text-[12px] font-black uppercase tracking-widest ${day.is_working ? 'text-brand-600 dark:text-brand-400' : 'text-gray-500'}`}>
+                                    <span className={`text-[12px] sm:text-[12px] font-medium capitalize  ${day.is_working ? 'text-brand-600 dark:text-brand-400' : 'text-gray-500'}`}>
                                         {day.day_of_week}
                                     </span>
                                     <Switch 
@@ -143,29 +143,29 @@ const WeeklyScheduleModal = ({ isOpen, onClose, doctor, schedule = [], onSave })
                                     <div className="space-y-2 mt-auto">
                                         <div className="grid grid-cols-2 gap-1.5">
                                             <div>
-                                                <label className="text-[8px] font-black uppercase tracking-tighter text-gray-400 block mb-0.5">In</label>
+                                                <label className="text-[11px] font-medium capitalize tracking-tighter text-gray-400 block mb-0.5">In</label>
                                                 <input 
                                                     type="time" 
                                                     value={day.start_time}
                                                     onChange={(e) => handleTimeChange(idx, 'start_time', e.target.value)}
-                                                    className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg h-7 px-1.5 text-[10px] font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 outline-none"
+                                                    className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl h-7 px-1.5 text-[12px] font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="text-[8px] font-black uppercase tracking-tighter text-gray-400 block mb-0.5">Out</label>
+                                                <label className="text-[11px] font-medium capitalize tracking-tighter text-gray-400 block mb-0.5">Out</label>
                                                 <input 
                                                     type="time" 
                                                     value={day.end_time}
                                                     onChange={(e) => handleTimeChange(idx, 'end_time', e.target.value)}
-                                                    className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg h-7 px-1.5 text-[10px] font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 outline-none"
+                                                    className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl h-7 px-1.5 text-[12px] font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 outline-none"
                                                 />
                                             </div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex-grow flex flex-col items-center justify-center py-2 bg-white/50 dark:bg-gray-900/50 rounded-lg mt-auto border border-dashed border-gray-200 dark:border-gray-800 transition-all">
+                                    <div className="flex-grow flex flex-col items-center justify-center py-2 bg-white/50 dark:bg-gray-900/50 rounded-xl mt-auto border border-dashed border-gray-200 dark:border-gray-800 transition-all">
                                         <CalendarIcon size={10} className="text-gray-300 mb-1" />
-                                        <span className="text-[7.5px] font-bold text-gray-400 uppercase tracking-widest text-center">Off Duty</span>
+                                        <span className="text-[7.5px] font-bold text-gray-400 capitalize text-center">Off Duty</span>
                                     </div>
                                 )}
                             </div>
@@ -177,7 +177,7 @@ const WeeklyScheduleModal = ({ isOpen, onClose, doctor, schedule = [], onSave })
                     <Button 
                         variant="outline" 
                         onClick={onClose} 
-                        className="flex-1 sm:flex-none px-6 py-3.5 h-11 text-[14px] font-black"
+                        className="flex-1 sm:flex-none px-6 py-3.5 h-11 text-[14px] font-medium"
                         disabled={isSaving}
                     >
                         Cancel
@@ -185,7 +185,7 @@ const WeeklyScheduleModal = ({ isOpen, onClose, doctor, schedule = [], onSave })
                     <Button 
                         variant="primary" 
                         onClick={handleSave} 
-                        className="flex-1 sm:flex-none px-8 py-3.5 h-11 text-[14px] font-black min-w-[170px]"
+                        className="flex-1 sm:flex-none px-8 py-3.5 h-11 text-[14px] font-medium min-w-[170px]"
                         disabled={isSaving}
                     >
                         {isSaving ? (

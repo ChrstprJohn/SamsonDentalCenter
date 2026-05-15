@@ -437,19 +437,19 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
         <div className="flex flex-col border border-gray-300 dark:border-gray-800 rounded-2xl bg-white dark:bg-white/[0.03] overflow-hidden shadow-sm">
             <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h4 className='text-base sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                    <h4 className='text-base sm:text-lg font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                         Weekly Routine & Blocks
                     </h4>
-                    <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
+                    <p className='text-[11px] sm:text-[12px] text-gray-500 dark:text-gray-400 capitalize mt-0.5 font-bold'>
                         Manage availability and exceptions.
                     </p>
                     <div className='mt-2'>
                         {isUsingGlobal ? (
-                            <span className='inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-500/20'>
+                            <span className='inline-flex items-center gap-1.5 text-[11px] font-medium capitalize px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-500/20'>
                                 <Link2 size={8} /> Synced to Clinic
                             </span>
                         ) : (
-                            <span className='inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20'>
+                            <span className='inline-flex items-center gap-1.5 text-[11px] font-medium capitalize px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20'>
                                 <Settings2 size={8} /> Custom Schedule
                             </span>
                         )}
@@ -459,7 +459,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     <Button
                         variant="soft"
                         onClick={openBlockModal}
-                        className="h-9 px-5 text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"
+                        className="h-9 px-5 text-[12px] font-medium capitalize bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"
                     >
                         <CalendarOff size={14} className="mr-2" />
                         Block Date
@@ -467,7 +467,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     <Button
                         variant="outline"
                         onClick={openEditModal}
-                        className="h-9 px-5 text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-white/5 rounded-xl"
+                        className="h-9 px-5 text-[12px] font-medium capitalize border-gray-200 dark:border-white/5 rounded-xl"
                     >
                         <CalendarIcon size={14} className="mr-2" />
                         Edit Routine
@@ -481,21 +481,21 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-gray-900/50 backdrop-blur-[1px]">
                         <div className="flex flex-col items-center gap-2">
                             <div className="w-8 h-8 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Syncing Routine...</span>
+                            <span className="text-[12px] font-bold capitalize text-gray-500 dark:text-gray-400">Syncing Routine...</span>
                         </div>
                     </div>
                 )}
                 <div className='flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01] gap-4'>
                     <div>
-                        <h3 className='text-sm sm:text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>{monthName} {year}</h3>
+                        <h3 className='text-sm sm:text-xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>{monthName} {year}</h3>
                     </div>
                     <div className='flex items-center gap-3'>
-                        <Button variant="outline" size="sm" onClick={goThisMonth} className="text-[10px] font-black uppercase tracking-widest px-4 h-8 border-gray-200 dark:border-white/5 rounded-lg">Today</Button>
+                        <Button variant="outline" size="sm" onClick={goThisMonth} className="text-[12px] font-medium capitalize px-4 h-8 border-gray-200 dark:border-white/5 rounded-xl">Today</Button>
                         <div className='flex items-center gap-2'>
-                            <button onClick={() => navMonth(setCurrentDate, currentDate, -1)} className='w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-800 text-gray-500 transition-all'>
+                            <button onClick={() => navMonth(setCurrentDate, currentDate, -1)} className='w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/5 border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 transition-all'>
                                 <ChevronLeft size={16} />
                             </button>
-                            <button onClick={() => navMonth(setCurrentDate, currentDate, 1)} className='w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-800 text-gray-500 transition-all'>
+                            <button onClick={() => navMonth(setCurrentDate, currentDate, 1)} className='w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/5 border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 transition-all'>
                                 <ChevronRight size={16} />
                             </button>
                         </div>
@@ -504,7 +504,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
 
                 <div className='grid grid-cols-7 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-transparent'>
                     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                        <div key={day} className='py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-400'>{day}</div>
+                        <div key={day} className='py-4 text-center text-[12px] font-medium capitalize text-gray-400'>{day}</div>
                     ))}
                 </div>
 
@@ -537,7 +537,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                 `}
                             >
                                 <div className="flex items-center justify-between mb-auto">
-                                    <span className={`text-xs sm:text-xl font-black ${!isEffectivelyWorking ? 'text-gray-400' : isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
+                                    <span className={`text-xs sm:text-xl font-medium ${!isEffectivelyWorking ? 'text-gray-400' : isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
                                         {dateNum}
                                     </span>
                                     {isToday && <div className="w-1.5 h-1.5 rounded-full bg-brand-500" />}
@@ -545,7 +545,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
 
                                 <div className='flex flex-col justify-end min-w-0 w-full mt-auto'>
                                     {isEffectivelyWorking ? (
-                                        <div className='flex flex-col sm:flex-row sm:items-center sm:gap-1 text-[8px] sm:text-[11px] font-bold text-gray-700 dark:text-gray-300 leading-[1.1] sm:leading-normal truncate'>
+                                        <div className='flex flex-col sm:flex-row sm:items-center sm:gap-1 text-[11px] sm:text-[11px] font-bold text-gray-700 dark:text-gray-300 leading-[1.1] sm:leading-normal truncate'>
                                             {(() => {
                                                 const f = (t) => {
                                                     const [h, m] = t.split(':').map(Number);
@@ -568,7 +568,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                         <div className='w-full flex items-center gap-1.5 opacity-80'>
                                             {isBlocked && <CalendarOff size={10} className="text-red-500" />}
                                             {isHolidayToday && <CalendarIcon size={10} className="text-indigo-500" />}
-                                            <span className={`text-[7px] sm:text-[10px] font-black uppercase tracking-[0.1em] truncate ${isHolidayToday ? 'text-indigo-500' : isBlocked ? 'text-red-500' : 'text-gray-400'}`}>
+                                            <span className={`text-[7px] sm:text-[12px] font-medium capitalize  truncate ${isHolidayToday ? 'text-indigo-500' : isBlocked ? 'text-red-500' : 'text-gray-400'}`}>
                                                 {isHolidayToday ? 'Holiday' : isBlocked ? 'Blocked' : 'Closed'}
                                             </span>
                                         </div>
@@ -616,14 +616,14 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                             type="button"
                             onClick={() => setIsEditModalOpen(false)}
                             disabled={isSaving}
-                            className='flex-1 sm:flex-none px-6 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl'
+                            className='flex-1 sm:flex-none px-6 h-9 sm:h-10 text-[12px] sm:text-xs font-medium capitalize rounded-xl'
                         >
                             Cancel
                         </Button>
                         <Button
                             onClick={() => saveWeekly(false)}
                             disabled={isSaving}
-                            className='flex-1 sm:flex-none px-8 h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
+                            className='flex-1 sm:flex-none px-8 h-9 sm:h-10 text-[12px] sm:text-xs font-medium capitalize bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
                         >
                             {isSaving ? 'Saving...' : 'Save Changes'}
                         </Button>
@@ -639,10 +639,10 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                     {draftIsUsingGlobal ? <Link2 size={18} /> : <Settings2 size={18} />}
                                 </div>
                                 <div>
-                                    <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider'>
+                                    <p className='text-xs font-medium text-gray-900 dark:text-white capitalize'>
                                         {draftIsUsingGlobal ? 'Automatic Inheritance' : 'Manual Override'}
                                     </p>
-                                    <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5'>
+                                    <p className='text-[12px] font-bold text-gray-400 capitalize mt-0.5'>
                                         {draftIsUsingGlobal ? 'Following Clinic Schedule' : 'Individual Doctor Routine'}
                                     </p>
                                 </div>
@@ -655,14 +655,14 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                         setDraftIsUsingGlobal(true);
                                         cloneFromClinic();
                                     }}
-                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${draftIsUsingGlobal ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-theme-xs' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
+                                    className={`px-4 py-1.5 rounded-lg text-[12px] font-medium capitalize  transition-all ${draftIsUsingGlobal ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-theme-xs' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
                                 >
                                     Global
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setDraftIsUsingGlobal(false)}
-                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${!draftIsUsingGlobal ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-theme-xs' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
+                                    className={`px-4 py-1.5 rounded-lg text-[12px] font-medium capitalize  transition-all ${!draftIsUsingGlobal ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-theme-xs' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
                                 >
                                     Custom
                                 </button>
@@ -671,7 +671,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
 
                         {!draftIsUsingGlobal && (
                             <div className='pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3'>
-                                <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden sm:block'>
+                                <p className='text-[12px] font-bold text-gray-400 capitalize hidden sm:block'>
                                     Tip: You can clone the clinic's hours and then edit them.
                                 </p>
                                 <div className='flex items-center gap-2 ml-auto'>
@@ -682,7 +682,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                             showToast('All days set to OFF.', 'notice', 'Cleared');
                                         }}
                                         type="button"
-                                        className="text-[10px] font-black h-8 px-3 flex items-center gap-1.5 uppercase tracking-widest border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+                                        className="text-[12px] font-medium h-8 px-3 flex items-center gap-1.5 capitalize border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
                                     >
                                         <X size={12} /> Clear All
                                     </Button>
@@ -690,7 +690,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                         variant='outline'
                                         type='button'
                                         onClick={cloneFromClinic}
-                                        className='text-[10px] font-black h-8 px-4 whitespace-nowrap flex items-center gap-2 border-brand-200 dark:border-brand-800 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-all rounded-lg active:scale-95'
+                                        className='text-[12px] font-medium h-8 px-4 whitespace-nowrap flex items-center gap-2 border-brand-200 dark:border-brand-800 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-all rounded-xl active:scale-95'
                                     >
                                         <Link2 size={12} /> Sync with Clinic Config
                                     </Button>
@@ -710,12 +710,12 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                 <div className={`p-2 sm:p-3 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/20 rounded-xl flex flex-col transition-all shadow-sm ${isBreakDisabled ? 'opacity-50 grayscale-[0.5]' : ''}`}>
                                     <div className='flex items-center justify-between mb-2'>
                                         <div className='flex flex-col'>
-                                            <span className="text-[10px] sm:text-[12px] font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                            <span className="text-[12px] sm:text-[12px] font-medium capitalize text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
                                                 <Clock size={12} className="text-gray-400" />
                                                 Daily Break
                                             </span>
                                             {!hasAnyWorkingDay && !draftIsUsingGlobal && (
-                                                <span className='text-[7px] font-bold text-red-500 uppercase tracking-tighter'>Pick a working day first</span>
+                                                <span className='text-[7px] font-bold text-red-500 capitalize tracking-tighter'>Pick a working day first</span>
                                             )}
                                         </div>
                                         <Switch
@@ -729,18 +729,18 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                     {globalBreakEnabled && hasAnyWorkingDay ? (
                                         <div className="flex flex-col gap-1.5 mt-auto">
                                             <div className="flex items-center justify-between gap-1.5">
-                                                <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">Start</span>
+                                                <span className="text-[7.5px] sm:text-[11px] text-gray-500 dark:text-gray-400 capitalize font-medium min-w-[24px]">Start</span>
                                                 <Input type="time" value={globalBreakStart} disabled={draftIsUsingGlobal} onChange={(e) => setGlobalBreakStart(e.target.value)} className={`w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500 ${draftIsUsingGlobal ? 'opacity-60 cursor-not-allowed text-gray-500' : ''}`} />
                                             </div>
                                             <div className="flex items-center justify-between gap-1.5">
-                                                <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">End</span>
+                                                <span className="text-[7.5px] sm:text-[11px] text-gray-500 dark:text-gray-400 capitalize font-medium min-w-[24px]">End</span>
                                                 <Input type="time" value={globalBreakEnd} disabled={draftIsUsingGlobal} onChange={(e) => setGlobalBreakEnd(e.target.value)} className={`w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500 ${draftIsUsingGlobal ? 'opacity-60 cursor-not-allowed text-gray-500' : ''}`} />
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className='flex-grow flex flex-col items-center justify-center py-2 bg-white/40 dark:bg-gray-900/40 rounded-lg mt-auto border border-dashed border-gray-200 dark:border-gray-800'>
+                                        <div className='flex-grow flex flex-col items-center justify-center py-2 bg-white/40 dark:bg-gray-900/40 rounded-xl mt-auto border border-dashed border-gray-200 dark:border-gray-800'>
                                             <CalendarOff size={10} className="text-gray-300 mb-1" />
-                                            <span className='text-[7.5px] font-bold text-gray-400 uppercase tracking-widest'>No Break</span>
+                                            <span className='text-[7.5px] font-bold text-gray-400 capitalize'>No Break</span>
                                         </div>
                                     )}
                                 </div>
@@ -751,7 +751,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         {draftSchedule.map((day, index) => (
                             <div key={day.id} className={`p-2 sm:p-3 border rounded-xl flex flex-col transition-all duration-200 shadow-sm ${day.isWorking ? 'border-brand-500/30 bg-brand-50/20 dark:bg-brand-900/10' : 'border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 opacity-80 hover:opacity-100'} ${draftIsUsingGlobal ? 'opacity-80' : ''}`}>
                                 <div className='flex items-center justify-between mb-2'>
-                                    <span className={`text-[10px] sm:text-[12px] font-black uppercase tracking-widest ${day.isWorking ? 'text-brand-600 dark:text-brand-400' : 'text-gray-500'}`}>
+                                    <span className={`text-[12px] sm:text-[12px] font-medium capitalize  ${day.isWorking ? 'text-brand-600 dark:text-brand-400' : 'text-gray-500'}`}>
                                         {day.id}
                                     </span>
                                     <Switch checked={day.isWorking} disabled={draftIsUsingGlobal} onChange={() => handleToggle(index)} className="scale-75 sm:scale-90" />
@@ -760,18 +760,18 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                 {day.isWorking ? (
                                     <div className='flex flex-col gap-1.5 mt-auto'>
                                         <div className="flex items-center justify-between gap-1.5">
-                                            <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">Start</span>
+                                            <span className="text-[7.5px] sm:text-[11px] text-gray-500 dark:text-gray-400 capitalize font-medium min-w-[24px]">Start</span>
                                             <Input type="time" value={day.start} disabled={draftIsUsingGlobal} onChange={(e) => handleTimeChange(index, 'start', e.target.value)} className={`w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500 ${draftIsUsingGlobal ? 'opacity-60 cursor-not-allowed text-gray-500' : ''}`} />
                                         </div>
                                         <div className="flex items-center justify-between gap-1.5">
-                                            <span className="text-[7.5px] sm:text-[9px] text-gray-500 uppercase font-black tracking-widest min-w-[24px]">End</span>
+                                            <span className="text-[7.5px] sm:text-[11px] text-gray-500 dark:text-gray-400 capitalize font-medium min-w-[24px]">End</span>
                                             <Input type="time" value={day.end} disabled={draftIsUsingGlobal} onChange={(e) => handleTimeChange(index, 'end', e.target.value)} className={`w-full !h-6 sm:!h-8 !p-1 sm:!px-2 !text-[8.5px] sm:!text-[11px] font-bold bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none focus:border-brand-500 ${draftIsUsingGlobal ? 'opacity-60 cursor-not-allowed text-gray-500' : ''}`} />
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className='flex-grow flex flex-col items-center justify-center py-2 bg-white/50 dark:bg-gray-900/50 rounded-lg mt-auto border border-dashed border-gray-200 dark:border-gray-800 transition-all'>
+                                    <div className='flex-grow flex flex-col items-center justify-center py-2 bg-white/50 dark:bg-gray-900/50 rounded-xl mt-auto border border-dashed border-gray-200 dark:border-gray-800 transition-all'>
                                         <CalendarOff size={10} className="text-gray-300 mb-1" />
-                                        <span className='text-[7.5px] font-bold text-gray-400 uppercase tracking-widest text-center'>
+                                        <span className='text-[7.5px] font-bold text-gray-400 capitalize text-center'>
                                             Off Duty
                                         </span>
                                     </div>
@@ -814,14 +814,14 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                      {/* Calendar View for selecting dates to block/unblock */}
                      <div className='border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden'>
                         <div className='flex items-center justify-between p-4 bg-gray-50/50 dark:bg-white/[0.02] border-b border-gray-200 dark:border-gray-800'>
-                            <h5 className='text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white'>{blockMonthName} {blockYear}</h5>
+                            <h5 className='text-xs font-medium capitalize text-gray-900 dark:text-white'>{blockMonthName} {blockYear}</h5>
                             <div className='flex items-center gap-2'>
-                                <button onClick={() => navMonth(setBlockCalDate, blockCalDate, -1)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-800'><ChevronLeft size={14}/></button>
-                                <button onClick={() => navMonth(setBlockCalDate, blockCalDate, 1)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-800'><ChevronRight size={14}/></button>
+                                <button onClick={() => navMonth(setBlockCalDate, blockCalDate, -1)} className='p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/5 border border-gray-200 dark:border-gray-800'><ChevronLeft size={14}/></button>
+                                <button onClick={() => navMonth(setBlockCalDate, blockCalDate, 1)} className='p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/5 border border-gray-200 dark:border-gray-800'><ChevronRight size={14}/></button>
                             </div>
                         </div>
                         <div className='grid grid-cols-7 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-transparent'>
-                            {['S','M','T','W','T','F','S'].map(d => <div key={d} className='py-2 text-center text-[9px] font-black text-gray-400'>{d}</div>)}
+                            {['S','M','T','W','T','F','S'].map(d => <div key={d} className='py-2 text-center text-[11px] font-medium text-gray-400'>{d}</div>)}
                         </div>
                         <div className='grid grid-cols-7'>
                             {Array.from({length: blockStartingDay}).map((_, i) => <div key={i} className='aspect-square bg-gray-50/30 dark:bg-gray-800/5' />)}
@@ -840,7 +840,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
 
                                 return (
                                     <div key={d} onClick={() => toggleBlockDate(k)} className={cellClass}>
-                                        <span className='text-xs font-black'>{d}</span>
+                                        <span className='text-xs font-medium'>{d}</span>
                                         {isHoliday(k) && <div className='w-1 h-1 rounded-full bg-indigo-400 mt-1' />}
                                     </div>
                                 );
@@ -850,7 +850,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
 
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                         <div>
-                            <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block ml-1'>Block Reason</label>
+                            <label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block ml-1'>Block Reason</label>
                             <select 
                                 value={blockReason} 
                                 onChange={e => setBlockReason(e.target.value)}
@@ -864,7 +864,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         </div>
                         {blockReason === 'other' && (
                             <div>
-                                <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block ml-1'>Specify Reason</label>
+                                <label className='text-[12px] font-medium capitalize text-gray-400 mb-2 block ml-1'>Specify Reason</label>
                                 <Input 
                                     value={otherReason}
                                     onChange={e => setOtherReason(e.target.value)}
@@ -903,14 +903,14 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         {conflictingAppointments.map(appt => (
                             <div key={appt.id} className='p-4 border border-gray-100 dark:border-gray-800 rounded-2xl bg-white dark:bg-white/[0.01] flex items-center justify-between gap-4'>
                                 <div className='flex items-center gap-3'>
-                                    <div className='w-10 h-10 rounded-full bg-brand-500 text-white flex items-center justify-center font-black text-sm uppercase'>{getInitials(appt.profiles?.full_name || appt.guest_name)}</div>
+                                    <div className='w-10 h-10 rounded-full bg-brand-500 text-white flex items-center justify-center font-medium text-sm capitalize'>{getInitials(appt.profiles?.full_name || appt.guest_name)}</div>
                                     <div>
-                                        <p className='text-sm font-black text-gray-900 dark:text-white uppercase'>{appt.profiles?.full_name || appt.guest_name}</p>
-                                        <p className='text-[10px] font-bold text-gray-500 uppercase tracking-widest'>{format(new Date(appt.date || appt.appointment_date), 'MMM dd, yyyy')} @ {formatTimeDisplay(appt.start_time)}</p>
+                                        <p className='text-sm font-medium text-gray-900 dark:text-white capitalize'>{appt.profiles?.full_name || appt.guest_name}</p>
+                                        <p className='text-[12px] font-bold text-gray-500 dark:text-gray-400 capitalize'>{format(new Date(appt.date || appt.appointment_date), 'MMM dd, yyyy')} @ {formatTimeDisplay(appt.start_time)}</p>
                                     </div>
                                 </div>
                                 <div className='text-right'>
-                                    <p className='text-[10px] font-black text-brand-500 uppercase tracking-widest'>{appt.services?.name || 'General Checkup'}</p>
+                                    <p className='text-[12px] font-medium text-brand-500 capitalize'>{appt.services?.name || 'General Checkup'}</p>
                                 </div>
                             </div>
                         ))}

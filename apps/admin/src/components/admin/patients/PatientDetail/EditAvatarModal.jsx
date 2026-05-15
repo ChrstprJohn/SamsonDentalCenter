@@ -32,13 +32,13 @@ const EditAvatarModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
 
     const footer = (
         <>
-            <Button variant='outline' onClick={onClose} className="h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl" disabled={loading}>
+            <Button variant='outline' onClick={onClose} className="h-9 sm:h-10 px-6 text-[12px] sm:text-xs font-medium capitalize rounded-xl" disabled={loading}>
                 Cancel
             </Button>
             <Button 
                 onClick={handleSave} 
                 loading={loading}
-                className="h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl shadow-lg shadow-brand-500/20"
+                className="h-9 sm:h-10 px-6 text-[12px] sm:text-xs font-medium capitalize rounded-xl shadow-lg shadow-brand-500/20"
                 disabled={selected === currentAvatar}
             >
                 <Save size={14} className="mr-2" />
@@ -67,11 +67,11 @@ const EditAvatarModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
                             </div>
                         )}
                     </div>
-                    <p className='mt-3 text-[9px] font-bold text-gray-400 uppercase tracking-widest'>Current Preview</p>
+                    <p className='mt-3 text-[11px] font-bold text-gray-400 capitalize'>Current Preview</p>
                 </div>
 
                 <div>
-                    <h5 className='text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 ml-1'>Available Selection</h5>
+                    <h5 className='text-[11px] font-medium capitalize text-gray-400 mb-4 ml-1'>Available Selection</h5>
                     <div className='grid grid-cols-4 sm:grid-cols-8 gap-3'>
                         {AVATARS.map((url, idx) => (
                             <button

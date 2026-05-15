@@ -77,21 +77,21 @@ export default function UserMetaCard() {
                         <div className='custom-scrollbar max-h-[400px] overflow-y-auto px-2 pb-3 space-y-4'>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Last Name</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">Last Name</Label>
                                     <Input className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue={user?.last_name || ''} />
                                 </div>
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">First Name</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">First Name</Label>
                                     <Input className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue={user?.first_name || ''} />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Middle Name</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">Middle Name</Label>
                                     <Input className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue={user?.middle_name || ''} />
                                 </div>
                                 <div>
-                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold uppercase tracking-wider opacity-70">Suffix</Label>
+                                    <Label className="text-[clamp(12px,0.8vw,13px)] font-bold capitalize opacity-70">Suffix</Label>
                                     <Input className="text-[clamp(14px,1vw,15px)]" type='text' defaultValue={user?.suffix || ''} />
                                 </div>
                             </div>

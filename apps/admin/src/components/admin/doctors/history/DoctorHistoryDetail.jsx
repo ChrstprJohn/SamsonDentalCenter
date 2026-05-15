@@ -168,10 +168,10 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
             <div className='w-full p-4 sm:p-6 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm mb-6'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8'>
                     <div>
-                        <h4 className='text-base sm:text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        <h4 className='text-base sm:text-xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                             Appointment Registry
                         </h4>
-                        <p className='text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5 font-bold'>
+                        <p className='text-[11px] sm:text-[12px] text-gray-500 dark:text-gray-400 capitalize mt-0.5 font-bold'>
                             {isPending ? 'Reviewing pending booking requests' : isUpcoming ? 'Monitoring future schedule volume' : 'Auditing historical clinical records'}
                         </p>
                     </div>
@@ -210,12 +210,12 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                 {isLoading ? (
                         <div className='py-20 flex flex-col items-center justify-center bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-300 dark:border-gray-800 shadow-sm'>
                             <div className='w-10 h-10 border-4 border-brand-500/10 border-t-brand-500 rounded-full animate-spin mb-4' />
-                            <span className='text-[10px] font-black text-gray-500 uppercase tracking-widest'>Syncing Registry...</span>
+                            <span className='text-[12px] font-medium text-gray-500 capitalize'>Syncing Registry...</span>
                         </div>
                     ) : error ? (
                         <div className='py-20 text-center bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-300 dark:border-gray-800 shadow-sm'>
-                            <p className='text-sm font-bold text-red-600 dark:text-red-400 mb-2 uppercase tracking-tight'>{error}</p>
-                            <button onClick={() => setCurrentPage(prev => prev)} className='text-[10px] font-black text-brand-500 uppercase tracking-widest hover:underline'>Retry Connection</button>
+                            <p className='text-sm font-bold text-red-600 dark:text-red-400 mb-2 capitalize'>{error}</p>
+                            <button onClick={() => setCurrentPage(prev => prev)} className='text-[12px] font-medium text-brand-500 capitalize hover:underline'>Retry Connection</button>
                         </div>
                     ) : filteredHistory.length > 0 ? (
                         <div className='flex flex-col gap-3'>
@@ -229,15 +229,15 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                                         {/* Left Side: Date & Time */}
                                         <div className="flex flex-col justify-center w-24 sm:w-36 bg-gray-50/50 dark:bg-gray-800/30 border-r border-gray-300 dark:border-gray-700 shrink-0 text-center sm:text-left">
                                             <div className="px-2 sm:px-4 py-2 sm:py-3">
-                                                <p className="text-[7px] sm:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Schedule</p>
-                                                <p className="text-[9px] sm:text-[11px] font-black text-gray-900 dark:text-white leading-none uppercase tracking-tighter">
+                                                <p className="text-[7px] sm:text-[11px] font-medium text-gray-400 capitalize mb-1">Schedule</p>
+                                                <p className="text-[11px] sm:text-[11px] font-medium text-gray-900 dark:text-white leading-none capitalize tracking-tighter">
                                                     {appt.date ? format(parseISO(appt.date), 'MMM dd, yyyy') : 'No Date'}
                                                 </p>
                                             </div>
                                             <div className="h-[1px] w-full bg-gray-300 dark:bg-gray-700" />
                                             <div className="px-2 sm:px-4 py-2 sm:py-3">
-                                                <p className="text-[7px] sm:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Time Slot</p>
-                                                <p className="text-[9px] sm:text-[11px] font-black text-brand-500 leading-none">
+                                                <p className="text-[7px] sm:text-[11px] font-medium text-gray-400 capitalize mb-1">Time Slot</p>
+                                                <p className="text-[11px] sm:text-[11px] font-medium text-brand-500 leading-none">
                                                     {formatTime(appt.start_time || '08:00')} - {formatTime(appt.end_time || '08:30')}
                                                 </p>
                                             </div>
@@ -247,7 +247,7 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                                         <div className="flex-grow p-3 sm:p-4 flex items-center gap-3 sm:gap-4 min-w-0">
                                             {/* Avatar */}
                                             <div className="relative shrink-0">
-                                                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-brand-500 text-white flex items-center justify-center text-[10px] sm:text-xs font-black shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
+                                                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-brand-500 text-white flex items-center justify-center text-[12px] sm:text-xs font-medium shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
                                                     {appt.patient?.photo_url || appt.patient?.avatar_url ? (
                                                         <img src={appt.patient?.photo_url || appt.patient?.avatar_url} alt={appt.patient?.name} className='w-full h-full object-cover rounded-full' />
                                                     ) : (
@@ -258,18 +258,18 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                                             </div>
 
                                             <div className="flex-grow min-w-0">
-                                                <p className="text-xs sm:text-base font-black text-gray-900 dark:text-white leading-tight mb-0.5 sm:mb-1 truncate uppercase tracking-tight">{appt.patient?.name || 'Anonymous Patient'}</p>
+                                                <p className="text-xs sm:text-base font-medium text-gray-900 dark:text-white leading-tight mb-0.5 sm:mb-1 truncate capitalize">{appt.patient?.name || 'Anonymous Patient'}</p>
                                                 <div className="flex flex-col gap-0.5 sm:gap-1">
                                                     <div className="flex items-center gap-1.5 sm:gap-2">
-                                                        <p className="text-[8px] sm:text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tighter truncate">
+                                                        <p className="text-[11px] sm:text-[11px] font-medium text-gray-900 dark:text-white capitalize tracking-tighter truncate">
                                                             {appt.service || 'General Clinical Service'}
                                                         </p>
                                                         <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">•</span>
-                                                        <p className="text-[8px] sm:text-[11px] font-bold text-gray-500 dark:text-gray-400 truncate">
+                                                        <p className="text-[11px] sm:text-[11px] font-bold text-gray-500 dark:text-gray-400 truncate">
                                                             {appt.dentist?.profile?.last_name || doctor.last_name || 'Unassigned'}
                                                         </p>
                                                     </div>
-                                                    <p className="text-[8px] sm:text-[11px] font-medium text-gray-500 flex items-center gap-1.5 sm:gap-2">
+                                                    <p className="text-[11px] sm:text-[11px] font-medium text-gray-500 flex items-center gap-1.5 sm:gap-2">
                                                         <Phone size={8} className="text-green-500 sm:w-[10px]" />
                                                         <span className="text-gray-800 dark:text-gray-200">{appt.patient?.phone || 'No Phone'}</span>
                                                     </p>
@@ -279,7 +279,7 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
 
                                         {/* Mobile Only: Floating View Indicator */}
                                         <div className='absolute bottom-3 right-3 sm:hidden flex items-center gap-1 bg-brand-50/50 dark:bg-brand-500/10 px-2 py-1 rounded-lg border border-brand-100 dark:border-brand-500/20'>
-                                            <span className='text-[7px] font-black text-brand-500 uppercase tracking-widest'>View</span>
+                                            <span className='text-[7px] font-medium text-brand-500 capitalize'>View</span>
                                             <ChevronRight size={10} className='text-brand-500' />
                                         </div>
 
@@ -287,8 +287,8 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                                         <div className="hidden sm:flex flex-col items-stretch justify-center border-l border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 w-[180px]">
                                             {/* Source */}
                                             <div className="px-5 py-3.5 flex flex-col items-start gap-2">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Source</p>
-                                                <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded border shadow-sm bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 truncate w-full text-left`}>
+                                                <p className="text-[11px] font-medium text-gray-400 capitalize leading-none">Source</p>
+                                                <span className={`px-2 py-0.5 text-[11px] font-medium capitalize  rounded border shadow-sm bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 truncate w-full text-left`}>
                                                     {appt.source || 'Portal Booking'}
                                                 </span>
                                             </div>
@@ -297,8 +297,8 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
 
                                             {/* Status */}
                                             <div className="px-5 py-3.5 flex flex-col items-start gap-2">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Status</p>
-                                                <span className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border shadow-sm w-full text-center ${getStatusStyle(appt.status)}`}>
+                                                <p className="text-[11px] font-medium text-gray-400 capitalize leading-none">Status</p>
+                                                <span className={`px-2.5 py-1 text-[11px] font-medium capitalize  rounded-lg border shadow-sm w-full text-center ${getStatusStyle(appt.status)}`}>
                                                     {appt.status === 'CONFIRMED' ? 'APPROVED' : appt.status}
                                                 </span>
                                             </div>
@@ -309,8 +309,8 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                         </div>
                     ) : (
                         <div className='py-20 text-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl flex flex-col items-center justify-center bg-gray-50/30 dark:bg-white/[0.01]'>
-                            <p className='text-sm font-black text-gray-400 uppercase tracking-widest'>No records found in this category.</p>
-                            <button onClick={() => setActiveFilter('all')} className='text-[10px] font-black text-brand-500 mt-2 uppercase tracking-widest hover:underline'>Clear Global Filters</button>
+                            <p className='text-sm font-medium text-gray-400 capitalize'>No records found in this category.</p>
+                            <button onClick={() => setActiveFilter('all')} className='text-[12px] font-medium text-brand-500 mt-2 capitalize hover:underline'>Clear Global Filters</button>
                         </div>
                     )}
 

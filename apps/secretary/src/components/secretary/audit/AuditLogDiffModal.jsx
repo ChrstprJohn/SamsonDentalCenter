@@ -35,10 +35,10 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                 {/* Header */}
                 <div className='px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between'>
                     <div>
-                        <h4 className='text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                        <h4 className='text-lg font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                             Change Details
                         </h4>
-                        <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1'>
+                        <p className='text-[12px] font-bold text-gray-400 capitalize mt-1'>
                             Log ID: {log.id}
                         </p>
                     </div>
@@ -52,7 +52,7 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                     {loading ? (
                         <div className='flex flex-col items-center justify-center py-12 gap-3'>
                             <div className='w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin' />
-                            <p className='text-xs text-gray-500 font-medium'>Fetching differences...</p>
+                            <p className='text-xs text-gray-500 dark:text-gray-400 font-medium'>Fetching differences...</p>
                         </div>
                     ) : details ? (
                         <>
@@ -61,7 +61,7 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                                 <div className='space-y-4'>
                                     <div className='flex items-center gap-2'>
                                         <div className='h-3 w-1 bg-green-500 rounded-full' />
-                                        <h5 className='text-[10px] font-black uppercase tracking-widest text-green-600 dark:text-green-500'>
+                                        <h5 className='text-[12px] font-medium capitalize text-green-600 dark:text-green-500'>
                                             Human-Readable Changes
                                         </h5>
                                     </div>
@@ -79,14 +79,14 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                             <div>
                                 <div className='flex items-center gap-2 mb-4'>
                                     <div className='h-3 w-1 bg-gray-400 rounded-full' />
-                                    <h5 className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
+                                    <h5 className='text-[12px] font-medium capitalize text-gray-400'>
                                         Raw Comparison
                                     </h5>
                                 </div>
                                 <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
                                     {/* Old Values */}
                                     <div className='space-y-4'>
-                                        <h5 className='text-[10px] font-bold uppercase tracking-widest text-gray-400 opacity-60'>
+                                        <h5 className='text-[12px] font-bold capitalize text-gray-400 opacity-60'>
                                             From (Old state)
                                         </h5>
                                         <div className='p-5 bg-gray-50 dark:bg-white/[0.02] rounded-xl border border-gray-100 dark:border-gray-800/50 min-h-[150px] overflow-auto'>
@@ -96,7 +96,7 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
 
                                     {/* New Values */}
                                     <div className='space-y-4 relative'>
-                                        <h5 className='text-[10px] font-bold uppercase tracking-widest text-gray-400 opacity-60'>
+                                        <h5 className='text-[12px] font-bold capitalize text-gray-400 opacity-60'>
                                             To (New state)
                                         </h5>
                                         <div className='p-5 bg-brand-50/10 dark:bg-brand-500/5 rounded-xl border border-brand-100/50 dark:border-brand-500/20 min-h-[150px] overflow-auto'>
@@ -112,13 +112,13 @@ const AuditLogDiffModal = ({ isOpen, onClose, log, fetchDetails }) => {
                             </div>
                         </>
                     ) : (
-                        <p className='text-center text-gray-500 py-12'>Failed to load data details.</p>
+                        <p className='text-center text-gray-500 dark:text-gray-400 py-12'>Failed to load data details.</p>
                     )}
                 </div>
 
                 {/* Footer */}
                 <div className='px-8 py-5 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01] flex justify-end'>
-                    <Button onClick={onClose} className='px-8 rounded-xl font-black text-xs uppercase tracking-widest h-10'>
+                    <Button onClick={onClose} className='px-8 rounded-xl font-medium text-xs capitalize h-10'>
                         Close View
                     </Button>
                 </div>

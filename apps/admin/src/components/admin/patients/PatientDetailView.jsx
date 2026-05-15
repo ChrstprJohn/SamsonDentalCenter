@@ -225,7 +225,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                         <button
                             key={t.id}
                             onClick={() => navigate(`/patients/${t.id}/${patient.id}`)}
-                            className={`pt-4 pb-3 text-[clamp(9px,1.1vw,11px)] font-black uppercase tracking-[0.1em] transition-all relative whitespace-nowrap ${
+                            className={`pt-4 pb-3 text-[14px] font-medium capitalize transition-all relative whitespace-nowrap ${
                                 activeTab === t.id
                                     ? 'text-brand-500'
                                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'

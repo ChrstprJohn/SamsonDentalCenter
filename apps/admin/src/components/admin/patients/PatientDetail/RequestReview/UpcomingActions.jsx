@@ -45,7 +45,7 @@ const UpcomingActions = ({ onCheckIn, onNoShow, onCancel, onReschedule, onBack, 
             {/* Left Side: Return Action */}
             <button 
                 onClick={onBack}
-                className='h-10 sm:h-12 px-4 sm:px-8 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all bg-white dark:bg-white/5 border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 active:scale-95 whitespace-nowrap'
+                className='h-10 sm:h-12 px-4 sm:px-8 rounded-xl sm:rounded-2xl text-[11px] sm:text-[11px] font-medium capitalize text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all bg-white dark:bg-white/5 border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 active:scale-95 whitespace-nowrap'
             >
                 Return
             </button>
@@ -56,13 +56,13 @@ const UpcomingActions = ({ onCheckIn, onNoShow, onCancel, onReschedule, onBack, 
                     <>
                         <button 
                             onClick={() => openConfirm('cancel')}
-                            className='h-10 sm:h-12 px-4 sm:px-8 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] font-black uppercase tracking-widest text-error-600 hover:bg-error-50 dark:hover:bg-error-500/10 transition-all active:scale-95 whitespace-nowrap'
+                            className='h-10 sm:h-12 px-4 sm:px-8 rounded-xl sm:rounded-2xl text-[11px] sm:text-[11px] font-medium capitalize text-error-600 hover:bg-error-50 dark:hover:bg-error-500/10 transition-all active:scale-95 whitespace-nowrap'
                         >
                             Cancel
                         </button>
                         <button 
                             onClick={onReschedule}
-                            className='h-10 sm:h-12 px-6 sm:px-12 rounded-xl sm:rounded-2xl bg-brand-500 text-white text-[9px] sm:text-[11px] font-black uppercase tracking-widest hover:bg-brand-600 transition-all shadow-xl shadow-brand-500/20 active:scale-95 whitespace-nowrap'
+                            className='h-10 sm:h-12 px-6 sm:px-12 rounded-xl sm:rounded-2xl bg-brand-500 text-white text-[11px] sm:text-[11px] font-medium capitalize hover:bg-brand-600 transition-all shadow-xl shadow-brand-500/20 active:scale-95 whitespace-nowrap'
                         >
                             Reschedule
                         </button>
@@ -71,13 +71,13 @@ const UpcomingActions = ({ onCheckIn, onNoShow, onCancel, onReschedule, onBack, 
                     <>
                         <button 
                             onClick={() => openConfirm('no-show')}
-                            className='h-10 sm:h-12 px-4 sm:px-8 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] font-black uppercase tracking-widest text-error-600 hover:bg-error-50 dark:hover:bg-error-500/10 transition-all active:scale-95 whitespace-nowrap'
+                            className='h-10 sm:h-12 px-4 sm:px-8 rounded-xl sm:rounded-2xl text-[11px] sm:text-[11px] font-medium capitalize text-error-600 hover:bg-error-50 dark:hover:bg-error-500/10 transition-all active:scale-95 whitespace-nowrap'
                         >
                             No-Show
                         </button>
                         <button 
                             onClick={() => openConfirm('check-in')}
-                            className='h-10 sm:h-12 px-6 sm:px-12 rounded-xl sm:rounded-2xl bg-success-600 text-white text-[9px] sm:text-[11px] font-black uppercase tracking-widest hover:bg-success-700 transition-all shadow-xl shadow-success-600/20 active:scale-95 whitespace-nowrap'
+                            className='h-10 sm:h-12 px-6 sm:px-12 rounded-xl sm:rounded-2xl bg-success-600 text-white text-[11px] sm:text-[11px] font-medium capitalize hover:bg-success-700 transition-all shadow-xl shadow-success-600/20 active:scale-95 whitespace-nowrap'
                         >
                             Check-In
                         </button>

@@ -27,7 +27,7 @@ const ApproveModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => {
                 <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-emerald-50/30 dark:bg-emerald-500/5">
                     <div className="flex items-center gap-2">
                         <CheckCircle className="text-emerald-500" size={18} />
-                        <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">Confirm Approval</h3>
+                        <h3 className="text-sm font-medium text-gray-900 dark:text-white capitalize">Confirm Approval</h3>
                     </div>
                     <button 
                         onClick={onClose}
@@ -42,7 +42,7 @@ const ApproveModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => {
                     <div className="flex items-start gap-4 p-4 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl">
                         <Info className="text-blue-500 shrink-0" size={20} />
                         <div>
-                            <p className="text-xs font-bold text-blue-800 dark:text-blue-400 uppercase tracking-tight mb-1">Confirmation Details</p>
+                            <p className="text-xs font-bold text-blue-800 dark:text-blue-400 capitalize mb-1">Confirmation Details</p>
                             <p className="text-[11px] text-blue-700 dark:text-blue-500/80 leading-relaxed font-medium">
                                 The patient will be notified immediately of the approval. The selected slot will be officially reserved.
                             </p>
@@ -50,7 +50,7 @@ const ApproveModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => {
                     </div>
 
                     <div className="space-y-4">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Internal Notes / Approval Type</label>
+                        <label className="text-[12px] font-medium text-gray-400 capitalize block">Internal Notes / Approval Type</label>
                         <div className="grid gap-2">
                             {APPROVAL_REASONS.map((reason) => (
                                 <button
@@ -87,14 +87,14 @@ const ApproveModal = ({ isOpen, onClose, onConfirm, isSubmitting }) => {
                     <button
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="flex-1 py-3 text-xs font-black text-gray-500 uppercase tracking-widest hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
+                        className="flex-1 py-3 text-xs font-medium text-gray-500 capitalize hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
                     >
                         Review Again
                     </button>
                     <button
                         onClick={handleConfirm}
                         disabled={isSubmitting || (selectedReason === 'OTHER' && !customReason.trim())}
-                        className="flex-1 py-3 text-xs font-black text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl shadow-lg shadow-emerald-500/20 uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="flex-1 py-3 text-xs font-medium text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl shadow-lg shadow-emerald-500/20 capitalize transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {isSubmitting ? (
                             <>

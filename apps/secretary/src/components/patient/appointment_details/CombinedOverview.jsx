@@ -13,7 +13,7 @@ const CombinedOverview = ({
     return (
         <div className='mb-12 sm:mb-16'>
             <div className='flex items-center gap-4 mb-8 sm:mb-10'>
-                <h2 className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest'>
+                <h2 className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-bold capitalize'>
                     Appointment Overview
                 </h2>
                 <div className='h-px grow bg-gray-200 dark:bg-gray-800'></div>
@@ -25,7 +25,7 @@ const CombinedOverview = ({
 
                 {/* Left Side: Doctor */}
                 <div className='md:w-[40%] shrink-0 flex flex-col items-start'>
-                    <span className='text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold mb-4'>
+                    <span className='text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 capitalize font-bold mb-4'>
                         Assigned Doctor
                     </span>
                     <div className='flex items-center gap-4'>
@@ -36,7 +36,7 @@ const CombinedOverview = ({
                                 .toUpperCase()}
                         </div>
                         <div>
-                            <h3 className='text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight leading-tight mb-1'>
+                            <h3 className='text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight mb-1'>
                                 {dentistName}
                             </h3>
                             <p className='text-[13px] text-brand-600 dark:text-brand-400 font-medium'>
@@ -55,7 +55,7 @@ const CombinedOverview = ({
 
                 {/* Right Side: Appointment Details */}
                 <div className='flex-1 flex flex-col space-y-5 sm:space-y-6'>
-                    <span className='text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold'>
+                    <span className='text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 capitalize font-bold'>
                         Appointment Detail
                     </span>
 
@@ -63,12 +63,12 @@ const CombinedOverview = ({
                     <div className='flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-8'>
                         <div className='sm:w-24 shrink-0 flex items-center gap-2'>
                             <Calendar className='w-4 h-4 text-gray-400' />
-                            <span className='text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold'>
+                            <span className='text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 capitalize font-bold'>
                                 Date & Time
                             </span>
                         </div>
                         <div className='flex flex-wrap items-center gap-2 text-[14px] sm:text-[15px]'>
-                            <span className='text-gray-900 dark:text-white font-bold tracking-tight'>
+                            <span className='text-gray-900 dark:text-white font-bold'>
                                 {dateFormatted}
                             </span>
                             <span className='text-gray-300 dark:text-gray-700 mx-0.5'>|</span>
@@ -84,12 +84,12 @@ const CombinedOverview = ({
                         <div className='flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-8'>
                             <div className='sm:w-24 shrink-0 flex items-center gap-2'>
                                 <Timer className='w-4 h-4 text-gray-400' />
-                                <span className='text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold'>
+                                <span className='text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 capitalize font-bold'>
                                     Duration
                                 </span>
                             </div>
                             <div className='flex items-center gap-3'>
-                                <span className='text-[14px] sm:text-[15px] text-gray-900 dark:text-white font-bold tracking-tight'>
+                                <span className='text-[14px] sm:text-[15px] text-gray-900 dark:text-white font-bold'>
                                     {duration}
                                 </span>
                             </div>
@@ -100,16 +100,16 @@ const CombinedOverview = ({
                     <div className='flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-8'>
                         <div className='sm:w-24 shrink-0 flex items-center gap-2'>
                             <User className='w-4 h-4 text-gray-400' />
-                            <span className='text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold'>
+                            <span className='text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 capitalize font-bold'>
                                 Patient
                             </span>
                         </div>
                         <div className='flex items-center gap-3'>
-                            <span className='text-[14px] sm:text-[15px] text-gray-900 dark:text-white font-bold tracking-tight'>
+                            <span className='text-[14px] sm:text-[15px] text-gray-900 dark:text-white font-bold'>
                                 {patientLabel}
                             </span>
                             {isRepresentativeBooking && (
-                                <span className='px-2 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded uppercase tracking-widest'>
+                                <span className='px-2 py-0.5 text-[12px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded capitalize'>
                                     Representative
                                 </span>
                             )}

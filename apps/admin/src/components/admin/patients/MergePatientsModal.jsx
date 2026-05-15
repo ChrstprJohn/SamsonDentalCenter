@@ -112,7 +112,7 @@ const MergePatientsModal = ({ isOpen, onClose, onMerged, token }) => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
                                 {/* Source Section */}
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Source Profile (TO BE DELETED)</label>
+                                    <label className="text-[12px] font-medium text-gray-400 capitalize ml-1">Source Profile (TO BE DELETED)</label>
                                     {sourcePatient ? (
                                         <div className="p-4 rounded-xl border-2 border-red-200 dark:border-red-500/20 bg-red-50/30 dark:bg-red-500/5 relative group">
                                             <button 
@@ -125,7 +125,7 @@ const MergePatientsModal = ({ isOpen, onClose, onMerged, token }) => {
                                                 <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-800 flex items-center justify-center font-bold">{sourcePatient.full_name.charAt(0)}</div>
                                                 <div>
                                                     <p className="text-sm font-bold text-gray-900 dark:text-white leading-none mb-1">{sourcePatient.full_name}</p>
-                                                    <p className="text-[10px] text-gray-500 font-bold uppercase">{sourcePatient.email || 'No Email'}</p>
+                                                    <p className="text-[12px] text-gray-500 font-bold capitalize">{sourcePatient.email || 'No Email'}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -147,7 +147,7 @@ const MergePatientsModal = ({ isOpen, onClose, onMerged, token }) => {
                                                             className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-white/5 border-b border-gray-50 dark:border-gray-700 last:border-none flex items-center justify-between"
                                                         >
                                                             <span className="text-sm font-medium">{p.full_name}</span>
-                                                            <span className="text-[10px] text-gray-400">{p.email}</span>
+                                                            <span className="text-[12px] text-gray-400">{p.email}</span>
                                                         </button>
                                                     ))}
                                                 </div>
@@ -162,7 +162,7 @@ const MergePatientsModal = ({ isOpen, onClose, onMerged, token }) => {
 
                                 {/* Target Section */}
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Target Profile (PRIMARY)</label>
+                                    <label className="text-[12px] font-medium text-gray-400 capitalize ml-1">Target Profile (PRIMARY)</label>
                                     {targetPatient ? (
                                         <div className="p-4 rounded-xl border-2 border-green-200 dark:border-green-500/20 bg-green-50/30 dark:bg-green-500/5 relative group">
                                             <button 
@@ -175,7 +175,7 @@ const MergePatientsModal = ({ isOpen, onClose, onMerged, token }) => {
                                                 <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-800 flex items-center justify-center font-bold">{targetPatient.full_name.charAt(0)}</div>
                                                 <div>
                                                     <p className="text-sm font-bold text-gray-900 dark:text-white leading-none mb-1">{targetPatient.full_name}</p>
-                                                    <p className="text-[10px] text-gray-500 font-bold uppercase">{targetPatient.email || 'No Email'}</p>
+                                                    <p className="text-[12px] text-gray-500 font-bold capitalize">{targetPatient.email || 'No Email'}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -197,7 +197,7 @@ const MergePatientsModal = ({ isOpen, onClose, onMerged, token }) => {
                                                             className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-white/5 border-b border-gray-50 dark:border-gray-700 last:border-none flex items-center justify-between"
                                                         >
                                                             <span className="text-sm font-medium">{p.full_name}</span>
-                                                            <span className="text-[10px] text-gray-400">{p.email}</span>
+                                                            <span className="text-[12px] text-gray-400">{p.email}</span>
                                                         </button>
                                                     ))}
                                                 </div>
@@ -211,7 +211,7 @@ const MergePatientsModal = ({ isOpen, onClose, onMerged, token }) => {
                                 <Info size={18} className="text-amber-500 shrink-0 mt-0.5" />
                                 <p className="text-xs text-amber-700 dark:text-amber-400 font-medium leading-relaxed">
                                     Merging will move all appointments, records, and history from the Source patient to the Target patient. 
-                                    <span className="font-bold block mt-1 uppercase text-[10px]">The source profile will be permanently deleted.</span>
+                                    <span className="font-bold block mt-1 capitalize text-[12px]">The source profile will be permanently deleted.</span>
                                 </p>
                             </div>
 
@@ -237,22 +237,22 @@ const MergePatientsModal = ({ isOpen, onClose, onMerged, token }) => {
 
                             <div className="flex items-stretch gap-4">
                                 <div className="flex-1 p-4 rounded-xl bg-gray-50 dark:bg-white/5 text-center">
-                                    <p className="text-[10px] font-black text-red-500 uppercase mb-2">Delete This</p>
+                                    <p className="text-[12px] font-medium text-red-500 capitalize mb-2">Delete This</p>
                                     <p className="text-sm font-bold">{sourcePatient.full_name}</p>
-                                    <p className="text-[10px] text-gray-500">{sourcePatient.email}</p>
+                                    <p className="text-[12px] text-gray-500">{sourcePatient.email}</p>
                                 </div>
                                 <div className="flex items-center">
                                     <ArrowRight className="text-gray-300" />
                                 </div>
                                 <div className="flex-1 p-4 rounded-xl bg-brand-50/50 dark:bg-brand-500/5 text-center">
-                                    <p className="text-[10px] font-black text-success-600 uppercase mb-2">Keep This</p>
+                                    <p className="text-[12px] font-medium text-success-600 capitalize mb-2">Keep This</p>
                                     <p className="text-sm font-bold">{targetPatient.full_name}</p>
-                                    <p className="text-[10px] text-gray-500">{targetPatient.email}</p>
+                                    <p className="text-[12px] text-gray-500">{targetPatient.email}</p>
                                 </div>
                             </div>
 
                             <div className="p-4 rounded-xl bg-gray-900 text-white space-y-2">
-                                <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Items to be migrated:</p>
+                                <p className="text-xs font-bold capitalize text-gray-400">Items to be migrated:</p>
                                 <ul className="text-xs space-y-1 text-gray-300 list-disc pl-4 font-medium">
                                     <li>All Medical Records & History</li>
                                     <li>Future & Past Appointments</li>

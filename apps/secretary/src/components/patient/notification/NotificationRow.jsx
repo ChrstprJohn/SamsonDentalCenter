@@ -50,8 +50,8 @@ const NotificationRow = ({ notification, onToggleStar, onToggleRead, onDelete, o
                         {time}
                     </span>
                     <div className='hidden group-hover:flex items-center gap-2' onClick={(e) => e.stopPropagation()}>
-                        <button onClick={() => onToggleRead(id)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600'><Mail size={16} /></button>
-                        <button onClick={() => onDelete(id)} className='p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500'><Trash2 size={16} /></button>
+                        <button onClick={() => onToggleRead(id)} className='p-1.5 rounded-xl hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600'><Mail size={16} /></button>
+                        <button onClick={() => onDelete(id)} className='p-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500'><Trash2 size={16} /></button>
                     </div>
                 </div>
             </div>
@@ -65,10 +65,10 @@ const NotificationRow = ({ notification, onToggleStar, onToggleRead, onDelete, o
                 </div>
                 <div className='flex-grow min-w-0 flex flex-col gap-0.5'>
                     <div className='flex justify-between items-center'>
-                        <span className={`text-sm tracking-tight truncate ${isRead ? 'text-gray-500' : 'text-gray-900 dark:text-white font-bold'}`}>
+                        <span className={`text-sm  truncate ${isRead ? 'text-gray-500' : 'text-gray-900 dark:text-white font-bold'}`}>
                             {category}
                         </span>
-                        <span className='text-[10px] text-gray-400 font-medium'>{time}</span>
+                        <span className='text-[12px] text-gray-400 font-medium'>{time}</span>
                     </div>
                     <div className={`text-sm truncate ${isRead ? 'text-gray-600' : 'text-gray-900 dark:text-white font-semibold'}`}>
                         {title}

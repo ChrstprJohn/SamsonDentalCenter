@@ -142,7 +142,7 @@ const DoctorScheduleDetail = ({ doctor }) => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/20 dark:bg-gray-900/20 backdrop-blur-[2px]">
                     <div className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700">
                         <div className="w-10 h-10 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin" />
-                        <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Syncing Schedule...</span>
+                        <span className="text-xs font-bold capitalize text-gray-500 dark:text-gray-400">Syncing Schedule...</span>
                     </div>
                 </div>
             )}

@@ -209,12 +209,12 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
 
     const footer = (
         <div className="flex items-center gap-3 w-full sm:justify-end">
-            <Button variant="outline" type="button" onClick={onClose} disabled={isSaving} className="flex-1 sm:flex-none h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl">Cancel</Button>
+            <Button variant="outline" type="button" onClick={onClose} disabled={isSaving} className="flex-1 sm:flex-none h-9 sm:h-10 px-5 text-[12px] sm:text-xs font-medium capitalize rounded-xl">Cancel</Button>
             <Button
                 variant='primary'
                 onClick={() => handleSave()}
                 disabled={isSaving || (draftBlockedSlots.size === 0 && draftUnblockedSlots.size === 0)}
-                className="flex-[1.5] sm:flex-none h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20"
+                className="flex-[1.5] sm:flex-none h-9 sm:h-10 px-6 text-[12px] sm:text-xs font-medium capitalize bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20"
             >
                 {isSaving ? 'Saving...' : 'Apply Changes'}
             </Button>
@@ -241,7 +241,7 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                         <div className='-mx-5 sm:mx-0 border-y sm:border border-gray-200 dark:border-gray-800 sm:rounded-xl overflow-hidden bg-gray-50/50 dark:bg-white/[0.01]'>
                             <div className="grid grid-cols-2 gap-4 p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                                 <div>
-                                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block ml-1">Select Date</label>
+                                    <label className="text-[11px] font-medium capitalize text-gray-400 mb-1 block ml-1">Select Date</label>
                                     <input 
                                         type="date" 
                                         value={selectedDate}
@@ -250,7 +250,7 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1 block ml-1">Interval Gap</label>
+                                    <label className="text-[11px] font-medium capitalize text-gray-400 mb-1 block ml-1">Interval Gap</label>
                                     <select 
                                         value={slotGap}
                                         onChange={(e) => {
@@ -324,10 +324,10 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                                 <div className='flex flex-col items-start min-w-0'>
                                                     <div className='flex items-center gap-2'>
                                                         <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotClass}`} strokeWidth={0} />
-                                                        <span className="text-[9px] font-black tabular-nums whitespace-nowrap uppercase">{time}</span>
+                                                        <span className="text-[11px] font-medium tabular-nums whitespace-nowrap capitalize">{time}</span>
                                                     </div>
                                                     {isAppointment && (
-                                                        <span className="text-[7px] font-bold truncate w-full mt-0.5 opacity-80 uppercase tracking-tighter text-left">
+                                                        <span className="text-[7px] font-bold truncate w-full mt-0.5 opacity-80 capitalize tracking-tighter text-left">
                                                             {occupiedEvent.patient}
                                                         </span>
                                                     )}
@@ -340,7 +340,7 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                                         blockModalMode === 'unblock' ? (
                                                             <input type="checkbox" readOnly checked={!isPendingUnblock} className="w-2.5 h-2.5 accent-red-500 translate-y-[-0.5px]" />
                                                         ) : (
-                                                            <span className={`text-[7px] font-black uppercase tracking-tighter ${isAppointment ? 'text-blue-500' : 'text-red-500/60'}`}>
+                                                            <span className={`text-[7px] font-medium capitalize tracking-tighter ${isAppointment ? 'text-blue-500' : 'text-red-500/60'}`}>
                                                                 {isAppointment ? 'BOOKED' : 'BLOCKED'}
                                                             </span>
                                                         )
@@ -361,11 +361,11 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                     {/* RIGHT COLUMN: Management (Standardized) */}
                     <div className="md:w-[40%] flex flex-col gap-5 md:pl-2">
                         <div className="shrink-0">
-                            <label className="text-[9px] font-black text-gray-400 mb-2 block uppercase tracking-widest ml-1">Action Mode</label>
+                            <label className="text-[11px] font-medium text-gray-400 mb-2 block capitalize ml-1">Action Mode</label>
                             <div className="flex flex-col gap-2">
                                 <Button 
                                     variant={blockModalMode === 'block' ? 'primary' : 'outline'} 
-                                    className="justify-between w-full h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest font-outfit rounded-xl"
+                                    className="justify-between w-full h-9 sm:h-10 text-[12px] sm:text-xs font-medium capitalize font-outfit rounded-xl"
                                     onClick={() => {
                                         if (blockModalMode === 'block') setBlockModalMode('view');
                                         else {
@@ -379,7 +379,7 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                 </Button>
                                 <Button 
                                     variant={blockModalMode === 'unblock' ? 'primary' : 'outline'} 
-                                    className={`justify-between w-full h-9 sm:h-10 text-[10px] sm:text-xs font-black uppercase tracking-widest font-outfit rounded-xl ${blockModalMode === 'unblock' ? '!bg-red-500 hover:!bg-red-600' : ''}`}
+                                    className={`justify-between w-full h-9 sm:h-10 text-[12px] sm:text-xs font-medium capitalize  font-outfit rounded-xl ${blockModalMode === 'unblock' ? '!bg-red-500 hover:!bg-red-600' : ''}`}
                                     onClick={() => {
                                         if (blockModalMode === 'unblock') setBlockModalMode('view');
                                         else {
@@ -395,7 +395,7 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                         </div>
 
                         <div className={`transition-all duration-300 flex-grow flex flex-col ${blockModalMode === 'block' ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
-                            <label className="text-[9px] font-black text-gray-400 mb-2 block uppercase tracking-widest shrink-0 ml-1">Block Reason</label>
+                            <label className="text-[11px] font-medium text-gray-400 mb-2 block capitalize shrink-0 ml-1">Block Reason</label>
                             <select 
                                 value={blockReason}
                                 onChange={(e) => setBlockReason(e.target.value)}
@@ -419,7 +419,7 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                         </div>
 
                         <div className="mt-4 shrink-0">
-                            <span className="text-[11px] uppercase tracking-widest font-black text-gray-400 mb-3 block text-right">
+                            <span className="text-[11px] capitalize font-medium text-gray-400 mb-3 block text-right">
                                 {(draftBlockedSlots.size > 0 || draftUnblockedSlots.size > 0) ? `${draftBlockedSlots.size > 0 ? `+${draftBlockedSlots.size} To Block` : ''} ${draftUnblockedSlots.size > 0 ? `-${draftUnblockedSlots.size} To Remove` : ''}` : 'No Pending Changes'}
                             </span>
                         </div>
@@ -459,12 +459,12 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                 <Info size={24} />
                             </div>
                             <p className="text-sm font-bold text-amber-800 dark:text-amber-200 leading-relaxed">
-                                Saving these blocks will affect the following <strong>{conflictingAppointments?.length}</strong> future appointments. If you proceed, these appointments will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span>.
+                                Saving these blocks will affect the following <strong>{conflictingAppointments?.length}</strong> future appointments. If you proceed, these appointments will be flagged as <span className="font-medium text-amber-600 dark:text-amber-400">Displaced</span>.
                             </p>
                         </div>
 
                         <div className="space-y-3">
-                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                            <h4 className="text-[12px] font-medium text-gray-400 capitalize flex items-center gap-2">
                                 <div className="w-1 h-1 rounded-full bg-brand-500" />
                                 Affected Appointments
                             </h4>
@@ -489,13 +489,13 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                             {/* Left Side: Date & Time */}
                                             <div className="flex sm:flex-col justify-between sm:justify-center sm:w-40 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800 shrink-0 text-center sm:text-left">
                                                 <div className="px-4 py-3">
-                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</p>
-                                                    <p className="text-[11px] font-black text-gray-900 dark:text-white leading-none whitespace-nowrap">{formattedDate}</p>
+                                                    <p className="text-[11px] font-medium text-gray-400 capitalize mb-1">Date</p>
+                                                    <p className="text-[11px] font-medium text-gray-900 dark:text-white leading-none whitespace-nowrap">{formattedDate}</p>
                                                 </div>
                                                 <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
                                                 <div className="px-4 py-3">
-                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Time Slot</p>
-                                                    <p className="text-[11px] font-black text-brand-500 leading-none">
+                                                    <p className="text-[11px] font-medium text-gray-400 capitalize mb-1">Time Slot</p>
+                                                    <p className="text-[11px] font-medium text-brand-500 leading-none">
                                                         {formatTimeDisplay(appt.start_time)} - {formatTimeDisplay(appt.end_time)}
                                                     </p>
                                                 </div>
@@ -504,17 +504,17 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                             {/* Main Content Area */}
                                             <div className="flex-grow p-4 sm:p-5 flex items-center gap-4">
                                                 <div className="relative shrink-0">
-                                                    <div className="w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-black shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
+                                                    <div className="w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-medium shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
                                                         {initials}
                                                     </div>
                                                     <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
                                                 </div>
 
                                                 <div className="flex-grow">
-                                                    <p className="text-base font-black text-gray-900 dark:text-white leading-tight mb-1">{patientName}</p>
+                                                    <p className="text-base font-medium text-gray-900 dark:text-white leading-tight mb-1">{patientName}</p>
                                                     <div className="space-y-1">
                                                         <div className="flex items-center gap-2">
-                                                            <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tighter">{serviceName}</p>
+                                                            <p className="text-[11px] font-medium text-gray-900 dark:text-white capitalize tracking-tighter">{serviceName}</p>
                                                             <span className="text-gray-300 dark:text-gray-600">•</span>
                                                             <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{doctorName}</p>
                                                         </div>
@@ -532,7 +532,7 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                             <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[200px]">
                                                 {/* Source */}
                                                 <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
-                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Source</p>
+                                                    <p className="text-[11px] font-medium text-gray-400 capitalize leading-none">Appointment Source</p>
                                                     {(() => {
                                                         const source = appt.source || 'USER_BOOKING';
                                                         const sourceColors = {
@@ -544,7 +544,7 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                                                         const sourceClass = sourceColors[source] || sourceColors['USER_BOOKING'];
                                                         const sourceLabel = source.replace('_', ' ');
                                                         return (
-                                                            <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded border shadow-sm ${sourceClass}`}>
+                                                            <span className={`px-2 py-0.5 text-[11px] font-medium capitalize  rounded border shadow-sm ${sourceClass}`}>
                                                                 {sourceLabel}
                                                             </span>
                                                         );
@@ -555,8 +555,8 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
 
                                                 {/* Status */}
                                                 <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
-                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Status</p>
-                                                    <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm border ${appt.status === 'CONFIRMED'
+                                                    <p className="text-[11px] font-medium text-gray-400 capitalize leading-none">Appointment Status</p>
+                                                    <span className={`px-2 py-1 text-[11px] font-medium capitalize  rounded-lg shadow-sm border ${appt.status === 'CONFIRMED'
                                                             ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20'
                                                             : 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
                                                         }`}>

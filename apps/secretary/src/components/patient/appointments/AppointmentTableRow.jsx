@@ -23,7 +23,7 @@ const AppointmentTableRow = ({ appointment, user, openDropdown, onToggleDropdown
     return (
         <div 
             onClick={() => onViewDetails(appointment.id)}
-            className='group relative flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-4 py-4 sm:py-5 border-b border-gray-100 dark:border-gray-800 cursor-pointer transition-all hover:bg-gray-50/50 dark:hover:bg-white/[0.02]'
+            className='group relative flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-4 py-4 sm:py-5 border-b border-gray-100 dark:border-gray-800 cursor-pointer transition-all hover:bg-gray-50/50 dark:hover:bg-white dark:bg-white/[0.03]/[0.02]'
         >
             {/* Desktop View (sm and up) */}
             <div className='hidden sm:flex items-center gap-4 w-full'>
@@ -60,7 +60,7 @@ const AppointmentTableRow = ({ appointment, user, openDropdown, onToggleDropdown
                     <div className='relative'>
                         <button
                             onClick={() => onToggleDropdown(appointment.id)}
-                            className='p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-white/[0.05]'
+                            className='p-1.5 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-white dark:bg-white/[0.03]/[0.05]'
                         >
                             <ThreeDotsIcon />
                         </button>
@@ -86,10 +86,10 @@ const AppointmentTableRow = ({ appointment, user, openDropdown, onToggleDropdown
                 </div>
                 <div className='flex-grow min-w-0 flex flex-col gap-0.5'>
                     <div className='flex justify-between items-center'>
-                        <span className='text-sm tracking-tight font-bold text-gray-900 dark:text-white truncate pr-2'>
+                        <span className='text-sm font-bold text-gray-900 dark:text-white truncate pr-2'>
                             {appointment.service}
                         </span>
-                        <span className='text-[10px] text-gray-400 font-medium'>
+                        <span className='text-[12px] text-gray-400 font-medium'>
                             {formatDate(appointment.date)}
                         </span>
                     </div>

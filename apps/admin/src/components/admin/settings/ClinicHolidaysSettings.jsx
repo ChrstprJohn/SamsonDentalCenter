@@ -88,16 +88,16 @@ const ClinicHolidaysSettings = () => {
             <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10'>
                     <div>
-                        <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
+                        <h4 className='text-lg sm:text-2xl font-medium text-gray-900 dark:text-white capitalize font-outfit'>
                             Clinic Closure Dates
                         </h4>
-                        <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
+                        <p className='text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 capitalize mt-0.5 font-bold'>
                             Public holidays and clinic-wide breaks
                         </p>
                     </div>
                     <Button
                         onClick={() => setIsAddModalOpen(true)}
-                        className='bg-brand-500 hover:bg-brand-600 text-white rounded-xl px-4 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-brand-500/20'
+                        className='bg-brand-500 hover:bg-brand-600 text-white rounded-xl px-4 sm:px-6 h-9 sm:h-11 text-[12px] sm:text-xs font-medium capitalize flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-brand-500/20'
                     >
                         <Plus size={14} className="sm:w-4 sm:h-4" />
                         Add Holiday
@@ -109,13 +109,13 @@ const ClinicHolidaysSettings = () => {
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 mb-4">
                             <CalendarIcon size={16} className="text-brand-500" />
-                            <h6 className="text-xs font-black uppercase text-gray-400 tracking-widest">Upcoming Closures</h6>
+                            <h6 className="text-xs font-medium capitalize text-gray-400">Upcoming Closures</h6>
                         </div>
 
                         {holidays.length === 0 ? (
                             <div className="text-center py-12 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl bg-gray-50/30 dark:bg-white/[0.01]">
                                 <CalendarIcon className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                                <p className="text-sm text-gray-500 font-bold uppercase tracking-tighter">No closure dates scheduled.</p>
+                                <p className="text-sm text-gray-500 font-bold capitalize tracking-tighter">No closure dates scheduled.</p>
                             </div>
                         ) : (
                             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6'>
@@ -126,8 +126,8 @@ const ClinicHolidaysSettings = () => {
                                                 <CalendarIcon size={20} className="sm:w-6 sm:h-6" />
                                             </div>
                                             <div className='flex-grow pr-8'>
-                                                <h5 className='text-xs sm:text-sm font-black text-gray-900 dark:text-white uppercase truncate'>{holiday.name}</h5>
-                                                <p className='text-[10px] text-brand-500 font-black uppercase tracking-wider mt-0.5'>
+                                                <h5 className='text-xs sm:text-sm font-medium text-gray-900 dark:text-white capitalize truncate'>{holiday.name}</h5>
+                                                <p className='text-[12px] text-brand-500 font-medium capitalize mt-0.5'>
                                                     {(() => {
                                                         const d = new Date(holiday.date + 'T00:00:00');
                                                         return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString('en-US', {
@@ -147,7 +147,7 @@ const ClinicHolidaysSettings = () => {
                                         </button>
                                         <div className='mt-auto flex items-center gap-2 pt-4 border-t border-gray-200 dark:border-white/5'>
                                             <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
-                                            <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest'>Clinic Closed</span>
+                                            <span className='text-[11px] font-medium text-gray-400 capitalize'>Clinic Closed</span>
                                         </div>
                                     </div>
                                 ))}
@@ -160,7 +160,7 @@ const ClinicHolidaysSettings = () => {
                         <div className='mt-0.5 text-blue-600'>
                             <Info size={18} />
                         </div>
-                        <p className='text-[10px] sm:text-xs text-blue-800/80 dark:text-blue-400/80 font-bold uppercase leading-relaxed tracking-tight'>
+                        <p className='text-[12px] sm:text-xs text-blue-800/80 dark:text-blue-400/80 font-bold capitalize leading-relaxed'>
                             On these dates, no appointment slots will be generated and the patient booking calendar will show the clinic as completely closed. Existing appointments on these dates will remain but should be rescheduled manually.
                         </p>
                     </div>
@@ -174,13 +174,13 @@ const ClinicHolidaysSettings = () => {
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Add Clinic Holiday</h3>
                         <div className="mb-6 p-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 flex items-center gap-3">
                             <AlertTriangle size={14} className="text-amber-500 shrink-0" />
-                            <p className="text-[10px] font-black text-amber-800 dark:text-amber-200 uppercase tracking-wide leading-tight">
+                            <p className="text-[12px] font-medium text-amber-800 dark:text-amber-200 capitalize tracking-wide leading-tight">
                                 This will affect all patient bookings globally.
                             </p>
                         </div>
                         <div className="space-y-5">
                             <div>
-                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Holiday Name</label>
+                                <label className="text-[12px] font-medium capitalize text-gray-400 mb-2 block">Holiday Name</label>
                                 <Input
                                     placeholder="e.g. Christmas Day"
                                     value={newHoliday.name}
@@ -188,7 +188,7 @@ const ClinicHolidaysSettings = () => {
                                 />
                             </div>
                             <div>
-                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Date</label>
+                                <label className="text-[12px] font-medium capitalize text-gray-400 mb-2 block">Date</label>
                                 <Input
                                     type="date"
                                     value={newHoliday.date}
@@ -260,12 +260,12 @@ const ClinicHolidaysSettings = () => {
                             <Info size={24} />
                         </div>
                         <p className="text-sm font-bold text-amber-800 dark:text-amber-200 leading-relaxed">
-                            Saving this holiday will affect the following <strong>{conflictData?.length}</strong> future appointments. If you proceed, these appointments will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span>.
+                            Saving this holiday will affect the following <strong>{conflictData?.length}</strong> future appointments. If you proceed, these appointments will be flagged as <span className="font-medium text-amber-600 dark:text-amber-400">Displaced</span>.
                         </p>
                     </div>
 
                     <div className="space-y-3">
-                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        <h4 className="text-[12px] font-medium text-gray-400 capitalize flex items-center gap-2">
                             <div className="w-1 h-1 rounded-full bg-brand-500" />
                             Affected Appointments
                         </h4>
@@ -291,8 +291,8 @@ const ClinicHolidaysSettings = () => {
                                         {/* Left Side: Date & Time */}
                                         <div className="flex sm:flex-col justify-between sm:justify-center sm:w-40 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0 text-center sm:text-left">
                                             <div className="px-4 py-3">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</p>
-                                                <p className="text-[11px] font-black text-gray-900 dark:text-white leading-none whitespace-nowrap">
+                                                <p className="text-[11px] font-medium text-gray-400 capitalize mb-1">Date</p>
+                                                <p className="text-[11px] font-medium text-gray-900 dark:text-white leading-none whitespace-nowrap">
                                                     {(() => {
                                                         const dateStr = appt.date || appt.appointment_date;
                                                         if (!dateStr) return 'N/A';
@@ -303,8 +303,8 @@ const ClinicHolidaysSettings = () => {
                                             </div>
                                             <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
                                             <div className="px-4 py-3">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Time Slot</p>
-                                                <p className="text-[11px] font-black text-brand-500 leading-none">
+                                                <p className="text-[11px] font-medium text-gray-400 capitalize mb-1">Time Slot</p>
+                                                <p className="text-[11px] font-medium text-brand-500 leading-none">
                                                     {formatTime(appt.start_time)} - {formatTime(appt.end_time)}
                                                 </p>
                                             </div>
@@ -314,17 +314,17 @@ const ClinicHolidaysSettings = () => {
                                         <div className="flex-grow p-4 sm:p-5 flex items-center gap-4">
                                             {/* Avatar */}
                                             <div className="relative shrink-0">
-                                                <div className="w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-black shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
+                                                <div className="w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-medium shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
                                                     {initials}
                                                 </div>
                                                 <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
                                             </div>
 
                                             <div className="flex-grow">
-                                                <p className="text-base font-black text-gray-900 dark:text-white leading-tight mb-1">{patientName}</p>
+                                                <p className="text-base font-medium text-gray-900 dark:text-white leading-tight mb-1">{patientName}</p>
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-2">
-                                                        <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tighter">
+                                                        <p className="text-[11px] font-medium text-gray-900 dark:text-white capitalize tracking-tighter">
                                                             {serviceName}
                                                         </p>
                                                         <span className="text-gray-300 dark:text-gray-600">•</span>
@@ -344,7 +344,7 @@ const ClinicHolidaysSettings = () => {
                                         <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-200 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[200px]">
                                             {/* Source */}
                                             <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Source</p>
+                                                <p className="text-[11px] font-medium text-gray-400 capitalize leading-none">Appointment Source</p>
                                                 {(() => {
                                                     const source = appt.source || 'USER_BOOKING';
                                                     const sourceColors = {
@@ -356,7 +356,7 @@ const ClinicHolidaysSettings = () => {
                                                     const sourceClass = sourceColors[source] || sourceColors['USER_BOOKING'];
                                                     const sourceLabel = source.replace('_', ' ');
                                                     return (
-                                                        <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded border shadow-sm ${sourceClass}`}>
+                                                        <span className={`px-2 py-0.5 text-[11px] font-medium capitalize  rounded border shadow-sm ${sourceClass}`}>
                                                             {sourceLabel}
                                                         </span>
                                                     );
@@ -367,8 +367,8 @@ const ClinicHolidaysSettings = () => {
 
                                             {/* Status */}
                                             <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Status</p>
-                                                <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm border ${appt.status === 'CONFIRMED'
+                                                <p className="text-[11px] font-medium text-gray-400 capitalize leading-none">Appointment Status</p>
+                                                <span className={`px-2 py-1 text-[11px] font-medium capitalize  rounded-lg shadow-sm border ${appt.status === 'CONFIRMED'
                                                         ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20'
                                                         : 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
                                                     }`}>
