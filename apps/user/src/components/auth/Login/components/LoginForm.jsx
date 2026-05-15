@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, AlertCircle, ChevronRight } from 'lucide-react';
+import { Mail, Lock, AlertCircle, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTheme } from '../../../../context/ThemeContext';
 import { Button } from '@/components/ui';
 
-const InputGroup = ({ label, icon: Icon, error, children }) => (
+const InputGroup = ({ label, icon: Icon, error, children, trailing }) => (
     <div className='space-y-1.5 group text-left'>
         <label
             className={cn(
@@ -25,6 +25,11 @@ const InputGroup = ({ label, icon: Icon, error, children }) => (
                 <Icon size={18} strokeWidth={2.5} />
             </div>
             {children}
+            {trailing && (
+                <div className='absolute right-4 top-1/2 -translate-y-1/2 flex items-center'>
+                    {trailing}
+                </div>
+            )}
         </div>
         {error && (
             <p className='text-red-500 text-xs font-medium text-right animate-in slide-in-from-top-1'>
@@ -53,6 +58,7 @@ const LoginForm = ({ onSubmit, loading = false, error = null }) => {
 
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [emailError, setEmailError] = useState('');
     const [passError, setPassError] = useState('');
 
@@ -112,15 +118,27 @@ const LoginForm = ({ onSubmit, loading = false, error = null }) => {
                     label='Password'
                     icon={Lock}
                     error={passError}
+                    trailing={
+                        <button
+                            type='button'
+                            onClick={() => setShowPassword(!showPassword)}
+                            className='text-slate-400 hover:text-red-600 transition-colors focus:outline-none'
+                        >
+                            {showPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
+                        </button>
+                    }
                 >
                     <input
-                        type='password'
+                        type={showPassword ? 'text' : 'password'}
                         value={pass}
                         onChange={(e) => {
                             setPass(e.target.value);
                             if (passError) setPassError('');
                         }}
-                        className={inputClassName(passError, pass)}
+                        className={cn(
+                            inputClassName(passError, pass),
+                            'pr-12'
+                        )}
                         placeholder='Enter your password'
                     />
                 </InputGroup>

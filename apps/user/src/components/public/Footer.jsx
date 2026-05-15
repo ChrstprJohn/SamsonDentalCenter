@@ -157,13 +157,13 @@ const Footer = () => {
                     <p>© {new Date().getFullYear()} Samson Dental Center. All Rights Reserved.</p>
                     <div className='flex gap-8'>
                         <Link
-                            to='/privacy'
+                            to='/privacy-policy'
                             className='hover:text-white transition-colors duration-200'
                         >
                             Privacy Policy
                         </Link>
                         <Link
-                            to='/terms'
+                            to='/terms-of-service'
                             className='hover:text-white transition-colors duration-200'
                         >
                             Terms of Service

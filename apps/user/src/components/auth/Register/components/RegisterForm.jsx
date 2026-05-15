@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, Lock, ChevronRight, Calendar } from 'lucide-react';
+import { User, Mail, Phone, Lock, ChevronRight, Calendar, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTheme } from '../../../../context/ThemeContext';
 import { Button } from '@/components/ui';
 
-const InputGroup = ({ label, icon: Icon, error, children }) => (
+const InputGroup = ({ label, icon: Icon, error, children, trailing }) => (
     <div className='space-y-1.5 group text-left'>
         <label
             className={cn(
@@ -25,6 +25,11 @@ const InputGroup = ({ label, icon: Icon, error, children }) => (
                 <Icon size={18} strokeWidth={2.5} />
             </div>
             {children}
+            {trailing && (
+                <div className='absolute right-4 top-1/2 -translate-y-1/2 flex items-center'>
+                    {trailing}
+                </div>
+            )}
         </div>
         {error && (
             <p className='text-red-500 text-xs font-medium text-right animate-in slide-in-from-top-1'>
@@ -63,6 +68,8 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
         confirmPassword: '',
     });
     const [signupErrors, setSignupErrors] = useState({});
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const navigate = useNavigate();
 
@@ -279,14 +286,26 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                                 label='Password'
                                 icon={Lock}
                                 error={signupErrors.password}
+                                trailing={
+                                    <button
+                                        type='button'
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className='text-slate-400 hover:text-red-600 transition-colors focus:outline-none'
+                                    >
+                                        {showPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
+                                    </button>
+                                }
                             >
                                 <input
-                                    type='password'
+                                    type={showPassword ? 'text' : 'password'}
                                     value={signupData.password}
                                     onChange={(e) => updateField('password', e.target.value)}
-                                    className={inputClassName(
-                                        signupErrors.password,
-                                        signupData.password,
+                                    className={cn(
+                                        inputClassName(
+                                            signupErrors.password,
+                                            signupData.password,
+                                        ),
+                                        'pr-12'
                                     )}
                                     placeholder='Enter your password'
                                 />
@@ -295,14 +314,26 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                                 label='Confirm'
                                 icon={Lock}
                                 error={signupErrors.confirmPassword}
+                                trailing={
+                                    <button
+                                        type='button'
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        className='text-slate-400 hover:text-red-600 transition-colors focus:outline-none'
+                                    >
+                                        {showConfirmPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
+                                    </button>
+                                }
                             >
                                 <input
-                                    type='password'
+                                    type={showConfirmPassword ? 'text' : 'password'}
                                     value={signupData.confirmPassword}
                                     onChange={(e) => updateField('confirmPassword', e.target.value)}
-                                    className={inputClassName(
-                                        signupErrors.confirmPassword,
-                                        signupData.confirmPassword,
+                                    className={cn(
+                                        inputClassName(
+                                            signupErrors.confirmPassword,
+                                            signupData.confirmPassword,
+                                        ),
+                                        'pr-12'
                                     )}
                                     placeholder='Confirm your password'
                                 />

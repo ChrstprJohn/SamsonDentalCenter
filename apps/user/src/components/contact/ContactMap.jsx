@@ -68,10 +68,10 @@ const ContactMap = () => {
                                 </div>
                                 <div className='flex flex-col space-y-2.5'>
                                     <h3 className='text-[1.35rem] font-normal text-stone-800 leading-snug'>
-                                        7 Himlayan Rd, Tandang Sora,<br />Quezon City, Metro Manila
+                                        Upper Session Road, Baguio City,<br />Benguet, Philippines
                                     </h3>
                                     <p className='text-stone-500 text-[1.05rem] italic leading-relaxed'>
-                                        Located near Tandang Sora Market, easily<br className="hidden sm:block" /> accessible via Commonwealth Avenue.
+                                        Centrally located in the heart of Baguio City,<br className="hidden sm:block" /> easily accessible via Session Road.
                                     </p>
                                 </div>
                             </div>
@@ -104,7 +104,7 @@ const ContactMap = () => {
                         ref={mapRef}
                     >
                         <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3859.6993425026937!2d121.04505327575232!3d14.673003085822363!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b73c4dcb7b1f%3A0xe510f845da985a75!2s7%20Himlayan%20Rd%2C%20Tandang%20Sora%2C%20Quezon%20City%2C%201116%20Metro%20Manila%2C%20Philippines!5e0!3m2!1sen!2sus!4v1707908200000!5m2!1sen!2sus"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3637.9970398878745!2d120.60175450000001!3d16.4059113!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3391a1415b12503d%3A0x91fc42fcfb4a069f!2sSamson%20Dental%20Center!5e1!3m2!1sen!2sph!4v1778790675419!5m2!1sen!2sph"
                             width="100%"
                             height="100%"
                             style={{ border: 0, position: 'absolute', top: 0, left: 0 }}
